@@ -1,0 +1,554 @@
+{
+  "1": {
+    "species_id": 1,
+    "evolves_to": 2,
+    "condition": {
+      "type": "level",
+      "value": 16
+    }
+  },
+  "2": {
+    "species_id": 2,
+    "evolves_to": 3,
+    "condition": {
+      "type": "level",
+      "value": 32
+    }
+  },
+  "4": {
+    "species_id": 4,
+    "evolves_to": 5,
+    "condition": {
+      "type": "level",
+      "value": 16
+    }
+  },
+  "5": {
+    "species_id": 5,
+    "evolves_to": 6,
+    "condition": {
+      "type": "level",
+      "value": 36
+    }
+  },
+  "7": {
+    "species_id": 7,
+    "evolves_to": 8,
+    "condition": {
+      "type": "level",
+      "value": 16
+    }
+  },
+  "8": {
+    "species_id": 8,
+    "evolves_to": 9,
+    "condition": {
+      "type": "level",
+      "value": 36
+    }
+  },
+  "10": {
+    "species_id": 10,
+    "evolves_to": 11,
+    "condition": {
+      "type": "level",
+      "value": 7
+    }
+  },
+  "11": {
+    "species_id": 11,
+    "evolves_to": 12,
+    "condition": {
+      "type": "level",
+      "value": 10
+    }
+  },
+  "13": {
+    "species_id": 13,
+    "evolves_to": 14,
+    "condition": {
+      "type": "level",
+      "value": 7
+    }
+  },
+  "14": {
+    "species_id": 14,
+    "evolves_to": 15,
+    "condition": {
+      "type": "level",
+      "value": 10
+    }
+  },
+  "16": {
+    "species_id": 16,
+    "evolves_to": 17,
+    "condition": {
+      "type": "level",
+      "value": 18
+    }
+  },
+  "17": {
+    "species_id": 17,
+    "evolves_to": 18,
+    "condition": {
+      "type": "level",
+      "value": 36
+    }
+  },
+  "19": {
+    "species_id": 19,
+    "evolves_to": 20,
+    "condition": {
+      "type": "level",
+      "value": 20
+    }
+  },
+  "21": {
+    "species_id": 21,
+    "evolves_to": 22,
+    "condition": {
+      "type": "level",
+      "value": 20
+    }
+  },
+  "23": {
+    "species_id": 23,
+    "evolves_to": 24,
+    "condition": {
+      "type": "level",
+      "value": 22
+    }
+  },
+  "25": {
+    "species_id": 25,
+    "evolves_to": 26,
+    "condition": {
+      "type": "stone",
+      "value": "thunder_stone"
+    }
+  },
+  "27": {
+    "species_id": 27,
+    "evolves_to": 28,
+    "condition": {
+      "type": "level",
+      "value": 22
+    }
+  },
+  "29": {
+    "species_id": 29,
+    "evolves_to": 30,
+    "condition": {
+      "type": "level",
+      "value": 16
+    }
+  },
+  "30": {
+    "species_id": 30,
+    "evolves_to": 31,
+    "condition": {
+      "type": "stone",
+      "value": "moon_stone"
+    }
+  },
+  "32": {
+    "species_id": 32,
+    "evolves_to": 33,
+    "condition": {
+      "type": "level",
+      "value": 16
+    }
+  },
+  "33": {
+    "species_id": 33,
+    "evolves_to": 34,
+    "condition": {
+      "type": "stone",
+      "value": "moon_stone"
+    }
+  },
+  "35": {
+    "species_id": 35,
+    "evolves_to": 36,
+    "condition": {
+      "type": "stone",
+      "value": "moon_stone"
+    }
+  },
+  "37": {
+    "species_id": 37,
+    "evolves_to": 38,
+    "condition": {
+      "type": "stone",
+      "value": "fire_stone"
+    }
+  },
+  "39": {
+    "species_id": 39,
+    "evolves_to": 40,
+    "condition": {
+      "type": "stone",
+      "value": "moon_stone"
+    }
+  },
+  "41": {
+    "species_id": 41,
+    "evolves_to": 42,
+    "condition": {
+      "type": "level",
+      "value": 22
+    }
+  },
+  "43": {
+    "species_id": 43,
+    "evolves_to": 44,
+    "condition": {
+      "type": "level",
+      "value": 21
+    }
+  },
+  "44": {
+    "species_id": 44,
+    "evolves_to": 45,
+    "condition": {
+      "type": "stone",
+      "value": "leaf_stone"
+    }
+  },
+  "46": {
+    "species_id": 46,
+    "evolves_to": 47,
+    "condition": {
+      "type": "level",
+      "value": 24
+    }
+  },
+  "48": {
+    "species_id": 48,
+    "evolves_to": 49,
+    "condition": {
+      "type": "level",
+      "value": 31
+    }
+  },
+  "50": {
+    "species_id": 50,
+    "evolves_to": 51,
+    "condition": {
+      "type": "level",
+      "value": 26
+    }
+  },
+  "52": {
+    "species_id": 52,
+    "evolves_to": 53,
+    "condition": {
+      "type": "level",
+      "value": 28
+    }
+  },
+  "54": {
+    "species_id": 54,
+    "evolves_to": 55,
+    "condition": {
+      "type": "level",
+      "value": 33
+    }
+  },
+  "56": {
+    "species_id": 56,
+    "evolves_to": 57,
+    "condition": {
+      "type": "level",
+      "value": 28
+    }
+  },
+  "58": {
+    "species_id": 58,
+    "evolves_to": 59,
+    "condition": {
+      "type": "stone",
+      "value": "fire_stone"
+    }
+  },
+  "60": {
+    "species_id": 60,
+    "evolves_to": 61,
+    "condition": {
+      "type": "level",
+      "value": 25
+    }
+  },
+  "61": {
+    "species_id": 61,
+    "evolves_to": 62,
+    "condition": {
+      "type": "stone",
+      "value": "water_stone"
+    }
+  },
+  "63": {
+    "species_id": 63,
+    "evolves_to": 64,
+    "condition": {
+      "type": "level",
+      "value": 16
+    }
+  },
+  "64": {
+    "species_id": 64,
+    "evolves_to": 65,
+    "condition": {
+      "type": "level",
+      "value": 36
+    }
+  },
+  "66": {
+    "species_id": 66,
+    "evolves_to": 67,
+    "condition": {
+      "type": "level",
+      "value": 28
+    }
+  },
+  "67": {
+    "species_id": 67,
+    "evolves_to": 68,
+    "condition": {
+      "type": "level",
+      "value": 40
+    }
+  },
+  "69": {
+    "species_id": 69,
+    "evolves_to": 70,
+    "condition": {
+      "type": "level",
+      "value": 21
+    }
+  },
+  "70": {
+    "species_id": 70,
+    "evolves_to": 71,
+    "condition": {
+      "type": "stone",
+      "value": "leaf_stone"
+    }
+  },
+  "72": {
+    "species_id": 72,
+    "evolves_to": 73,
+    "condition": {
+      "type": "level",
+      "value": 30
+    }
+  },
+  "74": {
+    "species_id": 74,
+    "evolves_to": 75,
+    "condition": {
+      "type": "level",
+      "value": 25
+    }
+  },
+  "75": {
+    "species_id": 75,
+    "evolves_to": 76,
+    "condition": {
+      "type": "level",
+      "value": 36
+    }
+  },
+  "77": {
+    "species_id": 77,
+    "evolves_to": 78,
+    "condition": {
+      "type": "level",
+      "value": 40
+    }
+  },
+  "79": {
+    "species_id": 79,
+    "evolves_to": 80,
+    "condition": {
+      "type": "level",
+      "value": 37
+    }
+  },
+  "81": {
+    "species_id": 81,
+    "evolves_to": 82,
+    "condition": {
+      "type": "level",
+      "value": 30
+    }
+  },
+  "84": {
+    "species_id": 84,
+    "evolves_to": 85,
+    "condition": {
+      "type": "level",
+      "value": 31
+    }
+  },
+  "86": {
+    "species_id": 86,
+    "evolves_to": 87,
+    "condition": {
+      "type": "level",
+      "value": 34
+    }
+  },
+  "88": {
+    "species_id": 88,
+    "evolves_to": 89,
+    "condition": {
+      "type": "level",
+      "value": 38
+    }
+  },
+  "90": {
+    "species_id": 90,
+    "evolves_to": 91,
+    "condition": {
+      "type": "stone",
+      "value": "water_stone"
+    }
+  },
+  "92": {
+    "species_id": 92,
+    "evolves_to": 93,
+    "condition": {
+      "type": "level",
+      "value": 25
+    }
+  },
+  "93": {
+    "species_id": 93,
+    "evolves_to": 94,
+    "condition": {
+      "type": "level",
+      "value": 40
+    }
+  },
+  "96": {
+    "species_id": 96,
+    "evolves_to": 97,
+    "condition": {
+      "type": "level",
+      "value": 26
+    }
+  },
+  "98": {
+    "species_id": 98,
+    "evolves_to": 99,
+    "condition": {
+      "type": "level",
+      "value": 28
+    }
+  },
+  "100": {
+    "species_id": 100,
+    "evolves_to": 101,
+    "condition": {
+      "type": "level",
+      "value": 30
+    }
+  },
+  "102": {
+    "species_id": 102,
+    "evolves_to": 103,
+    "condition": {
+      "type": "stone",
+      "value": "leaf_stone"
+    }
+  },
+  "104": {
+    "species_id": 104,
+    "evolves_to": 105,
+    "condition": {
+      "type": "level",
+      "value": 28
+    }
+  },
+  "109": {
+    "species_id": 109,
+    "evolves_to": 110,
+    "condition": {
+      "type": "level",
+      "value": 35
+    }
+  },
+  "111": {
+    "species_id": 111,
+    "evolves_to": 112,
+    "condition": {
+      "type": "level",
+      "value": 42
+    }
+  },
+  "116": {
+    "species_id": 116,
+    "evolves_to": 117,
+    "condition": {
+      "type": "level",
+      "value": 32
+    }
+  },
+  "118": {
+    "species_id": 118,
+    "evolves_to": 119,
+    "condition": {
+      "type": "level",
+      "value": 33
+    }
+  },
+  "120": {
+    "species_id": 120,
+    "evolves_to": 121,
+    "condition": {
+      "type": "stone",
+      "value": "water_stone"
+    }
+  },
+  "129": {
+    "species_id": 129,
+    "evolves_to": 130,
+    "condition": {
+      "type": "level",
+      "value": 20
+    }
+  },
+  "138": {
+    "species_id": 138,
+    "evolves_to": 139,
+    "condition": {
+      "type": "level",
+      "value": 40
+    }
+  },
+  "140": {
+    "species_id": 140,
+    "evolves_to": 141,
+    "condition": {
+      "type": "level",
+      "value": 40
+    }
+  },
+  "147": {
+    "species_id": 147,
+    "evolves_to": 148,
+    "condition": {
+      "type": "level",
+      "value": 30
+    }
+  },
+  "148": {
+    "species_id": 148,
+    "evolves_to": 149,
+    "condition": {
+      "type": "level",
+      "value": 55
+    }
+  }
+}

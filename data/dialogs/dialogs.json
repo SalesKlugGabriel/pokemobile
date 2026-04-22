@@ -1,0 +1,60 @@
+{
+  "oak_intro": [
+    "Olá! Bem-vindo ao mundo dos Pokémon!",
+    "Meu nome é Carvalho. As pessoas me chamam de Professor Pokémon.",
+    "Este mundo é habitado por criaturas chamadas Pokémon!",
+    "Para alguns, os Pokémon são companheiros. Para outros, são parceiros de batalha.",
+    "Eu mesmo passo meus dias a estudar os Pokémon.",
+    "Agora, iniciem sua própria jornada Pokémon!"
+  ],
+  "pallet_resident_1": [
+    "Pallet Town — um lugar cheirando a brisa e de manhã!"
+  ],
+  "pallet_resident_2": [
+    "Você ouviu? O Professor Carvalho está procurando jovens treinadores.",
+    "Ele tem Pokémon para dar!"
+  ],
+  "pallet_sign": [
+    "PALLET TOWN",
+    "Um lugar cheirando a brisa fresca de manhã."
+  ],
+  "route_1_sign": [
+    "ROTA 1",
+    "PALLET TOWN ↓    PEWTER CITY ↑"
+  ],
+  "oak_lab_assistant": [
+    "O Professor Carvalho está fora no momento.",
+    "Por favor, aguarde no laboratório."
+  ],
+  "nurse_joy": [
+    "Olá! Seja bem-vindo ao Centro Pokémon!",
+    "Vou restaurar seus Pokémon ao pleno vigor.",
+    "Pronto! Seus Pokémon foram curados com sucesso!"
+  ],
+  "route_1_trainer_1": [
+    "Ei, treinador! Está saindo de Pallet Town?",
+    "Cuidado com os Pokémon selvagens por aqui.",
+    "Mas se quiser treinar, é o lugar certo!"
+  ],
+  "route_1_camper": [
+    "Estou acampando na Rota 1 para capturar Pidgey.",
+    "Já avistei vários hoje de manhã!"
+  ],
+  "pokecenter_sign": [
+    "CENTRO POKÉMON",
+    "Recuperamos seus Pokémon com tecnologia de ponta!"
+  ],
+  "default": [
+    "..."
+  ],
+  "viridian_guard": [
+    "Olá, viajante! Bem-vindo a Cidade de Viridian!",
+    "O Ginásio aqui está temporariamente fechado. O Líder sumiu misteriosamente...",
+    "Enquanto isso, explore a cidade e colete Pokémon na Rota 1!"
+  ],
+  "viridian_researcher": [
+    "Esta cidade é conhecida como a Cidade Sempre Verde.",
+    "Existe uma loja de itens ali ao norte.",
+    "Se quiser treinar, a Rota 22 a oeste tem Pokémon interessantes!"
+  ]
+}

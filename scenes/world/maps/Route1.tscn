@@ -1,0 +1,92 @@
+[gd_scene load_steps=12 format=3 uid="uid://route_1"]
+
+
+[ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
+[ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
+[ext_resource type="PackedScene" path="res://scenes/entities/NpcEntity.tscn" id="3_npc"]
+[ext_resource type="Script" path="res://scripts/world/PokemonSpawner.gd" id="4_spawner"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld.tres" id="5_tileset"]
+[ext_resource type="PackedScene" path="res://scenes/ui/DialogBox.tscn" id="6_dialog"]
+[ext_resource type="PackedScene" path="res://scenes/ui/OverworldHUD.tscn" id="7_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="8_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PartyScene.tscn" id="9_party"]
+[ext_resource type="Script" path="res://scripts/world/WarpZone.gd" id="10_warpzone"]
+
+[sub_resource type="RectangleShape2D" id="Shape_south"]
+size = Vector2(48, 16)
+
+[sub_resource type="RectangleShape2D" id="Shape_north"]
+size = Vector2(48, 16)
+
+[node name="Route1" type="Node2D"]
+script = ExtResource("1_basemap")
+map_id = "route_1"
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = ExtResource("5_tileset")
+format = 2
+
+[node name="Entities" type="Node2D" parent="."]
+
+[node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
+position = Vector2(152, 880)
+
+[node name="Camera2D" type="Camera2D" parent="Entities/Player"]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+drag_horizontal_enabled = true
+drag_vertical_enabled = true
+limit_left = 0
+limit_top = 0
+limit_right = 320
+limit_bottom = 960
+zoom = Vector2(2.0, 2.0)
+
+[node name="Trainer1" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(152, 400)
+npc_name = "Treinador"
+dialog_id = "route_1_trainer_1"
+is_patrolling = false
+
+[node name="Camper" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(152, 256)
+npc_name = "Campista"
+dialog_id = "route_1_camper"
+is_patrolling = false
+
+[node name="PokemonSpawner" type="Node2D" parent="."]
+position = Vector2(160, 480)
+script = ExtResource("4_spawner")
+biome_id = "route_1"
+max_spawns = 8
+spawn_radius = 8
+
+[node name="WarpZones" type="Node2D" parent="."]
+
+[node name="WarpSouth" type="Area2D" parent="WarpZones"]
+position = Vector2(152, 936)
+collision_mask = 2
+script = ExtResource("10_warpzone")
+target_map = "res://scenes/world/maps/PalletTown.tscn"
+spawn_tile = Vector2i(11, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WarpZones/WarpSouth"]
+shape = SubResource("Shape_south")
+
+[node name="WarpNorth" type="Area2D" parent="WarpZones"]
+position = Vector2(152, 24)
+collision_mask = 2
+script = ExtResource("10_warpzone")
+target_map = "res://scenes/world/maps/ViridianCity.tscn"
+spawn_tile = Vector2i(11, 37)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WarpZones/WarpNorth"]
+shape = SubResource("Shape_north")
+
+[node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
+
+[node name="OverworldHUD" parent="." instance=ExtResource("7_hud")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("8_pause")]
+
+[node name="PartyScene" parent="." instance=ExtResource("9_party")]

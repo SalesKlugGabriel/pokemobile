@@ -1,0 +1,85 @@
+{
+  "regions": [
+    {
+      "id": "kanto",
+      "name": "Kanto",
+      "unlocked": true,
+      "coming_soon": false,
+      "coming_soon_message": "",
+      "description": "A região clássica onde tudo começou.",
+      "grid_position": [1, 1]
+    },
+    {
+      "id": "johto",
+      "name": "Johto",
+      "unlocked": false,
+      "coming_soon": true,
+      "coming_soon_message": "Johto chegará em breve! Continue sua jornada em Kanto.",
+      "description": "A região a oeste de Kanto, lar de muitos mistérios.",
+      "grid_position": [0, 1]
+    },
+    {
+      "id": "hoenn",
+      "name": "Hoenn",
+      "unlocked": false,
+      "coming_soon": true,
+      "coming_soon_message": "Hoenn ainda não foi descoberta. Em breve!",
+      "description": "Uma região tropical repleta de água e diversidade.",
+      "grid_position": [2, 2]
+    },
+    {
+      "id": "sinnoh",
+      "name": "Sinnoh",
+      "unlocked": false,
+      "coming_soon": true,
+      "coming_soon_message": "Sinnoh permanece oculta nas névoas do norte. Em breve!",
+      "description": "Região fria do norte com antigas lendas.",
+      "grid_position": [1, 0]
+    },
+    {
+      "id": "unova",
+      "name": "Unova",
+      "unlocked": false,
+      "coming_soon": true,
+      "coming_soon_message": "Unova fica além do oceano. Em breve!",
+      "description": "Uma região distante com pokémons completamente novos.",
+      "grid_position": [2, 0]
+    },
+    {
+      "id": "kalos",
+      "name": "Kalos",
+      "unlocked": false,
+      "coming_soon": true,
+      "coming_soon_message": "Kalos é um sonho por enquanto. Em breve!",
+      "description": "A elegante região europeia.",
+      "grid_position": [0, 2]
+    },
+    {
+      "id": "alola",
+      "name": "Alola",
+      "unlocked": false,
+      "coming_soon": true,
+      "coming_soon_message": "As ilhas de Alola ainda estão sendo mapeadas. Em breve!",
+      "description": "Arquipélago tropical cheio de sol e tradições.",
+      "grid_position": [2, 1]
+    },
+    {
+      "id": "galar",
+      "name": "Galar",
+      "unlocked": false,
+      "coming_soon": true,
+      "coming_soon_message": "Galar está fechada para visitantes por enquanto. Em breve!",
+      "description": "Região industrial com tradição de batalhas grandiosas.",
+      "grid_position": [0, 0]
+    },
+    {
+      "id": "paldea",
+      "name": "Paldea",
+      "unlocked": false,
+      "coming_soon": true,
+      "coming_soon_message": "Paldea aguarda os exploradores mais corajosos. Em breve!",
+      "description": "A região mais recente, cheia de segredos.",
+      "grid_position": [1, 2]
+    }
+  ]
+}

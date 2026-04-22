@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://trainer_entity"]
+
+[ext_resource type="Script" path="res://scripts/entities/TrainerEntity.gd" id="1_trainer"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
+radius = 6.0
+height = 10.0
+
+[node name="TrainerEntity" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("1_trainer")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 2)
+shape = SubResource("CapsuleShape2D_1")
+
+[node name="InteractRay" type="RayCast2D" parent="."]
+target_position = Vector2(0, 16)
+collision_mask = 4

@@ -1,0 +1,16 @@
+[gd_scene load_steps=5 format=3 uid="uid://global_ui"]
+
+[ext_resource type="PackedScene" path="res://scenes/ui/GameOverScene.tscn" id="1_gameover"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PokedexScene.tscn" id="2_pokedex"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CreditsScene.tscn" id="3_credits"]
+[ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="4_touch"]
+
+[node name="GlobalUI" type="Node"]
+
+[node name="GameOverScene" parent="." instance=ExtResource("1_gameover")]
+
+[node name="PokedexScene" parent="." instance=ExtResource("2_pokedex")]
+
+[node name="CreditsScene" parent="." instance=ExtResource("3_credits")]
+
+[node name="TouchControls" parent="." instance=ExtResource("4_touch")]

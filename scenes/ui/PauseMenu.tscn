@@ -1,0 +1,112 @@
+[gd_scene load_steps=3 format=3 uid="uid://pause_menu"]
+
+[ext_resource type="Script" path="res://scripts/ui/PauseMenu.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+bg_color = Color(0.05, 0.05, 0.05, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.25, 0.25, 0.25, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 24.0
+content_margin_top = 24.0
+content_margin_right = 24.0
+content_margin_bottom = 24.0
+
+[node name="PauseMenu" type="CanvasLayer"]
+script = ExtResource("1")
+layer = 20
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140
+offset_top = -165
+offset_right = 140
+offset_bottom = 165
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LabelTitle" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "PAUSA"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
+
+[node name="BtnResume" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Continuar"
+theme_override_font_sizes/font_size = 14
+
+[node name="BtnSave" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Salvar Jogo"
+theme_override_font_sizes/font_size = 14
+
+[node name="BtnTitle" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Voltar ao Título"
+theme_override_font_sizes/font_size = 14
+
+[node name="Separator" type="HSeparator" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_colors/separator_color = Color(0.25, 0.25, 0.25, 1)
+
+[node name="RowBGM" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LabelBGM" type="Label" parent="Panel/VBox/RowBGM"]
+layout_mode = 2
+text = "BGM"
+custom_minimum_size = Vector2(36, 0)
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+
+[node name="SliderBGM" type="HSlider" parent="Panel/VBox/RowBGM"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="RowSFX" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LabelSFX" type="Label" parent="Panel/VBox/RowSFX"]
+layout_mode = 2
+text = "SFX"
+custom_minimum_size = Vector2(36, 0)
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+
+[node name="SliderSFX" type="HSlider" parent="Panel/VBox/RowSFX"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="LabelInfo" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.4, 0.9, 0.4, 1)

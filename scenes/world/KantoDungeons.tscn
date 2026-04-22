@@ -1,0 +1,59 @@
+[gd_scene load_steps=6 format=3 uid="uid://fn3p7xqwmc8z"]
+
+[ext_resource type="Script" path="res://scripts/world/DungeonMap.gd" id="1_dungeon_map"]
+[ext_resource type="Script" path="res://scripts/world/systems/PortalManager.gd" id="2_portal_mgr"]
+[ext_resource type="Script" path="res://scripts/world/DungeonPortal.gd" id="3_dp"]
+[ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="4_trainer"]
+
+[sub_resource type="RectangleShape2D" id="Shape_mt_moon_exit"]
+size = Vector2(32, 16)
+
+[sub_resource type="RectangleShape2D" id="Shape_pokemon_tower_exit"]
+size = Vector2(32, 16)
+
+[node name="KantoDungeons" type="Node2D"]
+script = ExtResource("1_dungeon_map")
+
+[node name="PortalManager" type="Node" parent="."]
+script = ExtResource("2_portal_mgr")
+
+[node name="TileMapLayer_Ground" type="TileMapLayer" parent="."]
+z_index = 0
+
+[node name="TileMapLayer_Obstacles" type="TileMapLayer" parent="."]
+z_index = 2
+
+[node name="TileMapLayer_Overlay" type="TileMapLayer" parent="."]
+z_index = 5
+
+[node name="Entities" type="Node2D" parent="."]
+
+[node name="Exits" type="Node2D" parent="."]
+
+[node name="MtMoon_Exit" type="Area2D" parent="Exits"]
+script = ExtResource("3_dp")
+target_dungeon_id = ""
+target_tile = Vector2i(0, 0)
+return_tile = Vector2i(50, 5)
+collision_layer = 4
+collision_mask = 2
+monitoring = true
+monitorable = false
+position = Vector2(112, 192)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Exits/MtMoon_Exit"]
+shape = SubResource("Shape_mt_moon_exit")
+
+[node name="PokemonTower_Exit" type="Area2D" parent="Exits"]
+script = ExtResource("3_dp")
+target_dungeon_id = ""
+target_tile = Vector2i(0, 0)
+return_tile = Vector2i(50, 5)
+collision_layer = 4
+collision_mask = 2
+monitoring = true
+monitorable = false
+position = Vector2(592, 192)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Exits/PokemonTower_Exit"]
+shape = SubResource("Shape_pokemon_tower_exit")

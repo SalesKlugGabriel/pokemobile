@@ -1,0 +1,46 @@
+[gd_scene load_steps=2 format=3 uid="uid://gameover_scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/GameOverScene.gd" id="1_gameover"]
+
+[node name="GameOverScene" type="CanvasLayer"]
+layer = 90
+script = ExtResource("1_gameover")
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.25
+anchor_top = 0.2
+anchor_right = 0.75
+anchor_bottom = 0.8
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "VOCÊ PERDEU!"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 24
+
+[node name="Message" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Todos os seus Pokémon desmaiaram."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="Panel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 20)
+
+[node name="RetryBtn" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Continuar (Pokémon curados)"
+
+[node name="TitleBtn" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Voltar ao Título"

@@ -1,0 +1,65 @@
+[gd_scene load_steps=10 format=3 uid="uid://dkw9m2qvnp5r"]
+
+[ext_resource type="Script" path="res://scripts/world/systems/ChunkStreamManager.gd" id="1_csm"]
+[ext_resource type="Script" path="res://scripts/world/systems/ZoneManager.gd" id="2_zm"]
+[ext_resource type="Script" path="res://scripts/world/systems/SpawnManager.gd" id="3_sm"]
+[ext_resource type="Script" path="res://scripts/world/systems/PortalManager.gd" id="4_pm"]
+[ext_resource type="Script" path="res://scripts/world/systems/NPCManager.gd" id="5_nm"]
+[ext_resource type="Script" path="res://scripts/world/systems/RegionManager.gd" id="6_rm"]
+[ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="7_trainer"]
+[ext_resource type="Script" path="res://scripts/world/systems/KantoWorldInit.gd" id="8_init"]
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttr_1"]
+
+[node name="KantoWorld" type="Node2D"]
+script = ExtResource("8_init")
+
+[node name="TileMapLayer_Ground" type="TileMapLayer" parent="."]
+z_index = 0
+
+[node name="TileMapLayer_Details" type="TileMapLayer" parent="."]
+z_index = 1
+
+[node name="TileMapLayer_Obstacles" type="TileMapLayer" parent="."]
+z_index = 2
+
+[node name="TileMapLayer_Entities" type="TileMapLayer" parent="."]
+z_index = 3
+
+[node name="TileMapLayer_TreeTops" type="TileMapLayer" parent="."]
+z_index = 4
+
+[node name="TileMapLayer_Overlay" type="TileMapLayer" parent="."]
+z_index = 5
+
+[node name="Entities" type="Node2D" parent="."]
+
+[node name="Player" parent="Entities" instance=ExtResource("7_trainer")]
+position = Vector2(800, 1760)
+
+[node name="Camera2D" type="Camera2D" parent="Entities/Player"]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+zoom = Vector2(2, 2)
+
+[node name="WildPokemons" type="Node2D" parent="Entities"]
+
+[node name="NPCs" type="Node2D" parent="Entities"]
+
+[node name="ChunkStreamManager" type="Node" parent="."]
+script = ExtResource("1_csm")
+
+[node name="ZoneManager" type="Node" parent="."]
+script = ExtResource("2_zm")
+
+[node name="SpawnManager" type="Node" parent="."]
+script = ExtResource("3_sm")
+
+[node name="PortalManager" type="Node" parent="."]
+script = ExtResource("4_pm")
+
+[node name="NPCManager" type="Node" parent="."]
+script = ExtResource("5_nm")
+
+[node name="RegionManager" type="Node" parent="."]
+script = ExtResource("6_rm")

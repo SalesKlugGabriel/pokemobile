@@ -1,0 +1,66 @@
+[gd_scene load_steps=12 format=3 uid="uid://pokemon_center"]
+
+[ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
+[ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
+[ext_resource type="PackedScene" path="res://scenes/entities/NpcEntity.tscn" id="3_npc"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld.tres" id="4_tileset"]
+[ext_resource type="PackedScene" path="res://scenes/ui/DialogBox.tscn" id="5_dialog"]
+[ext_resource type="PackedScene" path="res://scenes/ui/OverworldHUD.tscn" id="6_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="7_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PartyScene.tscn" id="8_party"]
+[ext_resource type="Script" path="res://scripts/world/WarpZone.gd" id="9_warpzone"]
+
+[sub_resource type="RectangleShape2D" id="Shape_exit"]
+size = Vector2(48, 16)
+
+[sub_resource type="RectangleShape2D" id="Shape_placeholder"]
+size = Vector2(640, 480)
+
+[node name="PokemonCenter" type="Node2D"]
+script = ExtResource("1_basemap")
+map_id = "pokemon_center"
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = ExtResource("4_tileset")
+format = 2
+
+[node name="Entities" type="Node2D" parent="."]
+
+[node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
+position = Vector2(112, 176)
+
+[node name="Camera2D" type="Camera2D" parent="Entities/Player"]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+limit_left = 0
+limit_top = 0
+limit_right = 256
+limit_bottom = 224
+zoom = Vector2(2.0, 2.0)
+
+[node name="NurseJoy" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(128, 80)
+npc_name = "Enfermeira Joy"
+dialog_id = "nurse_joy"
+heal_on_dialog_end = true
+is_patrolling = false
+
+[node name="WarpZones" type="Node2D" parent="."]
+
+[node name="WarpExit" type="Area2D" parent="WarpZones"]
+position = Vector2(120, 200)
+collision_mask = 2
+script = ExtResource("9_warpzone")
+target_map = "res://scenes/world/maps/WorldMap.tscn"
+spawn_tile = Vector2i(76, 91)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WarpZones/WarpExit"]
+shape = SubResource("Shape_exit")
+
+[node name="DialogBox" parent="." instance=ExtResource("5_dialog")]
+
+[node name="OverworldHUD" parent="." instance=ExtResource("6_hud")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("7_pause")]
+
+[node name="PartyScene" parent="." instance=ExtResource("8_party")]

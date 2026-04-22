@@ -1,0 +1,63 @@
+[gd_scene load_steps=3 format=3 uid="uid://dialog_box"]
+
+[ext_resource type="Script" path="res://scripts/ui/DialogBox.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+bg_color = Color(0.05, 0.05, 0.05, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.3, 0.3, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 12.0
+content_margin_top = 10.0
+content_margin_right = 12.0
+content_margin_bottom = 10.0
+
+[node name="DialogBox" type="CanvasLayer"]
+script = ExtResource("1")
+layer = 10
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchors_preset = 7
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -140
+offset_bottom = -8
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LabelName" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "NPC"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(1, 0.584, 0.133, 1)
+
+[node name="LabelText" type="RichTextLabel" parent="Panel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 70)
+bbcode_enabled = true
+theme_override_font_sizes/normal_font_size = 14
+theme_override_colors/default_color = Color(0.95, 0.95, 0.95, 1)
+autowrap_mode = 3
+
+[node name="HBoxBottom" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="IconNext" type="Label" parent="Panel/VBox/HBoxBottom"]
+layout_mode = 2
+text = "▼"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)

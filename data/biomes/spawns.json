@@ -1,0 +1,541 @@
+{
+  "plains": [
+    {
+      "species_id": 16,
+      "min_level": 2,
+      "max_level": 5,
+      "weight": 20,
+      "time": "any"
+    },
+    {
+      "species_id": 19,
+      "min_level": 2,
+      "max_level": 5,
+      "weight": 20,
+      "time": "any"
+    },
+    {
+      "species_id": 21,
+      "min_level": 3,
+      "max_level": 6,
+      "weight": 15,
+      "time": "any"
+    },
+    {
+      "species_id": 29,
+      "min_level": 2,
+      "max_level": 6,
+      "weight": 10,
+      "time": "any"
+    },
+    {
+      "species_id": 32,
+      "min_level": 2,
+      "max_level": 6,
+      "weight": 10,
+      "time": "any"
+    },
+    {
+      "species_id": 39,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 8,
+      "time": "any"
+    },
+    {
+      "species_id": 1,
+      "min_level": 5,
+      "max_level": 8,
+      "weight": 5,
+      "time": "any"
+    },
+    {
+      "species_id": 7,
+      "min_level": 5,
+      "max_level": 8,
+      "weight": 5,
+      "time": "any"
+    },
+    {
+      "species_id": 23,
+      "min_level": 4,
+      "max_level": 8,
+      "weight": 7,
+      "time": "night"
+    }
+  ],
+  "forest": [
+    {
+      "species_id": 10,
+      "min_level": 2,
+      "max_level": 5,
+      "weight": 20,
+      "time": "any"
+    },
+    {
+      "species_id": 13,
+      "min_level": 2,
+      "max_level": 5,
+      "weight": 20,
+      "time": "any"
+    },
+    {
+      "species_id": 43,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 15,
+      "time": "any"
+    },
+    {
+      "species_id": 46,
+      "min_level": 5,
+      "max_level": 9,
+      "weight": 10,
+      "time": "any"
+    },
+    {
+      "species_id": 69,
+      "min_level": 5,
+      "max_level": 9,
+      "weight": 8,
+      "time": "any"
+    },
+    {
+      "species_id": 1,
+      "min_level": 5,
+      "max_level": 9,
+      "weight": 12,
+      "time": "any"
+    },
+    {
+      "species_id": 16,
+      "min_level": 3,
+      "max_level": 6,
+      "weight": 15,
+      "time": "any"
+    },
+    {
+      "species_id": 17,
+      "min_level": 15,
+      "max_level": 20,
+      "weight": 5,
+      "time": "any"
+    },
+    {
+      "species_id": 25,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 3,
+      "time": "any"
+    },
+    {
+      "species_id": 48,
+      "min_level": 6,
+      "max_level": 10,
+      "weight": 5,
+      "time": "any"
+    },
+    {
+      "species_id": 12,
+      "min_level": 10,
+      "max_level": 15,
+      "weight": 2,
+      "time": "any"
+    }
+  ],
+  "beach": [
+    {
+      "species_id": 7,
+      "min_level": 5,
+      "max_level": 9,
+      "weight": 20,
+      "time": "any"
+    },
+    {
+      "species_id": 54,
+      "min_level": 5,
+      "max_level": 9,
+      "weight": 15,
+      "time": "any"
+    },
+    {
+      "species_id": 79,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 10,
+      "time": "any"
+    },
+    {
+      "species_id": 98,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 12,
+      "time": "any"
+    },
+    {
+      "species_id": 118,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 12,
+      "time": "any"
+    },
+    {
+      "species_id": 120,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 12,
+      "time": "any"
+    },
+    {
+      "species_id": 90,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 8,
+      "time": "any"
+    },
+    {
+      "species_id": 116,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 8,
+      "time": "any"
+    },
+    {
+      "species_id": 131,
+      "min_level": 30,
+      "max_level": 40,
+      "weight": 3,
+      "time": "any"
+    }
+  ],
+  "underwater": [
+    {
+      "species_id": 54,
+      "min_level": 15,
+      "max_level": 25,
+      "weight": 15,
+      "time": "any"
+    },
+    {
+      "species_id": 60,
+      "min_level": 15,
+      "max_level": 25,
+      "weight": 12,
+      "time": "any"
+    },
+    {
+      "species_id": 79,
+      "min_level": 15,
+      "max_level": 25,
+      "weight": 15,
+      "time": "any"
+    },
+    {
+      "species_id": 86,
+      "min_level": 15,
+      "max_level": 25,
+      "weight": 10,
+      "time": "any"
+    },
+    {
+      "species_id": 90,
+      "min_level": 15,
+      "max_level": 25,
+      "weight": 10,
+      "time": "any"
+    },
+    {
+      "species_id": 116,
+      "min_level": 15,
+      "max_level": 25,
+      "weight": 10,
+      "time": "any"
+    },
+    {
+      "species_id": 118,
+      "min_level": 15,
+      "max_level": 25,
+      "weight": 10,
+      "time": "any"
+    },
+    {
+      "species_id": 120,
+      "min_level": 15,
+      "max_level": 25,
+      "weight": 8,
+      "time": "any"
+    },
+    {
+      "species_id": 129,
+      "min_level": 15,
+      "max_level": 25,
+      "weight": 8,
+      "time": "any"
+    },
+    {
+      "species_id": 131,
+      "min_level": 30,
+      "max_level": 40,
+      "weight": 2,
+      "time": "any"
+    }
+  ],
+  "cave": [
+    {
+      "species_id": 41,
+      "min_level": 7,
+      "max_level": 14,
+      "weight": 20,
+      "time": "any"
+    },
+    {
+      "species_id": 42,
+      "min_level": 17,
+      "max_level": 25,
+      "weight": 8,
+      "time": "any"
+    },
+    {
+      "species_id": 66,
+      "min_level": 10,
+      "max_level": 18,
+      "weight": 15,
+      "time": "any"
+    },
+    {
+      "species_id": 74,
+      "min_level": 8,
+      "max_level": 15,
+      "weight": 15,
+      "time": "any"
+    },
+    {
+      "species_id": 75,
+      "min_level": 20,
+      "max_level": 30,
+      "weight": 5,
+      "time": "any"
+    },
+    {
+      "species_id": 23,
+      "min_level": 10,
+      "max_level": 18,
+      "weight": 12,
+      "time": "any"
+    },
+    {
+      "species_id": 20,
+      "min_level": 15,
+      "max_level": 22,
+      "weight": 10,
+      "time": "any"
+    },
+    {
+      "species_id": 50,
+      "min_level": 10,
+      "max_level": 18,
+      "weight": 12,
+      "time": "any"
+    },
+    {
+      "species_id": 95,
+      "min_level": 20,
+      "max_level": 35,
+      "weight": 3,
+      "time": "any"
+    }
+  ],
+  "volcanic": [
+    {
+      "species_id": 4,
+      "min_level": 10,
+      "max_level": 18,
+      "weight": 12,
+      "time": "any"
+    },
+    {
+      "species_id": 5,
+      "min_level": 20,
+      "max_level": 30,
+      "weight": 5,
+      "time": "any"
+    },
+    {
+      "species_id": 27,
+      "min_level": 10,
+      "max_level": 18,
+      "weight": 15,
+      "time": "any"
+    },
+    {
+      "species_id": 37,
+      "min_level": 8,
+      "max_level": 15,
+      "weight": 15,
+      "time": "any"
+    },
+    {
+      "species_id": 58,
+      "min_level": 15,
+      "max_level": 25,
+      "weight": 10,
+      "time": "any"
+    },
+    {
+      "species_id": 77,
+      "min_level": 15,
+      "max_level": 25,
+      "weight": 10,
+      "time": "any"
+    },
+    {
+      "species_id": 109,
+      "min_level": 20,
+      "max_level": 30,
+      "weight": 8,
+      "time": "any"
+    },
+    {
+      "species_id": 126,
+      "min_level": 25,
+      "max_level": 35,
+      "weight": 5,
+      "time": "any"
+    },
+    {
+      "species_id": 6,
+      "min_level": 40,
+      "max_level": 50,
+      "weight": 2,
+      "time": "any"
+    }
+  ],
+  "power_plant": [
+    {
+      "species_id": 25,
+      "min_level": 20,
+      "max_level": 30,
+      "weight": 20,
+      "time": "any"
+    },
+    {
+      "species_id": 26,
+      "min_level": 30,
+      "max_level": 40,
+      "weight": 5,
+      "time": "any"
+    },
+    {
+      "species_id": 81,
+      "min_level": 20,
+      "max_level": 30,
+      "weight": 20,
+      "time": "any"
+    },
+    {
+      "species_id": 82,
+      "min_level": 35,
+      "max_level": 45,
+      "weight": 8,
+      "time": "any"
+    },
+    {
+      "species_id": 100,
+      "min_level": 20,
+      "max_level": 30,
+      "weight": 15,
+      "time": "any"
+    },
+    {
+      "species_id": 101,
+      "min_level": 30,
+      "max_level": 40,
+      "weight": 8,
+      "time": "any"
+    },
+    {
+      "species_id": 125,
+      "min_level": 35,
+      "max_level": 45,
+      "weight": 5,
+      "time": "any"
+    },
+    {
+      "species_id": 145,
+      "min_level": 50,
+      "max_level": 50,
+      "weight": 1,
+      "time": "any"
+    }
+  ],
+  "dungeon_floor_1": [
+    {
+      "species_id": 41,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 25,
+      "time": "any"
+    },
+    {
+      "species_id": 66,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 20,
+      "time": "any"
+    },
+    {
+      "species_id": 74,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 20,
+      "time": "any"
+    },
+    {
+      "species_id": 50,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 20,
+      "time": "any"
+    },
+    {
+      "species_id": 23,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 15,
+      "time": "any"
+    }
+  ],
+  "dungeon_floor_boss": [
+    {
+      "species_id": 143,
+      "min_level": 30,
+      "max_level": 30,
+      "weight": 100,
+      "time": "any",
+      "unique": true
+    }
+  ],
+  "route_1": [
+    {
+      "species_id": 16,
+      "min_level": 2,
+      "max_level": 5,
+      "weight": 45,
+      "time": "any"
+    },
+    {
+      "species_id": 19,
+      "min_level": 2,
+      "max_level": 4,
+      "weight": 45,
+      "time": "any"
+    },
+    {
+      "species_id": 10,
+      "min_level": 2,
+      "max_level": 4,
+      "weight": 10,
+      "time": "any"
+    }
+  ]
+}

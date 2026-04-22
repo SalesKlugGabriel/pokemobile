@@ -1,0 +1,180 @@
+[gd_scene load_steps=2 format=3 uid="uid://battle_scene"]
+
+[ext_resource type="Script" path="res://scripts/battle/BattleScene.gd" id="1_battlescene"]
+
+[node name="BattleScene" type="Node"]
+script = ExtResource("1_battlescene")
+
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+color = Color(0.1, 0.15, 0.2, 1)
+
+[node name="BattleArea" type="Control" parent="."]
+anchors_preset = 15
+layout_mode = 3
+
+[node name="EnemyArea" type="Control" parent="BattleArea"]
+layout_mode = 2
+offset_left = 500.0
+offset_top = 20.0
+offset_right = 780.0
+offset_bottom = 200.0
+
+[node name="EnemySprite" type="AnimatedSprite2D" parent="BattleArea/EnemyArea"]
+position = Vector2(80, 80)
+
+[node name="EnemyPanel" type="VBoxContainer" parent="BattleArea/EnemyArea"]
+position = Vector2(160, 10)
+size = Vector2(200, 70)
+
+[node name="EnemyName" type="Label" parent="BattleArea/EnemyArea/EnemyPanel"]
+text = "???"
+theme_override_font_sizes/font_size = 16
+
+[node name="EnemyLevel" type="Label" parent="BattleArea/EnemyArea/EnemyPanel"]
+text = "Nv.?"
+
+[node name="EnemyStatus" type="Label" parent="BattleArea/EnemyArea/EnemyPanel"]
+text = ""
+modulate = Color(1, 0.7, 0.2, 1)
+
+[node name="EnemyHPBar" type="ProgressBar" parent="BattleArea/EnemyArea/EnemyPanel"]
+custom_minimum_size = Vector2(180, 12)
+show_percentage = false
+modulate = Color(0.2, 0.8, 0.2, 1)
+
+[node name="PlayerArea" type="Control" parent="BattleArea"]
+layout_mode = 2
+offset_left = 40.0
+offset_top = 240.0
+offset_right = 320.0
+offset_bottom = 400.0
+
+[node name="PlayerSprite" type="AnimatedSprite2D" parent="BattleArea/PlayerArea"]
+position = Vector2(80, 80)
+flip_h = true
+
+[node name="PlayerPanel" type="VBoxContainer" parent="BattleArea/PlayerArea"]
+position = Vector2(160, 10)
+size = Vector2(240, 100)
+
+[node name="PlayerName" type="Label" parent="BattleArea/PlayerArea/PlayerPanel"]
+text = "???"
+theme_override_font_sizes/font_size = 16
+
+[node name="PlayerLevel" type="Label" parent="BattleArea/PlayerArea/PlayerPanel"]
+text = "Nv.?"
+
+[node name="PlayerStatus" type="Label" parent="BattleArea/PlayerArea/PlayerPanel"]
+text = ""
+modulate = Color(1, 0.7, 0.2, 1)
+
+[node name="PlayerHPLabel" type="Label" parent="BattleArea/PlayerArea/PlayerPanel"]
+text = "HP: ?/?"
+
+[node name="PlayerHPBar" type="ProgressBar" parent="BattleArea/PlayerArea/PlayerPanel"]
+custom_minimum_size = Vector2(220, 14)
+show_percentage = false
+modulate = Color(0.2, 0.8, 0.2, 1)
+
+[node name="PlayerExpBar" type="ProgressBar" parent="BattleArea/PlayerArea/PlayerPanel"]
+custom_minimum_size = Vector2(220, 6)
+show_percentage = false
+modulate = Color(0.2, 0.4, 1.0, 1)
+
+[node name="DialogBox" type="PanelContainer" parent="."]
+layout_mode = 3
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -4.0
+
+[node name="DialogText" type="RichTextLabel" parent="DialogBox"]
+layout_mode = 2
+text = "..."
+fit_content = true
+scroll_active = false
+theme_override_font_sizes/normal_font_size = 18
+
+[node name="ActionMenu" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 3
+anchor_left = 0.5
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Grid" type="GridContainer" parent="ActionMenu"]
+layout_mode = 2
+columns = 2
+
+[node name="BtnFight" type="Button" parent="ActionMenu/Grid"]
+custom_minimum_size = Vector2(140, 50)
+text = "LUTAR"
+theme_override_font_sizes/font_size = 16
+
+[node name="BtnBag" type="Button" parent="ActionMenu/Grid"]
+custom_minimum_size = Vector2(140, 50)
+text = "MOCHILA"
+theme_override_font_sizes/font_size = 16
+
+[node name="BtnPokemon" type="Button" parent="ActionMenu/Grid"]
+custom_minimum_size = Vector2(140, 50)
+text = "POKÉMON"
+theme_override_font_sizes/font_size = 16
+
+[node name="BtnRun" type="Button" parent="ActionMenu/Grid"]
+custom_minimum_size = Vector2(140, 50)
+text = "FUGIR"
+theme_override_font_sizes/font_size = 16
+
+[node name="MoveMenu" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 3
+anchor_left = 0.0
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Grid" type="GridContainer" parent="MoveMenu"]
+layout_mode = 2
+columns = 2
+
+[node name="Move1" type="Button" parent="MoveMenu/Grid"]
+custom_minimum_size = Vector2(160, 50)
+text = "Move 1"
+
+[node name="Move2" type="Button" parent="MoveMenu/Grid"]
+custom_minimum_size = Vector2(160, 50)
+text = "Move 2"
+
+[node name="Move3" type="Button" parent="MoveMenu/Grid"]
+custom_minimum_size = Vector2(160, 50)
+text = "Move 3"
+
+[node name="Move4" type="Button" parent="MoveMenu/Grid"]
+custom_minimum_size = Vector2(160, 50)
+text = "Move 4"
+
+[node name="MoveInfo" type="HBoxContainer" parent="MoveMenu"]
+layout_mode = 2
+
+[node name="TypeLabel" type="Label" parent="MoveMenu/MoveInfo"]
+text = "Tipo: ---"
+
+[node name="PPLabel" type="Label" parent="MoveMenu/MoveInfo"]
+text = "PP: -/-"
+
+[node name="BtnBack" type="Button" parent="MoveMenu"]
+layout_mode = 2
+text = "VOLTAR"
+
+[node name="BagMenu" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 3
+anchor_left = 0.0
+anchor_top = 0.6
+anchor_right = 1.0
+anchor_bottom = 1.0

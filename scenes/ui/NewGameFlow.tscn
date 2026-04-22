@@ -1,0 +1,79 @@
+[gd_scene load_steps=2 format=3 uid="uid://newgameflow"]
+
+[ext_resource type="Script" path="res://scripts/ui/NewGameFlow.gd" id="1_newgame"]
+
+[node name="NewGameFlow" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_newgame")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.04, 0.04, 0.04, 1)
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = 40.0
+offset_right = -60.0
+offset_bottom = -40.0
+theme_override_constants/separation = 24
+
+[node name="TitleLabel" type="Label" parent="Layout"]
+layout_mode = 2
+text = "Novo Jogo"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 32
+
+[node name="TopRow" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="LblName" type="Label" parent="Layout/TopRow"]
+layout_mode = 2
+text = "Seu nome:"
+theme_override_font_sizes/font_size = 16
+
+[node name="NameInput" type="LineEdit" parent="Layout/TopRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 36)
+placeholder_text = "Ash"
+max_length = 12
+theme_override_font_sizes/font_size = 16
+
+[node name="LblStarter" type="Label" parent="Layout"]
+layout_mode = 2
+text = "Escolha seu Pokémon inicial:"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="StarterRow" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+alignment = 1
+
+[node name="Cards" type="HBoxContainer" parent="Layout/StarterRow"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="LblError" type="Label" parent="Layout"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+modulate = Color(1, 0.3, 0.3, 1)
+visible = false
+
+[node name="BtnConfirm" type="Button" parent="Layout"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 48)
+size_flags_horizontal = 4
+text = "Iniciar Aventura"
+theme_override_font_sizes/font_size = 18

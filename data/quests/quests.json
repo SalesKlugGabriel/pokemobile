@@ -1,0 +1,747 @@
+{
+  "MAIN-01": {
+    "id": "MAIN-01",
+    "title": "A Carta do Pai",
+    "category": "main",
+    "npc_id": "professor_oak",
+    "location_tile": {"x": 55, "y": 158},
+    "objectives": [
+      {"type": "talk", "target": "professor_oak"},
+      {"type": "receive_item", "item": "starter_pokemon"},
+      {"type": "read_item", "item": "carta_carvalho"}
+    ],
+    "rewards": {"exp_trainer": 0, "items": [{"id": "pokeball", "quantity": 5}, {"id": "potion", "quantity": 3}]},
+    "requires": [],
+    "unlocks": ["MAIN-02"]
+  },
+  "MAIN-02": {
+    "id": "MAIN-02",
+    "title": "O Guardião de Viridian",
+    "category": "main",
+    "npc_id": "tomas",
+    "location_tile": {"x": 40, "y": 122},
+    "objectives": [
+      {"type": "defeat_count", "target": "wild_pokemon", "count": 3, "zone": "viridian_south_entrance"}
+    ],
+    "rewards": {"exp_trainer": 120, "items": [{"id": "diario_1", "quantity": 1}]},
+    "requires": ["MAIN-01"],
+    "unlocks": ["MAIN-03"]
+  },
+  "MAIN-03": {
+    "id": "MAIN-03",
+    "title": "Memórias de Pedra",
+    "category": "main",
+    "npc_id": "henrique",
+    "location_tile": {"x": 65, "y": 50},
+    "objectives": [
+      {"type": "defeat", "target": "agente_sombra_1"}
+    ],
+    "rewards": {"exp_trainer": 250, "items": [{"id": "diario_2", "quantity": 1}]},
+    "requires": ["MAIN-02"],
+    "unlocks": ["MAIN-04"]
+  },
+  "MAIN-04": {
+    "id": "MAIN-04",
+    "title": "O Mapa da Fratura",
+    "category": "main",
+    "npc_id": "dario",
+    "location_tile": {"x": 265, "y": 35},
+    "objectives": [
+      {"type": "defeat_count", "target": "water_pokemon", "count": 5}
+    ],
+    "rewards": {"exp_trainer": 350, "items": [{"id": "diario_3", "quantity": 1}, {"id": "mapa_fratura", "quantity": 1}]},
+    "requires": ["MAIN-03"],
+    "unlocks": ["MAIN-05"]
+  },
+  "MAIN-05": {
+    "id": "MAIN-05",
+    "title": "A Torre dos Que Partem",
+    "category": "main",
+    "npc_id": "fuji",
+    "location_tile": {"x": 355, "y": 103},
+    "objectives": [
+      {"type": "reach_floor", "target": "pokemon_tower", "floor": 5},
+      {"type": "defeat", "target": "agente_sombra_2"}
+    ],
+    "rewards": {"exp_trainer": 500, "items": [{"id": "diario_4", "quantity": 1}]},
+    "requires": ["MAIN-04"],
+    "unlocks": ["MAIN-06"]
+  },
+  "MAIN-06": {
+    "id": "MAIN-06",
+    "title": "Dentro do Jogo",
+    "category": "main",
+    "npc_id": "bruno",
+    "location_tile": {"x": 278, "y": 145},
+    "objectives": [
+      {"type": "find_npc", "target": "bruno_game_corner", "condition": "without_alert"}
+    ],
+    "rewards": {"exp_trainer": 600, "items": [{"id": "diario_5", "quantity": 1}]},
+    "requires": ["MAIN-05"],
+    "unlocks": ["MAIN-07"]
+  },
+  "MAIN-07": {
+    "id": "MAIN-07",
+    "title": "Cinnabar Queimada",
+    "category": "main",
+    "npc_id": "masami",
+    "location_tile": {"x": 202, "y": 297},
+    "objectives": [
+      {"type": "traverse_dungeon", "target": "pokemon_mansion"}
+    ],
+    "rewards": {"exp_trainer": 700, "items": [{"id": "diario_6", "quantity": 1}]},
+    "requires": ["MAIN-06"],
+    "unlocks": ["MAIN-08"]
+  },
+  "MAIN-08": {
+    "id": "MAIN-08",
+    "title": "O Quartel General",
+    "category": "main",
+    "npc_id": "bruno",
+    "location_tile": {"x": 268, "y": 142},
+    "objectives": [
+      {"type": "infiltrate", "target": "rocket_hq"},
+      {"type": "rescue", "target": "carvalho"},
+      {"type": "defeat", "target": "agente_sombra_final"}
+    ],
+    "rewards": {"exp_trainer": 1000, "items": [{"id": "pokeradar", "quantity": 1}]},
+    "requires": ["MAIN-07"],
+    "unlocks": ["MAIN-09", "GYM-08"]
+  },
+  "MAIN-09": {
+    "id": "MAIN-09",
+    "title": "Giovanni",
+    "category": "main",
+    "npc_id": "giovanni",
+    "location_tile": {"x": 40, "y": 122},
+    "objectives": [
+      {"type": "defeat", "target": "giovanni"}
+    ],
+    "rewards": {
+      "exp_trainer": 1500,
+      "badges": ["earth_badge"],
+      "tms": [{"id": "tm_terra_power", "tier": "epic"}]
+    },
+    "requires": ["MAIN-08"],
+    "unlocks": ["MAIN-10"]
+  },
+  "MAIN-10": {
+    "id": "MAIN-10",
+    "title": "A Caverna",
+    "category": "main",
+    "npc_id": null,
+    "location_tile": {"x": 252, "y": 42},
+    "objectives": [
+      {"type": "traverse_floors", "target": "cerulean_cave", "floors": 7},
+      {"type": "confront", "target": "mewtwo"}
+    ],
+    "rewards": {"exp_trainer": 0, "notes": "mewtwo catchable 5% chance"},
+    "requires": ["MAIN-09"],
+    "unlocks": ["MAIN-11"]
+  },
+  "MAIN-11": {
+    "id": "MAIN-11",
+    "title": "A Escolha",
+    "category": "main",
+    "npc_id": null,
+    "location_tile": null,
+    "objectives": [
+      {"type": "choice", "options": ["seal_fracture", "capture_mewtwo"]}
+    ],
+    "rewards": {"world_state": "permanent"},
+    "requires": ["MAIN-10"],
+    "unlocks": ["MAIN-12"]
+  },
+  "MAIN-12": {
+    "id": "MAIN-12",
+    "title": "Cartas",
+    "category": "main",
+    "npc_id": "carvalho",
+    "location_tile": {"x": 55, "y": 162},
+    "objectives": [
+      {"type": "talk", "target": "carvalho"}
+    ],
+    "rewards": {
+      "exp_trainer": 500,
+      "pokemon": {"id": "eevee", "level": 30},
+      "tms": [{"tier": "rare", "quantity": 1}],
+      "titles": ["heroi_kanto"]
+    },
+    "requires": ["MAIN-10"],
+    "unlocks": ["COLETOR-01", "COLETOR-02", "COLETOR-03", "COLETOR-04", "COLETOR-05", "COLETOR-06", "COLETOR-07", "COLETOR-08", "COLETOR-09", "COLETOR-10"]
+  },
+
+  "GYM-01": {
+    "id": "GYM-01",
+    "title": "Ginásio de Pewter — Brock",
+    "category": "gym",
+    "npc_id": "brock",
+    "location_tile": {"x": 70, "y": 48},
+    "objectives": [
+      {"type": "defeat_count", "target": "geodude", "count": 5, "zone": "mt_moon_entrance"},
+      {"type": "defeat", "target": "brock"}
+    ],
+    "rewards": {
+      "exp_trainer": 600,
+      "badges": ["boulder_badge"],
+      "tms": [{"id": "tm_rock_slide", "tier": "rare"}]
+    },
+    "requires": [],
+    "unlocks": []
+  },
+  "GYM-02": {
+    "id": "GYM-02",
+    "title": "Ginásio de Cerulean — Misty",
+    "category": "gym",
+    "npc_id": "misty",
+    "location_tile": {"x": 265, "y": 48},
+    "objectives": [
+      {"type": "defeat", "target": "alpha_tentacruel", "zone": "cape_cerulean"},
+      {"type": "defeat", "target": "misty"}
+    ],
+    "rewards": {
+      "exp_trainer": 800,
+      "badges": ["cascade_badge"],
+      "hms": ["surf"]
+    },
+    "requires": ["GYM-01"],
+    "unlocks": []
+  },
+  "GYM-03": {
+    "id": "GYM-03",
+    "title": "Ginásio de Vermilion — Lt. Surge",
+    "category": "gym",
+    "npc_id": "lt_surge",
+    "location_tile": {"x": 185, "y": 192},
+    "objectives": [
+      {"type": "defeat_count", "target": "voltorb", "count": 8, "zone": "vermilion_docks"},
+      {"type": "defeat", "target": "lt_surge"}
+    ],
+    "rewards": {
+      "exp_trainer": 1000,
+      "badges": ["thunder_badge"],
+      "tms": [{"id": "tm_thunderbolt", "tier": "rare"}]
+    },
+    "requires": ["GYM-02"],
+    "unlocks": []
+  },
+  "GYM-04": {
+    "id": "GYM-04",
+    "title": "Ginásio de Celadon — Erika",
+    "category": "gym",
+    "npc_id": "erika",
+    "location_tile": {"x": 268, "y": 142},
+    "objectives": [
+      {"type": "capture_count", "target": "oddish", "count": 3, "zone": "celadon_gardens"},
+      {"type": "defeat", "target": "erika"}
+    ],
+    "rewards": {
+      "exp_trainer": 1100,
+      "badges": ["rainbow_badge"],
+      "tms": [{"id": "tm_mega_drain", "tier": "uncommon"}]
+    },
+    "requires": ["GYM-03"],
+    "unlocks": []
+  },
+  "GYM-05": {
+    "id": "GYM-05",
+    "title": "Ginásio de Fuchsia — Koga",
+    "category": "gym",
+    "npc_id": "koga",
+    "location_tile": {"x": 308, "y": 234},
+    "objectives": [
+      {"type": "defeat", "target": "alpha_arbok", "zone": "south_lake"},
+      {"type": "defeat", "target": "koga"}
+    ],
+    "rewards": {
+      "exp_trainer": 1300,
+      "badges": ["soul_badge"],
+      "tms": [{"id": "tm_toxic", "tier": "rare"}]
+    },
+    "requires": ["GYM-04"],
+    "unlocks": []
+  },
+  "GYM-06": {
+    "id": "GYM-06",
+    "title": "Ginásio de Cinnabar — Blaine",
+    "category": "gym",
+    "npc_id": "blaine",
+    "location_tile": {"x": 198, "y": 299},
+    "objectives": [
+      {"type": "fetch_item", "item": "mansion_key", "zone": "pokemon_mansion_floor2"},
+      {"type": "defeat", "target": "blaine"}
+    ],
+    "rewards": {
+      "exp_trainer": 1400,
+      "badges": ["volcano_badge"],
+      "tms": [{"id": "tm_fire_blast", "tier": "epic"}]
+    },
+    "requires": ["GYM-05"],
+    "unlocks": []
+  },
+  "GYM-07": {
+    "id": "GYM-07",
+    "title": "Ginásio de Saffron — Sabrina",
+    "category": "gym",
+    "npc_id": "sabrina",
+    "location_tile": {"x": 258, "y": 126},
+    "objectives": [
+      {"type": "defeat_count", "target": "rocket_agent", "count": 4, "zone": "saffron"},
+      {"type": "defeat", "target": "sabrina"}
+    ],
+    "rewards": {
+      "exp_trainer": 1500,
+      "badges": ["marsh_badge"],
+      "tms": [{"id": "tm_psychic", "tier": "epic"}]
+    },
+    "requires": ["GYM-06"],
+    "unlocks": ["ROCKET-05"]
+  },
+  "GYM-08": {
+    "id": "GYM-08",
+    "title": "Ginásio de Viridian — Giovanni",
+    "category": "gym",
+    "npc_id": "giovanni",
+    "location_tile": {"x": 40, "y": 122},
+    "objectives": [
+      {"type": "defeat", "target": "giovanni"}
+    ],
+    "rewards": {
+      "exp_trainer": 1500,
+      "badges": ["earth_badge"],
+      "tms": [{"id": "tm_terra_power", "tier": "epic"}]
+    },
+    "requires": ["MAIN-08"],
+    "unlocks": []
+  },
+
+  "ROCKET-01": {
+    "id": "ROCKET-01",
+    "title": "Agentes em Pewter",
+    "category": "rocket",
+    "location_tile": {"x": 70, "y": 48},
+    "objectives": [
+      {"type": "defeat", "target": "agente_sombra", "enemy_team": [{"species": "ekans", "level": 18}, {"species": "zubat", "level": 16}]}
+    ],
+    "rewards": {"exp_trainer": 200, "items": [{"id": "documento_fratura_parcial", "quantity": 1}]},
+    "requires": [],
+    "unlocks": ["ROCKET-02"]
+  },
+  "ROCKET-02": {
+    "id": "ROCKET-02",
+    "title": "Mt. Moon em Chamas",
+    "category": "rocket",
+    "location_tile": {"x": 130, "y": 75},
+    "objectives": [
+      {"type": "defeat_count", "target": "rocket_agent", "count": 4},
+      {"type": "destroy", "target": "equipment"}
+    ],
+    "rewards": {"exp_trainer": 350, "items": [{"id": "moon_stone", "quantity": 1}], "exp_bonus": true},
+    "requires": ["ROCKET-01"],
+    "unlocks": ["ROCKET-03"]
+  },
+  "ROCKET-03": {
+    "id": "ROCKET-03",
+    "title": "Infiltração no Game Corner",
+    "category": "rocket",
+    "location_tile": {"x": 278, "y": 145},
+    "objectives": [
+      {"type": "monitor_count", "target": "rocket_agent", "count": 3, "condition": "without_detection"}
+    ],
+    "rewards": {"exp_trainer": 450, "items": [{"id": "rocket_hq_code", "quantity": 1}]},
+    "requires": ["ROCKET-02"],
+    "unlocks": ["ROCKET-04"]
+  },
+  "ROCKET-04": {
+    "id": "ROCKET-04",
+    "title": "Lavender Town Sitiada",
+    "category": "rocket",
+    "location_tile": {"x": 355, "y": 103},
+    "objectives": [
+      {"type": "defeat_count", "target": "rocket_agent", "count": 3, "notes": "intimidating locals"}
+    ],
+    "rewards": {"exp_trainer": 500, "unlocks_npc": "fuji"},
+    "requires": ["ROCKET-03"],
+    "unlocks": ["ROCKET-05"]
+  },
+  "ROCKET-05": {
+    "id": "ROCKET-05",
+    "title": "Operação Saffron",
+    "category": "rocket",
+    "location_tile": {"x": 258, "y": 126},
+    "objectives": [
+      {"type": "help_npc", "target": "sabrina", "action": "expel_agents"}
+    ],
+    "rewards": {"exp_trainer": 700, "tms": [{"tier": "epic", "source": "vault"}]},
+    "requires": ["GYM-07"],
+    "unlocks": ["ROCKET-06"]
+  },
+  "ROCKET-06": {
+    "id": "ROCKET-06",
+    "title": "Sombra Final",
+    "category": "rocket",
+    "location_tile": null,
+    "objectives": [
+      {"type": "defeat", "target": "agente_sombra_final_2", "level_range": [55, 60]}
+    ],
+    "rewards": {"exp_trainer": 1000, "items": [{"id": "item_exclusive", "quantity": 1}], "cutscene": true},
+    "requires": ["MAIN-09"],
+    "unlocks": []
+  },
+
+  "UTIL-01": {
+    "id": "UTIL-01",
+    "title": "O Mentor",
+    "category": "util",
+    "npc_id": "velho_viridian",
+    "location_tile": {"x": 40, "y": 122},
+    "objectives": [
+      {"type": "capture_any", "count": 1}
+    ],
+    "rewards": {"exp_trainer": 100, "unlocks": ["move_tutor_permanent"]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-02": {
+    "id": "UTIL-02",
+    "title": "Filho do Mar",
+    "category": "util",
+    "npc_id": "capitao_vermilion",
+    "location_tile": {"x": 185, "y": 192},
+    "objectives": [
+      {"type": "defeat", "target": "alpha_gyarados", "zone": "mar_sul"}
+    ],
+    "rewards": {"exp_trainer": 400, "unlocks": ["boat_to_cinnabar"]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-03": {
+    "id": "UTIL-03",
+    "title": "A Bicicleta",
+    "category": "util",
+    "npc_id": "loja_cerulean",
+    "location_tile": {"x": 265, "y": 48},
+    "objectives": [
+      {"type": "deliver", "item": "encomenda", "destination": "vermilion"}
+    ],
+    "rewards": {"exp_trainer": 200, "items": [{"id": "bicycle", "quantity": 1, "effect": "+50% speed overworld"}]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-04": {
+    "id": "UTIL-04",
+    "title": "Profundezas",
+    "category": "util",
+    "npc_id": "pesquisador_cinnabar",
+    "location_tile": {"x": 202, "y": 297},
+    "objectives": [
+      {"type": "collect_samples", "count": 5, "target": "underwater_species"}
+    ],
+    "rewards": {"exp_trainer": 350, "unlocks": ["hm_dive"]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-05": {
+    "id": "UTIL-05",
+    "title": "Gelo Eterno",
+    "category": "util",
+    "npc_id": "guia_fuchsia",
+    "location_tile": {"x": 308, "y": 234},
+    "objectives": [
+      {"type": "reach_floor", "target": "seafoam_islands", "floor": 3}
+    ],
+    "rewards": {"exp_trainer": 300, "unlocks": ["glacial_biome"]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-06": {
+    "id": "UTIL-06",
+    "title": "O Eremita",
+    "category": "util",
+    "npc_id": "ermitao_rota25",
+    "location_tile": {"x": 285, "y": 30},
+    "objectives": [
+      {"type": "bring_items", "items": [{"biome": "any", "quantity": 3, "condition": "different_biomes", "rarity": "rare"}]}
+    ],
+    "rewards": {"exp_trainer": 500, "skill_points": 3},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-07": {
+    "id": "UTIL-07",
+    "title": "Pedras Antigas",
+    "category": "util",
+    "npc_id": "arqueologo_pewter",
+    "location_tile": {"x": 70, "y": 48},
+    "objectives": [
+      {"type": "find_count", "target": "fossil_fragment", "count": 4, "zone": "mt_moon"}
+    ],
+    "rewards": {"exp_trainer": 250, "items": [{"id": "revive", "quantity": 1}]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-08": {
+    "id": "UTIL-08",
+    "title": "A Ervateira",
+    "category": "util",
+    "npc_id": "idosa_cerulean",
+    "location_tile": {"x": 265, "y": 48},
+    "objectives": [
+      {"type": "collect_count", "target": "berry_types", "count": 5}
+    ],
+    "rewards": {"exp_trainer": 200, "unlocks": ["crafting_basic"]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-09": {
+    "id": "UTIL-09",
+    "title": "Treinamento Intensivo",
+    "category": "util",
+    "npc_id": "veterano_saffron",
+    "location_tile": {"x": 258, "y": 126},
+    "objectives": [
+      {"type": "defeat_count", "target": "any", "count": 20, "condition": "without_potion"}
+    ],
+    "rewards": {"exp_trainer": 300, "exp_pokemon_bonus": 200},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-10": {
+    "id": "UTIL-10",
+    "title": "O Fazendeiro",
+    "category": "util",
+    "npc_id": "fazendeiro_rota12",
+    "location_tile": {"x": 330, "y": 185},
+    "objectives": [
+      {"type": "defeat_invaders", "zone": "fazenda_rota12"}
+    ],
+    "rewards": {"exp_trainer": 250, "unlocks": ["berry_farm_daily"]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-11": {
+    "id": "UTIL-11",
+    "title": "Nadadoras",
+    "category": "util",
+    "npc_id": "irmas_cerulean",
+    "location_tile": {"x": 265, "y": 48},
+    "objectives": [
+      {"type": "defeat_count", "target": "water_pokemon", "count": 10, "zone": "rota_25"}
+    ],
+    "rewards": {"exp_trainer": 300, "items": [{"id": "super_rod", "quantity": 1}]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-12": {
+    "id": "UTIL-12",
+    "title": "O Policial",
+    "category": "util",
+    "npc_id": "jenny_vermilion",
+    "location_tile": {"x": 185, "y": 192},
+    "objectives": [
+      {"type": "report_sighting", "target": "rocket", "locations": 3}
+    ],
+    "rewards": {"exp_trainer": 200, "unlocks": ["free_tms_at_station"]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-13": {
+    "id": "UTIL-13",
+    "title": "Alta Voltagem",
+    "category": "util",
+    "npc_id": "engenheiro_power_plant",
+    "location_tile": {"x": 310, "y": 70},
+    "objectives": [
+      {"type": "defeat_zone", "zone": "power_plant_generator_room"}
+    ],
+    "rewards": {"exp_trainer": 400, "unlocks": ["power_plant_spawns"]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-14": {
+    "id": "UTIL-14",
+    "title": "O Criador",
+    "category": "util",
+    "npc_id": "casal_day_care",
+    "location_tile": {"x": 250, "y": 138},
+    "objectives": [
+      {"type": "bring_items", "items": [{"type": "pokemon", "egg_group": "same", "count": 2}]}
+    ],
+    "rewards": {"exp_trainer": 150, "unlocks": ["day_care_passive_exp"]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-15": {
+    "id": "UTIL-15",
+    "title": "Sombras do Passado",
+    "category": "util",
+    "npc_id": "pesquisador_torre_lavender",
+    "location_tile": {"x": 355, "y": 103},
+    "objectives": [
+      {"type": "ritual_each_floor", "target": "pokemon_tower"}
+    ],
+    "rewards": {"exp_trainer": 350, "unlocks": ["ghost_zone_spawns"]},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-16": {
+    "id": "UTIL-16",
+    "title": "O Contrabandista",
+    "category": "util",
+    "npc_id": "mercador_porto_vermilion",
+    "location_tile": {"x": 185, "y": 192},
+    "objectives": [
+      {"type": "choice", "options": ["report_to_jenny", "accept_deal"]}
+    ],
+    "rewards": {
+      "option_a": {"unlocks": ["extra_mission"]},
+      "option_b": {"tms": [{"tier": "rare", "quantity": 2}]}
+    },
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-17": {
+    "id": "UTIL-17",
+    "title": "Velocidade do Trovão",
+    "category": "util",
+    "npc_id": "corredor_celadon",
+    "location_tile": {"x": 268, "y": 142},
+    "objectives": [
+      {"type": "timed_run", "from": "rota7", "to": "rota8", "time_limit_seconds": 180, "condition": "no_combat"}
+    ],
+    "rewards": {"exp_trainer": 300, "agility_points": 2},
+    "requires": [],
+    "unlocks": []
+  },
+  "UTIL-18": {
+    "id": "UTIL-18",
+    "title": "O Último Dojo",
+    "category": "util",
+    "npc_id": "mestre_dojo_saffron",
+    "location_tile": {"x": 258, "y": 126},
+    "objectives": [
+      {"type": "defeat_count", "target": "disciple", "count": 5}
+    ],
+    "rewards": {
+      "exp_trainer": 600,
+      "choice": ["hitmonlee", "hitmonchan"]
+    },
+    "requires": [],
+    "unlocks": []
+  },
+
+  "COLETOR-01": {
+    "id": "COLETOR-01",
+    "title": "Diversidade",
+    "category": "coletor",
+    "objectives": [
+      {"type": "capture_unique", "count": 10}
+    ],
+    "rewards": {"exp_trainer": 200, "tms": [{"tier": "uncommon", "random": true}]},
+    "requires": ["MAIN-12"],
+    "unlocks": []
+  },
+  "COLETOR-02": {
+    "id": "COLETOR-02",
+    "title": "Caçador de Alphas",
+    "category": "coletor",
+    "objectives": [
+      {"type": "defeat_alpha", "count": 10, "condition": "different_species"}
+    ],
+    "rewards": {"exp_trainer": 500, "titles": ["cacador_alpha"], "tms": [{"tier": "epic", "quantity": 1}]},
+    "requires": ["MAIN-12"],
+    "unlocks": []
+  },
+  "COLETOR-03": {
+    "id": "COLETOR-03",
+    "title": "Grande Coleção",
+    "category": "coletor",
+    "objectives": [
+      {"type": "capture_total", "count": 50}
+    ],
+    "rewards": {"exp_trainer": 400, "items": [{"id": "premium_pokeball", "quantity": 1}]},
+    "requires": ["MAIN-12"],
+    "unlocks": []
+  },
+  "COLETOR-04": {
+    "id": "COLETOR-04",
+    "title": "Linha Completa",
+    "category": "coletor",
+    "objectives": [
+      {"type": "complete_evolution_line", "species": "any"}
+    ],
+    "rewards": {"exp_trainer": 300, "skill_points": 5},
+    "requires": ["MAIN-12"],
+    "unlocks": []
+  },
+  "COLETOR-05": {
+    "id": "COLETOR-05",
+    "title": "Quase Lendário",
+    "category": "coletor",
+    "objectives": [
+      {"type": "pokemon_reach_level", "level": 99, "species": "any"}
+    ],
+    "rewards": {"exp_trainer": 600, "unlocks": ["cosmetic_sprite_effect"]},
+    "requires": ["MAIN-12"],
+    "unlocks": []
+  },
+  "COLETOR-06": {
+    "id": "COLETOR-06",
+    "title": "Explorador de Biomas",
+    "category": "coletor",
+    "objectives": [
+      {"type": "capture_per_biome", "condition": "all_biomes"}
+    ],
+    "rewards": {"exp_trainer": 700, "tms": [{"id": "tm_hyper_beam", "tier": "epic"}]},
+    "requires": ["MAIN-12"],
+    "unlocks": []
+  },
+  "COLETOR-07": {
+    "id": "COLETOR-07",
+    "title": "Mestre das TMs",
+    "category": "coletor",
+    "objectives": [
+      {"type": "use_tms", "count": 20, "condition": "different"}
+    ],
+    "rewards": {"exp_trainer": 400, "unlocks": ["move_tutor_premium"]},
+    "requires": ["MAIN-12"],
+    "unlocks": []
+  },
+  "COLETOR-08": {
+    "id": "COLETOR-08",
+    "title": "Ginásio Perfeito",
+    "category": "coletor",
+    "objectives": [
+      {"type": "defeat_gym_no_faint", "gym": "any"}
+    ],
+    "rewards": {"exp_trainer": 400, "titles": ["badge_of_honor"], "items": [{"id": "super_potion", "quantity": 3}]},
+    "requires": ["MAIN-12"],
+    "unlocks": []
+  },
+  "COLETOR-09": {
+    "id": "COLETOR-09",
+    "title": "O Mais Poderoso",
+    "category": "coletor",
+    "objectives": [
+      {"type": "capture", "target": "mewtwo"}
+    ],
+    "rewards": {"exp_trainer": 1000, "titles": ["lenda_de_kanto"]},
+    "requires": ["MAIN-12"],
+    "unlocks": []
+  },
+  "COLETOR-10": {
+    "id": "COLETOR-10",
+    "title": "Mestre Pokémon",
+    "category": "coletor",
+    "objectives": [
+      {"type": "find_all", "count": 151}
+    ],
+    "rewards": {
+      "exp_trainer": 2000,
+      "items": [{"id": "pokeradar_advanced", "quantity": 1}],
+      "titles": ["mestre_pokemon"]
+    },
+    "requires": ["MAIN-12"],
+    "unlocks": []
+  }
+}

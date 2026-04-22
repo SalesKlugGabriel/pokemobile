@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://bxk3m7qvdp1n"]
+
+[ext_resource type="Script" path="res://scripts/world/RegionPortal.gd" id="1_rp001"]
+
+[node name="RegionPortal" type="Area2D"]
+script = ExtResource("1_rp001")
+target_region_id = ""
+portal_label = ""
+collision_layer = 4
+collision_mask = 2
+monitoring = true
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 0)
