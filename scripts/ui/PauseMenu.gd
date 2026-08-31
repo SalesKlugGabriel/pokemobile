@@ -4,15 +4,19 @@
 ## Abre/fecha com Escape ou P; bloqueia input do jogo via get_tree().paused.
 extends CanvasLayer
 
-const BAG_SCENE     : PackedScene = preload("res://scenes/battle/BagScene.tscn")
-const POKEDEX_SCENE : PackedScene = preload("res://scenes/ui/PokedexScene.tscn")
-const SHOP_SCENE     : PackedScene = preload("res://scenes/ui/ShopScene.tscn")
+const BAG_SCENE      : PackedScene = preload("res://scenes/battle/BagScene.tscn")
+const POKEDEX_SCENE  : PackedScene = preload("res://scenes/ui/PokedexScene.tscn")
+const SHOP_SCENE      : PackedScene = preload("res://scenes/ui/ShopScene.tscn")
+const HELP_SCENE      : PackedScene = preload("res://scenes/ui/HelpScene.tscn")
+const CONTROLS_SCENE  : PackedScene = preload("res://scenes/ui/ControlsScene.tscn")
 
 @onready var panel       : PanelContainer = $Panel
 @onready var btn_team    : Button         = $Panel/VBox/BtnTeam
 @onready var btn_bag     : Button         = $Panel/VBox/BtnBag
 @onready var btn_shop    : Button         = $Panel/VBox/BtnShop
 @onready var btn_pokedex : Button         = $Panel/VBox/BtnPokedex
+@onready var btn_help     : Button        = $Panel/VBox/BtnHelp
+@onready var btn_controls : Button        = $Panel/VBox/BtnControls
 @onready var btn_save    : Button         = $Panel/VBox/BtnSave
 @onready var btn_resume  : Button         = $Panel/VBox/BtnResume
 @onready var btn_title   : Button         = $Panel/VBox/BtnTitle
@@ -37,6 +41,8 @@ func _ready() -> void:
 	btn_bag.pressed.connect(_on_bag)
 	btn_shop.pressed.connect(_on_shop)
 	btn_pokedex.pressed.connect(_on_pokedex)
+	btn_help.pressed.connect(_on_help)
+	btn_controls.pressed.connect(_on_controls)
 	btn_save.pressed.connect(_on_save)
 	btn_resume.pressed.connect(_on_resume)
 	btn_title.pressed.connect(_on_title)
@@ -80,14 +86,10 @@ func _on_bag() -> void:
 	if not _bag_instance:
 		_bag_instance = BAG_SCENE.instantiate()
 		add_child(_bag_instance)
-		_bag_instance.anchor_left   = 0.5
-		_bag_instance.anchor_top    = 0.5
-		_bag_instance.anchor_right  = 0.5
-		_bag_instance.anchor_bottom = 0.5
-		_bag_instance.offset_left   = -200
-		_bag_instance.offset_top    = -150
-		_bag_instance.offset_right  = 200
-		_bag_instance.offset_bottom = 150
+		_bag_instance.anchor_left   = 0.12
+		_bag_instance.anchor_top    = 0.08
+		_bag_instance.anchor_right  = 0.88
+		_bag_instance.anchor_bottom = 0.92
 		_bag_instance.bag_closed.connect(func():
 			_bag_instance.hide()
 			get_tree().paused = false
@@ -263,6 +265,30 @@ func _teach_and_finish(index: int, slot: int) -> void:
 		SaveManager.save_game()
 		label_info.text = "Aprendeu %s!" % GameData.get_move(move_id).get("name", move_id)
 	_close_bag_flow()
+
+func _on_help() -> void:
+	AudioManager.play_sfx("confirm")
+	var help := get_node_or_null("HelpInstance")
+	if not help:
+		help = HELP_SCENE.instantiate()
+		help.name = "HelpInstance"
+		add_child(help)
+		help.closed_by_user.connect(func(): get_tree().paused = false)
+	_on_resume()
+	get_tree().paused = true
+	help.open()
+
+func _on_controls() -> void:
+	AudioManager.play_sfx("confirm")
+	var controls := get_node_or_null("ControlsInstance")
+	if not controls:
+		controls = CONTROLS_SCENE.instantiate()
+		controls.name = "ControlsInstance"
+		add_child(controls)
+		controls.closed_by_user.connect(func(): get_tree().paused = false)
+	_on_resume()
+	get_tree().paused = true
+	controls.open()
 
 func _on_save() -> void:
 	AudioManager.play_sfx("confirm")

@@ -28,6 +28,7 @@ WorldManager="*res://scripts/world/WorldManager.gd"
 BattleManager="*res://scripts/battle/BattleManager.gd"
 SceneTransition="*res://scripts/autoloads/SceneTransition.gd"
 AudioManager="*res://scripts/autoloads/AudioManager.gd"
+KeybindManager="*res://scripts/autoloads/KeybindManager.gd"
 GlobalUI="*res://scenes/ui/GlobalUI.tscn"
 
 [application]

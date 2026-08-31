@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/HelpScene.gd" id="1_help"]
+
+[node name="HelpScene" type="CanvasLayer"]
+layer = 60
+script = ExtResource("1_help")
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.12
+anchor_top = 0.05
+anchor_right = 0.88
+anchor_bottom = 0.95
+
+[node name="Header" type="HBoxContainer" parent="Panel"]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 36.0
+grow_horizontal = 2
+
+[node name="Title" type="Label" parent="Panel/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "AJUDA"
+theme_override_font_sizes/font_size = 16
+
+[node name="CloseBtn" type="Button" parent="Panel/Header"]
+layout_mode = 2
+text = "X"
+custom_minimum_size = Vector2(32, 0)
+
+[node name="Scroll" type="ScrollContainer" parent="Panel"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Body" type="RichTextLabel" parent="Panel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 10)
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/bold_font_size = 15

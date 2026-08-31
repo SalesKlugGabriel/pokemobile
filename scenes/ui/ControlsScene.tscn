@@ -1,0 +1,75 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/ControlsScene.gd" id="1_controls"]
+
+[node name="ControlsScene" type="CanvasLayer"]
+layer = 60
+script = ExtResource("1_controls")
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.15
+anchor_top = 0.05
+anchor_right = 0.85
+anchor_bottom = 0.95
+
+[node name="Header" type="HBoxContainer" parent="Panel"]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 36.0
+grow_horizontal = 2
+
+[node name="Title" type="Label" parent="Panel/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CONTROLES"
+theme_override_font_sizes/font_size = 16
+
+[node name="CloseBtn" type="Button" parent="Panel/Header"]
+layout_mode = 2
+text = "X"
+custom_minimum_size = Vector2(32, 0)
+
+[node name="Hint" type="Label" parent="Panel"]
+layout_mode = 1
+anchor_right = 1.0
+offset_top = 40.0
+offset_bottom = 60.0
+grow_horizontal = 2
+text = "Clique em \"Alterar\" e aperte a tecla nova. Esc cancela."
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.65, 0.65, 0.65, 1)
+
+[node name="StatusLabel" type="Label" parent="Panel"]
+layout_mode = 1
+anchor_right = 1.0
+offset_top = 60.0
+offset_bottom = 76.0
+grow_horizontal = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1.0, 0.75, 0.3, 1)
+
+[node name="Scroll" type="ScrollContainer" parent="Panel"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 80.0
+offset_bottom = -44.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="List" type="VBoxContainer" parent="Panel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="BtnReset" type="Button" parent="Panel"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -36.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Restaurar padrões"

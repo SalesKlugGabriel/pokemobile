@@ -1,6 +1,6 @@
-## BagScene.gd — Painel de inventário dentro da batalha.
-## Exibe itens do save filtrados por categoria e emite sinal quando um é usado.
-## 9.4: Adicionadas abas por categoria (medicine / pokeball / berry / key_item).
+## BagScene.gd — Painel de inventário (batalha e Mochila da Pausa).
+## Exibe itens do save filtrados por categoria (barra lateral com ícone) e
+## emite sinal quando um é usado.
 extends PanelContainer
 
 signal item_selected(item_id: String)
@@ -30,42 +30,56 @@ const CATEGORY_LABELS := {
 	"field":     "Campo",
 }
 
-@onready var item_list   : VBoxContainer = $Layout/Scroll/ItemList
-@onready var btn_close   : Button        = $Layout/Header/BtnClose
-@onready var tab_bar     : HBoxContainer = $Layout/TabBar
+var _icon_cache : Dictionary = {}
+
+@onready var item_list : VBoxContainer = $Layout/Body/Scroll/ItemList
+@onready var btn_close  : Button        = $Layout/Header/BtnClose
+@onready var sidebar    : VBoxContainer = $Layout/Body/Sidebar
 
 var _active_category : String = "medicine"
 var _battle_mode     : bool   = true  # true = filtrado para batalha
 
 func _ready() -> void:
 	btn_close.pressed.connect(func(): bag_closed.emit())
-	_build_tabs()
+	_build_sidebar()
 
 ## Chamado por quem abre a mochila fora de batalha (menu de pausa) para
 ## liberar todas as categorias (chave, TM/HM), não só as usáveis em combate.
 func set_battle_mode(v: bool) -> void:
 	_battle_mode = v
 	_active_category = (BATTLE_CATEGORIES if v else ALL_CATEGORIES)[0]
-	_build_tabs()
+	_build_sidebar()
 
-func _build_tabs() -> void:
-	if not tab_bar:
+func _icon_for(category: String) -> Texture2D:
+	if _icon_cache.has(category):
+		return _icon_cache[category]
+	var path := "res://assets/ui/icons/%s.png" % category
+	var tex : Texture2D = load(path) if ResourceLoader.exists(path) else null
+	_icon_cache[category] = tex
+	return tex
+
+func _build_sidebar() -> void:
+	if not sidebar:
 		return
-	for child in tab_bar.get_children():
+	for child in sidebar.get_children():
 		child.queue_free()
 	var cats := BATTLE_CATEGORIES if _battle_mode else ALL_CATEGORIES
 	for cat in cats:
 		var btn := Button.new()
 		btn.text = CATEGORY_LABELS.get(cat, cat)
+		btn.icon = _icon_for(cat)
+		btn.expand_icon = false
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.toggle_mode = true
 		btn.button_pressed = (cat == _active_category)
+		btn.add_theme_font_size_override("font_size", 12)
 		var cap : String = cat
 		btn.pressed.connect(func():
 			_active_category = cap
-			_build_tabs()
+			_build_sidebar()
 			refresh(SaveManager.get_inventory())
 		)
-		tab_bar.add_child(btn)
+		sidebar.add_child(btn)
 
 ## Popula a lista com itens da categoria ativa.
 func refresh(inventory: Dictionary) -> void:
@@ -99,9 +113,17 @@ func refresh(inventory: Dictionary) -> void:
 		lbl.modulate = Color(0.5, 0.5, 0.5)
 		item_list.add_child(lbl)
 
-func _make_row(item_id: String, item_data: Dictionary, qty: int) -> HBoxContainer:
+func _make_row(item_id: String, item_data: Dictionary, qty: int) -> PanelContainer:
+	var wrap := PanelContainer.new()
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
+	wrap.add_child(row)
+
+	var icon := TextureRect.new()
+	icon.texture = _icon_for(item_data.get("category", ""))
+	icon.custom_minimum_size = Vector2(24, 24)
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	row.add_child(icon)
 
 	var lbl_name := Label.new()
 	lbl_name.text = item_data.get("name", item_id)
@@ -130,7 +152,7 @@ func _make_row(item_id: String, item_data: Dictionary, qty: int) -> HBoxContaine
 	row.add_child(lbl_name)
 	row.add_child(lbl_qty)
 	row.add_child(btn)
-	return row
+	return wrap
 
 func _on_use(item_id: String) -> void:
 	AudioManager.play_sfx("menu_select")

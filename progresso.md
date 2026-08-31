@@ -9,6 +9,55 @@
 
 ---
 
+## Acessibilidade, Ajuda, Controles reatribuíveis + visual novo da Loja/Mochila (2026-08-31, continuação)
+
+**Pedido do Gabriel:** conferir se toda função que o jogador pode usar está acessível pela tela,
+criar um guia de ajuda dentro do jogo, e uma tela de Controles pra reatribuir tecla. Depois, mandou
+uma imagem de referência (estilo Poketibia) pedindo que Loja e Mochila ficassem parecidas.
+
+**Auditoria de acessibilidade — achados:**
+- 5 ações de teclado nunca ligadas a nada (`skill_1-4`, `pokeball`/Espaço, `fullscreen`/F11,
+  `menu_map`) — não são "funções escondidas", são atalhos mortos, sobra de uma versão anterior.
+  Não entraram na tela de Controles (reatribuir uma tecla que não faz nada só confundiria).
+  `scripts/combat/CaptureSystem.gd` também é código órfão — nenhuma cena/script usa ele (a
+  captura de verdade mora em `BattleManager._attempt_capture`); não apagado agora, só registrado.
+- Todo o resto do jogo (Mochila/Loja/Pokédex/Time/Salvar) já era alcançável — todos passam pelo
+  menu de Pausa, que por sua vez é alcançável tanto pelo teclado (Esc/P) quanto por um botão de
+  toque de verdade (`BtnStart` em `TouchControls.tscn`, já existia) — jogador de celular sem
+  teclado não fica travado.
+- Nenhum atalho (Correr, Interagir) tinha onde o jogador aprendesse que existe — resolvido pela
+  Ajuda nova.
+
+**Construído:**
+- **Tela de Ajuda** (Pausa → Ajuda): texto explicando andar/interagir/menu de pausa/atalhos
+  diretos/batalha/capturar/evoluir/MT-MO/dinheiro — **mostra a tecla ATUAL de cada ação** (se o
+  jogador reatribuir na tela de Controles, o texto da Ajuda já aparece certo, não fica
+  desatualizado, porque lê direto do `KeybindManager`).
+- **Tela de Controles** (Pausa → Controles), `KeybindManager` novo (autoload): lista as 10 ações
+  que realmente fazem algo no jogo, clica "Alterar", aperta a tecla nova, salva sozinho em
+  `user://keybinds.cfg` (**testado ao vivo: sobrevive a recarregar a página**). Se a tecla nova já
+  era de outra ação, a outra perde a tecla (evita as duas dispararem juntas sem o jogador saber) —
+  avisado na tela. Botão "Restaurar padrões" volta tudo pro original do project.godot.
+- **Visual novo de Loja e Mochila**, inspirado na referência que o Gabriel mandou: painel escuro
+  arredondado, barra lateral de categorias com ícone (gerados em código, mesmo estilo simples já
+  usado nos sprites do jogo — `assets/generate_item_icons.py`), linha de item com ícone. A Loja
+  ganhou filtro por categoria também (antes era uma lista só, agora filtra por Poções/Bolas/
+  Pedras/TM-HM/Batalha/Vitaminas). Achado no caminho: a Mochila aberta pela Pausa era um popup
+  pequeno (400×300) — aumentada pra quase tela cheia, igual a Loja.
+- **Fora do escopo desta rodada** (visual): minimapa, barra de atalhos "F1-F6" com item
+  arrastável, chat/log de mensagens, dock de Perfil/Quests, inventário em grade com slots
+  travados — tudo isso é Lote 10 (polimento) de verdade, precisa de mais sistemas por trás
+  (mapa renderizado, sistema de slot-atalho, sistema de mensagens) que ainda não existem.
+
+**Testado ao vivo:** Ajuda abre com as teclas certas; Controles reatribui Correr de Shift pra "J",
+confirmado funcionando e confirmado que sobrevive a recarregar a página inteira; Restaurar
+padrões testado; Loja com o visual novo — comprei Super Potion (₽300) e troquei de categoria
+(Poções → Pokébolas), tudo funcionando; Mochila com o visual novo abrindo certo.
+
+**Precisa de decisão do Gabriel?** Não por enquanto.
+
+---
+
 ## Pedras evoluem, TM/HM ensinam golpe (2026-08-31, continuação — estilo "Poketibia" sem multiplayer)
 
 **Contexto:** Gabriel pediu que a mecânica de itens/loja/pedras fosse no estilo dos jogos de
