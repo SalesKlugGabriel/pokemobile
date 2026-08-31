@@ -270,6 +270,27 @@ func has_item(item_id: String, quantity: int = 1) -> bool:
 	return int(save_data["inventory"].get(item_id, 0)) >= quantity
 
 # ──────────────────────────────────────────────────────────────────────────────
+# HELPERS — DINHEIRO
+# ──────────────────────────────────────────────────────────────────────────────
+## Achado: OverworldHUD.gd já chamava SaveManager.get_money() desde antes desta
+## função existir de verdade — era a causa do erro "a number is required" que
+## aparecia sozinho toda vez que o HUD do mundo atualizava.
+func get_money() -> int:
+	return int(save_data["trainer"].get("money", 0))
+
+func add_money(amount: int) -> void:
+	save_data["trainer"]["money"] = get_money() + maxi(0, amount)
+
+## Retorna true se conseguiu pagar (tinha dinheiro suficiente).
+func spend_money(amount: int) -> bool:
+	if amount <= 0:
+		return true
+	if get_money() < amount:
+		return false
+	save_data["trainer"]["money"] = get_money() - amount
+	return true
+
+# ──────────────────────────────────────────────────────────────────────────────
 # HELPERS — POKÉDEX
 # ──────────────────────────────────────────────────────────────────────────────
 

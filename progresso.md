@@ -9,6 +9,87 @@
 
 ---
 
+## Auditoria de golpes/itens + troca de Pokémon + dinheiro/Loja (2026-08-31, continuação)
+
+**Pedido do Gabriel:** conferir se todos os golpes seguem a lógica certa de dano/buff/debuff/
+efetividade, entender por que o loot "não dropava" (hipótese dele: itens não existiam ainda), e
+construir um sistema de loot vendável → dinheiro → Loja (poções, pokébolas, TM/HM). Também pediu
+pra abrir a seleção de time quando o Pokémon ativo desmaia em vez de encerrar a batalha na hora.
+
+**Achados da auditoria (todos reais, nada disso era "não implementado ainda" — o código já
+existia mas nunca funcionava):**
+1. **Praticamente nenhum golpe de status/buff/debuff fazia efeito.** `moves.json` usa nomes tipo
+   `"atk_minus1"`/`"paralysis"`/`"confuse_10"`, mas o código só reconhecia `"atk_down_1"`/
+   `"paralyze"` (nomes diferentes, criados sem olhar o dado de verdade) — o `match` nunca batia
+   com nada, então o golpe só mostrava "usou X!" e não fazia mais nada.
+2. **`accuracy: 0` no dado significa "sempre acerta"** (usado por golpes que nunca erram, tipo
+   Investida Rápida, e por golpes de status que não miram o oponente, tipo Ágil) — o código lia
+   `0 < 100` como "precisa checar acerto", e a checagem com accuracy 0 sempre dava 0% de chance.
+   Ou seja, **todo golpe "que nunca erra" sempre errava**, e vários golpes de buff (Ágil, Tela de
+   Luz, Anfitrião de Foco...) nunca funcionavam.
+3. **Usar qualquer item em batalha (Poção incluída) não fazia nada.** `_apply_item` lia
+   `item.get("effect")`, mas `items.json` não tem esse campo — usa `heal_hp`/`cures`/`revive_hp`/
+   `restore_pp` diretamente. Então usar Poção em batalha só gastava o item sem curar HP nenhum.
+4. **Nenhum efeito secundário de golpe de dano existia** (ex: Lança-Chamas nunca queimava,
+   Chispa nunca paralisava) — o código só tentava aplicar efeito em golpes de status puro.
+5. Recuo, dreno de HP, golpes de dano fixo (Investida-K.O., Contra-Golpe, Fúria), multi-hit
+   (2 a 5 vezes), confusão (não existia nem como conceito no jogo) e "apanhar antes de agir"
+   (flinch) também não existiam.
+6. **O motivo do dinheiro não aparecer:** `OverworldHUD.gd` já chamava `SaveManager.get_money()`
+   desde antes dessa função existir de verdade — a causa exata do erro "a number is required"
+   que aparecia sozinho o jogo inteiro, sem nunca ter sido rastreado até agora.
+
+**Sobre a hipótese do Gabriel (itens não existirem):** não era isso — os 16 itens do loot já
+existiam certinhos em `items.json` (com preço, e tudo). O loot só "não dropava" por sorte — a
+chance de item cair por vitória é só ~15-20%, e nas poucas batalhas testadas antes não caiu
+nenhuma vez (matemática: 3 vitórias seguidas sem loot tem ~58% de chance de acontecer só por
+acaso). Confirmado que a fórmula está ligada certo.
+
+**O que foi construído:**
+- Reescrita a leitura de golpes: um parser genérico traduz qualquer `"<stat>_plus/minus<1|2>"` e
+  qualquer condição de status (com ou sem chance % no nome) direto do jeito que `moves.json` já
+  escreve, em vez de uma lista fixa de nomes inventados. Cobre buff/debuff, veneno/queimadura/
+  paralisia/sono/congelamento (com chance certa), confusão (virou um estado próprio, separado,
+  porque dá pra estar confuso E envenenado ao mesmo tempo), flinch, recuo, dreno de HP, golpes de
+  dano fixo (K.O., Contra-Golpe, Fúria, dano-por-nível), multi-hit, Semeadura Fantasma (drena HP
+  todo turno), Foco Energético (mais crítico), Descanso, Neblina (reseta status), e Pagamento em
+  Dinheiro (Golpe da Sorte agora realmente dá ₽ — ligado direto no sistema de dinheiro novo).
+  **Fora do escopo desta rodada** (documentado no código, não crasha, só não faz o efeito
+  especial ainda): Investida/Voo/Cavar de 2 turnos, Disparo/Espelho, Metrônomo, Mimic, Refletir/
+  Tela de Luz, Substituto, Bide, armadilhas (Grude/Aperto de Fogo) — todos golpes raros/muito
+  complexos de fazer certo, ficam pra outra rodada.
+- `_apply_item` reescrito pra ler o formato real de `items.json` — Poção/Hiper Poção/etc curam
+  de verdade agora, Antídoto/Anti-Queimadura/etc curam o status certo, Revive funciona.
+- **Troca de Pokémon em batalha**: item "POKÉMON" do menu de ação (existia, nunca fazia nada —
+  nem conectado) agora abre a lista do time. Se o Pokémon ativo desmaia e ainda sobra time vivo,
+  a troca abre sozinha e obrigatória (antes disso, desmaiar = perder a batalha na hora, mesmo com
+  o time inteiro saudável esperando). Treinadores com mais de um Pokémon no time também mandam o
+  próximo quando o atual desmaia (não só o jogador).
+- **Dinheiro + Loja**: `SaveManager.get_money/add_money/spend_money` (faltavam de verdade).
+  Loja nova (`Pause → Loja`, aba Comprar/Vender): comprar qualquer item vendável por dinheiro,
+  vender item do inventário por metade do preço (loot virou dinheiro de verdade, como o Gabriel
+  pediu). Itens de chave/campo (bicicleta, mapa...) não entram na loja.
+- **Achado extra no caminho**: a Pokédex tinha o mesmo bug de layout que corrigi ontem no menu de
+  golpes (um cabeçalho esticado até o meio da tela por engano de âncora) — corrigido nos dois
+  lugares (Pokédex e a Loja nova, que copiou o padrão antes de eu perceber).
+
+**Testado:** Recompilado e publicado, testado ao vivo no navegador — dinheiro aparece certo no
+HUD (sem mais o erro misterioso), Loja compra e vende de verdade (dinheiro sobe/desce, item
+some/aparece no inventário nas quantidades certas). Troca de Pokémon **não testada ao vivo ainda**
+(o time só tem 1 Pokémon nas partidas de teste — precisa capturar um segundo pra testar de
+verdade a troca forçada) — só conferido pela leitura do código.
+
+**Próximo passo:** testar a troca de Pokémon ao vivo com time de 2+; depois seguir pro pedido
+seguinte do Gabriel — mecânica de itens/loja/stones/trade no estilo dos jogos de Poketibia
+(PokeXGames/OTPokemon/PokemonBR). Pesquisa inicial feita, ver `memoria/projetos/pokemobile
+_lote7_9_dano_e_loja.md` (memória) — é uma decisão de arquitetura grande (multiplayer de
+verdade), levada ao Gabriel antes de começar a construir.
+
+**Precisa de decisão do Gabriel?** Sim — ver conversa sobre o pedido de mecânica estilo
+Poketibia/multiplayer.
+
+---
+
 ## Lote 7 e 9 — XP/nível e loot testados ao vivo, 2 bugs graves achados e corrigidos (2026-08-31, continuação)
 
 **O que foi feito:** O código de XP/nível (Lote 7) e loot (Lote 9) já estava escrito (achado

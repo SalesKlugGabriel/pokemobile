@@ -34,9 +34,38 @@ const TYPE_CHART : Dictionary = {
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Tradução dos nomes de stat/status usados em moves.json → chaves internas.
+# Achado (auditoria de golpes, 2026-08-31): moves.json usa "spd" pra Velocidade
+# (ex: agility = "spd_plus2") mas BattlePokemon.stages usa "spd" pra Defesa
+# Especial — os dois nomes colidem com sentidos opostos. Aqui "spd" (dado) é
+# sempre traduzido pra "spe" (interno).
+# ──────────────────────────────────────────────────────────────────────────────
+const STAT_NAME_TO_INTERNAL := {
+	"atk": "atk", "def": "def", "sp_atk": "spa", "sp_def": "spd",
+	"spd": "spe", "acc": "acc", "evasion": "eva",
+}
+
+const STATUS_EFFECT_MAP := {
+	"burn": BattlePokemon.Status.BURN,
+	"poison": BattlePokemon.Status.POISON,
+	"bad_poison": BattlePokemon.Status.BAD_POISON,
+	"paralysis": BattlePokemon.Status.PARALYSIS,
+	"sleep": BattlePokemon.Status.SLEEP,
+	"freeze": BattlePokemon.Status.FREEZE,
+}
+
+const CURE_MAP := {
+	"poison":    [BattlePokemon.Status.POISON, BattlePokemon.Status.BAD_POISON],
+	"burn":      [BattlePokemon.Status.BURN],
+	"frozen":    [BattlePokemon.Status.FREEZE],
+	"sleep":     [BattlePokemon.Status.SLEEP],
+	"paralysis": [BattlePokemon.Status.PARALYSIS],
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Estado da batalha
 # ──────────────────────────────────────────────────────────────────────────────
-enum BattlePhase { IDLE, STARTING, PLAYER_ACTION, ENEMY_TURN, RESOLVING, CAPTURE, ENDING }
+enum BattlePhase { IDLE, STARTING, PLAYER_ACTION, ENEMY_TURN, RESOLVING, CAPTURE, FORCED_SWITCH, ENDING }
 
 var phase          : BattlePhase   = BattlePhase.IDLE
 var player_pokemon : BattlePokemon = null
@@ -57,6 +86,8 @@ var _player_move_index : int    = -1
 var _player_item_id    : String = ""
 var _player_action     : String = ""   # "fight", "item", "run", "switch"
 var _player_save_index : int    = 0    # índice no time do SaveManager
+var _player_seeded     : bool   = false
+var _enemy_seeded      : bool   = false
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Inicialização
@@ -78,6 +109,8 @@ func _on_wild_encounter_started(pokemon_entity: Node) -> void:
 	wild_entity    = pokemon_entity
 	is_wild_battle = true
 	phase          = BattlePhase.STARTING
+	_player_seeded = false
+	_enemy_seeded  = false
 
 	# Monta BattlePokemon do inimigo e registra no pokédex
 	enemy_pokemon = BattlePokemon.create(
@@ -94,22 +127,7 @@ func _on_wild_encounter_started(pokemon_entity: Node) -> void:
 		# Fallback: sem save → Bulbasaur L5
 		player_pokemon = BattlePokemon.create(1, 5, true)
 	else:
-		var move_ids: Array = []
-		for m in poke_save.get("moves", []):
-			move_ids.append(m.get("id", ""))
-		player_pokemon = BattlePokemon.create(
-			int(poke_save.get("species_id", 1)),
-			int(poke_save.get("level", 5)),
-			true,
-			poke_save.get("ivs", {}),
-			move_ids
-		)
-		# Restaura HP atual e PP dos moves do save
-		player_pokemon.hp = int(poke_save.get("hp_current", player_pokemon.max_hp))
-		var saved_moves: Array = poke_save.get("moves", [])
-		for i in mini(saved_moves.size(), player_pokemon.moves.size()):
-			player_pokemon.moves[i]["pp_current"] = int(saved_moves[i].get("pp_current",
-				player_pokemon.moves[i].get("pp_current", 0)))
+		player_pokemon = BattlePokemon.from_save(poke_save)
 
 	EventBus.battle_started.emit()
 	SceneTransition.fade_to(BATTLE_SCENE_PATH)
@@ -163,6 +181,46 @@ func player_throw_pokeball(ball_item_id: String) -> void:
 	phase = BattlePhase.CAPTURE
 	_attempt_capture(ball_item_id)
 
+## Troca de Pokémon — tanto voluntária (botão POKÉMON no menu de ação) quanto
+## forçada (o ativo desmaiou e ainda sobra time). `new_index` é o índice no
+## time do SaveManager.
+func player_switch_pokemon(new_index: int) -> void:
+	if phase != BattlePhase.PLAYER_ACTION and phase != BattlePhase.FORCED_SWITCH:
+		return
+	var team := SaveManager.get_team()
+	if new_index < 0 or new_index >= team.size():
+		return
+	if int(team[new_index].get("hp_current", 0)) <= 0:
+		return  # não dá pra mandar um Pokémon desmaiado
+	if new_index == _player_save_index:
+		return  # já é o ativo
+
+	var was_forced := phase == BattlePhase.FORCED_SWITCH
+
+	# Persiste o HP/PP do Pokémon que está saindo (se ainda não desmaiado —
+	# o caso desmaiado já fica com hp_current=0 desde o dano que o derrubou).
+	if not was_forced:
+		_persist_player_pokemon_to_save()
+
+	_player_save_index = new_index
+	player_pokemon = BattlePokemon.from_save(team[new_index])
+	battle_scene.show_message("Vai, %s!" % player_pokemon.species_name)
+	battle_scene.refresh_player_pokemon(player_pokemon)
+
+	if was_forced:
+		phase = BattlePhase.PLAYER_ACTION
+		battle_scene.update_hud(player_pokemon, enemy_pokemon)
+		battle_scene.show_action_menu()
+	else:
+		# Troca voluntária consome o turno — o inimigo ainda age.
+		_enemy_act()
+		_end_of_turn()
+
+func player_cancel_switch() -> void:
+	if phase != BattlePhase.PLAYER_ACTION:
+		return
+	battle_scene.show_action_menu()
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Resolução de turno
 # ──────────────────────────────────────────────────────────────────────────────
@@ -184,14 +242,15 @@ func _resolve_turn() -> void:
 
 	if player_first:
 		_execute_move(player_pokemon, enemy_pokemon, player_move)
-		if not enemy_pokemon.is_fainted():
+		if phase == BattlePhase.RESOLVING and not enemy_pokemon.is_fainted():
 			_execute_move(enemy_pokemon, player_pokemon, enemy_move)
 	else:
 		_execute_move(enemy_pokemon, player_pokemon, enemy_move)
-		if not player_pokemon.is_fainted():
+		if phase == BattlePhase.RESOLVING and not player_pokemon.is_fainted():
 			_execute_move(player_pokemon, enemy_pokemon, player_move)
 
-	_end_of_turn()
+	if phase == BattlePhase.RESOLVING:
+		_end_of_turn()
 
 func _pick_enemy_move() -> Dictionary:
 	var usable := enemy_pokemon.get_usable_moves()
@@ -212,53 +271,169 @@ func _execute_move(attacker: BattlePokemon, defender: BattlePokemon, move: Dicti
 
 	var move_name : String = move.get("name", "???")
 
-	# Verificar se pode agir (status)
-	if not attacker.can_move():
-		battle_scene.show_message("%s não pode se mover!" % attacker.species_name)
+	# Hyper Beam etc: precisa recarregar, perde a ação inteira.
+	if attacker.must_recharge:
+		attacker.must_recharge = false
+		battle_scene.show_message("%s precisa recarregar!" % attacker.species_name)
 		return
+
+	# Apanhou antes de agir neste turno (Stomp, Bite, Rock Slide...).
+	if attacker.flinched:
+		attacker.flinched = false
+		battle_scene.show_message("%s hesitou e não conseguiu se mexer!" % attacker.species_name)
+		return
+
+	# Status que impede agir (sono, congelado, paralisado — com chance).
+	if not attacker.can_move():
+		var reason := "não pode se mover!"
+		match attacker.status:
+			BattlePokemon.Status.SLEEP:   reason = "está dormindo."
+			BattlePokemon.Status.FREEZE:  reason = "está congelado!"
+			BattlePokemon.Status.PARALYSIS: reason = "está paralisado e não consegue se mover!"
+		battle_scene.show_message("%s %s" % [attacker.species_name, reason])
+		return
+
+	# Confusão — chance de acertar a si mesmo em vez de agir.
+	if attacker.is_confused:
+		attacker.confuse_turns -= 1
+		if attacker.confuse_turns <= 0:
+			attacker.is_confused = false
+			battle_scene.show_message("%s não está mais confuso!" % attacker.species_name)
+		else:
+			battle_scene.show_message("%s está confuso!" % attacker.species_name)
+		if RNGManager.chance(1.0 / 3.0):
+			var self_dmg := _confusion_self_damage(attacker)
+			var actual_self := attacker.take_damage(self_dmg)
+			battle_scene.show_message("Machucou a si mesmo na confusão!")
+			battle_scene.animate_damage(attacker, actual_self)
+			if attacker.is_fainted():
+				_on_pokemon_fainted(attacker)
+			return
 
 	battle_scene.show_message("%s usou %s!" % [attacker.species_name, move_name])
 
-	# Verificar acerto
+	# Verificar acerto. accuracy=0 no dado é sentinela de "sempre acerta"
+	# (usado tanto por golpes que nunca erram — Swift — quanto por moves de
+	# status que não miram o oponente, tipo Agility). Antes disso não estava
+	# tratado e QUALQUER move com accuracy=0 sempre errava — o oposto do que
+	# o dado queria dizer.
 	var acc : int = move.get("accuracy", 100)
-	if acc < 100:
+	if acc > 0 and acc < 100:
 		var hit_chance := float(acc) / 100.0 * attacker.accuracy_modifier() / defender.evasion_modifier()
 		if not RNGManager.chance(hit_chance):
 			battle_scene.show_message("Errou!")
+			if move.get("effect", "") == "crash_on_miss":
+				var crash := maxi(1, attacker.max_hp / 8)
+				var actual_crash := attacker.take_damage(crash)
+				battle_scene.show_message("%s se machucou com o próprio impulso!" % attacker.species_name)
+				battle_scene.animate_damage(attacker, actual_crash)
+				if attacker.is_fainted():
+					_on_pokemon_fainted(attacker)
 			return
 
 	var category : String = move.get("category", "physical")
+	var effect   : String = move.get("effect", "none")
 
-	# Move de status
+	# Move de status (sem dano)
 	if category == "status":
 		_apply_status_move(attacker, defender, move)
 		return
 
-	# Calcular dano
+	# Golpes de dano fixo/especial que não usam a fórmula normal (power=0
+	# mas NÃO é "sem efeito" — antes disso o código só via power==0 e saía
+	# sem fazer nada, então Investida-K.O./Contra-golpe/Fúria não faziam nada).
+	match effect:
+		"ohko":
+			_execute_ohko(attacker, defender)
+			return
+		"fixed_damage_20":
+			_deal_fixed_damage(attacker, defender, 20)
+			return
+		"fixed_damage_40":
+			_deal_fixed_damage(attacker, defender, 40)
+			return
+		"halve_hp":
+			_deal_fixed_damage(attacker, defender, maxi(1, defender.hp / 2))
+			return
+		"level_damage":
+			_deal_fixed_damage(attacker, defender, attacker.level)
+			return
+		"random_damage_0_5_to_1_5_level":
+			var dmg := maxi(1, roundi(attacker.level * RNGManager.randf_range(0.5, 1.5)))
+			_deal_fixed_damage(attacker, defender, dmg)
+			return
+
 	var power : int = move.get("power", 0)
 	if power == 0:
-		return
+		return  # move de status raro sem fórmula própria — ainda não modelado
 
-	var damage := _calculate_damage(attacker, defender, move)
-	var actual := defender.take_damage(damage)
+	# Multi-hit (2 a 5 vezes) — Duplo Golpe, Fúria de Areia, etc.
+	var hits := 1
+	if effect == "multi_hit_2_5":
+		hits = _roll_multi_hit_count()
 
-	# Efetividade
-	var effectiveness := _type_effectiveness(move.get("type","Normal"), defender)
-	if effectiveness > 1.5:
-		battle_scene.show_message("É super eficaz!")
-	elif effectiveness < 0.5 and effectiveness > 0.0:
-		battle_scene.show_message("Não é muito eficaz...")
-	elif effectiveness == 0.0:
-		battle_scene.show_message("Não tem efeito...")
+	var total_dealt := 0
+	var showed_effectiveness := false
+	for _i in hits:
+		if defender.is_fainted():
+			break
+		var damage := _calculate_damage(attacker, defender, move)
+		var actual := defender.take_damage(damage)
+		total_dealt += actual
+		if not showed_effectiveness:
+			var effectiveness := _type_effectiveness(move.get("type", "Normal"), defender)
+			if effectiveness > 1.5:
+				battle_scene.show_message("É super eficaz!")
+			elif effectiveness < 0.5 and effectiveness > 0.0:
+				battle_scene.show_message("Não é muito eficaz...")
+			elif effectiveness == 0.0:
+				battle_scene.show_message("Não tem efeito...")
+			showed_effectiveness = true
+		battle_scene.animate_damage(defender, actual)
 
-	battle_scene.animate_damage(defender, actual)
+	if hits > 1:
+		battle_scene.show_message("Acertou %d vez(es)!" % hits)
+
+	if effect == "recharge":
+		attacker.must_recharge = true
+
+	# Recuo (o atacante também apanha, proporcional ao dano causado).
+	if effect.begins_with("recoil_"):
+		var pct := _extract_trailing_number(effect.trim_prefix("recoil_"))
+		if pct > 0 and total_dealt > 0:
+			var recoil := maxi(1, roundi(total_dealt * pct / 100.0))
+			var actual_recoil := attacker.take_damage(recoil)
+			battle_scene.show_message("%s foi atingido pelo próprio ataque!" % attacker.species_name)
+			battle_scene.animate_damage(attacker, actual_recoil)
+
+	# Dreno (o atacante recupera HP proporcional ao dano causado).
+	if effect.begins_with("drain_") and total_dealt > 0:
+		var digits := ""
+		for c in effect:
+			if c.is_valid_int():
+				digits += c
+			elif digits != "":
+				break
+		var pct := int(digits) if digits != "" else 50
+		var heal_amt := maxi(1, roundi(total_dealt * pct / 100.0))
+		if attacker.heal(heal_amt) > 0:
+			battle_scene.show_message("%s sugou energia!" % attacker.species_name)
+
+	# Ganhou dinheiro (Pay Day) — só faz sentido pro jogador.
+	if effect == "scatter_coins" and attacker == player_pokemon and total_dealt > 0:
+		var won := attacker.level * 5
+		SaveManager.add_money(won)
+		battle_scene.show_message("Espalhou moedas! Ganhou ₽%d!" % won)
+
+	# Efeito secundário por chance (queimadura/paralisia/flinch/confusão/
+	# queda de stat) — antes disso, NENHUM golpe de dano aplicava o efeito
+	# secundário descrito nos dados (ex: Lança-Chamas nunca queimava).
+	if not defender.is_fainted():
+		_maybe_apply_secondary_effect(effect, attacker, defender)
 
 	if defender.is_fainted():
 		battle_scene.show_message("%s desmaiou!" % defender.species_name)
-		if defender == enemy_pokemon:
-			_end_battle("win")
-		else:
-			_end_battle("lose")
+		_on_pokemon_fainted(defender)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Cálculo de dano (Gen 3+ formula)
@@ -284,8 +459,9 @@ func _calculate_damage(atk: BattlePokemon, def: BattlePokemon, move: Dictionary)
 	# Efetividade de tipo
 	dmg *= _type_effectiveness(move_type, def)
 
-	# Crítico (1/16 chance, 1.5x dano)
-	if RNGManager.chance(0.0625):
+	# Crítico (1/16 chance normal, ~1/4 com Focus Energy — Foco Energético)
+	var crit_chance := 0.25 if atk.crit_boost else 0.0625
+	if RNGManager.chance(crit_chance):
 		dmg *= 1.5
 		battle_scene.show_message("Golpe crítico!")
 
@@ -303,30 +479,217 @@ func _type_effectiveness(move_type: String, defender: BattlePokemon) -> float:
 		mult *= chart.get(dt, 1.0)
 	return mult
 
+func _deal_fixed_damage(attacker: BattlePokemon, defender: BattlePokemon, amount: int) -> void:
+	var actual := defender.take_damage(maxi(1, amount))
+	battle_scene.animate_damage(defender, actual)
+	if defender.is_fainted():
+		battle_scene.show_message("%s desmaiou!" % defender.species_name)
+		_on_pokemon_fainted(defender)
+
+func _execute_ohko(attacker: BattlePokemon, defender: BattlePokemon) -> void:
+	# Simplificado: só funciona se o atacante não for de nível menor que o
+	# alvo (regra clássica), chance = accuracy do golpe (já checada como
+	# acerto normal antes de chegar aqui não se aplica — o "acerto" de OHKO
+	# É essa checagem de nível, então refazemos aqui).
+	if attacker.level < defender.level:
+		battle_scene.show_message("Não teve efeito!")
+		return
+	_deal_fixed_damage(attacker, defender, defender.hp)
+
+func _roll_multi_hit_count() -> int:
+	# Probabilidades clássicas: 2 e 3 acertos são bem mais comuns que 4 e 5.
+	var roll := RNGManager.randf()
+	if roll < 0.375:
+		return 2
+	elif roll < 0.75:
+		return 3
+	elif roll < 0.875:
+		return 4
+	return 5
+
+func _confusion_self_damage(attacker: BattlePokemon) -> int:
+	# Golpe físico típico (potência 40) contra si mesmo, sem STAB/tipo.
+	var a := attacker.effective_attack(false)
+	var d := attacker.effective_defense(false)
+	var dmg : float = (2.0 * attacker.level / 5.0 + 2.0) * 40 * float(a) / float(d) / 50.0 + 2.0
+	return maxi(1, roundi(dmg))
+
+static func _extract_trailing_number(s: String) -> int:
+	var digits := ""
+	for c in s:
+		if c.is_valid_int():
+			digits += c
+	return int(digits) if digits != "" else 0
+
+func _on_pokemon_fainted(fainted: BattlePokemon) -> void:
+	if fainted == enemy_pokemon:
+		_handle_enemy_fainted()
+	else:
+		_handle_player_fainted()
+
+## O Pokémon inimigo desmaiou — se for treinador com mais time, manda o
+## próximo; senão a batalha acabou (vitória).
+func _handle_enemy_fainted() -> void:
+	if not is_wild_battle and trainer_team_idx + 1 < trainer_team_data.size():
+		trainer_team_idx += 1
+		_enemy_seeded = false
+		var nxt : Dictionary = trainer_team_data[trainer_team_idx]
+		enemy_pokemon = BattlePokemon.create(int(nxt.get("species_id", 16)), int(nxt.get("level", 5)), false)
+		battle_scene.show_message("O adversário enviou %s!" % enemy_pokemon.species_name)
+		battle_scene.refresh_enemy_pokemon(enemy_pokemon)
+		return
+	_end_battle("win")
+
+## O Pokémon do jogador desmaiou — se sobrar time vivo, abre a troca
+## obrigatória; senão a batalha acabou (derrota). Antes disso, QUALQUER
+## desmaio do ativo encerrava a batalha na hora, mesmo com o time cheio de
+## Pokémon saudáveis esperando no banco.
+func _handle_player_fainted() -> void:
+	_persist_player_pokemon_to_save()
+	var team := SaveManager.get_team()
+	for i in team.size():
+		if i != _player_save_index and int(team[i].get("hp_current", 0)) > 0:
+			phase = BattlePhase.FORCED_SWITCH
+			battle_scene.show_switch_menu(true)
+			return
+	_end_battle("lose")
+
 # ──────────────────────────────────────────────────────────────────────────────
-# Moves de status
+# Moves de status / efeitos
 # ──────────────────────────────────────────────────────────────────────────────
 func _apply_status_move(atk: BattlePokemon, def: BattlePokemon, move: Dictionary) -> void:
 	var effect : String = move.get("effect", "none")
+	_apply_single_effect(effect, atk, def, 100)
+	battle_scene.update_hud(player_pokemon, enemy_pokemon)
+	if def.is_fainted():
+		battle_scene.show_message("%s desmaiou!" % def.species_name)
+		_on_pokemon_fainted(def)
+
+## Efeito secundário de um golpe de dano (queimadura/paralisia/flinch/
+## confusão/queda de stat com chance %). Chamado depois do dano já ter sido
+## aplicado.
+func _maybe_apply_secondary_effect(effect: String, atk: BattlePokemon, def: BattlePokemon) -> void:
+	if effect == "none" or effect == "":
+		return
+	if effect.begins_with("recoil_") or effect.begins_with("drain_") or effect == "scatter_coins" \
+			or effect == "multi_hit_2_5" or effect == "recharge" or effect == "crash_on_miss":
+		return  # já tratados antes de chegar aqui
+	_apply_single_effect(effect, atk, def, -1)
+	battle_scene.update_hud(player_pokemon, enemy_pokemon)
+
+## Aplica um efeito descrito em moves.json. `default_chance` é usado quando o
+## nome do efeito não traz uma chance embutida (-1 = só aplica se o nome
+## trouxer uma chance explícita, usado nos efeitos secundários de golpes de
+## dano — sem isso, TODO golpe de dano com efeito viraria garantido).
+func _apply_single_effect(effect: String, atk: BattlePokemon, def: BattlePokemon, default_chance: int) -> void:
+	# 1) Mudança de stat: "<stat>_plus<1|2>" ou "<stat>_minus<1|2>[_<chance>]"
+	var stat_change := _parse_stat_change(effect)
+	if not stat_change.is_empty():
+		var chance : int = _resolve_chance(int(stat_change["chance"]), default_chance)
+		if chance <= 0 or not RNGManager.chance(chance / 100.0):
+			return
+		var target : BattlePokemon = atk if stat_change["delta"] > 0 else def
+		_change_stage(target, stat_change["stat"], stat_change["delta"])
+		return
+
+	# 2) Confusão (própria, separada do enum Status — pode coexistir com ele)
+	if effect == "confuse" or effect.begins_with("confuse_"):
+		var raw : int = -1 if effect == "confuse" else _extract_trailing_number(effect)
+		var chance := _resolve_chance(raw, default_chance)
+		if chance <= 0 or not RNGManager.chance(chance / 100.0):
+			return
+		if not def.is_confused and not def.is_fainted():
+			def.is_confused   = true
+			def.confuse_turns = RNGManager.randi_range(2, 5)
+			battle_scene.show_message("%s ficou confuso!" % def.species_name)
+		return
+
+	# 3) Flinch (só faz sentido como efeito secundário — golpe puro de flinch não existe)
+	if effect.begins_with("flinch_"):
+		var chance := _extract_trailing_number(effect)
+		if chance > 0 and RNGManager.chance(chance / 100.0):
+			def.flinched = true
+		return
+
+	# 4) Condição de status (queima/veneno/paralisia/sono/congela)
+	for key in STATUS_EFFECT_MAP.keys():
+		if effect == key or effect.begins_with(key + "_"):
+			var raw : int = -1 if effect == key else _extract_trailing_number(effect)
+			var chance := _resolve_chance(raw, default_chance)
+			if chance <= 0 or not RNGManager.chance(chance / 100.0):
+				return
+			if def.apply_status(STATUS_EFFECT_MAP[key]):
+				battle_scene.show_message("%s foi afetado(a)!" % def.species_name)
+			return
+
+	# 5) Efeitos únicos que não seguem um padrão de nome
 	match effect:
-		"burn":           def.apply_status(BattlePokemon.Status.BURN)
-		"poison":         def.apply_status(BattlePokemon.Status.POISON)
-		"bad_poison":     def.apply_status(BattlePokemon.Status.BAD_POISON)
-		"paralyze":       def.apply_status(BattlePokemon.Status.PARALYSIS)
-		"sleep":          def.apply_status(BattlePokemon.Status.SLEEP)
-		"atk_up_1":       _change_stage(atk, "atk", 1)
-		"def_up_1":       _change_stage(atk, "def", 1)
-		"spa_up_1":       _change_stage(atk, "spa", 1)
-		"spd_up_1":       _change_stage(atk, "spd", 1)
-		"spe_up_1":       _change_stage(atk, "spe", 1)
-		"atk_down_1":     _change_stage(def, "atk", -1)
-		"def_down_1":     _change_stage(def, "def", -1)
-		"spe_down_1":     _change_stage(def, "spe", -1)
-		"acc_down_1":     _change_stage(def, "acc", -1)
 		"heal_half":
 			var healed := atk.heal(atk.max_hp / 2)
-			battle_scene.show_message("%s recuperou HP!" % atk.species_name)
-	battle_scene.update_hud(player_pokemon, enemy_pokemon)
+			if healed > 0:
+				battle_scene.show_message("%s recuperou HP!" % atk.species_name)
+		"heal_full_and_sleep_2":
+			atk.heal(atk.max_hp)
+			atk.status = BattlePokemon.Status.NONE  # Descanso sobrescreve qualquer status anterior
+			atk.apply_status(BattlePokemon.Status.SLEEP)
+			atk.sleep_turns = 2
+			battle_scene.show_message("%s dormiu e recuperou toda a energia!" % atk.species_name)
+		"crit_rate_up":
+			atk.crit_boost = true
+			battle_scene.show_message("%s está se concentrando!" % atk.species_name)
+		"leech_seed":
+			if def == enemy_pokemon:
+				_enemy_seeded = true
+			else:
+				_player_seeded = true
+			def.is_seeded = true
+			battle_scene.show_message("%s foi semeado(a)!" % def.species_name)
+		"reset_all_stats":
+			for stat in atk.stages.keys():
+				atk.stages[stat] = 0
+			for stat in def.stages.keys():
+				def.stages[stat] = 0
+			atk.is_confused = false
+			def.is_confused = false
+			battle_scene.show_message("Todas as mudanças de status sumiram!")
+		_:
+			pass  # efeito ainda não modelado (bide, substitute, disable, trap,
+			      # counter, mimic, metronome, telas de defesa, etc.) — o golpe
+			      # só mostra "usou X!" por enquanto, sem crashar.
+
+## `raw` é a chance embutida no nome do efeito (-1 se o nome não trouxe
+## nenhuma). `fallback` é 100 quando é um move de status puro (efeito
+## garantido) ou -1 quando é o efeito secundário de um golpe de dano (sem
+## chance explícita no nome, não deveria acontecer nos dados — não aplica).
+func _resolve_chance(raw: int, fallback: int) -> int:
+	if raw >= 0:
+		return raw
+	if fallback >= 0:
+		return fallback
+	return 0
+
+func _parse_stat_change(effect: String) -> Dictionary:
+	for stat_key in STAT_NAME_TO_INTERNAL.keys():
+		for dir_word in ["plus", "minus"]:
+			var prefix := "%s_%s" % [stat_key, dir_word]
+			if not effect.begins_with(prefix):
+				continue
+			var rest := effect.substr(prefix.length())
+			if rest.length() == 0 or (rest[0] != "1" and rest[0] != "2"):
+				continue
+			var magnitude := int(rest[0])
+			var remainder := rest.substr(1)
+			var chance := -1
+			if remainder.begins_with("_"):
+				chance = int(remainder.substr(1))
+			elif remainder != "":
+				continue
+			return {
+				"stat": STAT_NAME_TO_INTERNAL[stat_key],
+				"delta": magnitude if dir_word == "plus" else -magnitude,
+				"chance": chance,
+			}
+	return {}
 
 func _change_stage(target: BattlePokemon, stat: String, delta: int) -> void:
 	var old : int = target.stages[stat]
@@ -342,16 +705,50 @@ func _change_stage(target: BattlePokemon, stat: String, delta: int) -> void:
 # ──────────────────────────────────────────────────────────────────────────────
 # Itens
 # ──────────────────────────────────────────────────────────────────────────────
+## Achado (auditoria de 2026-08-31): esta função lia `item.get("effect")`,
+## mas items.json não tem esse campo — usa `heal_hp`/`cures`/`revive_hp`/
+## `restore_pp` diretamente. Ou seja, usar QUALQUER item em batalha (Poção
+## incluída) nunca fazia nada além de gastar o item. Reescrito pra ler o
+## formato real dos dados.
 func _apply_item(item_id: String, target: BattlePokemon) -> void:
 	var item := GameData.get_item(item_id)
-	var effect : String = item.get("effect", "none")
-	match effect:
-		"heal_20":   target.heal(20)
-		"heal_50":   target.heal(50)
-		"heal_200":  target.heal(200)
-		"heal_full": target.heal(target.max_hp)
-		"cure_status": target.status = BattlePokemon.Status.NONE
-	battle_scene.show_message("Usou %s!" % item.get("name", item_id))
+	var item_name : String = item.get("name", item_id)
+	battle_scene.show_message("Usou %s!" % item_name)
+
+	if item.has("heal_hp") and not target.is_fainted():
+		var amount : int = int(item["heal_hp"])
+		var healed : int = target.heal(target.max_hp) if amount < 0 else target.heal(amount)
+		if healed > 0:
+			battle_scene.show_message("%s recuperou %d HP!" % [target.species_name, healed])
+
+	if item.has("revive_hp") and target.is_fainted():
+		var ratio : float = float(item["revive_hp"])
+		target.hp = target.max_hp if ratio < 0 else maxi(1, roundi(target.max_hp * ratio))
+		battle_scene.show_message("%s foi revivido(a)!" % target.species_name)
+
+	if item.has("cures"):
+		var cures : Array = item["cures"]
+		var should_cure := false
+		if "all" in cures:
+			should_cure = true
+		else:
+			for cure_key in cures:
+				if target.status in CURE_MAP.get(cure_key, []):
+					should_cure = true
+					break
+		if should_cure and target.status != BattlePokemon.Status.NONE:
+			target.status = BattlePokemon.Status.NONE
+			battle_scene.show_message("%s foi curado(a)!" % target.species_name)
+
+	if item.get("heal_status", false) and target.status != BattlePokemon.Status.NONE:
+		target.status = BattlePokemon.Status.NONE
+
+	if item.has("restore_pp"):
+		var amt : int = int(item["restore_pp"])
+		for m in target.moves:
+			var pp_max : int = int(m.get("pp", 10))
+			m["pp_current"] = pp_max if amt < 0 else mini(pp_max, int(m.get("pp_current", 0)) + amt)
+
 	battle_scene.update_hud(player_pokemon, enemy_pokemon)
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -370,7 +767,7 @@ func _end_of_turn() -> void:
 		battle_scene.animate_damage(player_pokemon, p_dmg)
 		if player_pokemon.is_fainted():
 			battle_scene.show_message("%s desmaiou!" % player_pokemon.species_name)
-			_end_battle("lose")
+			_on_pokemon_fainted(player_pokemon)
 			return
 
 	if e_dmg > 0:
@@ -378,7 +775,30 @@ func _end_of_turn() -> void:
 		battle_scene.animate_damage(enemy_pokemon, e_dmg)
 		if enemy_pokemon.is_fainted():
 			battle_scene.show_message("%s desmaiou!" % enemy_pokemon.species_name)
-			_end_battle("win")
+			_on_pokemon_fainted(enemy_pokemon)
+			return
+
+	# Leech Seed — drena de quem está semeado pra quem semeou.
+	if _player_seeded and player_pokemon.is_seeded and not player_pokemon.is_fainted():
+		var drain := maxi(1, player_pokemon.max_hp / 16)
+		var actual := player_pokemon.take_damage(drain)
+		enemy_pokemon.heal(actual)
+		battle_scene.show_message("%s teve energia sugada pela semente!" % player_pokemon.species_name)
+		battle_scene.animate_damage(player_pokemon, actual)
+		if player_pokemon.is_fainted():
+			battle_scene.show_message("%s desmaiou!" % player_pokemon.species_name)
+			_on_pokemon_fainted(player_pokemon)
+			return
+
+	if _enemy_seeded and enemy_pokemon.is_seeded and not enemy_pokemon.is_fainted():
+		var drain2 := maxi(1, enemy_pokemon.max_hp / 16)
+		var actual2 := enemy_pokemon.take_damage(drain2)
+		player_pokemon.heal(actual2)
+		battle_scene.show_message("%s teve energia sugada pela semente!" % enemy_pokemon.species_name)
+		battle_scene.animate_damage(enemy_pokemon, actual2)
+		if enemy_pokemon.is_fainted():
+			battle_scene.show_message("%s desmaiou!" % enemy_pokemon.species_name)
+			_on_pokemon_fainted(enemy_pokemon)
 			return
 
 	battle_scene.update_hud(player_pokemon, enemy_pokemon)
@@ -463,8 +883,7 @@ func _end_battle(result: String) -> void:
 				if new_level > old_level:
 					AudioManager.play_sfx("level_up")
 					battle_scene.show_message("%s subiu para o Nível %d!" % [player_pokemon.species_name, new_level])
-				# Loot (Lote 9) — só em batalha selvagem; LootTable.gd existia mas
-				# nunca tinha sido ligado a lugar nenhum até agora.
+				# Loot (Lote 9) — só em batalha selvagem.
 				if is_wild_battle and enemy_pokemon:
 					var drop : Dictionary = LootTable.new().roll_drop(enemy_pokemon.level, 0)
 					if not drop.is_empty():
@@ -511,9 +930,6 @@ static func _get_base_exp(species_id: int) -> int:
 	return mini(250, 50 + roundi(species_id * 0.8))
 
 func _is_full_blackout() -> bool:
-	# Achado: lia "current_hp" (chave que não existe no save — o campo real é
-	# "hp_current") — a checagem sempre via 0 pra tudo e considerava QUALQUER
-	# derrota como o time inteiro nocauteado, mesmo com outros 5 saudáveis.
 	var team := SaveManager.get_team()
 	for poke in team:
 		if poke.get("hp_current", 0) > 0:
@@ -528,6 +944,8 @@ func start_trainer_battle(npc: Node) -> void:
 	trainer_team_data = npc.trainer_team
 	trainer_team_idx  = 0
 	is_wild_battle    = false
+	_player_seeded    = false
+	_enemy_seeded     = false
 	phase             = BattlePhase.STARTING
 
 	# Primeiro Pokémon do treinador

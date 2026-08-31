@@ -6,10 +6,12 @@ extends CanvasLayer
 
 const BAG_SCENE     : PackedScene = preload("res://scenes/battle/BagScene.tscn")
 const POKEDEX_SCENE : PackedScene = preload("res://scenes/ui/PokedexScene.tscn")
+const SHOP_SCENE     : PackedScene = preload("res://scenes/ui/ShopScene.tscn")
 
 @onready var panel       : PanelContainer = $Panel
 @onready var btn_team    : Button         = $Panel/VBox/BtnTeam
 @onready var btn_bag     : Button         = $Panel/VBox/BtnBag
+@onready var btn_shop    : Button         = $Panel/VBox/BtnShop
 @onready var btn_pokedex : Button         = $Panel/VBox/BtnPokedex
 @onready var btn_save    : Button         = $Panel/VBox/BtnSave
 @onready var btn_resume  : Button         = $Panel/VBox/BtnResume
@@ -29,6 +31,7 @@ func _ready() -> void:
 	panel.hide()
 	btn_team.pressed.connect(_on_team)
 	btn_bag.pressed.connect(_on_bag)
+	btn_shop.pressed.connect(_on_shop)
 	btn_pokedex.pressed.connect(_on_pokedex)
 	btn_save.pressed.connect(_on_save)
 	btn_resume.pressed.connect(_on_resume)
@@ -90,6 +93,18 @@ func _on_bag() -> void:
 	get_tree().paused = true
 	_bag_instance.refresh(SaveManager.get_inventory())
 	_bag_instance.show()
+
+func _on_shop() -> void:
+	AudioManager.play_sfx("confirm")
+	var shop := get_node_or_null("ShopInstance")
+	if not shop:
+		shop = SHOP_SCENE.instantiate()
+		shop.name = "ShopInstance"
+		add_child(shop)
+		shop.closed_by_user.connect(func(): get_tree().paused = false)
+	_on_resume()
+	get_tree().paused = true
+	shop.open()
 
 func _on_pokedex() -> void:
 	AudioManager.play_sfx("confirm")

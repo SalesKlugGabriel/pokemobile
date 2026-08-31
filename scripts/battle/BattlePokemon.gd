@@ -42,6 +42,14 @@ var bad_poison_ctr: int    = 0      # contador de dano crescente de bad poison
 # Modificadores de stage: -6 a +6 para cada stat
 var stages : Dictionary = { "atk":0,"def":0,"spa":0,"spd":0,"spe":0,"acc":0,"eva":0 }
 
+# Condições voláteis (não persistem no save, só duram a batalha atual)
+var is_confused   : bool = false   # independente de `status` — dá pra estar confuso E envenenado
+var confuse_turns : int  = 0
+var flinched      : bool = false   # true só durante o turno em que apanhou antes de agir
+var must_recharge : bool = false   # Hyper Beam etc — perde a próxima ação
+var is_seeded     : bool = false   # Leech Seed
+var crit_boost    : bool = false   # Focus Energy
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Construtor estático
 # ──────────────────────────────────────────────────────────────────────────────

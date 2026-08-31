@@ -28,6 +28,9 @@ const BAG_SCENE := preload("res://scenes/battle/BagScene.tscn")
 @onready var action_menu     : PanelContainer   = $ActionMenu
 @onready var move_menu       : PanelContainer   = $MoveMenu
 @onready var bag_menu        : PanelContainer   = $BagMenu
+@onready var switch_menu     : PanelContainer   = $SwitchMenu
+@onready var switch_list     : VBoxContainer    = $SwitchMenu/Layout/Scroll/List
+@onready var btn_switch_back : Button           = $SwitchMenu/Layout/Header/BtnSwitchBack
 
 # Botões de ação
 @onready var btn_fight       : Button           = $ActionMenu/Grid/BtnFight
@@ -67,7 +70,9 @@ func _connect_buttons() -> void:
 	btn_fight.pressed.connect(_on_fight_pressed)
 	btn_bag.pressed.connect(_on_bag_pressed)
 	btn_run.pressed.connect(BattleManager.player_try_run)
+	btn_pokemon.pressed.connect(_on_pokemon_pressed)
 	btn_move_back.pressed.connect(_on_move_back_pressed)
+	btn_switch_back.pressed.connect(_on_switch_back_pressed)
 
 	for i in move_buttons.size():
 		var btn : Button = move_buttons[i]
@@ -179,6 +184,7 @@ func _hide_all_menus() -> void:
 	action_menu.visible = false
 	move_menu.visible   = false
 	bag_menu.visible    = false
+	switch_menu.visible = false
 
 func _on_fight_pressed() -> void:
 	AudioManager.play_sfx("select")
@@ -256,3 +262,89 @@ func _populate_move_buttons() -> void:
 			btn.visible  = true
 		else:
 			btn.visible = false
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Troca de Pokémon (botão POKÉMON no menu, ou obrigatória quando o ativo desmaia)
+# ──────────────────────────────────────────────────────────────────────────────
+func _on_pokemon_pressed() -> void:
+	AudioManager.play_sfx("select")
+	show_switch_menu(false)
+
+func _on_switch_back_pressed() -> void:
+	_hide_all_menus()
+	BattleManager.player_cancel_switch()
+
+## `forced` = true quando o Pokémon ativo desmaiou e o time ainda tem
+## sobreviventes — nesse caso não dá pra cancelar, tem que escolher alguém.
+func show_switch_menu(forced: bool) -> void:
+	_hide_all_menus()
+	switch_menu.visible  = true
+	dialog_box.visible   = true
+	dialog_text.text     = "Escolha um Pokémon para continuar!" if forced else "Trocar Pokémon"
+	btn_switch_back.visible = not forced
+	_populate_switch_list()
+
+func _populate_switch_list() -> void:
+	for child in switch_list.get_children():
+		child.queue_free()
+	var team := SaveManager.get_team()
+	var active_index : int = BattleManager._player_save_index
+	for i in team.size():
+		var poke : Dictionary = team[i]
+		var row := _make_switch_row(i, poke, i == active_index)
+		switch_list.add_child(row)
+
+func _make_switch_row(index: int, poke: Dictionary, is_active: bool) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+
+	var species_name : String = GameData.get_species(int(poke.get("species_id", 1))).get("name", "???")
+	var nickname      : String = poke.get("nickname", "")
+	var display_name  : String = nickname if nickname != "" else species_name
+	var level  : int = int(poke.get("level", 1))
+	var hp_cur : int = int(poke.get("hp_current", 0))
+	var hp_max : int = int(poke.get("hp_max", 1))
+
+	var lbl := Label.new()
+	lbl.text = "%s  Nv.%d  %d/%d HP" % [display_name, level, hp_cur, hp_max]
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl.add_theme_font_size_override("font_size", 14)
+	if hp_cur <= 0:
+		lbl.modulate = Color(0.6, 0.6, 0.6)
+	row.add_child(lbl)
+
+	var btn := Button.new()
+	btn.custom_minimum_size = Vector2(90, 0)
+	if hp_cur <= 0:
+		btn.text = "Desmaiado"
+		btn.disabled = true
+	elif is_active:
+		btn.text = "Em campo"
+		btn.disabled = true
+	else:
+		btn.text = "Enviar"
+		var captured_index := index
+		btn.pressed.connect(func():
+			AudioManager.play_sfx("confirm")
+			BattleManager.player_switch_pokemon(captured_index)
+		)
+	row.add_child(btn)
+	return row
+
+## Chamado pelo BattleManager quando o Pokémon do jogador é trocado.
+func refresh_player_pokemon(bp: BattlePokemon) -> void:
+	_player_bp = bp
+	if player_sprite and bp:
+		player_sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(bp.species_id)
+		player_sprite.play("idle")
+		player_sprite.modulate.a = 1.0
+	update_hud(bp, _enemy_bp)
+
+## Chamado pelo BattleManager quando o treinador manda o próximo Pokémon.
+func refresh_enemy_pokemon(bp: BattlePokemon) -> void:
+	_enemy_bp = bp
+	if enemy_sprite and bp:
+		enemy_sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(bp.species_id)
+		enemy_sprite.play("idle")
+		enemy_sprite.modulate.a = 1.0
+	update_hud(_player_bp, bp)

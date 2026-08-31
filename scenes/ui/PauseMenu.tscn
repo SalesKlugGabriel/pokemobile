@@ -29,9 +29,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -140
-offset_top = -225
+offset_top = -246
 offset_right = 140
-offset_bottom = 225
+offset_bottom = 246
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_1")
@@ -60,6 +60,11 @@ theme_override_font_sizes/font_size = 14
 [node name="BtnBag" type="Button" parent="Panel/VBox"]
 layout_mode = 2
 text = "Mochila"
+theme_override_font_sizes/font_size = 14
+
+[node name="BtnShop" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Loja"
 theme_override_font_sizes/font_size = 14
 
 [node name="BtnPokedex" type="Button" parent="Panel/VBox"]
