@@ -19,6 +19,12 @@ extends BaseEntity
 ## Se true, abre a Loja (comprar/vender) ao encerrar o diálogo (vendedor)
 @export var opens_shop_on_dialog_end : bool = false
 
+## Item dado de presente (1x só) ao fim do diálogo — vazio = não dá nada.
+## Só dá se o jogador ainda não tem o item (evita repetir infinito conversando
+## de novo; funciona pra item único tipo vara de pescar, não pra consumível).
+@export var gift_item_id   : String = ""
+@export var gift_quantity  : int    = 1
+
 ## Se true, inicia batalha de treinador após o diálogo
 @export var is_trainer     : bool = false
 
@@ -147,13 +153,16 @@ func start_dialog(initiator: TrainerEntity) -> void:
 
 ## A Enfermeira Joy reage ao estado real do time: fala diferente se ninguém
 ## precisa de cura (evita a mesma fala "vou restaurar seus Pokémon" quando o
-## time já está 100%). Os outros NPCs sempre usam o dialog_id fixo.
+## time já está 100%). Um NPC com presente já dado também troca de fala
+## (evita repetir "tome uma vara" pra sempre). Os outros usam o dialog_id fixo.
 func _effective_dialog_id() -> String:
 	if heal_on_dialog_end and dialog_id == "nurse_joy":
 		for poke in SaveManager.get_team():
 			if int(poke.get("hp_current", 1)) < int(poke.get("hp_max", 1)):
 				return "nurse_joy"
 		return "nurse_joy_healthy"
+	if not gift_item_id.is_empty() and SaveManager.has_item(gift_item_id, 1):
+		return dialog_id + "_depois"
 	return dialog_id
 
 func _on_dialog_ended() -> void:
@@ -167,6 +176,9 @@ func _on_dialog_ended() -> void:
 		var pause_menu := get_tree().get_first_node_in_group("pause_menu")
 		if pause_menu and pause_menu.has_method("open_shop_externally"):
 			pause_menu.open_shop_externally()
+	if not gift_item_id.is_empty() and not SaveManager.has_item(gift_item_id, 1):
+		SaveManager.add_item(gift_item_id, gift_quantity)
+		AudioManager.play_sfx("item_get")
 	# Inicia batalha de treinador após o diálogo (se não foi derrotado ainda)
 	if is_trainer and not trainer_defeated and not trainer_team.is_empty():
 		BattleManager.start_trainer_battle(self)

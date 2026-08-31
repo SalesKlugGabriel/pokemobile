@@ -102,6 +102,13 @@ npc_name = "Ancião"
 dialog_id = "viridian_elder"
 is_patrolling = false
 
+[node name="Pescador" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(1064, 984)
+npc_name = "Pescador"
+dialog_id = "route1_fisherman"
+gift_item_id = "old_rod"
+is_patrolling = false
+
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("4_zm")
 

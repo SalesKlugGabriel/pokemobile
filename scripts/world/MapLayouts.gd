@@ -176,6 +176,10 @@ static func _route1_cell(c: int, r: int, W: int) -> String:
 	if c >= 57:
 		if c <= 60 or c >= 91:
 			return "T"
+		# Lago pequeno (Fase 2 do Diário — pesca precisa de água de verdade
+		# em algum lugar do mapa; não existia nenhum tile "~" no jogo antes).
+		if c >= 63 and c <= 70 and r >= 55 and r <= 60:
+			return "~"
 		if (c + r * 3) % 7 == 1:
 			return "T"
 		if (c + r * 2) % 11 == 4:

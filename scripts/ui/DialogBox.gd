@@ -19,7 +19,8 @@ func _ready() -> void:
 
 func _on_dialog_requested(npc: Node, dialog_id: String) -> void:
 	var lines : Array = GameData.get_dialog(dialog_id)
-	_npc_name = npc.get("npc_name") if npc.get("npc_name") else ""
+	# npc pode ser null — mensagem de sistema sem ninguém falando (ex: pesca).
+	_npc_name = (npc.get("npc_name") if npc.get("npc_name") else "") if npc else ""
 	_start(lines)
 
 func _start(lines: Array) -> void:

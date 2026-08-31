@@ -32,6 +32,7 @@ var _wild_scene : PackedScene = null
 # Ciclo de vida
 # ──────────────────────────────────────────────────────────────────────────────
 func _ready() -> void:
+	add_to_group("spawn_manager")
 	_wild_scene = load(WILD_POKEMON_SCENE) as PackedScene
 	if not _wild_scene:
 		push_warning("SpawnManager: WildPokemon.tscn não encontrado em %s" % WILD_POKEMON_SCENE)
@@ -119,6 +120,22 @@ func _spawn_pokemon(entry: Dictionary, pos: Vector2) -> void:
 	_spawn_parent.add_child(instance)
 	_wild_instances.append(instance)
 	EventBus.wild_pokemon_spawned.emit(instance)
+
+## Cria um WildPokemon específico (espécie/nível já escolhidos por fora) numa
+## posição exata — usado pela pesca (Fase 2 do Diário): o peixe fisgado não
+## "persegue" o jogador como um spawn normal, a mordida já é o encontro.
+## Retorna a instância (quem chamou decide o que fazer com ela, ex: emitir
+## wild_encounter_started na hora, sem esperar o WildPokemon perceber o player).
+func spawn_specific(species_id: int, level: int, pos: Vector2) -> Node:
+	var instance := _wild_scene.instantiate()
+	if not instance:
+		return null
+	instance.global_position = pos
+	if instance.has_method("initialize"):
+		instance.initialize(species_id, level, "neutral")
+	_spawn_parent.add_child(instance)
+	_wild_instances.append(instance)
+	return instance
 
 ## Sorteia posição aleatória dentro de SPAWN_RADIUS_TILES ao redor do player,
 ## garantindo que não seja na mesma tile do player.

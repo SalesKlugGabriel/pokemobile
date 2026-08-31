@@ -77,7 +77,8 @@ func _process(_delta: float) -> void:
 		try_move(dir)
 
 	if Input.is_action_just_pressed("interact"):
-		interact()
+		if not interact():
+			_try_fish()
 
 ## Prioridade fixa quando mais de uma tecla está pressionada (sem diagonal —
 ## o grid e os sprites do jogo são só 4 direções, igual Poketibia clássico).
@@ -94,6 +95,50 @@ func _on_tile_entered(tile: Vector2i) -> void:
 ## Usado pelo FollowerPokemon como direção de repouso quando ainda não há rastro.
 func get_facing_vector() -> Vector2:
 	return _dir_to_vec(facing)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Pesca (Fase 2 do Diário) — só tenta quando "interagir" não achou ninguém
+# na frente (chamado do _process acima).
+# ──────────────────────────────────────────────────────────────────────────────
+const ROD_PRIORITY := ["super_rod", "good_rod", "old_rod"]  # melhor vara primeiro
+
+func _try_fish() -> void:
+	var target_tile := grid_pos + _dir_to_vec(facing)
+	if not WorldManager.is_water_tile(target_tile):
+		return
+
+	var rod_id := ""
+	for candidate in ROD_PRIORITY:
+		if SaveManager.has_item(candidate, 1):
+			rod_id = candidate
+			break
+	if rod_id.is_empty():
+		_show_system_message("fishing_no_rod")
+		return
+
+	AudioManager.play_sfx("fishing_cast")
+	var rod_effect : String = GameData.get_item(rod_id).get("effect", "fish_common")
+	var catch_data := FishingSystem.new().attempt(rod_effect)
+	if catch_data.is_empty():
+		_show_system_message("fishing_no_bite")
+		return
+
+	var spawn_mgr := get_tree().get_first_node_in_group("spawn_manager")
+	if not spawn_mgr or not spawn_mgr.has_method("spawn_specific"):
+		return
+	var caught_pos := _grid_to_world(target_tile)
+	var wild_instance : Node = spawn_mgr.spawn_specific(
+		catch_data["species_id"], catch_data["level"], caught_pos
+	)
+	if wild_instance:
+		EventBus.wild_encounter_started.emit(wild_instance)
+
+## Mensagem de sistema sem NPC (ex: "nada mordeu") — usa o mesmo DialogBox
+## (com npc=null, ver DialogBox.gd) e trava/destrava input igual um diálogo
+## de verdade, senão dava pra sair andando com a caixa ainda aberta na tela.
+func _show_system_message(dialog_id: String) -> void:
+	EventBus.dialog_started.emit(null)
+	EventBus.npc_dialog_requested.emit(null, dialog_id)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Trail para FollowerPokemon

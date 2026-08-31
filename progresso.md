@@ -9,6 +9,50 @@
 
 ---
 
+## v0.2.6 — Fase 2 do Diário: skills do Treinador ligadas à batalha real + Pesca (2026-08-31, continuação)
+
+**Pedido:** Fase 2 — skills do Treinador (já existia, ver Fase 0) e Pesca (não existia).
+
+**Achado antes de construir pesca: 3 bônus da árvore de skills, prontos desde sempre, nunca
+eram lidos pela batalha de verdade** — mesma classe dos achados anteriores (held_item na
+Fase 1, o motor de quest na Fase 0):
+- `_attempt_capture()` lia `species.get("capture_rate", 45)` — campo real é `"catch_rate"`.
+  Igual ao bug de stats da Fase 1: todo Pokémon, capturado com a MESMA chance base (45),
+  nunca a chance real da espécie (Pidgey era tão difícil de capturar quanto um raro).
+  Corrigido, e aproveitado pra ligar o bônus do ramo "mestre_captura" (nunca era somado).
+- Loot de vitória sempre chamava `roll_drop(nivel, 0)` — o bônus do ramo "sorte" nunca
+  chegava a valer nada. Corrigido pra ler o ponto de verdade do Treinador.
+
+**Pesca construída do zero** (não existia nada, só os 3 itens de vara — sem nenhum código
+neles, e nem um tile de água no mapa inteiro):
+- **Lago pequeno** criado na Rota 1 (não existia água em lugar nenhum do jogo até agora).
+- **Pescador** (NPC novo) no lago, dá uma Vara Velha de presente (só 1 vez).
+- Ficar de frente pra água + apertar interagir com vara no inventário → chance de fisgar
+  (varia por vara: comum só Magikarp, boa Magikarp/Goldeen, super mistura rara incluindo
+  Gyarados) → vira uma batalha selvagem de verdade, pelo mesmo sistema de sempre.
+- Achado no caminho: `BaseEntity.interact()` não avisava se achou alguém — precisei fazer
+  virar `true`/`false` pra pesca só tentar quando não tem NPC na frente (não quebrou nada
+  que já chamava, ninguém usava o retorno antes).
+
+**Testado:** `scripts/tests/teste_fase2_pesca.gd` (14 conferências) — o lago existe de
+verdade nos dados do mapa, taxa de mordida e faixa de nível de cada vara batendo com a
+tabela, Gyarados raro aparecendo em milhares de tentativas, bônus de captura/sorte batendo
+o número certo depois de gastar ponto de skill. Publicado; testado ao vivo (sem erro no
+console, "Route 1" alcançada de verdade andando) mas **não confirmei visualmente pescar de
+verdade** — a navegação cega por script até o lago específico não teve sucesso em tempo
+razoável (esbarrei em várias batalhas selvagens no caminho). Vale você mesmo ir lá quando
+puder: suba por Rota 1, saia do corredor central pro lado leste, o lago e o Pescador ficam
+perto do meio da rota.
+
+**Próximo passo:** Fase 3 (primeiro Ginásio jogável — usa a Fase 0, mas precisa de uma
+quest nova apontando pro Ginásio de Viridian de verdade, não pro GYM-01 que aponta pra
+Pewter/Brock, que não existem).
+
+**Precisa de decisão do Gabriel?** Não pra continuar — só peço que confirme a pesca ao vivo
+quando puder, já que eu não consegui visualmente desta vez.
+
+---
+
 ## v0.2.5 — Fase 1 do Diário: Nature, Ability, Item segurado, Bestiary — e um bug crítico achado no caminho (2026-08-31, continuação)
 
 **Pedido:** seguir a Fase 1 do Diário — Nature, Ability passiva, Held Item ativo em batalha

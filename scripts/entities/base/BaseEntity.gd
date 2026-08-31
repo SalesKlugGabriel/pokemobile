@@ -100,13 +100,17 @@ func _is_tile_walkable(tile: Vector2i) -> bool:
 # Interação
 # ──────────────────────────────────────────────────────────────────────────────
 
-## Chama interação com a entidade à frente
-func interact() -> void:
+## Chama interação com a entidade à frente. Retorna true se achou alguém
+## (pra quem chamou, tipo TrainerEntity, saber se deve tentar outra coisa —
+## como pescar — quando não há ninguém pra falar).
+func interact() -> bool:
 	var target_tile := grid_pos + _dir_to_vec(facing)
 	var entity      := _find_entity_at(target_tile)
 	if entity:
 		interaction_triggered.emit(entity)
 		_on_interact_with(entity)
+		return true
+	return false
 
 func _on_interact_with(_entity: BaseEntity) -> void:
 	pass

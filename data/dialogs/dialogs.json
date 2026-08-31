@@ -81,5 +81,21 @@
     "Poções, Poké Bolas, remédios de status... se serve pra sobreviver lá fora, eu tenho.",
     "E se você trouxe item de troféu de alguma batalha, também compro — pago metade do preço de loja, é o combinado em todo lugar.",
     "Dá uma olhada no que eu tenho!"
+  ],
+  "route1_fisherman": [
+    "Ô, treinador! Vem ver esse lago aqui.",
+    "Passo o dia inteiro pescando — tem Pokémon de Água que só aparece assim, na linha.",
+    "Toma, fica com essa Vara Velha. Eu tenho outra em casa.",
+    "É só ficar de frente pra água e usar ela. Boa pesca!"
+  ],
+  "route1_fisherman_depois": [
+    "Esse lago nunca decepciona. Já pescou alguma coisa boa hoje?",
+    "Vara na mão, de frente pra água — é assim que se faz."
+  ],
+  "fishing_no_rod": [
+    "Você precisa de uma vara de pescar pra tentar aqui."
+  ],
+  "fishing_no_bite": [
+    "Nada mordeu a isca dessa vez..."
   ]
 }

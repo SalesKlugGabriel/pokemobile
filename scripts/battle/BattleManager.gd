@@ -847,7 +847,11 @@ func _attempt_capture(ball_item_id: String) -> void:
 	var ball_mult: float = float(ball.get("catch_rate_mult", 1))
 
 	var species  := GameData.get_species(enemy_pokemon.species_id)
-	var base_rate: int = species.get("capture_rate", 45)
+	# Achado (Fase 2 do Diário, 31/08): lia "capture_rate" — o campo real em
+	# species.json é "catch_rate". Sempre caía no padrão 45, pra qualquer
+	# espécie — Pidgey (catch_rate real 255) era tão difícil quanto um Rattata
+	# raro. Mesma classe do bug de stats achado na Fase 1.
+	var base_rate: int = species.get("catch_rate", 45)
 
 	# Fórmula moderna: a = (3 * max_hp - 2 * hp) * rate * ball_mult / (3 * max_hp)
 	var a : float = (3.0 * enemy_pokemon.max_hp - 2.0 * enemy_pokemon.hp) \
@@ -860,6 +864,10 @@ func _attempt_capture(ball_item_id: String) -> void:
 		BattlePokemon.Status.BURN, BattlePokemon.Status.POISON, \
 		BattlePokemon.Status.BAD_POISON, BattlePokemon.Status.PARALYSIS:
 			a *= 1.5
+
+	# Bônus de skill do Treinador (ramo mestre_captura) — dado já existia
+	# (Fase 0), nunca era consultado aqui.
+	a *= (1.0 + SaveManager.get_trainer_stats().get_capture_bonus())
 
 	a = clampf(a, 0.0, 255.0)
 
@@ -933,7 +941,10 @@ func _end_battle(result: String) -> void:
 					battle_scene.show_message("%s subiu para o Nível %d!" % [player_pokemon.species_name, new_level])
 				# Loot (Lote 9) — só em batalha selvagem.
 				if is_wild_battle and enemy_pokemon:
-					var drop : Dictionary = LootTable.new().roll_drop(enemy_pokemon.level, 0)
+					# Bônus de skill do Treinador (ramo sorte) — dado já
+					# existia (Fase 0), a chamada aqui sempre passava 0.
+					var luck_pts := SaveManager.get_trainer_stats().get_attribute("sorte")
+					var drop : Dictionary = LootTable.new().roll_drop(enemy_pokemon.level, luck_pts)
 					if not drop.is_empty():
 						var item_data := GameData.get_item(drop.get("id", ""))
 						var qty : int = int(drop.get("quantity", 1))

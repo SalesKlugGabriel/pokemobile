@@ -18,6 +18,9 @@ var current_map_id : String          = ""
 const COLLISION_LAYER_INDEX : int = 0
 ## Custom data layer name para indicar tile bloqueado
 const BLOCKED_DATA_KEY      : String = "blocked"
+## Coordenada do tile de água no atlas (ver MapLayouts.CHAR_MAP "~") — usado
+## pra pesca (Fase 2 do Diário) saber se o jogador está de frente pra água.
+const WATER_ATLAS_COORDS    : Vector2i = Vector2i(1, 1)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Inicialização
@@ -116,6 +119,17 @@ func _tile_walkable_tilemap(tm: TileMap, tile: Vector2i) -> bool:
 			has_any = true
 			break
 	return has_any
+
+## Retorna true se o tile é água (atlas coords == WATER_ATLAS_COORDS) —
+## usado pra pesca: só dá pra pescar de frente pra um tile assim.
+func is_water_tile(tile: Vector2i) -> bool:
+	if not tilemap or not (tilemap is TileMap):
+		return false
+	var tm := tilemap as TileMap
+	for layer_idx in tm.get_layers_count():
+		if tm.get_cell_atlas_coords(layer_idx, tile) == WATER_ATLAS_COORDS:
+			return true
+	return false
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Conexão de sinais de entidades
