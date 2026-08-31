@@ -9,6 +9,40 @@
 
 ---
 
+## v0.2.2 — Distância do Pokémon seguidor + derrota leva ao Centro Pokémon (2026-08-31, continuação)
+
+**Pedido do Gabriel:** o Pokémon seguidor precisa ficar pelo menos 2 blocos (tiles) atrás do
+treinador andando, pra não sobrepor o sprite; e ao ser derrotado numa batalha, o jogador deve ir
+ao Centro Pokémon curar o time, não só "reaparecer curado" em qualquer lugar.
+
+**O que foi feito:**
+- `FollowerPokemon.FOLLOW_DISTANCE` (a distância de repouso atrás do treinador) subiu de 24px
+  (1,5 tile) pra 32px — exatamente 2 tiles de 16px, o pedido do Gabriel. `TrainerEntity.
+  _update_follower()` calculava a mesma distância só que com o número 24.0 solto e repetido
+  (duplicação que já podia dessincronizar os dois) — trocado pra referenciar a constante do
+  `FollowerPokemon` em vez de duplicar o número.
+- Tela de "Você perdeu" (`GameOverScene`) já existia e já curava o time (`SaveManager.
+  heal_team()`, que reanima até o Pokémon desmaiado — `hp_current = hp_max`) — só que o botão
+  "Continuar" levava pro `WorldMap.tscn` num ponto qualquer. Trocado pra levar pro
+  `PokemonCenter.tscn` de verdade (mesmo mapa que já existe e já é usado quando o jogador visita
+  a Enfermeira Joy manualmente — reaproveitado, não inventado do zero). Texto da tela ajustado
+  pra "você foi levado ao Centro Pokémon" (antes só dizia "desmaiaram", sem explicar pra onde ia).
+
+**Testado:** Recompilado e publicado. Confirmado ao vivo no navegador (Chromium automatizado):
+andando, o Pokémon segue com folga visível, nunca sobrepõe o treinador; parado por 6s seguidos,
+a distância não fecha (não gruda no treinador). **Não confirmado ao vivo**: o fluxo completo de
+derrota → Centro Pokémon (exigiria derrotar o time inteiro em batalhas reais, o que não desse pra
+forçar rápido nesta sessão) — conferido só pelo código: reaproveita a mesma função de cura e o
+mesmo mapa que já funcionam comprovadamente noutro fluxo (visita manual à Enfermeira Joy), e a
+checagem `godot4 --headless --import` não achou erro de script depois da mudança.
+
+**Próximo passo:** o Gabriel confirmar ao vivo que perder uma batalha de verdade leva ao Centro
+Pokémon como esperado.
+
+**Precisa de decisão do Gabriel?** Não — só pediu essas duas coisas e as duas foram feitas.
+
+---
+
 ## Acessibilidade, Ajuda, Controles reatribuíveis + visual novo da Loja/Mochila (2026-08-31, continuação)
 
 **Pedido do Gabriel:** conferir se toda função que o jogador pode usar está acessível pela tela,

@@ -138,8 +138,10 @@ func _record_trail() -> void:
 func _update_follower() -> void:
 	if not follower or not follower.has_method("set_target_position"):
 		return
-	# Pega posição ~24 px atrás (FOLLOW_DISTANCE frames no histórico)
-	var follow_frames : int = int(24.0 / (WALK_SPEED / 60.0))
+	# Pega a posição a FollowerPokemon.FOLLOW_DISTANCE px atrás no histórico — mesma constante
+	# usada pelo follower pra manter repouso, senão os dois número dessincronizam e a
+	# distância real de caminhada volta a ficar menor que o repouso.
+	var follow_frames : int = int(FollowerPokemon.FOLLOW_DISTANCE / (WALK_SPEED / 60.0))
 	follow_frames = clampi(follow_frames, 1, _trail.size())
 	var entry := _trail[_trail.size() - follow_frames]
 	follower.set_target_position(entry["pos"])

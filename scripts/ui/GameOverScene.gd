@@ -21,7 +21,7 @@ func _on_game_over() -> void:
 func _on_retry() -> void:
 	if SaveManager.has_save():
 		SaveManager.heal_team()
-		SceneTransition.fade_to("res://scenes/world/maps/WorldMap.tscn")
+		SceneTransition.fade_to("res://scenes/world/maps/PokemonCenter.tscn")
 	else:
 		_on_title()
 	hide()

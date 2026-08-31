@@ -16,7 +16,7 @@ extends CharacterBody2D
 # Constantes
 # ──────────────────────────────────────────────────────────────────────────────
 
-const FOLLOW_DISTANCE   : float = 24.0   # px — distância de repouso atrás do Treinador
+const FOLLOW_DISTANCE   : float = 32.0   # px — distância de repouso atrás do Treinador (2 tiles de 16px, pra não sobrepor o sprite)
 const BODYGUARD_OFFSET  : float = 20.0   # px — distância do Treinador em direção ao inimigo
 const MOVE_SPEED_BASE   : float = 120.0
 
