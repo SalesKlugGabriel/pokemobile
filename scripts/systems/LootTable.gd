@@ -11,6 +11,8 @@ const TIER_WEIGHTS := {
 
 # Item pools per tier. Keys map to species_id ranges for context-sensitive drops.
 # Format: { "tier": [ { "id": String, "quantity": int, "weight": int } ] }
+# "berry_common" e "pp_up" trocados por itens que existem de fato em items.json
+# (achado ao ligar este sistema pela primeira vez ao BattleManager).
 const ITEM_POOLS := {
 	"common": [
 		{"id": "potion",       "quantity": 1, "weight": 40},
@@ -22,7 +24,7 @@ const ITEM_POOLS := {
 		{"id": "super_potion", "quantity": 1, "weight": 40},
 		{"id": "great_ball",   "quantity": 1, "weight": 35},
 		{"id": "awakening",    "quantity": 1, "weight": 15},
-		{"id": "berry_common", "quantity": 2, "weight": 10}
+		{"id": "full_heal",    "quantity": 1, "weight": 10}
 	],
 	"rare": [
 		{"id": "hyper_potion", "quantity": 1, "weight": 40},
@@ -33,7 +35,7 @@ const ITEM_POOLS := {
 	"epic": [
 		{"id": "max_potion",   "quantity": 1, "weight": 35},
 		{"id": "master_ball",  "quantity": 1, "weight": 5},
-		{"id": "pp_up",        "quantity": 1, "weight": 30},
+		{"id": "hp_up",        "quantity": 1, "weight": 30},
 		{"id": "full_restore", "quantity": 1, "weight": 30}
 	]
 }

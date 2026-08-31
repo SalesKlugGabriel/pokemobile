@@ -22,6 +22,10 @@ var _open          : bool    = false
 var _bag_instance  : Control = null
 
 func _ready() -> void:
+	# Achado: abrir a pausa (get_tree().paused = true) travava a própria pausa —
+	# os botões (Continuar incluso) e o Escape/P ficavam sem efeito porque este
+	# nó herdava o modo de processo padrão, que para de rodar quando o jogo pausa.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	panel.hide()
 	btn_team.pressed.connect(_on_team)
 	btn_bag.pressed.connect(_on_bag)

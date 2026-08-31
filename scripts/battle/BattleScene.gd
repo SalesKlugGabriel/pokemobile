@@ -37,14 +37,14 @@ const BAG_SCENE := preload("res://scenes/battle/BagScene.tscn")
 
 # Botões de move (4 slots)
 @onready var move_buttons    : Array            = [
-	$MoveMenu/Grid/Move1,
-	$MoveMenu/Grid/Move2,
-	$MoveMenu/Grid/Move3,
-	$MoveMenu/Grid/Move4,
+	$MoveMenu/Layout/Grid/Move1,
+	$MoveMenu/Layout/Grid/Move2,
+	$MoveMenu/Layout/Grid/Move3,
+	$MoveMenu/Layout/Grid/Move4,
 ]
-@onready var move_type_lbl   : Label            = $MoveMenu/MoveInfo/TypeLabel
-@onready var move_pp_lbl     : Label            = $MoveMenu/MoveInfo/PPLabel
-@onready var btn_move_back   : Button           = $MoveMenu/BtnBack
+@onready var move_type_lbl   : Label            = $MoveMenu/Layout/MoveInfo/TypeLabel
+@onready var move_pp_lbl     : Label            = $MoveMenu/Layout/MoveInfo/PPLabel
+@onready var btn_move_back   : Button           = $MoveMenu/Layout/BtnBack
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Estado local
@@ -158,7 +158,7 @@ func _process_message_queue() -> void:
 		return
 	_processing_messages = true
 	dialog_box.visible   = true
-	var msg := _message_queue.pop_front()
+	var msg : String = _message_queue.pop_front()
 	dialog_text.text = msg
 	await _wait_for_confirm()
 	_process_message_queue()

@@ -463,6 +463,15 @@ func _end_battle(result: String) -> void:
 				if new_level > old_level:
 					AudioManager.play_sfx("level_up")
 					battle_scene.show_message("%s subiu para o Nível %d!" % [player_pokemon.species_name, new_level])
+				# Loot (Lote 9) — só em batalha selvagem; LootTable.gd existia mas
+				# nunca tinha sido ligado a lugar nenhum até agora.
+				if is_wild_battle and enemy_pokemon:
+					var drop : Dictionary = LootTable.new().roll_drop(enemy_pokemon.level, 0)
+					if not drop.is_empty():
+						var item_data := GameData.get_item(drop.get("id", ""))
+						var qty : int = int(drop.get("quantity", 1))
+						SaveManager.add_item(drop.get("id", ""), qty)
+						battle_scene.show_message("Você encontrou %dx %s!" % [qty, item_data.get("name", drop.get("id", ""))])
 		"lose":
 			battle_scene.show_message("Você perdeu...")
 			# Verifica se todo o time está fainted → game over
@@ -478,7 +487,7 @@ func _end_battle(result: String) -> void:
 
 	EventBus.battle_ended.emit(result_dict)
 	await get_tree().create_timer(2.0).timeout
-	_return_to_world()
+	_return_to_world(result)
 
 ## Salva HP e PP atuais do Pokémon do jogador de volta ao save.
 func _persist_player_pokemon_to_save() -> void:
@@ -502,9 +511,12 @@ static func _get_base_exp(species_id: int) -> int:
 	return mini(250, 50 + roundi(species_id * 0.8))
 
 func _is_full_blackout() -> bool:
+	# Achado: lia "current_hp" (chave que não existe no save — o campo real é
+	# "hp_current") — a checagem sempre via 0 pra tudo e considerava QUALQUER
+	# derrota como o time inteiro nocauteado, mesmo com outros 5 saudáveis.
 	var team := SaveManager.get_team()
 	for poke in team:
-		if poke.get("current_hp", 0) > 0:
+		if poke.get("hp_current", 0) > 0:
 			return false
 	return true
 
@@ -534,11 +546,19 @@ func start_trainer_battle(npc: Node) -> void:
 	AudioManager.play_bgm("battle_trainer")
 	SceneTransition.fade_to(BATTLE_SCENE_PATH)
 
-func _return_to_world() -> void:
+func _return_to_world(result: String = "") -> void:
 	# Marca treinador como derrotado
 	if not is_wild_battle and trainer_npc:
 		trainer_npc.trainer_defeated = true
 		trainer_npc._set_state(trainer_npc.State.IDLE if trainer_npc.patrol_route.is_empty() else trainer_npc.State.PATROL_MOVE)
+
+	# Achado: o Pokémon selvagem do mapa nunca era removido depois da batalha
+	# (só a cópia de dados usada na luta era descartada) — vencer ou capturar
+	# deixava o mesmo selvagem plantado no mapa, pronto pra "reaparecer" e
+	# começar outra batalha de novo. "run"/"lose" mantêm ele no mapa de
+	# propósito (o jogador só fugiu, não venceu nem capturou).
+	if is_wild_battle and (result == "win" or result == "capture") and is_instance_valid(wild_entity):
+		wild_entity.queue_free()
 
 	player_pokemon    = null
 	enemy_pokemon     = null

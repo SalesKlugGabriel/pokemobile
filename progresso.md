@@ -9,6 +9,39 @@
 
 ---
 
+## Lote 7 e 9 — XP/nível e loot testados ao vivo, 2 bugs graves achados e corrigidos (2026-08-31, continuação)
+
+**O que foi feito:** O código de XP/nível (Lote 7) e loot (Lote 9) já estava escrito (achado
+pronto no início desta sessão, não commitado ainda). Antes de aceitar como "funcionando", testei
+ao vivo no navegador (Chromium automatizado) uma batalha selvagem real — e achei que **nenhum
+golpe estava causando dano**: escolher "Tackle" várias vezes contra um Rattata não tirava HP
+nenhum dele. Causa raiz: `MoveMenu` (o menu de golpes) tinha 3 filhos diretos (`Grid`, `MoveInfo`,
+`BtnBack`) dentro de um `PanelContainer` — e um `PanelContainer` estica TODOS os filhos diretos
+pro mesmo espaço inteiro, empilhados. Isso fazia o botão invisível "VOLTAR" cobrir a tela toda por
+cima dos botões de golpe, roubando todo clique (por isso clicar em "Tackle" sempre só fechava o
+menu, sem nunca lutar). Corrigido agrupando os 3 num `VBoxContainer` só (é o padrão certo do
+Godot pra isso). Achado um segundo bug, mais grave, no caminho: **o menu de Pausa travava pra
+sempre assim que abria** — nem "Continuar", nem clicar em nada, nem apertar a mesma tecla (Esc/P)
+fechava. Causa: abrir a pausa liga `get_tree().paused = true`, mas o próprio menu de pausa nunca
+foi marcado como "roda mesmo pausado" (`process_mode`) — então ele se auto-travava. Corrigido com
+uma linha (`process_mode = Node.PROCESS_MODE_ALWAYS`). Os dois bugs eram antigos (não foram
+causados pelo código do Lote 7/9), só nunca tinham sido pegos porque ninguém tinha testado um
+combate real nem aberto a pausa numa sessão automatizada até agora.
+
+**Testado:** Depois da correção, republiquei e testei de novo ao vivo — Tackle agora tira HP de
+verdade dos dois lados (confirmado "Rattata usou Tackle!" + barra baixando), venci 2 batalhas
+seguidas ("Você venceu!" na tela), Mochila abre e fecha normal pela Pausa. **Não confirmado ao
+vivo** (por chance/RNG, não por bug): nível subindo (o Bulbasaur ainda não tinha XP suficiente
+pra passar do Nível 5 nas batalhas testadas) e item de loot aparecendo na Mochila (a chance de
+loot por vitória é só ~15-20%, não caiu em nenhuma das 3 vitórias testadas) — conferido pelo
+código que as duas fórmulas existem e estão ligadas certas (não é código morto).
+
+**Próximo passo:** Lote 8 (HUD de nível/stats) — ainda não começado.
+
+**Precisa de decisão do Gabriel?** Não — combinamos que só chamo você se eu travar de verdade.
+
+---
+
 ## Lote 5/6 — Batalha selvagem e captura, ponta a ponta (2026-08-31, continuação)
 
 **O que foi feito:** Continuando a verificação ao vivo, a batalha abria mas
