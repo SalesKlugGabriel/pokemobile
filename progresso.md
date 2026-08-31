@@ -9,6 +9,70 @@
 
 ---
 
+## v0.2.4 — Fase 0 do Diário: motor de Quests/Ginásios ligado de verdade (2026-08-31, continuação)
+
+**Pedido do Gabriel:** seguir o "Diário PokéMobile" (plano de fases) em ordem de execução,
+motor antes de layout. Fase 0 era "ligar o QuestManager" — parecia 1 sessão curta (registrar
+1 autoload + 1 método). Na prática, abrir o arquivo revelou que ele nunca teria funcionado
+mesmo ligado: usava `Engine.has_singleton()`/`get_singleton()` pra falar com EventBus/
+SaveManager/GameData — API errada pra autoload do Godot (é só pra singleton nativo/C++, os
+autoloads deste projeto sempre foram chamados direto pelo nome). Isso fazia TODO o motor de
+recompensa/progresso ser, na prática, morto silencioso.
+
+**O que foi corrigido/construído, tudo em `scripts/systems/QuestManager.gd` e ao redor:**
+- Trocado `Engine.has_singleton(...)` por chamada direta (`SaveManager.x()`, `EventBus.x`,
+  `GameData.x()`) em todo o arquivo.
+- 5 dos 6 sinais que o QuestManager escutava tinham nome/formato diferente do EventBus real
+  (ex: esperava `pokemon_caught(species_id, is_alpha)`, o sinal real é
+  `capture_success(pokemon_data: Dictionary)`; esperava `dialog_ended(npc_id)`, o real é
+  `dialog_ended()` sem nenhum argumento). Todos os 6 handlers reescritos pros sinais de
+  verdade — o de diálogo agora lembra qual NPC foi o último (`dialog_started` guarda, `dialog_ended`
+  usa e limpa).
+- `battle_ended` já existia mas não carregava o que a quest precisa (quem venceu, se era
+  selvagem, nome da espécie/treinador) — `BattleManager._end_battle()` ganhou esses campos
+  novos no resultado, sem tirar os que já existiam.
+- **Achado sério à parte**: nunca existia um "carregar progresso salvo" — só um "salvar",
+  nunca um par que lesse de volta. Todo progresso de quest sumiria ao reabrir o jogo mesmo
+  funcionando perfeitamente durante a sessão. Corrigido (`reload_from_save()`), e chamado
+  duas vezes: no boot do autoload E de novo depois que a TitleScreen carrega um save de
+  verdade (achado no meio do caminho: o autoload sobe ANTES da Title decidir se há save pra
+  carregar — sem a segunda chamada, "Continuar" sempre mostraria progresso zerado).
+- `SaveManager.gd` ganhou os métodos que faltavam pras recompensas funcionarem de verdade:
+  `award_badge`/`has_badge`/`get_badges`, `unlock_title`/`has_title`/`get_titles`,
+  `save_quest_progress`/`get_all_quest_progress`, `add_pokemon_to_party` (alias),
+  `add_trainer_exp` (**XP e nível do Treinador não existiam em lugar nenhum** — só uma
+  entrada morta no save; construído com a mesma curva cúbica do Pokémon, por consistência),
+  `get_trainer_stats`/`add_skill_points`/`spend_skill_point` (o "TrainerStats" 5-ramos já
+  existia mas nunca foi instanciado/salvo por ninguém — agora o SaveManager é o dono de
+  verdade dos dados, TrainerStats só faz a conta).
+- `GameData.get_species_id_by_name()` — os alvos de missão são escritos por nome
+  ("geodude"), o dado de espécie é indexado por ID numérico; helper novo resolve isso.
+
+**🔴 Achado de conteúdo, não de motor — importante pra Fase 3:** as 54 quests de
+`data/quests/quests.json` (inclusive os 8 Ginásios) foram escritas pra um mundo bem maior do
+que o que existe hoje — Pewter City, Brock, Mt Moon, Rota 25, "Cerulean" não existem no mapa
+atual (só Pallet Town + Rota 1 + Viridian City). Isso significa: o motor agora funciona
+perfeitamente (provado no teste), mas nenhuma das 54 quests originais é jogável hoje sem
+reescrever o alvo pra algo que já existe no jogo. A Fase 3 (Ginásio jogável) vai precisar de
+uma quest nova apontando pro Ginásio de Viridian de verdade, não usar o GYM-01 como está.
+
+**Testado:** Novo teste `scripts/tests/teste_quest_manager.gd` (headless, `godot4 --headless
+--script ...`, roda sem precisar de navegador) — 26 conferências, simula 3 quests reais
+(ROCKET-01, GYM-01, UTIL-11) de ponta a ponta: iniciar → progresso parcial → progresso
+completo → recompensa (XP, item, TM, insígnia, pontos de skill) → encadeamento (`unlocks`)
+→ sobrevive a salvar e recarregar. Achado no caminho: rodar via `--script` não dá acesso aos
+autoloads pelo nome direto (só quando o jogo sobe pela cena normal) — resolvido buscando por
+`/root/NomeDoAutoload`. Publicado e confirmado ao vivo no navegador: jogo sobe normal, zero
+erro de script, sem regressão em nada que já funcionava.
+
+**Próximo passo:** Fase 1 do Diário (Nature, Ability, Held Item ativo em batalha, Bestiary
+com contagem de derrotas) — também "motor", sem UI nova.
+
+**Precisa de decisão do Gabriel?** Não pra continuar a Fase 1. Vale avisar sobre o achado de
+conteúdo acima (quests.json não bate com o mundo construído) antes da Fase 3.
+
+---
+
 ## v0.2.3 — Loja física em Viridian + lore/NPCs novos + colisão de verdade (árvore/parede) (2026-08-31, continuação)
 
 **Pedido do Gabriel:** "próxima etapa do cronograma — lore, interações com NPCs, criar as lojas

@@ -70,4 +70,5 @@ func _on_confirm() -> void:
 		trainer_name = "Ash"
 	var starter_id : int = STARTERS[_selected_index]["species_id"]
 	SaveManager.new_game(trainer_name, starter_id)
+	QuestManager.reload_from_save()  # zera progresso de quest de um save anterior, se havia
 	SceneTransition.fade_to("res://scenes/world/maps/WorldMap.tscn")

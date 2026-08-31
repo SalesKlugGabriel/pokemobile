@@ -868,7 +868,17 @@ func _capture_success() -> void:
 # ──────────────────────────────────────────────────────────────────────────────
 func _end_battle(result: String) -> void:
 	phase = BattlePhase.ENDING
-	var result_dict := { "result": result, "enemy_species": enemy_pokemon.species_id if enemy_pokemon else 0 }
+	# player_won/is_wild/enemy_species_name/enemy_level: adicionados pro QuestManager
+	# poder reconhecer o resultado sem reimplementar a lógica de vitória aqui.
+	var result_dict := {
+		"result":             result,
+		"enemy_species":      enemy_pokemon.species_id   if enemy_pokemon else 0,
+		"enemy_species_name": enemy_pokemon.species_name  if enemy_pokemon else "",
+		"enemy_level":        enemy_pokemon.level         if enemy_pokemon else 0,
+		"player_won":         result == "win",
+		"is_wild":            is_wild_battle,
+		"trainer_name":       trainer_npc.npc_name if (not is_wild_battle and trainer_npc) else "",
+	}
 
 	match result:
 		"win":

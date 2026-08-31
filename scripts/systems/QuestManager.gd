@@ -2,6 +2,13 @@ extends Node
 ## QuestManager — Autoload
 ## Manages quest state: active, completed, objective progress.
 ## Listens to EventBus signals and auto-advances objectives.
+##
+## Achado ao ligar (31/08/2026): este arquivo já existia pronto, mas nunca era
+## carregado (faltava no autoload) e usava Engine.has_singleton()/get_singleton()
+## pra falar com EventBus/SaveManager/GameData — API errada pra autoload do
+## Godot (é só pra singleton nativo/C++). Corrigido pra chamar os autoloads
+## direto pelo nome, como todo resto do projeto já faz. Também não existia
+## nenhum "carregar progresso salvo" — só salvava, nunca lia de volta.
 
 signal quest_started(quest_id: String)
 signal quest_updated(quest_id: String, objective_index: int, progress: int)
@@ -13,9 +20,14 @@ var _all_quests: Dictionary = {}        # quest_id -> quest definition
 var _active_quests: Dictionary = {}     # quest_id -> { "progress": [int, ...] }
 var _completed_quests: Array[String] = []
 
+## Diálogo aberto por último (EventBus.dialog_started manda o NPC, mas
+## dialog_ended não manda nada — precisa lembrar aqui pra saber quem era).
+var _last_npc_dialog_id: String = ""
+
 
 func _ready() -> void:
 	_load_quests()
+	reload_from_save()
 	_connect_event_bus()
 
 
@@ -35,11 +47,12 @@ func start_quest(quest_id: String) -> void:
 		if not is_quest_complete(req):
 			return  # Pre-requisite not met
 	var obj_count: int = quest_data.get("objectives", []).size()
-	_active_quests[quest_id] = {"progress": Array([], TYPE_INT, "", null)}
+	var progress: Array = Array([], TYPE_INT, "", null)
 	for i in obj_count:
-		_active_quests[quest_id]["progress"].append(0)
+		progress.append(0)
+	_active_quests[quest_id] = {"progress": progress}
 	emit_signal("quest_started", quest_id)
-	_save_state()
+	SaveManager.save_quest_progress(quest_id, progress, false)
 
 
 ## Update objective progress. Completes the quest automatically when all objectives done.
@@ -64,22 +77,23 @@ func update_objective(quest_id: String, objective_index: int, progress: int) -> 
 	if all_done:
 		complete_quest(quest_id)
 	else:
-		_save_state()
+		SaveManager.save_quest_progress(quest_id, prg, false)
 
 
 ## Manually complete a quest (also called internally when objectives done).
 func complete_quest(quest_id: String) -> void:
 	if not _active_quests.has(quest_id):
 		return
+	var final_progress: Array = _active_quests[quest_id].get("progress", [])
 	_active_quests.erase(quest_id)
 	_completed_quests.append(quest_id)
+	SaveManager.save_quest_progress(quest_id, final_progress, true)
 	var quest_data: Dictionary = _all_quests[quest_id]
 	_give_rewards(quest_data)
 	emit_signal("quest_completed", quest_id)
 	# Auto-start unlocked quests
 	for unlocked_id in quest_data.get("unlocks", []):
 		start_quest(unlocked_id)
-	_save_state()
 
 
 func get_active_quests() -> Array:
@@ -121,72 +135,69 @@ func _load_quests() -> void:
 	_all_quests = parsed
 
 
+## Reconstrói _active_quests/_completed_quests a partir do save atual —
+## sem isso, todo progresso de quest sumia ao reabrir o jogo (o antigo
+## _save_state() só escrevia, nunca tinha um par que lesse de volta).
+## Público (sem "_") porque também precisa ser chamado de fora: o autoload
+## roda no boot do jogo, ANTES da TitleScreen decidir se carrega um save
+## existente — sem essa segunda chamada, "Continuar" mostraria o progresso
+## de quest sempre zerado. Idempotente: limpa o estado antes de reconstruir.
+func reload_from_save() -> void:
+	_active_quests.clear()
+	_completed_quests.clear()
+	var saved: Dictionary = SaveManager.get_all_quest_progress()
+	for quest_id in saved.keys():
+		if not _all_quests.has(quest_id):
+			continue  # quest_id salvo não existe mais nos dados atuais
+		var entry: Dictionary = saved[quest_id]
+		if entry.get("completed", false):
+			_completed_quests.append(quest_id)
+		else:
+			var prg: Array = Array(entry.get("progress", []), TYPE_INT, "", null)
+			_active_quests[quest_id] = {"progress": prg}
+
+
 func _connect_event_bus() -> void:
-	if not Engine.has_singleton("EventBus"):
-		return
-	var eb = Engine.get_singleton("EventBus")
-	# pokemon_caught(species_id, is_alpha)
-	if eb.has_signal("pokemon_caught"):
-		eb.pokemon_caught.connect(_on_pokemon_caught)
-	# battle_ended(result: Dictionary)
-	if eb.has_signal("battle_ended"):
-		eb.battle_ended.connect(_on_battle_ended)
-	# dialog_ended(npc_id: String)
-	if eb.has_signal("dialog_ended"):
-		eb.dialog_ended.connect(_on_dialog_ended)
-	# item_received(item_id: String)
-	if eb.has_signal("item_received"):
-		eb.item_received.connect(_on_item_received)
-	# zone_entered(zone_id: String)
-	if eb.has_signal("zone_entered"):
-		eb.zone_entered.connect(_on_zone_entered)
+	EventBus.capture_success.connect(_on_capture_success)
+	EventBus.battle_ended.connect(_on_battle_ended)
+	EventBus.dialog_started.connect(_on_dialog_started)
+	EventBus.dialog_ended.connect(_on_dialog_ended)
+	EventBus.item_picked_up.connect(_on_item_picked_up)
+	EventBus.zone_changed.connect(_on_zone_changed)
 
 
 func _give_rewards(quest_data: Dictionary) -> void:
 	var rewards: Dictionary = quest_data.get("rewards", {})
 	if rewards.is_empty():
 		return
-	# EXP to trainer
+	# EXP de treinador
 	var exp_trainer: int = rewards.get("exp_trainer", 0)
-	if exp_trainer > 0 and Engine.has_singleton("GameData"):
-		var gd = Engine.get_singleton("GameData")
-		if gd.has_method("add_trainer_exp"):
-			gd.add_trainer_exp(exp_trainer)
-	# Items
+	if exp_trainer > 0:
+		SaveManager.add_trainer_exp(exp_trainer)
+	# Itens (e TM/HM — mesmo tratamento, viram item no inventário)
 	for item_entry in rewards.get("items", []):
 		var item_id: String = item_entry.get("id", "")
 		var quantity: int   = item_entry.get("quantity", 1)
-		if item_id.is_empty():
-			continue
-		if Engine.has_singleton("SaveManager"):
-			var sm = Engine.get_singleton("SaveManager")
-			if sm.has_method("add_item"):
-				sm.add_item(item_id, quantity)
-	# Skill points
+		if not item_id.is_empty():
+			SaveManager.add_item(item_id, quantity)
+	for tm_entry in rewards.get("tms", []) + rewards.get("hms", []):
+		var tm_id: String = tm_entry.get("id", "")
+		if not tm_id.is_empty():
+			SaveManager.add_item(tm_id, 1)
+	# Pontos de skill (bônus, fora da progressão normal por nível)
 	var skill_pts: int = rewards.get("skill_points", 0)
-	if skill_pts > 0 and Engine.has_singleton("SaveManager"):
-		var sm = Engine.get_singleton("SaveManager")
-		if sm.has_method("add_skill_points"):
-			sm.add_skill_points(skill_pts)
-	# Titles
+	if skill_pts > 0:
+		SaveManager.add_skill_points(skill_pts)
+	# Títulos
 	for title in rewards.get("titles", []):
-		if Engine.has_singleton("SaveManager"):
-			var sm = Engine.get_singleton("SaveManager")
-			if sm.has_method("unlock_title"):
-				sm.unlock_title(title)
-	# Badges
+		SaveManager.unlock_title(title)
+	# Insígnias
 	for badge in rewards.get("badges", []):
-		if Engine.has_singleton("SaveManager"):
-			var sm = Engine.get_singleton("SaveManager")
-			if sm.has_method("award_badge"):
-				sm.award_badge(badge)
-	# Gift pokemon
+		SaveManager.award_badge(badge)
+	# Pokémon de presente
 	var gift_pokemon: Dictionary = rewards.get("pokemon", {})
 	if not gift_pokemon.is_empty():
-		if Engine.has_singleton("SaveManager"):
-			var sm = Engine.get_singleton("SaveManager")
-			if sm.has_method("add_pokemon_to_party"):
-				sm.add_pokemon_to_party(gift_pokemon)
+		SaveManager.add_pokemon_to_party(gift_pokemon)
 
 
 func _get_objective_required(objective: Dictionary) -> int:
@@ -204,22 +215,12 @@ func _get_objective_required(objective: Dictionary) -> int:
 			return 1  # talk, defeat, receive_item, choice, etc.
 
 
-func _save_state() -> void:
-	if not Engine.has_singleton("SaveManager"):
-		return
-	var sm = Engine.get_singleton("SaveManager")
-	if sm.has_method("set_quest_state"):
-		sm.set_quest_state({
-			"active":    _active_quests.duplicate(true),
-			"completed": _completed_quests.duplicate()
-		})
-
-
 # ---------------------------------------------------------------------------
 # EventBus handlers
 # ---------------------------------------------------------------------------
 
-func _on_pokemon_caught(species_id: int, _is_alpha: bool) -> void:
+func _on_capture_success(pokemon_data: Dictionary) -> void:
+	var species_id: int = int(pokemon_data.get("species_id", 0))
 	for quest_id in _active_quests.keys():
 		var quest_data: Dictionary = _all_quests.get(quest_id, {})
 		var objectives: Array = quest_data.get("objectives", [])
@@ -229,60 +230,66 @@ func _on_pokemon_caught(species_id: int, _is_alpha: bool) -> void:
 				"capture_any", "capture_total", "find_all":
 					update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
 				"capture_unique":
-					# Tracking unique species is handled by caller passing count
-					pass
+					pass  # exige rastrear espécies únicas — não implementado ainda
 				"capture_count":
-					if str(obj.get("target", "")) == str(species_id):
+					if GameData.get_species_id_by_name(str(obj.get("target", ""))) == species_id:
 						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
 				"capture":
-					if str(obj.get("target", "")) == str(species_id):
+					if GameData.get_species_id_by_name(str(obj.get("target", ""))) == species_id:
 						update_objective(quest_id, i, 1)
 
 
 func _on_battle_ended(result: Dictionary) -> void:
-	var enemy_id: String    = str(result.get("enemy_id", ""))
-	var enemy_level: int    = int(result.get("enemy_level", 0))
-	var is_wild: bool       = result.get("is_wild", false)
-	var player_won: bool    = result.get("player_won", false)
-	if not player_won:
+	if not result.get("player_won", false):
 		return
+	var enemy_name  : String = str(result.get("enemy_species_name", "")).to_lower()
+	var trainer_name: String = str(result.get("trainer_name", "")).to_lower().replace(" ", "_")
+	var is_wild     : bool   = result.get("is_wild", false)
 	for quest_id in _active_quests.keys():
 		var quest_data: Dictionary = _all_quests.get(quest_id, {})
 		var objectives: Array = quest_data.get("objectives", [])
 		for i in objectives.size():
 			var obj: Dictionary = objectives[i]
+			var target: String = str(obj.get("target", "")).to_lower()
 			match obj.get("type", ""):
 				"defeat":
-					if obj.get("target", "") == enemy_id:
+					if not is_wild and target == trainer_name:
+						update_objective(quest_id, i, 1)
+					elif is_wild and target == enemy_name:
 						update_objective(quest_id, i, 1)
 				"defeat_count":
-					var target: String = obj.get("target", "")
 					if target == "any":
 						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
 					elif target == "wild_pokemon" and is_wild:
 						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
-					elif target == enemy_id:
+					elif target == enemy_name:
 						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
 				"defeat_alpha":
 					if result.get("is_alpha", false):
 						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
 				_:
 					pass
-	# Suppress unused var warning
-	var _lv := enemy_level
 
 
-func _on_dialog_ended(npc_id: String) -> void:
+func _on_dialog_started(npc: Node) -> void:
+	_last_npc_dialog_id = str(npc.get("dialog_id")) if npc and npc.get("dialog_id") else ""
+
+
+func _on_dialog_ended() -> void:
+	if _last_npc_dialog_id.is_empty():
+		return
+	var npc_id := _last_npc_dialog_id
+	_last_npc_dialog_id = ""
 	for quest_id in _active_quests.keys():
 		var quest_data: Dictionary = _all_quests.get(quest_id, {})
 		var objectives: Array = quest_data.get("objectives", [])
 		for i in objectives.size():
 			var obj: Dictionary = objectives[i]
-			if obj.get("type", "") == "talk" and obj.get("target", "") == npc_id:
+			if obj.get("type", "") == "talk" and str(obj.get("target", "")) == npc_id:
 				update_objective(quest_id, i, 1)
 
 
-func _on_item_received(item_id: String) -> void:
+func _on_item_picked_up(item_id: String, _quantity: int) -> void:
 	for quest_id in _active_quests.keys():
 		var quest_data: Dictionary = _all_quests.get(quest_id, {})
 		var objectives: Array = quest_data.get("objectives", [])
@@ -292,11 +299,11 @@ func _on_item_received(item_id: String) -> void:
 				update_objective(quest_id, i, 1)
 
 
-func _on_zone_entered(zone_id: String) -> void:
+func _on_zone_changed(zone_name: String) -> void:
 	for quest_id in _active_quests.keys():
 		var quest_data: Dictionary = _all_quests.get(quest_id, {})
 		var objectives: Array = quest_data.get("objectives", [])
 		for i in objectives.size():
 			var obj: Dictionary = objectives[i]
-			if obj.get("type", "") in ["reach_zone", "infiltrate"] and obj.get("target", "") == zone_id:
+			if obj.get("type", "") in ["reach_zone", "infiltrate"] and obj.get("target", "") == zone_name:
 				update_objective(quest_id, i, 1)

@@ -49,6 +49,18 @@ func _load_json(path: String) -> Dictionary:
 func get_species(species_id: int) -> Dictionary:
 	return species.get(str(species_id), {})
 
+## Retorna o ID numérico da espécie pelo nome (ex: "geodude" → 74), sem
+## diferenciar maiúscula/minúscula. -1 se não achar. Usado pelo QuestManager
+## pra resolver alvo de missão escrito por nome (o dado de espécie é
+## indexado por ID, não por nome).
+func get_species_id_by_name(species_name: String) -> int:
+	var needle := species_name.strip_edges().to_lower()
+	for id_str in species.keys():
+		var entry: Dictionary = species[id_str]
+		if str(entry.get("name", "")).to_lower() == needle:
+			return int(id_str)
+	return -1
+
 ## Retorna lista de moves aprendíveis por uma espécie até um determinado nível
 func get_learnable_moves(species_id: int, up_to_level: int) -> Array:
 	var set: Array = learnsets.get(str(species_id), [])

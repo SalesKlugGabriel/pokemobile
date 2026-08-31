@@ -12,6 +12,10 @@ func _ready() -> void:
 	if has_save:
 		# Carrega brevemente para exibir info do save
 		SaveManager.load_game()
+		# QuestManager já rodou o próprio _ready() no boot do jogo, antes de
+		# saber se havia save pra carregar — sem isso, "Continuar" mostraria
+		# todo progresso de quest zerado mesmo tendo save de verdade.
+		QuestManager.reload_from_save()
 		var poke : Dictionary = SaveManager.get_pokemon_at(0)
 		var name_str : String = poke.get("nickname", "") if poke.get("nickname", "") != "" \
 					   else GameData.get_species(int(poke.get("species_id", 1))).get("name", "???")

@@ -26,6 +26,7 @@ var save_data: Dictionary = {
 	"quests": {},
 	"diaries": [],
 	"badges": [],
+	"titles": [],
 	"pokedex": { "seen": [], "caught": [] },
 	"world": {
 		"current_map": "world_map",
@@ -104,6 +105,7 @@ func new_game(trainer_name: String, starter_species_id: int) -> void:
 	save_data["quests"]    = {}
 	save_data["diaries"]   = []
 	save_data["badges"]    = []
+	save_data["titles"]    = []
 	save_data["pokedex"]   = { "seen": [], "caught": [] }
 	save_data["world"]["current_map"]          = "world_map"
 	save_data["world"]["last_pokemon_center"]  = "world_map"
@@ -301,6 +303,11 @@ func add_pokemon(pokemon_data: Dictionary) -> String:
 		save_data["pc"].append(pokemon_data)
 		return "pc"
 
+## Alias de add_pokemon — nome que o QuestManager usa pra presente de missão
+## (mesmo destino: time se tiver vaga, senão PC).
+func add_pokemon_to_party(pokemon_data: Dictionary) -> String:
+	return add_pokemon(pokemon_data)
+
 # ──────────────────────────────────────────────────────────────────────────────
 # HELPERS — INVENTÁRIO
 # ──────────────────────────────────────────────────────────────────────────────
@@ -369,6 +376,113 @@ func is_seen(species_id: int) -> bool:
 
 func is_caught(species_id: int) -> bool:
 	return species_id in save_data["pokedex"]["caught"]
+
+# ──────────────────────────────────────────────────────────────────────────────
+# HELPERS — INSÍGNIAS E TÍTULOS
+# ──────────────────────────────────────────────────────────────────────────────
+
+func get_badges() -> Array:
+	return save_data["badges"]
+
+func award_badge(badge_id: String) -> void:
+	if badge_id.is_empty() or badge_id in save_data["badges"]:
+		return
+	save_data["badges"].append(badge_id)
+	save_game()
+
+func has_badge(badge_id: String) -> bool:
+	return badge_id in save_data["badges"]
+
+func get_titles() -> Array:
+	return save_data.get("titles", [])
+
+func unlock_title(title: String) -> void:
+	if title.is_empty() or title in save_data["titles"]:
+		return
+	save_data["titles"].append(title)
+	save_game()
+
+func has_title(title: String) -> bool:
+	return title in save_data.get("titles", [])
+
+# ──────────────────────────────────────────────────────────────────────────────
+# HELPERS — QUESTS (progresso persistido; QuestManager é o dono da lógica)
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Salva o progresso de UMA quest. `completed=true` some da lista de ativas.
+func save_quest_progress(quest_id: String, progress: Array, completed: bool) -> void:
+	save_data["quests"][quest_id] = { "progress": progress.duplicate(), "completed": completed }
+	save_game()
+
+## Devolve o dicionário inteiro quest_id → {progress, completed}, pro QuestManager
+## reconstruir o próprio estado (ativas/completas) ao carregar o jogo.
+func get_all_quest_progress() -> Dictionary:
+	return save_data.get("quests", {})
+
+# ──────────────────────────────────────────────────────────────────────────────
+# HELPERS — XP E SKILL TREE DO TREINADOR
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Ganha XP de treinador e sobe de nível (mesma curva cúbica do Pokémon, por
+## consistência — nível n exige exp total (n+1)³). Cada nível dá 1 ponto de
+## skill; XP de quest também pode dar ponto de bônus direto via add_skill_points.
+func add_trainer_exp(amount: int) -> void:
+	if amount <= 0:
+		return
+	var t: Dictionary = save_data["trainer"]
+	t["exp"] = int(t.get("exp", 0)) + amount
+	EventBus.trainer_exp_gained.emit(amount)
+	var leveled := false
+	while true:
+		var lv: int = int(t.get("level", 1))
+		if lv >= 100:
+			break
+		var needed: int = (lv + 1) * (lv + 1) * (lv + 1)
+		if int(t["exp"]) >= needed:
+			t["level"] = lv + 1
+			leveled = true
+		else:
+			break
+	if leveled:
+		EventBus.trainer_level_up.emit(int(t["level"]))
+	save_game()
+
+## Constrói um TrainerStats (calculadora) a partir do save atual — sem cache,
+## sempre fresco. Fonte de verdade é save_data; TrainerStats só faz a conta.
+func get_trainer_stats() -> TrainerStats:
+	var t: Dictionary = save_data["trainer"]
+	var skill_tree: Dictionary = t.get("skill_tree", {})
+	var spent := 0
+	for v in skill_tree.values():
+		spent += int(v)
+	var ts := TrainerStats.new()
+	ts.deserialize({
+		"trainer_level": int(t.get("level", 1)),
+		"points":        skill_tree,
+		"spent_total":   spent,
+		"bonus_points":  int(t.get("skill_points_available", 0)),
+	})
+	return ts
+
+## Pontos de bônus concedidos fora do nível (recompensa de quest/task), somados
+## aos pontos normais de nível na hora de calcular quanto dá pra gastar.
+func add_skill_points(n: int) -> void:
+	if n <= 0:
+		return
+	var t: Dictionary = save_data["trainer"]
+	t["skill_points_available"] = int(t.get("skill_points_available", 0)) + n
+	save_game()
+	EventBus.trainer_skill_tree_updated.emit()
+
+## Gasta 1 ponto no atributo indicado. Retorna false se não há ponto disponível
+## ou o atributo já está no máximo (TrainerStats.MAX_POINTS).
+func spend_skill_point(attribute: String) -> bool:
+	var ts := get_trainer_stats()
+	if not ts.add_point(attribute):
+		return false
+	save_data["trainer"]["skill_tree"] = ts.serialize()["points"]
+	save_game()
+	return true
 
 # ──────────────────────────────────────────────────────────────────────────────
 # HELPERS — MUNDO
