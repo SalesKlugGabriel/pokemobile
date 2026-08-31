@@ -258,6 +258,95 @@ static func _viridian_cell(c: int, r: int, W: int) -> String:
 	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Rota 2 — 16×50, cena própria (Fase 3 do Diário: expansão do mapa).
+# Sul (row 49) conecta de volta a Viridian City (world_map); Norte (row 0)
+# conecta a Pewter City. Corredor central cols 6-9, resto grama com árvore/
+# flor esparsa — mesmo estilo já usado na Rota 1.
+# ──────────────────────────────────────────────────────────────────────────────
+static func _gen_route2() -> Array:
+	var W := 16
+	var H := 50
+	var grid : Array = []
+	for r in H:
+		var row := ""
+		for c in W:
+			row += _route2_cell(c, r, W, H)
+		grid.append(row)
+	return grid
+
+static func _route2_cell(c: int, r: int, W: int, H: int) -> String:
+	if r == 0 or r >= H - 1:
+		return "T"
+	if c <= 0 or c >= W - 1:
+		return "T"
+	if c >= 6 and c <= 9:
+		return "P"
+	if (c + r * 2) % 8 == 0:
+		return "T"
+	if (c * 2 + r) % 11 == 3:
+		return "F"
+	return "."
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Pewter City — 40×30, cena própria (Fase 3 do Diário).
+# Sul (row 29, cols 18-22) conecta de volta pra Rota 2. Ginásio (Brock) a
+# oeste, Centro Pokémon a leste, praça central ligando os dois.
+# ──────────────────────────────────────────────────────────────────────────────
+static func _gen_pewter_city() -> Array:
+	var W := 40
+	var H := 30
+	var grid : Array = []
+	for r in H:
+		var row := ""
+		for c in W:
+			row += _pewter_cell(c, r, W, H)
+		grid.append(row)
+	return grid
+
+static func _pewter_cell(c: int, r: int, W: int, H: int) -> String:
+	if r <= 1 or r >= H - 1:
+		return "T"
+	if c <= 1 or c >= W - 2:
+		return "T"
+
+	# ── Corredor sul → Rota 2 ── cols 18-22, entra pela borda sul
+	if c >= 18 and c <= 22 and r >= 20 and r <= H - 1:
+		return "P"
+	# ── Praça central leste-oeste ── row 20, liga Ginásio ↔ Centro Pokémon
+	if r == 20 and c >= 8 and c <= 32:
+		return "P"
+
+	# ── Ginásio de Pewter (Brock) ── cols 8-20, rows 6-14
+	if c >= 8 and c <= 20 and r >= 6 and r <= 14:
+		if c == 8 or c == 20: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if c >= 13 and c <= 15: return "P"  # porta
+			return "W"
+		return "I"
+	# ── Caminho Ginásio → praça ── cols 13-15, rows 14-20
+	if c >= 13 and c <= 15 and r >= 14 and r <= 20:
+		return "P"
+
+	# ── Centro Pokémon de Pewter ── cols 24-36, rows 6-14
+	if c >= 24 and c <= 36 and r >= 6 and r <= 14:
+		if c == 24 or c == 36: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if c >= 29 and c <= 31: return "P"  # porta
+			return "W"
+		return "I"
+	# ── Caminho PokéCenter → praça ── cols 29-31, rows 14-20
+	if c >= 29 and c <= 31 and r >= 14 and r <= 20:
+		return "P"
+
+	# ── Pedras decorativas (Pewter é a "Cidade das Pedras") ──
+	if (c + r * 3) % 17 == 5 and r >= 21 and r <= 28 and c >= 4 and c <= 36:
+		return "R"
+
+	return "."
+
+# ──────────────────────────────────────────────────────────────────────────────
 # PokéCenter interior — 16×14 (inalterado)
 # ──────────────────────────────────────────────────────────────────────────────
 static func _gen_pokemon_center() -> Array:
@@ -290,6 +379,12 @@ static func get_layout(map_id: String) -> Dictionary:
 		"pokemon_center":
 			var tiles := _gen_pokemon_center()
 			return {"tiles": tiles, "width": 16, "height": 14}
+		"route_2":
+			var tiles := _gen_route2()
+			return {"tiles": tiles, "width": 16, "height": 50}
+		"pewter_city":
+			var tiles := _gen_pewter_city()
+			return {"tiles": tiles, "width": 40, "height": 30}
 		_:
 			return {}
 

@@ -68,8 +68,12 @@ func register_map(map_id: String, tm: Node, p: TrainerEntity) -> void:
 	if _zone_bgm_map.is_empty():
 		_load_zone_bgm_map()
 
+	# Mapas fora do world_map tocavam sempre "pokemon_center" fixo, mesmo
+	# não sendo o Centro Pokémon (achado ao expandir o mapa pra novas
+	# cidades) — agora busca o bgm de verdade em zones.json pelo map_id,
+	# só cai no antigo padrão se não achar (mantém o Centro Pokémon igual).
 	if current_map_id != "world_map":
-		AudioManager.play_bgm("pokemon_center")
+		AudioManager.play_bgm(_zone_bgm_map.get(current_map_id, "pokemon_center"))
 
 	# Conecta sinais de interação de todas as entidades
 	_connect_entity_signals()
@@ -173,6 +177,24 @@ func warp_to(map_scene_path: String, spawn_tile: Vector2i) -> void:
 	# Guarda tile de spawn para usar após carregar a cena
 	_pending_spawn_tile = spawn_tile
 	SceneTransition.fade_to(map_scene_path)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Retorno do Centro Pokémon (Fase 3 do Diário)
+# ──────────────────────────────────────────────────────────────────────────────
+# Achado: a saída do PokemonCenter.tscn (compartilhado por todas as cidades)
+# sempre voltava pro MESMO lugar fixo (perto de Pallet) — quem entrasse pela
+# porta de Viridian saía teleportado em Pallet. Nunca dava pra notar antes
+# porque só existiam 2 entradas e ambas levavam ao mesmo lugar por coincidência
+# de teste. Agora cada entrada guarda de onde veio, e a saída usa isso.
+var _pc_return_map  : String    = "res://scenes/world/maps/WorldMap.tscn"
+var _pc_return_tile : Vector2i  = Vector2i(76, 91)
+
+func remember_pokemon_center_return(map_scene_path: String, tile: Vector2i) -> void:
+	_pc_return_map  = map_scene_path
+	_pc_return_tile = tile
+
+func warp_to_remembered_return() -> void:
+	warp_to(_pc_return_map, _pc_return_tile)
 
 var _pending_spawn_tile : Vector2i = Vector2i.ZERO
 

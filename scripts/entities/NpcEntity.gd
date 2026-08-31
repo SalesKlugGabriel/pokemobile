@@ -25,6 +25,11 @@ extends BaseEntity
 @export var gift_item_id   : String = ""
 @export var gift_quantity  : int    = 1
 
+## ID de quest pra iniciar ao encerrar o diálogo (QuestManager.start_quest) —
+## vazio = não inicia nada. start_quest() já ignora sozinho se a quest já
+## estiver ativa/completa, então é seguro conversar de novo.
+@export var starts_quest_id : String = ""
+
 ## Se true, inicia batalha de treinador após o diálogo
 @export var is_trainer     : bool = false
 
@@ -179,6 +184,8 @@ func _on_dialog_ended() -> void:
 	if not gift_item_id.is_empty() and not SaveManager.has_item(gift_item_id, 1):
 		SaveManager.add_item(gift_item_id, gift_quantity)
 		AudioManager.play_sfx("item_get")
+	if not starts_quest_id.is_empty():
+		QuestManager.start_quest(starts_quest_id)
 	# Inicia batalha de treinador após o diálogo (se não foi derrotado ainda)
 	if is_trainer and not trainer_defeated and not trainer_team.is_empty():
 		BattleManager.start_trainer_battle(self)

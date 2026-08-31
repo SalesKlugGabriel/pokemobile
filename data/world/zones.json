@@ -80,10 +80,10 @@
       "name": "Pewter City",
       "region": "kanto",
       "tile_rect": {
-        "x": 37,
-        "y": 47,
-        "w": 26,
-        "h": 26
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 30
       },
       "bgm": "pewter_city",
       "wild_pokemon": [],
@@ -229,33 +229,33 @@
       "name": "Route 2",
       "region": "kanto",
       "tile_rect": {
-        "x": 45,
-        "y": 65,
-        "w": 10,
-        "h": 47
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 50
       },
-      "bgm": "route_1",
+      "bgm": "route_2",
       "wild_pokemon": [
         {
           "id": 16,
           "name": "Pidgey",
           "level_min": 3,
-          "level_max": 7,
-          "weight": 40
+          "level_max": 6,
+          "weight": 35
         },
         {
           "id": 19,
           "name": "Rattata",
           "level_min": 3,
           "level_max": 6,
-          "weight": 40
+          "weight": 35
         },
         {
-          "id": 10,
-          "name": "Caterpie",
-          "level_min": 3,
-          "level_max": 6,
-          "weight": 20
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 4,
+          "level_max": 8,
+          "weight": 30
         }
       ],
       "npcs": []

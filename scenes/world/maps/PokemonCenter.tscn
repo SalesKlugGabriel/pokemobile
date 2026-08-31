@@ -53,6 +53,7 @@ collision_mask = 2
 script = ExtResource("9_warpzone")
 target_map = "res://scenes/world/maps/WorldMap.tscn"
 spawn_tile = Vector2i(76, 91)
+uses_remembered_return = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WarpZones/WarpExit"]
 shape = SubResource("Shape_exit")

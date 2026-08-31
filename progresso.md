@@ -9,6 +9,67 @@
 
 ---
 
+## v0.2.7 — Fase 3 do Diário, Tier 1: Rota 2 + Pewter City + Ginásio do Brock (2026-08-31, continuação)
+
+**Correção do Gabriel:** Brock é o Líder de Pewter City, não de Viridian (eu tinha sugerido
+reaproveitar Viridian como workaround, errado). Pedido: expandir o mapa de verdade — todas as
+estradas e cidades — antes de continuar com Ginásios.
+
+**Achado de escopo antes de começar:** `data/world/zones.json` já tem os **52 zonas do Kanto
+inteiro** planejadas (todas as 10 cidades + ~25 rotas + dungeons), com tile_rect definido pra
+cada uma — mas numa escala de mapa (~260×305 tiles) que nunca foi construída, e cujas
+coordenadas **colidem** com o mapa real de 100×120 que já existe (Rota 2, por exemplo, tinha
+tile_rect sobrepondo o espaço da Rota 1 e Pallet já construídas). Confirma: "todas as
+estradas e cidades" é o maior trabalho de conteúdo da história do projeto — várias sessões,
+não uma. Construí este Tier 1 (o pedaço que já destrava o primeiro Ginásio) com uma decisão de
+arquitetura importante: **em vez de esticar o world_map único** (arriscado — exigiria
+deslocar linha por linha tudo que já existe e está testado), cada cidade/rota nova vira **cena
+própria**, conectada por warp — mesmo padrão já usado pelo Centro Pokémon.
+
+**Construído:**
+- **Rota 2** (16×50, cena nova) — liga o norte de Viridian a Pewter, grama com árvore/flor
+  esparsa igual a Rota 1, um Colecionador de Insetos treinador, e **Geodude no spawn
+  selvagem** (não existia Geodude em lugar acessível nenhum antes).
+- **Pewter City** (40×30, cena nova) — Ginásio do Brock a oeste, Centro Pokémon a leste,
+  praça central, pedras decorativas. Brock tem time real (Geodude Nv.12 + Onix Nv.14) e
+  **inicia a quest GYM-01 sozinho** ao ser abordado.
+- **NpcEntity ganhou `starts_quest_id`** — flag genérica (mesmo padrão de `heal_on_dialog_end`/
+  `opens_shop_on_dialog_end`) pra qualquer NPC futuro poder disparar uma quest ao fim do
+  diálogo, sem precisar de código específico por NPC.
+
+**2 achados de bug corrigidos no caminho, mesma classe dos anteriores:**
+- **A saída do Centro Pokémon sempre voltava pro mesmo lugar fixo** (perto de Pallet), mesmo
+  entrando por Viridian — nunca dava pra notar com só 2 entradas indo pro mesmo destino por
+  coincidência. Agora cada entrada guarda de onde veio (`WorldManager.
+  remember_pokemon_center_return`) e a saída usa isso — testado com a 3ª entrada nova (Pewter)
+  sem quebrar as 2 antigas.
+- **Nenhum NPC treinador do jogo (nem o "Treinador" da Rota 1, que já existia) tinha
+  `trainer_team` de verdade configurado** — `is_trainer=true` sozinho nunca bastava
+  (`_on_dialog_ended` exige o time não-vazio pra iniciar a luta). O Treinador da Rota 1 nunca
+  bateu em ninguém a vida inteira do jogo. Corrigido nele também, de brinde.
+- Bônus: `register_map()` tocava sempre a música do Centro Pokémon fixa pra qualquer mapa fora
+  do world_map — agora busca a música certa em zones.json pelo map_id.
+
+**Testado:** `scripts/tests/teste_fase3_mapa.gd` (21 conferências) — as duas cenas carregam
+sem erro, o layout de cada uma bate tile a tile com o desenhado, Brock existe com o nome e
+time certos, Geodude está mesmo na tabela de spawn da Rota 2. Rodei os 4 arquivos de teste
+juntos (Fases 0-3, 97 conferências) sem nenhuma regressão. Publicado; confirmado ao vivo que
+o jogo sobe e joga sem erro nenhum, e que **dá pra alcançar a Rota 1 andando de verdade** —
+não consegui, desta vez, fazer a navegação cega por script cobrir terreno rápido o bastante
+pra chegar até a Rota 2/Pewter de propósito (ficava perdendo tempo em encontros selvagens);
+isso é limitação da forma como eu testo, não indício de bug — tudo que dá pra conferir sem
+jogar ao vivo já foi conferido com cuidado.
+
+**Próximo passo:** continuar expandindo o mapa (Tier 2: Rota 3 → Mt Moon → Rota 4 → Cerulean,
+destrava a Misty) — ou, se o Gabriel preferir, pausar a expansão de mapa aqui e confirmar
+Pewter/Brock jogando primeiro antes de eu seguir construindo mais cidades.
+
+**Precisa de decisão do Gabriel?** Sim — vale ele confirmar Pewter/Brock ao vivo (suba a Rota
+1 até o fim, vire a esquina em Viridian pro corredor central e continue subindo) antes de eu
+emendar direto pro Tier 2, já que é MUITO conteúdo pra construir sem checkpoint nenhum.
+
+---
+
 ## v0.2.6 — Fase 2 do Diário: skills do Treinador ligadas à batalha real + Pesca (2026-08-31, continuação)
 
 **Pedido:** Fase 2 — skills do Treinador (já existia, ver Fase 0) e Pesca (não existia).

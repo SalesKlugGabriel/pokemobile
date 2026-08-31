@@ -97,5 +97,19 @@
   ],
   "fishing_no_bite": [
     "Nada mordeu a isca dessa vez..."
+  ],
+  "route2_bugcatcher": [
+    "Ninguém passa pela Rota 2 sem enfrentar minha coleção!",
+    "Vamos ver do que você é feito."
+  ],
+  "brock_gym": [
+    "Bem-vindo ao Ginásio de Pewter! Eu sou Brock, o Líder — especialista em Pokémon de Pedra.",
+    "Pedra é resistente, mas isso não quer dizer que seja fácil de vencer.",
+    "Prepare-se!"
+  ],
+  "pewter_local": [
+    "Pewter City — a Cidade das Pedras.",
+    "O Museu de Ciências fica logo ali, mas ainda não abriu as portas por aqui.",
+    "Se veio desafiar o Brock, boa sorte. Ele é durão de verdade."
   ]
 }
