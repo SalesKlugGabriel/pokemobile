@@ -92,6 +92,17 @@ func _ready() -> void:
 	_pick_patrol_dir()
 	EventBus.wild_pokemon_spawned.emit(self)
 
+## Chamado pelo SpawnManager (ANTES de entrar na árvore, então antes do _ready
+## rodar) pra definir espécie/nível/comportamento de acordo com a tabela da
+## zona. Achado: esse método não existia — SpawnManager já tentava chamar
+## "initialize" (`if instance.has_method("initialize")`), mas como não achava
+## o método, todo Pokémon selvagem nascia com os valores padrão do Inspector
+## (Bulbasaur nível 5), ignorando o que a zona sorteou (Pidgey/Rattata/etc).
+func initialize(new_species_id: int, new_level: int, new_behavior: String = "aggressive") -> void:
+	species_id = new_species_id
+	wild_level  = new_level
+	behavior    = new_behavior
+
 ## Achado (mesma causa do Pokémon companheiro): sem isto, o Pokémon selvagem
 ## nunca tinha sprite nenhum — existia, se movia e reagia, mas era 100%
 ## invisível no mapa. A escala 2x evita o outro problema já visto: a região

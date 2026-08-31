@@ -10,17 +10,17 @@ const BAG_SCENE := preload("res://scenes/battle/BagScene.tscn")
 @onready var enemy_sprite    : AnimatedSprite2D = $BattleArea/EnemyArea/EnemySprite
 @onready var player_sprite   : AnimatedSprite2D = $BattleArea/PlayerArea/PlayerSprite
 
-@onready var enemy_name_lbl  : Label            = $BattleArea/EnemyPanel/EnemyName
-@onready var enemy_level_lbl : Label            = $BattleArea/EnemyPanel/EnemyLevel
-@onready var enemy_hp_bar    : ProgressBar      = $BattleArea/EnemyPanel/EnemyHPBar
-@onready var enemy_status_lbl: Label            = $BattleArea/EnemyPanel/EnemyStatus
+@onready var enemy_name_lbl  : Label            = $BattleArea/EnemyArea/EnemyPanel/EnemyName
+@onready var enemy_level_lbl : Label            = $BattleArea/EnemyArea/EnemyPanel/EnemyLevel
+@onready var enemy_hp_bar    : ProgressBar      = $BattleArea/EnemyArea/EnemyPanel/EnemyHPBar
+@onready var enemy_status_lbl: Label            = $BattleArea/EnemyArea/EnemyPanel/EnemyStatus
 
-@onready var player_name_lbl : Label            = $BattleArea/PlayerPanel/PlayerName
-@onready var player_level_lbl: Label            = $BattleArea/PlayerPanel/PlayerLevel
-@onready var player_hp_bar   : ProgressBar      = $BattleArea/PlayerPanel/PlayerHPBar
-@onready var player_hp_lbl   : Label            = $BattleArea/PlayerPanel/PlayerHPLabel
-@onready var player_status_lbl: Label           = $BattleArea/PlayerPanel/PlayerStatus
-@onready var player_exp_bar  : ProgressBar      = $BattleArea/PlayerPanel/PlayerExpBar
+@onready var player_name_lbl : Label            = $BattleArea/PlayerArea/PlayerPanel/PlayerName
+@onready var player_level_lbl: Label            = $BattleArea/PlayerArea/PlayerPanel/PlayerLevel
+@onready var player_hp_bar   : ProgressBar      = $BattleArea/PlayerArea/PlayerPanel/PlayerHPBar
+@onready var player_hp_lbl   : Label            = $BattleArea/PlayerArea/PlayerPanel/PlayerHPLabel
+@onready var player_status_lbl: Label           = $BattleArea/PlayerArea/PlayerPanel/PlayerStatus
+@onready var player_exp_bar  : ProgressBar      = $BattleArea/PlayerArea/PlayerPanel/PlayerExpBar
 
 @onready var dialog_box      : PanelContainer   = $DialogBox
 @onready var dialog_text     : RichTextLabel    = $DialogBox/DialogText
@@ -80,10 +80,23 @@ func _connect_buttons() -> void:
 func show_battle_start(player_bp: BattlePokemon, enemy_bp: BattlePokemon) -> void:
 	_player_bp = player_bp
 	_enemy_bp  = enemy_bp
+	_load_battle_sprites(player_bp, enemy_bp)
 	update_hud(player_bp, enemy_bp)
 	show_message("Um %s selvagem apareceu!" % enemy_bp.species_name)
 	await _flush_messages()
 	show_action_menu()
+
+## Achado: a tela de batalha nunca carregava sprite nenhum dos dois lados —
+## mesma causa dos outros Pokémon (faltava chamar o SpriteBuilder).
+func _load_battle_sprites(player_bp: BattlePokemon, enemy_bp: BattlePokemon) -> void:
+	if player_sprite and player_bp:
+		player_sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(player_bp.species_id)
+		player_sprite.play("idle")
+		player_sprite.scale = Vector2(4.0, 4.0)
+	if enemy_sprite and enemy_bp:
+		enemy_sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(enemy_bp.species_id)
+		enemy_sprite.play("idle")
+		enemy_sprite.scale = Vector2(4.0, 4.0)
 
 func show_action_menu() -> void:
 	_hide_all_menus()

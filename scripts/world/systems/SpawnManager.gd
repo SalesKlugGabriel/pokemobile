@@ -114,7 +114,7 @@ func _spawn_pokemon(entry: Dictionary, pos: Vector2) -> void:
 		entry.get("level_max", 5)
 	)
 	if instance.has_method("initialize"):
-		instance.initialize(entry.get("id", 1), level)
+		instance.initialize(entry.get("id", 1), level, entry.get("behavior", "aggressive"))
 
 	_spawn_parent.add_child(instance)
 	_wild_instances.append(instance)
