@@ -5,6 +5,33 @@
 
 ---
 
+## Lote 5 — Spawn de Pokémon selvagem (2026-08-31)
+
+**O que foi feito:** Gabriel escolheu "testar e ligar o que já existe" em vez de
+seguir os Lotes na ordem literal. Fui pra Rota 1 conferir o spawn de Pokémon
+selvagem e achei 3 problemas em cadeia, todos corrigidos: (1) `WildPokemon.gd`
+nunca carregava sprite nenhum — mesmo nascendo, era invisível; (2) o arquivo
+de zonas (`zones.json`) tinha coordenadas pensadas pra um Kanto inteiro que
+nunca foi construído, sem bater com o mapa real (só Pallet Town + Rota 1 +
+Viridian City) — corrigidas as 3 zonas reais; (3) o raio de sorteio de
+posição do Pokémon era maior que o mapa inteiro (200 tiles num mapa de 100) —
+reduzido pra 20.
+
+**Testado:** Publicado e confirmado num navegador de verdade — Pokémon
+selvagem aparece do lado do jogador poucos segundos depois de entrar na Rota
+1. **Não testado ainda:** a batalha abrindo de fato quando o Pokémon alcança
+o jogador (o "fio" que liga um ao outro existe e está conectado no código,
+só não confirmei o momento exato ao vivo).
+
+**Próximo passo:** Confirmar a batalha abrindo (fecha o Lote 5) e seguir pro
+Lote 6 (captura) — o código de captura em batalha já existe e parece
+corretamente ligado ao inventário e ao save (lido, não testado ao vivo
+ainda).
+
+**Precisa de decisão do Gabriel?** Não por enquanto.
+
+---
+
 ## Lote 0 — Diagnóstico ao vivo + correções emergenciais (2026-08-31)
 
 **O que foi feito:** Antes de começar os "lotes" pedidos, o Gabriel jogou e reportou 3
