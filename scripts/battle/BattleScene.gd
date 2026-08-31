@@ -201,7 +201,7 @@ func _on_bag_item_selected(item_id: String) -> void:
 	bag_menu.visible = false
 	var item_data := GameData.get_item(item_id)
 	var category  : String = item_data.get("category", "")
-	if category == "pokeball":
+	if category == "ball":
 		BattleManager.player_throw_pokeball(item_id)
 	else:
 		# Usa item no Pokémon do jogador

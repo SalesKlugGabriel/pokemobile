@@ -7,21 +7,24 @@ signal item_selected(item_id: String)
 signal bag_closed
 
 # Categorias exibidas na batalha (outras ficam bloqueadas)
-const BATTLE_CATEGORIES := ["medicine", "pokeball", "berry"]
+# Achado: items.json usa "ball" (pokeball/great_ball/ultra_ball/master_ball
+# são todos "category":"ball") — aqui estava "pokeball", então a aba nunca
+# encontrava nenhuma bola, mesmo com pokébolas no inventário.
+const BATTLE_CATEGORIES := ["medicine", "ball", "berry"]
 
 # Todas as categorias disponíveis para exibição com abas
-const ALL_CATEGORIES := ["medicine", "pokeball", "berry", "key_item", "tm_hm"]
+const ALL_CATEGORIES := ["medicine", "ball", "berry", "key_item", "tm_hm"]
 const CATEGORY_LABELS := {
 	"medicine":  "Remédios",
-	"pokeball":  "Pokébolas",
+	"ball":      "Pokébolas",
 	"berry":     "Frutas",
 	"key_item":  "Chave",
 	"tm_hm":     "TM/HM",
 }
 
-@onready var item_list   : VBoxContainer = $Scroll/ItemList
-@onready var btn_close   : Button        = $Header/BtnClose
-@onready var tab_bar     : HBoxContainer = $TabBar
+@onready var item_list   : VBoxContainer = $Layout/Scroll/ItemList
+@onready var btn_close   : Button        = $Layout/Header/BtnClose
+@onready var tab_bar     : HBoxContainer = $Layout/TabBar
 
 var _active_category : String = "medicine"
 var _battle_mode     : bool   = true  # true = filtrado para batalha

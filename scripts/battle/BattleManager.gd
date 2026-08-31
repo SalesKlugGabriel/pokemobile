@@ -390,7 +390,7 @@ func _end_of_turn() -> void:
 # ──────────────────────────────────────────────────────────────────────────────
 func _attempt_capture(ball_item_id: String) -> void:
 	var ball     := GameData.get_item(ball_item_id)
-	var ball_mult: float = float(ball.get("catch_rate_multiplier", 1))
+	var ball_mult: float = float(ball.get("catch_rate_mult", 1))
 
 	var species  := GameData.get_species(enemy_pokemon.species_id)
 	var base_rate: int = species.get("capture_rate", 45)
