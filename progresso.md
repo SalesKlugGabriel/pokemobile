@@ -2,6 +2,41 @@
 
 > Formato de cada entrada: Lote, o que foi feito, o que foi testado, próximo passo,
 > se precisa de decisão do Gabriel. Mais recente primeiro.
+>
+> A partir de 31/08, cada evolução de progresso ganha uma tag de versão no Git
+> (`git tag`, ex: v0.2.1) e é enviada ao GitHub — assim dá pra voltar ou comparar
+> qualquer momento anterior. Ver lista de versões: `git tag`.
+
+---
+
+## Lote 5/6 — Batalha selvagem e captura, ponta a ponta (2026-08-31, continuação)
+
+**O que foi feito:** Continuando a verificação ao vivo, a batalha abria mas
+mostrava "???"/"Nv.?"/"HP:?/?" pros dois lados, sem sprite nenhum. Causa:
+10 caminhos de nó em `BattleScene.gd` (nome/nível/HP/status de cada lado)
+estavam todos com um nível de pasta faltando — corrigidos, e sprites
+adicionados (mesma causa dos achados anteriores). Rodei uma varredura
+automática comparando TODO `@onready` do projeto contra a árvore real da
+cena — achou mais um caso igual na Mochila (`BagScene.gd`), corrigido. Por
+fim, achado um terceiro bug: o nome da categoria "Pokébola" no código
+(`"pokeball"`) não batia com o nome real nos dados (`"category":"ball"`) —
+mesmo com 5 Pokébolas no inventário, a aba aparecia vazia. Corrigido nos 2
+lugares que usavam o nome errado, e mais um campo (`catch_rate_mult`) que
+fazia toda bola ter o mesmo efeito de captura.
+
+**Testado:** Publicado e confirmado num navegador de verdade, do começo ao
+fim: escolher starter → andar → Pokémon selvagem (espécie certa) persegue e
+inicia batalha → batalha mostra nome/nível/HP/sprite dos dois lados →
+Mochila abre sem erro → Pokébola aparece (x5) → lançar de fato tenta a
+captura (essa tentativa falhou, Pidgey contra-atacou — comportamento
+correto, a captura não é garantida).
+
+**Próximo passo:** Confirmar XP/nível subindo depois de vencer uma batalha
+(Lote 7) e o loot depois de vencer (Lote 9) — o código de ambos existe, lido
+mas não confirmado ao vivo ainda.
+
+**Precisa de decisão do Gabriel?** Não por enquanto — o ciclo principal
+(andar → encontrar → batalhar → capturar) já está confirmado funcionando.
 
 ---
 
