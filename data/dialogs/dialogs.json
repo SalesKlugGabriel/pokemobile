@@ -4,15 +4,17 @@
     "Meu nome é Carvalho. As pessoas me chamam de Professor Pokémon.",
     "Este mundo é habitado por criaturas chamadas Pokémon!",
     "Para alguns, os Pokémon são companheiros. Para outros, são parceiros de batalha.",
-    "Eu mesmo passo meus dias a estudar os Pokémon.",
+    "Eu mesmo passo meus dias a estudar os Pokémon — há décadas, e ainda encontro coisa nova.",
     "Agora, iniciem sua própria jornada Pokémon!"
   ],
   "pallet_resident_1": [
-    "Pallet Town — um lugar cheirando a brisa e de manhã!"
+    "Pallet Town — um lugar cheirando a brisa de manhã!",
+    "Cresci vendo o Professor Carvalho sair de casa antes do sol nascer, sempre atrás de um Pokémon novo."
   ],
   "pallet_resident_2": [
     "Você ouviu? O Professor Carvalho está procurando jovens treinadores.",
-    "Ele tem Pokémon para dar!"
+    "Ele tem Pokémon para dar!",
+    "Dizem que ele guarda mais espécies no laboratório do que qualquer outro professor de Kanto."
   ],
   "pallet_sign": [
     "PALLET TOWN",
@@ -20,7 +22,7 @@
   ],
   "route_1_sign": [
     "ROTA 1",
-    "PALLET TOWN ↓    PEWTER CITY ↑"
+    "PALLET TOWN ↓    VIRIDIAN CITY ↑"
   ],
   "oak_lab_assistant": [
     "O Professor Carvalho está fora no momento.",
@@ -28,8 +30,13 @@
   ],
   "nurse_joy": [
     "Olá! Seja bem-vindo ao Centro Pokémon!",
-    "Vou restaurar seus Pokémon ao pleno vigor.",
+    "Seus Pokémon parecem cansados da estrada. Deixe comigo.",
     "Pronto! Seus Pokémon foram curados com sucesso!"
+  ],
+  "nurse_joy_healthy": [
+    "Olá, treinador! Bom te ver por aqui.",
+    "Seu time está com ótima saúde — nem precisava vir, mas sempre bem-vindo!",
+    "Vou dar uma conferida geral, só por garantia."
   ],
   "route_1_trainer_1": [
     "Ei, treinador! Está saindo de Pallet Town?",
@@ -38,7 +45,8 @@
   ],
   "route_1_camper": [
     "Estou acampando na Rota 1 para capturar Pidgey.",
-    "Já avistei vários hoje de manhã!"
+    "Já avistei vários hoje de manhã!",
+    "Reparei que alguns bandos de Pidgey andam vindo lá do norte, de Viridian. Fugindo de quê, eu não sei."
   ],
   "pokecenter_sign": [
     "CENTRO POKÉMON",
@@ -48,13 +56,30 @@
     "..."
   ],
   "viridian_guard": [
-    "Olá, viajante! Bem-vindo a Cidade de Viridian!",
-    "O Ginásio aqui está temporariamente fechado. O Líder sumiu misteriosamente...",
-    "Enquanto isso, explore a cidade e colete Pokémon na Rota 1!"
+    "Olá, viajante! Bem-vindo a Cidade de Viridian, a Cidade Sempre Verde.",
+    "O Ginásio aqui está fechado desde a última lua cheia. O Líder sumiu sem deixar rastro.",
+    "Uns dizem que ele foi sozinho atrás de um Pokémon raro nas montanhas ao norte, atrás da cidade.",
+    "Outros juram ter visto luzes estranhas lá em cima, na mesma noite. Eu prefiro não opinar.",
+    "De qualquer forma, fique à vontade pra explorar a cidade enquanto isso não se resolve!"
   ],
   "viridian_researcher": [
     "Esta cidade é conhecida como a Cidade Sempre Verde.",
-    "Existe uma loja de itens ali ao norte.",
-    "Se quiser treinar, a Rota 22 a oeste tem Pokémon interessantes!"
+    "Estudo os padrões de migração dos Pokémon selvagens da região — e ultimamente os números não batem.",
+    "Muitos bandos que deveriam estar assentados na Rota 1 andam se deslocando pra longe daqui, pro sul.",
+    "Começou bem por volta de quando o Líder do Ginásio desapareceu. Coincidência? Ainda não sei dizer.",
+    "Se quiser treinar enquanto isso, a Rota 22 a oeste tem Pokémon interessantes!"
+  ],
+  "viridian_elder": [
+    "Ah, um treinador novo por aqui. Sente-se um instante, se quiser ouvir uma história velha.",
+    "Diz a lenda que nas montanhas atrás de Viridian dorme um Pokémon guardião — ninguém o vê há gerações.",
+    "Meu avô dizia que ele só acorda quando algo no equilíbrio da região quebra.",
+    "Desde que o Líder do Ginásio sumiu, tenho ouvido os pássaros cantando diferente à noite.",
+    "Pode ser coisa de velho contando história. Ou pode não ser. Você que é o treinador — descubra você mesmo."
+  ],
+  "viridian_shopkeeper": [
+    "Bem-vindo à Loja de Itens de Viridian!",
+    "Poções, Poké Bolas, remédios de status... se serve pra sobreviver lá fora, eu tenho.",
+    "E se você trouxe item de troféu de alguma batalha, também compro — pago metade do preço de loja, é o combinado em todo lugar.",
+    "Dá uma olhada no que eu tenho!"
   ]
 }

@@ -1,49 +1,32 @@
 ## TrainerEntity.gd — Entidade controlada pelo jogador.
-## Movimento contínuo por pixel (move_and_slide), velocidade base 180 px/s.
-## Mantém grid_pos para ZoneManager e emite player_tile_entered por tile.
+## Movimento tile-a-tile (estilo Poketibia): herda de BaseEntity e usa o mesmo
+## try_move()/WorldManager.is_tile_walkable() que já bloqueia NPCs em árvore/parede/água —
+## antes o jogador tinha seu próprio movimento contínuo em pixel, sem checar o mapa,
+## por isso atravessava tudo. Segurar uma tecla agora "empurra" um tile por vez.
 class_name TrainerEntity
-extends CharacterBody2D
+extends BaseEntity
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Constantes
 # ──────────────────────────────────────────────────────────────────────────────
-const TILE_SIZE    : int   = 16
-const WALK_SPEED   : float = 180.0
-const RUN_SPEED    : float = 360.0
-const INTERACT_REACH : float = 20.0   # px na direção do facing para interação
-
 const FOLLOWER_SCENE : PackedScene = preload("res://scenes/entities/FollowerPokemon.tscn")
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Nodes
-# ──────────────────────────────────────────────────────────────────────────────
-@onready var sprite : AnimatedSprite2D = $Sprite
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Estado
 # ──────────────────────────────────────────────────────────────────────────────
-var grid_pos        : Vector2i = Vector2i.ZERO
-var _last_grid_pos  : Vector2i = Vector2i(-9999, -9999)
-var facing          : Vector2  = Vector2.DOWN
-var is_running      : bool     = false
 var _input_locked   : bool     = false
 
-# Follower Pokémon (FollowerPokemon.gd — pixel-based)
+# Follower Pokémon (FollowerPokemon.gd — continua em pixel, persegue um rastro)
 var follower : Node2D = null
 
 # Trail de posições para o follower (pixel + direção)
 var _trail          : Array[Dictionary] = []
-const TRAIL_MAX     : int = 120   # ~2/3 s a 60fps de buffer
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Sinal de interação
-# ──────────────────────────────────────────────────────────────────────────────
-signal interaction_triggered(entity: Node)
+const TRAIL_MAX     : int = 120   # ~2s a 60fps de buffer
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Inicialização
 # ──────────────────────────────────────────────────────────────────────────────
-func _ready() -> void:
+func _on_ready() -> void:
 	add_to_group("player")
 	EventBus.dialog_started.connect(_on_dialog_started)
 	EventBus.dialog_ended.connect(_on_dialog_ended)
@@ -51,8 +34,6 @@ func _ready() -> void:
 	EventBus.battle_started.connect(_on_battle_started)
 	EventBus.battle_ended.connect(_on_battle_ended)
 	_load_sprites()
-	grid_pos       = _world_to_grid(position)
-	_last_grid_pos = grid_pos
 	call_deferred("_spawn_follower")
 
 func _load_sprites() -> void:
@@ -82,49 +63,37 @@ func _spawn_follower() -> void:
 	set_follower(f)
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Física / Movimento
+# Movimento (tile-a-tile, herdado de BaseEntity.try_move)
 # ──────────────────────────────────────────────────────────────────────────────
-func _physics_process(_delta: float) -> void:
+func _process(_delta: float) -> void:
+	_record_trail()
+
 	if _input_locked:
-		velocity = Vector2.ZERO
-		_update_idle_anim()
 		return
 
 	var dir := _read_direction()
-	is_running = Input.is_action_pressed("run")
-
-	if dir != Vector2.ZERO:
-		facing   = dir
-		var speed := RUN_SPEED if is_running else WALK_SPEED
-		velocity = dir * speed
-		_play_walk_anim()
-	else:
-		velocity = Vector2.ZERO
-		_update_idle_anim()
-
-	move_and_slide()
-	_record_trail()
-	_check_tile_change()
+	if dir != -1:
+		is_running = Input.is_action_pressed("run")
+		try_move(dir)
 
 	if Input.is_action_just_pressed("interact"):
-		_try_interact()
+		interact()
 
-func _read_direction() -> Vector2:
-	var v := Vector2.ZERO
-	if Input.is_action_pressed("move_up"):    v.y -= 1
-	if Input.is_action_pressed("move_down"):  v.y += 1
-	if Input.is_action_pressed("move_left"):  v.x -= 1
-	if Input.is_action_pressed("move_right"): v.x += 1
-	return v.normalized()
+## Prioridade fixa quando mais de uma tecla está pressionada (sem diagonal —
+## o grid e os sprites do jogo são só 4 direções, igual Poketibia clássico).
+func _read_direction() -> int:
+	if Input.is_action_pressed("move_down"):  return Direction.DOWN
+	if Input.is_action_pressed("move_up"):    return Direction.UP
+	if Input.is_action_pressed("move_left"):  return Direction.LEFT
+	if Input.is_action_pressed("move_right"): return Direction.RIGHT
+	return -1
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Detecção de mudança de tile
-# ──────────────────────────────────────────────────────────────────────────────
-func _check_tile_change() -> void:
-	grid_pos = _world_to_grid(position)
-	if grid_pos != _last_grid_pos:
-		_last_grid_pos = grid_pos
-		EventBus.player_tile_entered.emit(grid_pos)
+func _on_tile_entered(tile: Vector2i) -> void:
+	EventBus.player_tile_entered.emit(tile)
+
+## Usado pelo FollowerPokemon como direção de repouso quando ainda não há rastro.
+func get_facing_vector() -> Vector2:
+	return _dir_to_vec(facing)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Trail para FollowerPokemon
@@ -141,7 +110,10 @@ func _update_follower() -> void:
 	# Pega a posição a FollowerPokemon.FOLLOW_DISTANCE px atrás no histórico — mesma constante
 	# usada pelo follower pra manter repouso, senão os dois número dessincronizam e a
 	# distância real de caminhada volta a ficar menor que o repouso.
-	var follow_frames : int = int(FollowerPokemon.FOLLOW_DISTANCE / (WALK_SPEED / 60.0))
+	# Velocidade efetiva do tween de tile: TILE_SIZE px em MOVE_DURATION (ou RUN_DURATION) s.
+	var duration : float = RUN_DURATION if is_running else MOVE_DURATION
+	var speed_px_s : float = TILE_SIZE / duration
+	var follow_frames : int = int(FollowerPokemon.FOLLOW_DISTANCE / (speed_px_s / 60.0))
 	follow_frames = clampi(follow_frames, 1, _trail.size())
 	var entry := _trail[_trail.size() - follow_frames]
 	follower.set_target_position(entry["pos"])
@@ -155,64 +127,6 @@ func set_follower(f: Node2D) -> void:
 
 func clear_follower() -> void:
 	follower = null
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Interação
-# ──────────────────────────────────────────────────────────────────────────────
-func _try_interact() -> void:
-	var query_pos := position + facing * INTERACT_REACH
-	var space := get_world_2d().direct_space_state
-	var params := PhysicsPointQueryParameters2D.new()
-	params.position         = query_pos
-	params.collision_mask   = 4   # layer NPC/Pokémon
-	params.exclude          = [get_rid()]
-	var hits := space.intersect_point(params, 4)
-	for hit in hits:
-		var col = hit.get("collider")
-		if col and col != self:
-			interaction_triggered.emit(col)
-			return
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Animação
-# ──────────────────────────────────────────────────────────────────────────────
-func _play_walk_anim() -> void:
-	if not sprite or not sprite.sprite_frames:
-		return
-	var suffix := _facing_suffix()
-	var anim   := "walk_" + suffix
-	if not sprite.sprite_frames.has_animation(anim):
-		anim = "walk"
-	if sprite.animation != anim:
-		sprite.play(anim)
-
-func _update_idle_anim() -> void:
-	if not sprite or not sprite.sprite_frames:
-		return
-	var anim := "idle_" + _facing_suffix()
-	if not sprite.sprite_frames.has_animation(anim):
-		anim = "idle"
-	if sprite.animation != anim:
-		sprite.play(anim)
-
-func _facing_suffix() -> String:
-	if abs(facing.x) >= abs(facing.y):
-		return "right" if facing.x > 0 else "left"
-	return "down" if facing.y > 0 else "up"
-
-# ──────────────────────────────────────────────────────────────────────────────
-# API pública de posição
-# ──────────────────────────────────────────────────────────────────────────────
-func set_grid_position(tile: Vector2i) -> void:
-	grid_pos       = tile
-	_last_grid_pos = tile
-	position       = _grid_to_world(tile)
-
-func _grid_to_world(tile: Vector2i) -> Vector2:
-	return Vector2(tile) * TILE_SIZE + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-
-func _world_to_grid(world: Vector2) -> Vector2i:
-	return Vector2i(int(world.x) / TILE_SIZE, int(world.y) / TILE_SIZE)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Lock de input via EventBus
@@ -234,8 +148,3 @@ func _on_battle_started() -> void:
 
 func _on_battle_ended(_result) -> void:
 	unlock_input()
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Compatibilidade com WorldManager (move_finished signal)
-# ──────────────────────────────────────────────────────────────────────────────
-signal move_finished()

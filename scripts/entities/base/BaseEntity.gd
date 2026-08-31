@@ -117,7 +117,10 @@ func _find_entity_at(tile: Vector2i) -> BaseEntity:
 	var space     := get_world_2d().direct_space_state
 	var params    := PhysicsPointQueryParameters2D.new()
 	params.position      = world_pos
-	params.collision_mask = collision_layer
+	# Era "= collision_layer" (a própria camada da entidade, não quem ela quer detectar) —
+	# nunca dava pra notar porque só o TrainerEntity chamava interact(), e até agora ele tinha
+	# a própria implementação de interação em pixel, sem passar por aqui.
+	params.collision_mask = collision_mask
 	params.exclude        = [get_rid()]
 	var results := space.intersect_point(params, 4)
 	for r in results:

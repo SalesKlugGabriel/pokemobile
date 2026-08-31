@@ -16,6 +16,9 @@ extends BaseEntity
 ## Se true, cura o time completo ao encerrar o diálogo (Enfermeira Joy)
 @export var heal_on_dialog_end : bool = false
 
+## Se true, abre a Loja (comprar/vender) ao encerrar o diálogo (vendedor)
+@export var opens_shop_on_dialog_end : bool = false
+
 ## Se true, inicia batalha de treinador após o diálogo
 @export var is_trainer     : bool = false
 
@@ -140,7 +143,18 @@ func start_dialog(initiator: TrainerEntity) -> void:
 		face_toward(initiator.grid_pos)
 
 	EventBus.dialog_started.emit(self)
-	EventBus.npc_dialog_requested.emit(self, dialog_id)
+	EventBus.npc_dialog_requested.emit(self, _effective_dialog_id())
+
+## A Enfermeira Joy reage ao estado real do time: fala diferente se ninguém
+## precisa de cura (evita a mesma fala "vou restaurar seus Pokémon" quando o
+## time já está 100%). Os outros NPCs sempre usam o dialog_id fixo.
+func _effective_dialog_id() -> String:
+	if heal_on_dialog_end and dialog_id == "nurse_joy":
+		for poke in SaveManager.get_team():
+			if int(poke.get("hp_current", 1)) < int(poke.get("hp_max", 1)):
+				return "nurse_joy"
+		return "nurse_joy_healthy"
+	return dialog_id
 
 func _on_dialog_ended() -> void:
 	if state != State.DIALOG:
@@ -149,6 +163,10 @@ func _on_dialog_ended() -> void:
 		SaveManager.heal_team()
 		AudioManager.play_sfx("heal")
 		EventBus.pokemon_center_visited.emit(WorldManager.current_map_id)
+	if opens_shop_on_dialog_end:
+		var pause_menu := get_tree().get_first_node_in_group("pause_menu")
+		if pause_menu and pause_menu.has_method("open_shop_externally"):
+			pause_menu.open_shop_externally()
 	# Inicia batalha de treinador após o diálogo (se não foi derrotado ainda)
 	if is_trainer and not trainer_defeated and not trainer_team.is_empty():
 		BattleManager.start_trainer_battle(self)

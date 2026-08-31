@@ -36,6 +36,7 @@ func _ready() -> void:
 	# os botões (Continuar incluso) e o Escape/P ficavam sem efeito porque este
 	# nó herdava o modo de processo padrão, que para de rodar quando o jogo pausa.
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group("pause_menu")
 	panel.hide()
 	btn_team.pressed.connect(_on_team)
 	btn_bag.pressed.connect(_on_bag)
@@ -112,6 +113,11 @@ func _on_shop() -> void:
 	_on_resume()
 	get_tree().paused = true
 	shop.open()
+
+## Chamado por um NpcEntity vendedor (opens_shop_on_dialog_end) — mesmo caminho
+## do botão "Loja" do menu de Pausa, só que disparado por diálogo no mundo.
+func open_shop_externally() -> void:
+	_on_shop()
 
 func _on_pokedex() -> void:
 	AudioManager.play_sfx("confirm")

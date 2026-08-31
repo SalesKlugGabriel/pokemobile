@@ -89,6 +89,19 @@ npc_name = "Pesquisadora"
 dialog_id = "viridian_researcher"
 is_patrolling = false
 
+[node name="Vendedor" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(888, 168)
+npc_name = "Vendedor"
+dialog_id = "viridian_shopkeeper"
+opens_shop_on_dialog_end = true
+is_patrolling = false
+
+[node name="Anciao" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(272, 528)
+npc_name = "Ancião"
+dialog_id = "viridian_elder"
+is_patrolling = false
+
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("4_zm")
 

@@ -9,6 +9,62 @@
 
 ---
 
+## v0.2.3 — Loja física em Viridian + lore/NPCs novos + colisão de verdade (árvore/parede) (2026-08-31, continuação)
+
+**Pedido do Gabriel:** "próxima etapa do cronograma — lore, interações com NPCs, criar as lojas
+pra comprar itens, Pokémon selvagem derrotado dropar item vendável na loja." No meio do trabalho,
+ele mandou um segundo pedido: "árvores/paredes estão intangíveis, usar construção de mapa
+baseado em Poketibia."
+
+**Antes de construir, conferi o que já existia** (loja Comprar/Vender e loot dropável/vendável
+já estavam prontos e testados desde mais cedo hoje — não recriei). O que faltava de verdade:
+
+1. **Loja física em Viridian City.** Achado bom: o prédio da loja **já estava desenhado no mapa**
+   (`MapLayouts.gd`, paredes/telhado/porta, cols 50-60) — só vazio por dentro. Um diálogo antigo
+   da Pesquisadora até já dizia "existe uma loja ali ao norte", uma pista nunca resolvida. Coloquei
+   um NPC "Vendedor" lá dentro (`opens_shop_on_dialog_end` — reaproveita a MESMA `ShopScene` do
+   menu de Pausa, só chamada por diálogo em vez de botão).
+2. **Lore.** Expandi todos os diálogos existentes e criei o gancho central: o Líder do Ginásio de
+   Viridian sumiu, e um Ancião novo (NPC) conta uma lenda de um Pokémon guardião nas montanhas —
+   a Pesquisadora e o Guarda também dão pistas que apontam pro mesmo mistério. Nada resolvido
+   ainda de propósito (é gancho de história, não quest).
+3. **NPC reativo.** A Enfermeira Joy agora fala diferente se ninguém no time está machucado
+   (`nurse_joy_healthy`) — pequena interação de verdade, usa o HP salvo, não é só decoração.
+
+**Depois, achado ao construir #1: o ponto de interação do jogador tinha um bug nunca antes
+exercido.** `BaseEntity.interact()` (usado por todo NPC pra ser "falado com") checava
+`params.collision_mask = collision_layer` — a própria camada da entidade, não quem ela queria
+detectar (devia ser `= collision_mask`). Nunca deu pra notar porque **o jogador nunca chamava essa
+função** — tinha a própria versão em pixel, separada. Corrigido junto (ver item 4).
+
+4. **🔴 Pedido do meio da sessão: árvores/paredes intangíveis.** Causa raiz: o `TrainerEntity`
+   (jogador) tinha o próprio sistema de movimento contínuo em pixel (`move_and_slide`, sem checar
+   o mapa nenhuma vez) — **nunca usava** o `WorldManager.is_tile_walkable()` que os NPCs já usam
+   desde sempre (por isso NPC nunca atravessava parede, só o jogador). Reescrito: `TrainerEntity`
+   agora **herda de `BaseEntity`** (mesma classe-base do NPC) e usa o mesmo `try_move()` tile a
+   tile com checagem real contra o mapa — exatamente o "estilo Poketibia" pedido (segurar uma
+   tecla anda um tile de cada vez, bate na árvore/parede e para). Ganho de bônus: como
+   `try_move()` já vira de frente sem andar quando esbarra, ganhou o "bump" clássico de graça.
+   O sistema do Pokémon seguidor (rastro em pixel) não precisou mudar — só a fórmula de
+   "quantos frames atrás" foi ajustada pra nova velocidade tile a tile.
+
+**Testado:** Recompilado e publicado. Confirmado AO VIVO no navegador, numa partida real: jogador
+bloqueado de verdade pela fileira de árvores da borda do mapa (não atravessa mais), transição
+Pallet Town → Rota 1 funcionando, Pokémon seguidor continua acompanhando, batalha selvagem abre e
+"Fugir" funciona, **zero erro de script no console** em várias partidas seguidas.
+**Não confirmado ao vivo** (por dificuldade de navegar às cegas por script até lá, não por dúvida
+no código): abrir a Loja falando com o Vendedor, e o diálogo novo do Ancião — os dois foram lidos
+com cuidado linha por linha e conferidos contra `godot4 --headless --import` sem erro, mas vale
+você mesmo conferir jogando (é rápido: suba até Viridian City e entre no prédio à esquerda do
+corredor central).
+
+**Próximo passo:** o Gabriel jogar e confirmar Loja + Ancião + a sensação da colisão nova.
+
+**Precisa de decisão do Gabriel?** Não — os dois pedidos (lore/loja e colisão) foram atendidos
+como descritos.
+
+---
+
 ## v0.2.2 — Distância do Pokémon seguidor + derrota leva ao Centro Pokémon (2026-08-31, continuação)
 
 **Pedido do Gabriel:** o Pokémon seguidor precisa ficar pelo menos 2 blocos (tiles) atrás do
