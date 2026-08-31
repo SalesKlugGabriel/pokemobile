@@ -88,8 +88,19 @@ func _ready() -> void:
 	add_to_group("wild_pokemon")
 	_spawn_pos = global_position
 	_load_species()
+	_load_sprite()
 	_pick_patrol_dir()
 	EventBus.wild_pokemon_spawned.emit(self)
+
+## Achado (mesma causa do Pokémon companheiro): sem isto, o Pokémon selvagem
+## nunca tinha sprite nenhum — existia, se movia e reagia, mas era 100%
+## invisível no mapa. A escala 2x evita o outro problema já visto: a região
+## do spritesheet é só 16×16, quase invisível do lado do jogador.
+func _load_sprite() -> void:
+	if sprite and not sprite.sprite_frames:
+		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(species_id)
+		sprite.play("idle")
+		sprite.scale = Vector2(2.0, 2.0)
 
 func _load_species() -> void:
 	species_data = GameData.get_species(species_id)

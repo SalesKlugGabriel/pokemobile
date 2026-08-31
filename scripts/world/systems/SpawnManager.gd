@@ -7,8 +7,12 @@ extends Node
 # Constantes
 # ──────────────────────────────────────────────────────────────────────────────
 const MAX_WILD_INSTANCES    : int   = 60
-const SPAWN_RADIUS_TILES    : int   = 200
-const DESPAWN_RADIUS_TILES  : int   = 280
+# Achado: 200/280 tiles fazia sentido pra um mundo contínuo gigante (Kanto
+# inteiro) que nunca chegou a ser construído. O world_map real hoje tem só
+# 100×120 tiles — um raio de 200 sorteava posição quase sempre fora do mapa
+# ou longe demais da tela pra o Gabriel algum dia ver o Pokémon selvagem.
+const SPAWN_RADIUS_TILES    : int   = 20
+const DESPAWN_RADIUS_TILES  : int   = 35
 const SPAWN_INTERVAL_SEC    : float = 3.0   # tempo entre tentativas de spawn
 const TILE_SIZE             : int   = 16    # pixels por tile
 

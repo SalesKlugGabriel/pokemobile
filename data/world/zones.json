@@ -5,10 +5,10 @@
       "name": "Pallet Town",
       "region": "kanto",
       "tile_rect": {
-        "x": 35,
-        "y": 147,
-        "w": 30,
-        "h": 30
+        "x": 0,
+        "y": 80,
+        "w": 100,
+        "h": 39
       },
       "bgm": "pallet_town",
       "wild_pokemon": [],
@@ -28,10 +28,10 @@
       "name": "Viridian City",
       "region": "kanto",
       "tile_rect": {
-        "x": 35,
-        "y": 97,
-        "w": 30,
-        "h": 30
+        "x": 0,
+        "y": 2,
+        "w": 100,
+        "h": 37
       },
       "bgm": "viridian_city",
       "wild_pokemon": [],
@@ -45,6 +45,35 @@
           ]
         }
       ]
+    },
+    {
+      "id": "route_1",
+      "name": "Route 1",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 39,
+        "w": 100,
+        "h": 41
+      },
+      "bgm": "route_1",
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 2,
+          "level_max": 5,
+          "weight": 50
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 2,
+          "level_max": 4,
+          "weight": 50
+        }
+      ],
+      "npcs": []
     },
     {
       "id": "pewter_city",
@@ -194,35 +223,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "route_1",
-      "name": "Route 1",
-      "region": "kanto",
-      "tile_rect": {
-        "x": 45,
-        "y": 120,
-        "w": 10,
-        "h": 42
-      },
-      "bgm": "route_1",
-      "wild_pokemon": [
-        {
-          "id": 16,
-          "name": "Pidgey",
-          "level_min": 2,
-          "level_max": 5,
-          "weight": 50
-        },
-        {
-          "id": 19,
-          "name": "Rattata",
-          "level_min": 2,
-          "level_max": 4,
-          "weight": 50
-        }
-      ],
-      "npcs": []
     },
     {
       "id": "route_2",
