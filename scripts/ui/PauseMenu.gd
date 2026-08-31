@@ -22,6 +22,10 @@ const SHOP_SCENE     : PackedScene = preload("res://scenes/ui/ShopScene.tscn")
 
 var _open          : bool    = false
 var _bag_instance  : Control = null
+var _picker        : Control = null
+var _pending_item_id : String = ""
+var _pending_action  : String = ""   # "evolve" ou "teach"
+var _pending_target  : int    = -1
 
 func _ready() -> void:
 	# Achado: abrir a pausa (get_tree().paused = true) travava a própria pausa —
@@ -88,6 +92,7 @@ func _on_bag() -> void:
 			_bag_instance.hide()
 			get_tree().paused = false
 		)
+		_bag_instance.item_selected.connect(_on_bag_item_used)
 	_bag_instance.set_battle_mode(false)
 	_on_resume()
 	get_tree().paused = true
@@ -117,6 +122,147 @@ func _on_pokedex() -> void:
 	_on_resume()
 	get_tree().paused = true
 	EventBus.pokedex_opened.emit()
+
+## Usar um item da Mochila fora de batalha (Pause → Mochila). Achado: o sinal
+## `item_selected` do Bag nunca era conectado aqui — clicar "Usar" fora de
+## batalha (numa Pedra, por exemplo) não fazia literalmente nada.
+func _on_bag_item_used(item_id: String) -> void:
+	var item := GameData.get_item(item_id)
+	var category : String = item.get("category", "")
+	match category:
+		"stone":
+			_pending_item_id = item_id
+			_pending_action  = "evolve"
+			_open_pokemon_picker("Usar %s em qual Pokémon?" % item.get("name", item_id))
+		"tm_hm":
+			_pending_item_id = item_id
+			_pending_action  = "teach"
+			_open_pokemon_picker("Ensinar %s pra qual Pokémon?" % item.get("name", item_id))
+		_:
+			label_info.text = "%s só pode ser usado numa batalha por enquanto." % item.get("name", item_id)
+
+func _close_bag_flow() -> void:
+	_free_picker()
+	if _bag_instance:
+		_bag_instance.hide()
+	get_tree().paused = false
+
+func _free_picker() -> void:
+	if _picker:
+		_picker.queue_free()
+		_picker = null
+
+## Painel genérico "escolha um Pokémon do time" — reaproveitado por pedra e
+## por MT/MO. Construído em código (não em .tscn) de propósito: um
+## PanelContainer com mais de um filho direto estica todos pro mesmo espaço
+## e empilha um por cima do outro — foi exatamente esse bug que travou o
+## menu de golpes em batalha antes (ver git log). Aqui só existe UM filho
+## direto (o VBox), então o problema não pode acontecer.
+func _open_pokemon_picker(title: String) -> void:
+	_free_picker()
+	if _bag_instance:
+		_bag_instance.hide()
+
+	var pc := PanelContainer.new()
+	pc.process_mode  = Node.PROCESS_MODE_ALWAYS
+	pc.anchor_left   = 0.28
+	pc.anchor_top    = 0.15
+	pc.anchor_right  = 0.72
+	pc.anchor_bottom = 0.85
+	add_child(pc)
+	_picker = pc
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	pc.add_child(vbox)
+
+	var title_lbl := Label.new()
+	title_lbl.text = title
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_font_size_override("font_size", 15)
+	vbox.add_child(title_lbl)
+
+	var team := SaveManager.get_team()
+	for i in team.size():
+		var poke : Dictionary = team[i]
+		var species_name : String = GameData.get_species(int(poke.get("species_id", 1))).get("name", "???")
+		var btn := Button.new()
+		btn.text = "%s  Nv.%d  %d/%d HP" % [species_name, int(poke.get("level", 1)),
+				int(poke.get("hp_current", 0)), int(poke.get("hp_max", 1))]
+		var idx := i
+		btn.pressed.connect(func(): _on_picker_target(idx))
+		vbox.add_child(btn)
+
+	var cancel := Button.new()
+	cancel.text = "Cancelar"
+	cancel.pressed.connect(func():
+		_free_picker()
+		if _bag_instance:
+			_bag_instance.show()
+	)
+	vbox.add_child(cancel)
+
+func _on_picker_target(index: int) -> void:
+	if _pending_action == "evolve":
+		if SaveManager.try_evolve_with_stone(index, _pending_item_id):
+			SaveManager.remove_item(_pending_item_id, 1)
+			SaveManager.save_game()
+			label_info.text = "Evoluiu!"
+		else:
+			label_info.text = "Não teve efeito..."
+		_close_bag_flow()
+	elif _pending_action == "teach":
+		var team := SaveManager.get_team()
+		var moves : Array = team[index].get("moves", [])
+		if moves.size() < 4:
+			_teach_and_finish(index, -1)
+		else:
+			_pending_target = index
+			_open_move_replace_picker(index)
+
+func _open_move_replace_picker(index: int) -> void:
+	_free_picker()
+	var pc := PanelContainer.new()
+	pc.process_mode  = Node.PROCESS_MODE_ALWAYS
+	pc.anchor_left   = 0.28
+	pc.anchor_top    = 0.15
+	pc.anchor_right  = 0.72
+	pc.anchor_bottom = 0.85
+	add_child(pc)
+	_picker = pc
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	pc.add_child(vbox)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "Já sabe 4 golpes. Esquecer qual?"
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_font_size_override("font_size", 15)
+	vbox.add_child(title_lbl)
+
+	var team := SaveManager.get_team()
+	var moves : Array = team[index].get("moves", [])
+	for i in moves.size():
+		var move_name : String = GameData.get_move(moves[i].get("id", "")).get("name", "???")
+		var btn := Button.new()
+		btn.text = move_name
+		var slot := i
+		btn.pressed.connect(func(): _teach_and_finish(index, slot))
+		vbox.add_child(btn)
+
+	var cancel := Button.new()
+	cancel.text = "Cancelar"
+	cancel.pressed.connect(func(): _close_bag_flow())
+	vbox.add_child(cancel)
+
+func _teach_and_finish(index: int, slot: int) -> void:
+	var move_id : String = GameData.get_item(_pending_item_id).get("teaches", "")
+	if SaveManager.learn_move(index, move_id, slot):
+		SaveManager.remove_item(_pending_item_id, 1)
+		SaveManager.save_game()
+		label_info.text = "Aprendeu %s!" % GameData.get_move(move_id).get("name", move_id)
+	_close_bag_flow()
 
 func _on_save() -> void:
 	AudioManager.play_sfx("confirm")

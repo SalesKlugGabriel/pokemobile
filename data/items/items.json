@@ -52,5 +52,21 @@
   "iron":            {"id":"iron",            "name":"Iron",             "category":"vitamin",    "ev_stat":"defense", "ev_amount":10, "price":9800, "description":"Raises Defense EVs."},
   "carbos":          {"id":"carbos",          "name":"Carbos",           "category":"vitamin",    "ev_stat":"speed",   "ev_amount":10, "price":9800, "description":"Raises Speed EVs."},
   "calcium":         {"id":"calcium",         "name":"Calcium",          "category":"vitamin",    "ev_stat":"sp_atk",  "ev_amount":10, "price":9800, "description":"Raises Sp. Atk EVs."},
-  "rare_candy":      {"id":"rare_candy",      "name":"Rare Candy",       "category":"vitamin",    "effect":"level_up", "price":0,    "description":"Raises level by 1."}
+  "rare_candy":      {"id":"rare_candy",      "name":"Rare Candy",       "category":"vitamin",    "effect":"level_up", "price":0,    "description":"Raises level by 1."},
+
+  "tm01": {"id":"tm01", "name":"MT01 Corte Duplo",   "category":"tm_hm", "teaches":"swords_dance", "price":1000, "description":"Ensina Corte Duplo (aumenta o próprio Ataque)."},
+  "tm02": {"id":"tm02", "name":"MT02 Terremoto",     "category":"tm_hm", "teaches":"earthquake",   "price":3000, "description":"Ensina Terremoto (Terra, dano forte)."},
+  "tm03": {"id":"tm03", "name":"MT03 Investida",     "category":"tm_hm", "teaches":"body_slam",    "price":1500, "description":"Ensina Investida (pode paralisar)."},
+  "tm04": {"id":"tm04", "name":"MT04 Fúria",         "category":"tm_hm", "teaches":"double_edge",  "price":1500, "description":"Ensina Fúria (dano altíssimo, com recuo)."},
+  "tm05": {"id":"tm05", "name":"MT05 Veneno-X",      "category":"tm_hm", "teaches":"toxic",        "price":2000, "description":"Ensina Veneno-X (envenenamento grave garantido)."},
+  "tm06": {"id":"tm06", "name":"MT06 Onda de Choque","category":"tm_hm", "teaches":"thunder_wave", "price":2000, "description":"Ensina Onda de Choque (paralisa o oponente)."},
+  "tm07": {"id":"tm07", "name":"MT07 Descanso",      "category":"tm_hm", "teaches":"rest",         "price":2500, "description":"Ensina Descanso (cura tudo e dorme)."},
+  "tm08": {"id":"tm08", "name":"MT08 Raio Solar",    "category":"tm_hm", "teaches":"solar_beam",   "price":3500, "description":"Ensina Raio Solar (Planta, dano altíssimo)."},
+  "tm09": {"id":"tm09", "name":"MT09 Lança-Chamas",  "category":"tm_hm", "teaches":"flamethrower", "price":3500, "description":"Ensina Lança-Chamas (Fogo, pode queimar)."},
+  "tm10": {"id":"tm10", "name":"MT10 Raio",          "category":"tm_hm", "teaches":"thunderbolt",  "price":3500, "description":"Ensina Raio (Elétrico, pode paralisar)."},
+  "tm11": {"id":"tm11", "name":"MT11 Surfar",        "category":"tm_hm", "teaches":"surf",         "price":3500, "description":"Ensina Surfar (Água, dano forte)."},
+  "tm12": {"id":"tm12", "name":"MT12 Psíquico",      "category":"tm_hm", "teaches":"psychic",      "price":3500, "description":"Ensina Psíquico (Psíquico, pode baixar Def. Esp.)."},
+  "hm01": {"id":"hm01", "name":"MO01 Cortar",        "category":"tm_hm", "teaches":"cut",          "price":0,    "description":"Ensina Cortar. Não pode ser apagado."},
+  "hm02": {"id":"hm02", "name":"MO02 Voar",          "category":"tm_hm", "teaches":"fly",          "price":0,    "description":"Ensina Voar. Não pode ser apagado."},
+  "hm03": {"id":"hm03", "name":"MO03 Força",         "category":"tm_hm", "teaches":"strength",     "price":0,    "description":"Ensina Força. Não pode ser apagado."}
 }

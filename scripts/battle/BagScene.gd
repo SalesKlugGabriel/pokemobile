@@ -10,16 +10,24 @@ signal bag_closed
 # Achado: items.json usa "ball" (pokeball/great_ball/ultra_ball/master_ball
 # são todos "category":"ball") — aqui estava "pokeball", então a aba nunca
 # encontrava nenhuma bola, mesmo com pokébolas no inventário.
-const BATTLE_CATEGORIES := ["medicine", "ball", "berry"]
+const BATTLE_CATEGORIES := ["medicine", "ball"]
 
-# Todas as categorias disponíveis para exibição com abas
-const ALL_CATEGORIES := ["medicine", "ball", "berry", "key_item", "tm_hm"]
+# Todas as categorias disponíveis para exibição com abas.
+# Achado (auditoria de 2026-08-31): "berry" nunca existiu em nenhum item de
+# items.json (aba "Frutas" sempre vazia), a chave real de item-de-história é
+# "key" (não "key_item" — aba "Chave" nunca achava nada), e não existia
+# nenhuma aba pra "stone" (Pedra do Fogo etc ficavam invisíveis na Mochila
+# mesmo depois de compradas).
+const ALL_CATEGORIES := ["medicine", "ball", "stone", "tm_hm", "battle", "vitamin", "key", "field"]
 const CATEGORY_LABELS := {
 	"medicine":  "Remédios",
 	"ball":      "Pokébolas",
-	"berry":     "Frutas",
-	"key_item":  "Chave",
+	"stone":     "Pedras",
 	"tm_hm":     "TM/HM",
+	"battle":    "Batalha",
+	"vitamin":   "Vitaminas",
+	"key":       "Chave",
+	"field":     "Campo",
 }
 
 @onready var item_list   : VBoxContainer = $Layout/Scroll/ItemList

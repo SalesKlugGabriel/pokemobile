@@ -9,6 +9,55 @@
 
 ---
 
+## Pedras evoluem, TM/HM ensinam golpe (2026-08-31, continuação — estilo "Poketibia" sem multiplayer)
+
+**Contexto:** Gabriel pediu que a mecânica de itens/loja/pedras fosse no estilo dos jogos de
+Poketibia (PokeXGames/OTPokemon/PokemonBR — todos rodando o motor do Tibia). Pesquisado: nesses
+jogos a troca entre jogadores é uma janela em tempo real (dois jogadores no mesmo mapa), o que
+exigiria dar ao PokéMobile uma arquitetura que ele não tem hoje (servidor, contas, sincronização
+— projeto de semanas). **Perguntado ao Gabriel antes de construir** (regra de confirmar decisão
+de arquitetura) — ele escolheu **só o estilo de loja/pedras/TM, sem multiplayer por enquanto**.
+
+**O que foi construído:**
+- **Pedras evoluem Pokémon de verdade.** `evolutions.json` já tinha as 13 evoluções por pedra
+  mapeadas certinho (bate exato com o Gen 1: Pikachu por Pedra Trovão, Poliwhirl por Pedra Água,
+  etc) — só nunca tinha sido ligado a nada (`SaveManager._check_evolution` só olhava nível).
+  `SaveManager.try_evolve_with_stone()` novo, reaproveitando a mesma lógica de troca de espécie
+  que já existia pra evolução por nível.
+- **TM/HM ensinam golpe de verdade.** 15 itens novos em `items.json` (12 MTs + 3 MOs, com preço
+  e a referência de qual golpe ensinam). `SaveManager.learn_move()` novo. Se o Pokémon já sabe 4
+  golpes, abre uma segunda tela pra escolher qual esquecer (like os jogos de verdade).
+  **Simplificação assumida**: qualquer Pokémon aprende qualquer MT/MO (o Gen 1 real restringe por
+  espécie — essa tabela de compatibilidade não existe nos dados baixados da PokéAPI ainda; fica
+  pra outra rodada se o Gabriel quiser mais fidelidade). MOs também podem ser esquecidas (no jogo
+  real não podem) — simplificação de propósito pra não duplicar o sistema de aprender golpe.
+- **Painel "em qual Pokémon?" novo**, construído em código (não em `.tscn`) — reaproveitado tanto
+  pra pedra quanto pra MT/MO. Construído em código de propósito, com um único filho direto no
+  PanelContainer, pra não repetir o mesmo bug de "PanelContainer com filho demais empilha tudo"
+  que travou o menu de golpes mais cedo hoje.
+- **Achado no caminho, corrigido**: a Mochila (`BagScene.gd`) tinha só 5 abas, e 3 delas nem
+  batiam com os dados de verdade — "Frutas" (`berry`) não existe em nenhum item, "Chave"
+  procurava `key_item` mas o dado usa `key`, e não existia aba nenhuma pra `stone` (pedra
+  comprada ficava invisível na Mochila, sem jeito de usar). Reescrito pra bater com as 8
+  categorias reais (`medicine/ball/stone/tm_hm/battle/vitamin/key/field`) — Pedras, Vitaminas,
+  Batalha e Campo agora aparecem (antes eram invisíveis). **Achado 2**: o sinal `item_selected`
+  da Mochila nunca era conectado quando aberta pela Pausa — clicar "Usar" fora de batalha não
+  fazia nada nenhum, silenciosamente.
+
+**Testado ao vivo:** comprei Pedra do Fogo na Loja (₽2100), abri a Mochila pela Pausa, aba
+"Pedras" aparece com a pedra, "Usar" abre o painel "Usar em qual Pokémon?", escolhi o Bulbasaur
+(que não evolui com essa pedra) — confirmado "sem efeito" e a pedra continua x1 (não foi gasta à
+toa). Fluxo de MT/MO **não testado ao vivo** (mesmo código, mesmo padrão do fluxo de pedra já
+confirmado — não tinha dinheiro sobrando pra comprar uma MT na mesma sessão de teste).
+
+**Próximo passo:** testar MT/MO ao vivo quando houver saldo; depois seguir com o resto do pedido
+original (item de batalha tipo X-Attack ainda não faz efeito nenhum — achado, não corrigido
+ainda) ou o que o Gabriel pedir a seguir.
+
+**Precisa de decisão do Gabriel?** Não por enquanto.
+
+---
+
 ## Auditoria de golpes/itens + troca de Pokémon + dinheiro/Loja (2026-08-31, continuação)
 
 **Pedido do Gabriel:** conferir se todos os golpes seguem a lógica certa de dano/buff/debuff/

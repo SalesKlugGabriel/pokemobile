@@ -190,7 +190,7 @@ func add_exp_to_pokemon(index: int, exp_gained: int) -> int:
 	return int(poke["level"])
 
 ## Verifica e aplica evolução por level.
-## Estrutura evolutions.json: {"species_id": N, "evolves_to": M, "condition": {"type": "level", "value": L}}
+## Estrutura evolutions.json: {"species_id": N, "evolves_to": M, "condition": {"type": "level"|"stone", "value": L|item_id}}
 func _check_evolution(index: int) -> void:
 	var team: Array = save_data["team"]
 	if index < 0 or index >= team.size():
@@ -208,8 +208,35 @@ func _check_evolution(index: int) -> void:
 	if current_level < int(condition.get("value", 999)):
 		return
 
-	# Evolui!
-	var new_id := int(evo.get("evolves_to", species_id))
+	_apply_evolution(index, int(evo.get("evolves_to", species_id)))
+	_check_evolution(index)  # cadeia de evolução
+
+## Tenta evoluir o Pokémon no índice usando uma pedra (Fire Stone etc — item
+## com category "stone"). Retorna true se evoluiu (e consome a pedra fora
+## daqui, quem chamar decide). Achado: `evolutions.json` já tinha as 13
+## evoluções por pedra mapeadas (bate exato com o Gen 1 de verdade), só
+## nunca tinha sido ligado a nada — `_check_evolution` só olhava "level".
+func try_evolve_with_stone(index: int, stone_item_id: String) -> bool:
+	var team: Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return false
+	var species_id := int(team[index].get("species_id", 0))
+	var evo : Dictionary = GameData.get_evolution(species_id)
+	if evo.is_empty():
+		return false
+	var condition : Dictionary = evo.get("condition", {})
+	if condition.get("type", "") != "stone" or String(condition.get("value", "")) != stone_item_id:
+		return false
+	_apply_evolution(index, int(evo.get("evolves_to", species_id)))
+	return true
+
+func _apply_evolution(index: int, new_id: int) -> void:
+	var team: Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return
+	var poke : Dictionary = team[index]
+	var old_id : int = int(poke.get("species_id", 0))
+	var current_level : int = int(poke.get("level", 1))
 	var new_species := GameData.get_species(new_id)
 	if new_species.is_empty():
 		return
@@ -224,8 +251,36 @@ func _check_evolution(index: int) -> void:
 	poke["hp_max"]     = new_max
 	poke["hp_current"] = maxi(1, roundi(new_max * ratio))
 	team[index] = poke
-	EventBus.pokemon_evolved.emit(species_id, new_id)
-	_check_evolution(index)  # cadeia de evolução
+	EventBus.pokemon_evolved.emit(old_id, new_id)
+
+## Ensina um move num slot (0-3) do Pokémon no índice — usado por TM/HM.
+## `slot_index` = -1 significa "primeiro slot vazio" (só funciona se tiver
+## menos de 4 moves); com moveset cheio, quem chamar precisa escolher o slot.
+func learn_move(index: int, move_id: String, slot_index: int = -1) -> bool:
+	var team: Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return false
+	var move_data := GameData.get_move(move_id)
+	if move_data.is_empty():
+		return false
+	var poke : Dictionary = team[index]
+	var moves : Array = poke.get("moves", [])
+	var new_move := {
+		"id": move_id,
+		"pp_current": int(move_data.get("pp", 10)),
+		"pp_max": int(move_data.get("pp", 10)),
+	}
+	if slot_index < 0:
+		if moves.size() >= 4:
+			return false
+		moves.append(new_move)
+	else:
+		if slot_index >= moves.size():
+			return false
+		moves[slot_index] = new_move
+	poke["moves"] = moves
+	team[index] = poke
+	return true
 
 ## Cura todo o time: HP e PP restaurados, status removido. Salva o jogo.
 func heal_team() -> void:
