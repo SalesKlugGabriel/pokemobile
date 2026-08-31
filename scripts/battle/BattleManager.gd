@@ -331,7 +331,7 @@ func _apply_status_move(atk: BattlePokemon, def: BattlePokemon, move: Dictionary
 func _change_stage(target: BattlePokemon, stat: String, delta: int) -> void:
 	var old : int = target.stages[stat]
 	target.stages[stat] = clampi(old + delta, -6, 6)
-	var diff := target.stages[stat] - old
+	var diff : int = target.stages[stat] - old
 	if diff > 0:
 		battle_scene.show_message("%s de %s subiu!" % [stat.to_upper(), target.species_name])
 	elif diff < 0:
@@ -344,7 +344,7 @@ func _change_stage(target: BattlePokemon, stat: String, delta: int) -> void:
 # ──────────────────────────────────────────────────────────────────────────────
 func _apply_item(item_id: String, target: BattlePokemon) -> void:
 	var item := GameData.get_item(item_id)
-	var effect := item.get("effect", "none")
+	var effect : String = item.get("effect", "none")
 	match effect:
 		"heal_20":   target.heal(20)
 		"heal_50":   target.heal(50)
@@ -403,7 +403,7 @@ func _attempt_capture(ball_item_id: String) -> void:
 	match enemy_pokemon.status:
 		BattlePokemon.Status.SLEEP, BattlePokemon.Status.FREEZE:
 			a *= 2.5
-		BattlePokemon.Status.BURN, BattlePokemon.Status.POISON,
+		BattlePokemon.Status.BURN, BattlePokemon.Status.POISON, \
 		BattlePokemon.Status.BAD_POISON, BattlePokemon.Status.PARALYSIS:
 			a *= 1.5
 
@@ -519,7 +519,7 @@ func start_trainer_battle(npc: Node) -> void:
 	phase             = BattlePhase.STARTING
 
 	# Primeiro Pokémon do treinador
-	var first := trainer_team_data[0] if not trainer_team_data.is_empty() else {"species_id": 16, "level": 5}
+	var first : Dictionary = trainer_team_data[0] if not trainer_team_data.is_empty() else {"species_id": 16, "level": 5}
 	enemy_pokemon = BattlePokemon.create(int(first.get("species_id", 16)), int(first.get("level", 5)), false)
 
 	# Pokémon do jogador (mesmo que batalha selvagem)

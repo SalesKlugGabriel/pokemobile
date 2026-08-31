@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://route_1"]
+[gd_scene load_steps=12 format=3]
 
 
 [ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
@@ -40,7 +40,7 @@ limit_left = 0
 limit_top = 0
 limit_right = 320
 limit_bottom = 960
-zoom = Vector2(2.0, 2.0)
+zoom = Vector2(3.0, 3.0)
 
 [node name="Trainer1" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(152, 400)

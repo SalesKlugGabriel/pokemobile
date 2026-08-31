@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://mt_moon_b1"]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/FloorMap.gd" id="1_floormap"]
 [ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
@@ -46,11 +46,10 @@ limit_left = 0
 limit_top = 0
 limit_right = 800
 limit_bottom = 480
-zoom = Vector2(2.0, 2.0)
+zoom = Vector2(3.0, 3.0)
 
 [node name="WarpZones" type="Node2D" parent="."]
 
-# Saída norte → Route 3 (WorldMap tile 110,58 — posição futura ao expandir o mapa)
 [node name="WarpExit_Route3" type="Area2D" parent="WarpZones"]
 position = Vector2(88, 464)
 collision_mask = 2
@@ -61,7 +60,6 @@ spawn_tile = Vector2i(110, 58)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WarpZones/WarpExit_Route3"]
 shape = SubResource("Shape_entry")
 
-# Escada para B2 (centro do andar)
 [node name="WarpStairs_B2" type="Area2D" parent="WarpZones"]
 position = Vector2(400, 96)
 collision_mask = 2

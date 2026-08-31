@@ -40,7 +40,7 @@ func _input(event: InputEvent) -> void:
 
 	if event is InputEventScreenTouch:
 		if event.pressed and _touch_index == -1:
-			var local_pos := to_local(event.position)
+			var local_pos : Vector2 = get_global_transform().affine_inverse() * event.position
 			if _is_in_joystick_area(local_pos):
 				_touch_index = event.index
 				_origin = local_pos
@@ -50,7 +50,7 @@ func _input(event: InputEvent) -> void:
 
 	elif event is InputEventScreenDrag:
 		if event.index == _touch_index:
-			_update(to_local(event.position))
+			_update(get_global_transform().affine_inverse() * event.position)
 
 func _update(touch_pos: Vector2) -> void:
 	var delta   := touch_pos - _origin

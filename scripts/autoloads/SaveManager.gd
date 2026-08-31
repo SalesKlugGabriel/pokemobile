@@ -195,11 +195,11 @@ func _check_evolution(index: int) -> void:
 	var team: Array = save_data["team"]
 	if index < 0 or index >= team.size():
 		return
-	var poke := team[index]
+	var poke : Dictionary = team[index]
 	var species_id    := int(poke.get("species_id", 0))
 	var current_level : int = int(poke.get("level", 1))
 
-	var evo := GameData.get_evolutions(species_id)
+	var evo : Dictionary = GameData.get_evolution(species_id)
 	if evo.is_empty():
 		return
 	var condition : Dictionary = evo.get("condition", {})
@@ -323,7 +323,7 @@ static func _calc_stat(base: int, iv: int, level: int) -> int:
 ## Cria dicionário completo de dados de um Pokémon novo (nível dado).
 func _make_pokemon_data(species_id: int, level: int) -> Dictionary:
 	var species := GameData.get_species(species_id)
-	var bs      := species.get("base_stats", {})
+	var bs : Dictionary = species.get("base_stats", {})
 	var ivs     := {
 		"hp":  RNGManager.randi_range(0, 31),
 		"atk": RNGManager.randi_range(0, 31),
@@ -335,11 +335,10 @@ func _make_pokemon_data(species_id: int, level: int) -> Dictionary:
 	var hp_max := _calc_hp(int(bs.get("hp", 45)), int(ivs["hp"]), level)
 
 	# Auto-seleciona até 4 moves aprendidos até este nível
-	var learnset  := GameData.get_learnset(species_id)
+	var learnset : Array = GameData.get_learnable_moves(species_id, level)
 	var available : Array = []
 	for entry in learnset:
-		if int(entry.get("level", 99)) <= level:
-			available.append(entry["move"])
+		available.append(entry["move"])
 	if available.size() > 4:
 		available = available.slice(available.size() - 4)
 	var moves : Array = []
@@ -377,7 +376,7 @@ func make_caught_data(bp) -> Dictionary:
 			"pp_max":     int(move.get("pp_max", 35))
 		})
 	var species := GameData.get_species(bp.species_id)
-	var bs      := species.get("base_stats", {})
+	var bs : Dictionary = species.get("base_stats", {})
 	return {
 		"uuid":       _make_uuid(),
 		"species_id": bp.species_id,

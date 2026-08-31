@@ -27,3 +27,10 @@ func fade_to(scene_path: String) -> void:
 	tw.tween_property(_rect, "modulate:a", 1.0, 0.3).set_ease(Tween.EASE_IN)
 	await tw.finished
 	get_tree().change_scene_to_file(scene_path)
+	await get_tree().process_frame
+
+	# Fade de volta pra transparente na cena nova
+	var tw2 := create_tween()
+	tw2.tween_property(_rect, "modulate:a", 0.0, 0.4).set_ease(Tween.EASE_OUT)
+	await tw2.finished
+	_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE

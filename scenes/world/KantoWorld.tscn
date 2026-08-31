@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dkw9m2qvnp5r"]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/systems/ChunkStreamManager.gd" id="1_csm"]
 [ext_resource type="Script" path="res://scripts/world/systems/ZoneManager.gd" id="2_zm"]
@@ -40,7 +40,7 @@ position = Vector2(800, 1760)
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
-zoom = Vector2(2, 2)
+zoom = Vector2(3, 3)
 
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 

@@ -6,7 +6,7 @@ extends CanvasLayer
 @onready var panel      : PanelContainer = $Panel
 @onready var label_name : Label          = $Panel/VBox/LabelName
 @onready var label_text : RichTextLabel  = $Panel/VBox/LabelText
-@onready var icon_next  : TextureRect    = $Panel/VBox/HBoxBottom/IconNext
+@onready var icon_next  : Label          = $Panel/VBox/HBoxBottom/IconNext
 
 var _lines    : Array  = []
 var _index    : int    = 0

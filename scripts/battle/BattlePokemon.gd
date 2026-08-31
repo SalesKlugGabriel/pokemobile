@@ -71,7 +71,7 @@ static func create(p_species_id: int, p_level: int, p_is_player: bool,
 	else:
 		bp.ivs = p_ivs.duplicate()
 
-	var base_stats := species.get("base_stats", {})
+	var base_stats : Dictionary = species.get("base_stats", {})
 	bp._calculate_stats(base_stats)
 
 	# Moves: usa lista fornecida ou pega os últimos 4 aprendíveis até o level
@@ -87,6 +87,35 @@ static func create(p_species_id: int, p_level: int, p_is_player: bool,
 		if mdata.is_empty():
 			continue
 		mdata["pp_current"] = mdata.get("pp", 10)
+		bp.moves.append(mdata)
+
+	return bp
+
+## Reconstrói um BattlePokemon a partir dos dados salvos (SaveManager),
+## preservando HP atual e PP restante de cada move em vez de recalcular do zero.
+static func from_save(poke_save: Dictionary) -> BattlePokemon:
+	var bp := BattlePokemon.new()
+	bp.species_id = int(poke_save.get("species_id", 1))
+	bp.level      = int(poke_save.get("level", 5))
+	bp.is_player  = true
+	bp.is_shiny   = bool(poke_save.get("is_shiny", false))
+
+	var species : Dictionary = GameData.get_species(bp.species_id)
+	bp.species_name = species.get("name", "???")
+	bp.ivs = poke_save.get("ivs", bp.ivs).duplicate()
+	bp.evs = poke_save.get("evs", bp.evs).duplicate()
+
+	var base_stats : Dictionary = species.get("base_stats", {})
+	bp._calculate_stats(base_stats)
+	bp.hp = clampi(int(poke_save.get("hp_current", bp.max_hp)), 0, bp.max_hp)
+
+	for move_save in poke_save.get("moves", []):
+		var move_id : String = move_save.get("id", "")
+		var mdata : Dictionary = GameData.get_move(move_id).duplicate()
+		if mdata.is_empty():
+			continue
+		mdata["pp_current"] = int(move_save.get("pp_current", mdata.get("pp", 10)))
+		mdata["pp_max"]     = int(move_save.get("pp_max", mdata.get("pp", 10)))
 		bp.moves.append(mdata)
 
 	return bp

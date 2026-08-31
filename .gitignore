@@ -1,0 +1,5 @@
+# Godot 4 — cache local do editor, nunca versionar
+.godot/
+
+# Build exportada — gerada a partir do código-fonte, não precisa ir pro Git
+builds/

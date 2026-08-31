@@ -61,5 +61,6 @@ signal dialog_ended()                                    # alias semântico de d
 signal npc_dialog_requested(npc: Node, dialog_id: String)
 signal hud_toggle_map(visible: bool)
 signal pokedex_opened()
+signal party_opened()
 signal pokemon_evolved(from_id: int, into_id: int)
 signal zone_changed(zone_name: String)

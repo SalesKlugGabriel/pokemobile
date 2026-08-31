@@ -97,7 +97,7 @@ func _tick_patrol_move() -> void:
 		_set_state(State.PATROL_WAIT)
 		return
 
-	var dir := _direction_toward(target)
+	var dir : Variant = _direction_toward(target)
 	if dir != null:
 		try_move(dir)
 
@@ -163,7 +163,7 @@ func _on_dialog_ended() -> void:
 # ──────────────────────────────────────────────────────────────────────────────
 # Utilitários internos
 # ──────────────────────────────────────────────────────────────────────────────
-func _direction_toward(target: Vector2i) -> Direction:
+func _direction_toward(target: Vector2i) -> Variant:
 	var delta := target - grid_pos
 	if delta == Vector2i.ZERO:
 		return null

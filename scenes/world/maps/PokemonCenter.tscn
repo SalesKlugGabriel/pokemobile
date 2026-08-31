@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://pokemon_center"]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
 [ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
@@ -36,7 +36,7 @@ limit_left = 0
 limit_top = 0
 limit_right = 256
 limit_bottom = 224
-zoom = Vector2(2.0, 2.0)
+zoom = Vector2(3.0, 3.0)
 
 [node name="NurseJoy" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(128, 80)

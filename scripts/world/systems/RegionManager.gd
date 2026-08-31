@@ -107,7 +107,7 @@ func _on_zone_changed(zone_id: String) -> void:
 	if region_id.is_empty():
 		return
 
-	var new_region := _regions_by_id.get(region_id, {})
+	var new_region : Dictionary = _regions_by_id.get(region_id, {})
 	if new_region.is_empty():
 		return
 

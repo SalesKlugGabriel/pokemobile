@@ -79,7 +79,7 @@ func _on_player_tile_entered(tile: Vector2i) -> void:
 	if not _current_zone.is_empty() and _current_zone.get("id", "") == new_zone_id:
 		return
 
-	var prev_id := _current_zone.get("id", "")
+	var prev_id : String = _current_zone.get("id", "")
 	_current_zone = _zones_by_id.get(new_zone_id, {})
 
 	if new_zone_id != prev_id:

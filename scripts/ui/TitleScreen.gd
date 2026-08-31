@@ -12,8 +12,8 @@ func _ready() -> void:
 	if has_save:
 		# Carrega brevemente para exibir info do save
 		SaveManager.load_game()
-		var poke := SaveManager.get_pokemon_at(0)
-		var name_str := poke.get("nickname", "") if poke.get("nickname", "") != "" \
+		var poke : Dictionary = SaveManager.get_pokemon_at(0)
+		var name_str : String = poke.get("nickname", "") if poke.get("nickname", "") != "" \
 					   else GameData.get_species(int(poke.get("species_id", 1))).get("name", "???")
 		label_save.text = "Treinador: %s  |  %s Lv.%d  |  %d capturados" % [
 			SaveManager.get_trainer().get("name", "???"),

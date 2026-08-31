@@ -11,6 +11,7 @@ var _open : bool = false
 func _ready() -> void:
 	panel.hide()
 	btn_close.pressed.connect(_close)
+	EventBus.party_opened.connect(_open_party)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("menu_team"):
@@ -51,8 +52,8 @@ func _build_list() -> void:
 		var name_str    : String = poke.get("nickname", "") if poke.get("nickname", "") != "" \
 								  else species.get("name", "???")
 		var level       : int   = poke.get("level", 1)
-		var hp_cur      : int   = poke.get("current_hp", 0)
-		var hp_max      : int   = poke.get("max_hp", 1)
+		var hp_cur      : int   = poke.get("hp_current", 0)
+		var hp_max      : int   = poke.get("hp_max", 1)
 
 		# Card do Pokémon
 		var card := PanelContainer.new()

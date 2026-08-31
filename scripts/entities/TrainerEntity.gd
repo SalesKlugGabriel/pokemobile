@@ -12,6 +12,8 @@ const WALK_SPEED   : float = 180.0
 const RUN_SPEED    : float = 360.0
 const INTERACT_REACH : float = 20.0   # px na direção do facing para interação
 
+const FOLLOWER_SCENE : PackedScene = preload("res://scenes/entities/FollowerPokemon.tscn")
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Nodes
 # ──────────────────────────────────────────────────────────────────────────────
@@ -51,6 +53,7 @@ func _ready() -> void:
 	_load_sprites()
 	grid_pos       = _world_to_grid(position)
 	_last_grid_pos = grid_pos
+	call_deferred("_spawn_follower")
 
 func _load_sprites() -> void:
 	if sprite and not sprite.sprite_frames:
@@ -58,6 +61,25 @@ func _load_sprites() -> void:
 			"res://assets/sprites/player/player.png"
 		)
 		sprite.play("idle_down")
+
+## Coloca o Pokémon líder da equipe pra andar atrás do jogador no mapa.
+## Não aparece se a equipe está vazia ou se o líder desmaiou (hp_current <= 0).
+func _spawn_follower() -> void:
+	if not SaveManager.has_save():
+		return
+	var lead : Dictionary = SaveManager.get_pokemon_at(0)
+	if lead.is_empty():
+		return
+	if int(lead.get("hp_current", 0)) <= 0:
+		return
+
+	var f : Node2D = FOLLOWER_SCENE.instantiate()
+	f.pokemon_species_id = int(lead.get("species_id", 1))
+	f.pokemon_level      = int(lead.get("level", 5))
+	get_parent().add_child(f)
+	f.global_position = global_position
+	f.set_trainer(self)
+	set_follower(f)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Física / Movimento
@@ -144,7 +166,7 @@ func _try_interact() -> void:
 	params.exclude          = [get_rid()]
 	var hits := space.intersect_point(params, 4)
 	for hit in hits:
-		var col := hit.get("collider")
+		var col = hit.get("collider")
 		if col and col != self:
 			interaction_triggered.emit(col)
 			return

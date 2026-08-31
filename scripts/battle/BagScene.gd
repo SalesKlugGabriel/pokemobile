@@ -30,6 +30,13 @@ func _ready() -> void:
 	btn_close.pressed.connect(func(): bag_closed.emit())
 	_build_tabs()
 
+## Chamado por quem abre a mochila fora de batalha (menu de pausa) para
+## liberar todas as categorias (chave, TM/HM), não só as usáveis em combate.
+func set_battle_mode(v: bool) -> void:
+	_battle_mode = v
+	_active_category = (BATTLE_CATEGORIES if v else ALL_CATEGORIES)[0]
+	_build_tabs()
+
 func _build_tabs() -> void:
 	if not tab_bar:
 		return
@@ -41,7 +48,7 @@ func _build_tabs() -> void:
 		btn.text = CATEGORY_LABELS.get(cat, cat)
 		btn.toggle_mode = true
 		btn.button_pressed = (cat == _active_category)
-		var cap := cat
+		var cap : String = cat
 		btn.pressed.connect(func():
 			_active_category = cap
 			_build_tabs()

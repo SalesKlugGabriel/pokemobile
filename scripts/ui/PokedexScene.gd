@@ -3,6 +3,10 @@
 ## Exibe: número, nome, tipo, status (visto/capturado/desconhecido).
 extends CanvasLayer
 
+## Emitido sempre que a Pokédex fecha (botão ou tecla) — usado por quem a abriu
+## de um contexto pausado (menu de pausa) para saber a hora de despausar.
+signal closed_by_user()
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Referências de nós (definidas na .tscn)
 # ──────────────────────────────────────────────────────────────────────────────
@@ -47,6 +51,7 @@ func close() -> void:
 	_is_open = false
 	panel.hide()
 	AudioManager.play_sfx("menu_close")
+	closed_by_user.emit()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # População da lista

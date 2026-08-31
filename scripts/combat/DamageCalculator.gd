@@ -86,12 +86,12 @@ const CRIT_CHANCE : float = 0.0625   # 6.25%
 
 ## Calcula stat atual (atk, def, spd etc.) a partir da base e do nível.
 ## stat_atual = base_stat + floor(base_stat * (level / 60))
-func calculate_stat(base_stat: int, level: int) -> int:
+static func calculate_stat(base_stat: int, level: int) -> int:
 	return base_stat + int(floor(base_stat * (level / 60.0)))
 
 ## Calcula HP máximo a partir da base e do nível.
 ## hp_atual = base_hp + floor(base_hp * (level / 40)) + level
-func calculate_hp(base_hp: int, level: int) -> int:
+static func calculate_hp(base_hp: int, level: int) -> int:
 	return base_hp + int(floor(base_hp * (level / 40.0))) + level
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -102,7 +102,7 @@ func calculate_hp(base_hp: int, level: int) -> int:
 ## attacker_stats: { "atk": int, "level": int }
 ## defender_stats: { "def": int, "types": Array[String] }
 ## move_data:      { "power": int, "type": String, "damage_bonus": float (opcional) }
-func calculate_damage(
+static func calculate_damage(
 	move_data      : Dictionary,
 	attacker_stats : Dictionary,
 	defender_stats : Dictionary
@@ -130,7 +130,7 @@ func calculate_damage(
 
 ## Retorna o multiplicador de tipo para move_type contra uma lista de tipos defensores.
 ## Para dual-type, multiplica os dois multiplicadores.
-func get_type_multiplier(move_type: String, defender_types: Array) -> float:
+static func get_type_multiplier(move_type: String, defender_types: Array) -> float:
 	if not TYPE_CHART.has(move_type):
 		return 1.0
 
@@ -148,7 +148,7 @@ func get_type_multiplier(move_type: String, defender_types: Array) -> float:
 # ──────────────────────────────────────────────────────────────────────────────
 
 ## Retorna true se o ataque é crítico (chance base 6.25%).
-func is_critical() -> bool:
+static func is_critical() -> bool:
 	return RNGManager.chance(CRIT_CHANCE)
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -156,9 +156,9 @@ func is_critical() -> bool:
 # ──────────────────────────────────────────────────────────────────────────────
 
 ## Velocidade de movimento em px/s baseada no speed_stat.
-func move_speed_from_stat(speed_stat: int) -> float:
+static func move_speed_from_stat(speed_stat: int) -> float:
 	return 80.0 + (speed_stat * 0.8)
 
 ## Redução de cooldown baseada no speed_stat (0.0 a 1.0).
-func cooldown_reduction_from_stat(speed_stat: int) -> float:
+static func cooldown_reduction_from_stat(speed_stat: int) -> float:
 	return speed_stat / 500.0

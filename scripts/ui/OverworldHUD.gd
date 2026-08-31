@@ -49,8 +49,8 @@ func _refresh() -> void:
 	var species_name : String = GameData.get_species(int(lead.get("species_id", 1))).get("name", "???")
 	var nickname     : String = lead.get("nickname", "")
 	var display_name : String = nickname if nickname != "" else species_name
-	var hp_cur : int = lead.get("current_hp", 0)
-	var hp_max : int = lead.get("max_hp", 1)
+	var hp_cur : int = lead.get("hp_current", 0)
+	var hp_max : int = lead.get("hp_max", 1)
 	label_lead.text  = "%s  Lv.%d" % [display_name, lead.get("level", 1)]
 	bar_hp.max_value = hp_max
 	bar_hp.value     = hp_cur

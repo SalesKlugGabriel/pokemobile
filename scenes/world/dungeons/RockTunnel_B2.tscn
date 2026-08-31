@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://rock_tunnel_b2"]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/FloorMap.gd" id="1_floormap"]
 [ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
@@ -46,11 +46,10 @@ limit_left = 0
 limit_top = 0
 limit_right = 800
 limit_bottom = 480
-zoom = Vector2(2.0, 2.0)
+zoom = Vector2(3.0, 3.0)
 
 [node name="WarpZones" type="Node2D" parent="."]
 
-# Escada de volta para B1
 [node name="WarpStairs_B1" type="Area2D" parent="WarpZones"]
 position = Vector2(88, 448)
 collision_mask = 2
@@ -61,7 +60,6 @@ spawn_tile = Vector2i(25, 6)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WarpZones/WarpStairs_B1"]
 shape = SubResource("Shape_stairs")
 
-# Saída sul → Route 10 sul (WorldMap tile 220,100 — lado de Lavender)
 [node name="WarpExit_Route10S" type="Area2D" parent="WarpZones"]
 position = Vector2(712, 448)
 collision_mask = 2

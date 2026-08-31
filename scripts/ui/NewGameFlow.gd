@@ -22,7 +22,7 @@ func _ready() -> void:
 func _build_starter_cards() -> void:
 	for i in STARTERS.size():
 		var idx := i
-		var data := STARTERS[i]
+		var data : Dictionary = STARTERS[i]
 		var card := PanelContainer.new()
 		card.custom_minimum_size = Vector2(200, 160)
 		var vb := VBoxContainer.new()

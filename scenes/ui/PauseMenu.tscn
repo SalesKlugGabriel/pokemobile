@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://pause_menu"]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/PauseMenu.gd" id="1"]
 
@@ -29,9 +29,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -140
-offset_top = -165
+offset_top = -225
 offset_right = 140
-offset_bottom = 165
+offset_bottom = 225
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_1")
@@ -50,6 +50,21 @@ theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
 [node name="BtnResume" type="Button" parent="Panel/VBox"]
 layout_mode = 2
 text = "Continuar"
+theme_override_font_sizes/font_size = 14
+
+[node name="BtnTeam" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Pokémon"
+theme_override_font_sizes/font_size = 14
+
+[node name="BtnBag" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Mochila"
+theme_override_font_sizes/font_size = 14
+
+[node name="BtnPokedex" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Pokédex"
 theme_override_font_sizes/font_size = 14
 
 [node name="BtnSave" type="Button" parent="Panel/VBox"]

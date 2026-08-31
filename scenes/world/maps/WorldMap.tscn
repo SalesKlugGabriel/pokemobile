@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://world_map"]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
 [ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
@@ -10,7 +10,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/OverworldHUD.tscn" id="7_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="8_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/PartyScene.tscn" id="9_party"]
-[ext_resource type="Script" path="res://scripts/world/WarpZone.gd" id="10_warpzone"]
+[ext_resource type="PackedScene" path="res://scenes/world/WarpZone.tscn" id="10_warpzone"]
 
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_pallet"]
 size = Vector2(48, 16)
@@ -32,7 +32,6 @@ format = 2
 
 [node name="NPCs" type="Node2D" parent="Entities"]
 
-# ── Player ── spawn em Pallet Town (tile 50,110 → pixel 800,1760)
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
 position = Vector2(800, 1760)
 
@@ -45,9 +44,8 @@ limit_left = 0
 limit_top = 0
 limit_right = 1600
 limit_bottom = 1920
-zoom = Vector2(2.0, 2.0)
+zoom = Vector2(3.0, 3.0)
 
-# ── NPCs — Pallet Town ──
 [node name="ProfCarvalho" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(416, 1392)
 npc_name = "Prof. Carvalho"
@@ -66,7 +64,6 @@ npc_name = "Moradora"
 dialog_id = "pallet_resident_2"
 is_patrolling = false
 
-# ── NPCs — Rota 1 ──
 [node name="Treinador1" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(800, 944)
 npc_name = "Treinador"
@@ -80,7 +77,6 @@ npc_name = "Campista"
 dialog_id = "route_1_camper"
 is_patrolling = false
 
-# ── NPCs — Viridian City ──
 [node name="Guarda" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(800, 464)
 npc_name = "Guarda"
@@ -93,39 +89,30 @@ npc_name = "Pesquisadora"
 dialog_id = "viridian_researcher"
 is_patrolling = false
 
-# ── Sistemas de mundo ──
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("4_zm")
 
 [node name="SpawnManager" type="Node" parent="."]
 script = ExtResource("4b_sm")
 
-# ── WarpZones — apenas para interiores ──
 [node name="WarpZones" type="Node2D" parent="."]
 
-# PokéCenter Pallet — porta em tile (76,90) → pixel (1216, 1440)
-[node name="WarpPokeCenter_Pallet" type="Area2D" parent="WarpZones"]
+[node name="WarpPokeCenter_Pallet" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(1200, 1440)
-collision_mask = 2
-script = ExtResource("10_warpzone")
 target_map = "res://scenes/world/maps/PokemonCenter.tscn"
 spawn_tile = Vector2i(7, 11)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Pallet"]
+[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Pallet"]
 shape = SubResource("Shape_pokecenter_pallet")
 
-# PokéCenter Viridian — porta em tile (76,14) → pixel (1216, 224)
-[node name="WarpPokeCenter_Viridian" type="Area2D" parent="WarpZones"]
+[node name="WarpPokeCenter_Viridian" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(1200, 224)
-collision_mask = 2
-script = ExtResource("10_warpzone")
 target_map = "res://scenes/world/maps/PokemonCenter.tscn"
 spawn_tile = Vector2i(7, 11)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Viridian"]
+[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Viridian"]
 shape = SubResource("Shape_pokecenter_viridian")
 
-# ── UI ──
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 
 [node name="OverworldHUD" parent="." instance=ExtResource("7_hud")]

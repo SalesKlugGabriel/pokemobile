@@ -300,7 +300,7 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 		var row : String = rows[row_idx]
 		for col_idx in row.length():
 			var ch := row[col_idx]
-			var atlas := CHAR_MAP.get(ch, Vector2i(0, 0))
+			var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
 			tilemap.set_cell(0, Vector2i(col_idx, row_idx), 0, atlas)
 
 static func get_pixel_bounds(map_id: String) -> Rect2i:
