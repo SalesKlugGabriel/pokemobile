@@ -85,11 +85,14 @@ func _load_species_data() -> void:
 		push_warning("[FollowerPokemon] Espécie %d não encontrada." % pokemon_species_id)
 		return
 
+	# Chaves corrigidas (Fase 1 do Diário) — eram "atk"/"def"/"spd", que não
+	# existem em species.json (as chaves reais são attack/defense/speed);
+	# sempre caía no valor-padrão 45, igual pra qualquer espécie.
 	var base : Dictionary = species_data.get("base_stats", {})
-	max_hp      = DamageCalculator.calculate_hp(base.get("hp", 45),   pokemon_level)
-	atk_stat    = DamageCalculator.calculate_stat(base.get("atk", 45),  pokemon_level)
-	def_stat    = DamageCalculator.calculate_stat(base.get("def", 45),  pokemon_level)
-	speed_stat  = DamageCalculator.calculate_stat(base.get("spd", 45),  pokemon_level)
+	max_hp      = DamageCalculator.calculate_hp(base.get("hp", 45),      pokemon_level)
+	atk_stat    = DamageCalculator.calculate_stat(base.get("attack", 45), pokemon_level)
+	def_stat    = DamageCalculator.calculate_stat(base.get("defense", 45), pokemon_level)
+	speed_stat  = DamageCalculator.calculate_stat(base.get("speed", 45),  pokemon_level)
 	current_hp  = max_hp
 	EventBus.follower_hp_changed.emit(current_hp, max_hp)
 

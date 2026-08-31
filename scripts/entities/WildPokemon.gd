@@ -123,10 +123,12 @@ func _load_species() -> void:
 	types      = species_data.get("types", ["Normal"])
 	catch_rate = species_data.get("catch_rate", 45)
 
-	max_hp     = DamageCalculator.calculate_hp(base.get("hp", 45),  wild_level)
-	atk_stat   = DamageCalculator.calculate_stat(base.get("atk", 45), wild_level)
-	def_stat   = DamageCalculator.calculate_stat(base.get("def", 45), wild_level)
-	speed_stat = DamageCalculator.calculate_stat(base.get("spd", 45), wild_level)
+	# Chaves corrigidas (Fase 1 do Diário) — mesmo bug do FollowerPokemon.gd:
+	# "atk"/"def"/"spd" não existem em species.json, caía sempre no padrão 45.
+	max_hp     = DamageCalculator.calculate_hp(base.get("hp", 45),      wild_level)
+	atk_stat   = DamageCalculator.calculate_stat(base.get("attack", 45), wild_level)
+	def_stat   = DamageCalculator.calculate_stat(base.get("defense", 45), wild_level)
+	speed_stat = DamageCalculator.calculate_stat(base.get("speed", 45),  wild_level)
 
 	if is_alpha:
 		max_hp    = int(max_hp  * ALPHA_HP_MULT)

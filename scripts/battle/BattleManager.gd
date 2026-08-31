@@ -459,6 +459,10 @@ func _calculate_damage(atk: BattlePokemon, def: BattlePokemon, move: Dictionary)
 	# Efetividade de tipo
 	dmg *= _type_effectiveness(move_type, def)
 
+	# Habilidade e item segurado (Fase 1 do Diário)
+	dmg *= _ability_damage_multiplier(atk, move_type, is_special)
+	dmg *= _held_item_damage_multiplier(atk, move_type)
+
 	# Crítico (1/16 chance normal, ~1/4 com Focus Energy — Foco Energético)
 	var crit_chance := 0.25 if atk.crit_boost else 0.0625
 	if RNGManager.chance(crit_chance):
@@ -469,6 +473,36 @@ func _calculate_damage(atk: BattlePokemon, def: BattlePokemon, move: Dictionary)
 	dmg *= RNGManager.randf_range(0.85, 1.0)
 
 	return maxi(1, roundi(dmg))
+
+## Habilidades com efeito de dano implementado até agora (ver species.json —
+## nem toda espécie tem "ability" ainda, e nem toda ability tem efeito aqui;
+## as sem efeito ficam só como dado/flavor até alguém pedir a mecânica delas).
+func _ability_damage_multiplier(atk: BattlePokemon, move_type: String, is_special: bool) -> float:
+	var low_hp := atk.hp <= atk.max_hp / 3.0
+	match atk.ability:
+		"Overgrow":
+			if move_type == "Grass" and low_hp:
+				return 1.5
+		"Blaze":
+			if move_type == "Fire" and low_hp:
+				return 1.5
+		"Torrent":
+			if move_type == "Water" and low_hp:
+				return 1.5
+		"Guts":
+			if atk.status != BattlePokemon.Status.NONE and not is_special:
+				return 1.5
+	return 1.0
+
+## Item segurado do tipo "held" em items.json (boost_type/boost_mult) — ex:
+## Charcoal aumenta golpes de Fogo. Vazio ou item sem esse formato = sem efeito.
+func _held_item_damage_multiplier(atk: BattlePokemon, move_type: String) -> float:
+	if atk.held_item.is_empty():
+		return 1.0
+	var item : Dictionary = GameData.get_item(atk.held_item)
+	if item.get("category", "") == "held" and item.get("boost_type", "") == move_type:
+		return float(item.get("boost_mult", 1.0))
+	return 1.0
 
 func _type_effectiveness(move_type: String, defender: BattlePokemon) -> float:
 	var species  := GameData.get_species(defender.species_id)
@@ -890,6 +924,10 @@ func _end_battle(result: String) -> void:
 				var new_level : int = SaveManager.add_exp_to_pokemon(_player_save_index, exp_gained)
 				battle_scene.show_message("Você venceu!")
 				battle_scene.show_message("%s ganhou %d EXP!" % [player_pokemon.species_name, exp_gained])
+				# Bestiary (Fase 1 do Diário) — só selvagem conta como "presença
+				# registrada"; treinador é outra pessoa lutando, não a espécie.
+				if is_wild_battle:
+					SaveManager.record_defeat(enemy_pokemon.species_id)
 				if new_level > old_level:
 					AudioManager.play_sfx("level_up")
 					battle_scene.show_message("%s subiu para o Nível %d!" % [player_pokemon.species_name, new_level])

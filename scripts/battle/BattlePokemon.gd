@@ -13,6 +13,15 @@ var level       : int    = 5
 var is_shiny    : bool   = false
 var is_player   : bool   = false   # true = time do jogador, false = inimigo
 
+## Habilidade passiva (vem da espécie — GameData.get_species().ability).
+## Vazio = espécie ainda sem habilidade cadastrada (comum, ver species.json).
+var ability     : String = ""
+## Item segurado (só o time do jogador tem, vem do save — poke_save.held_item).
+var held_item   : String = ""
+## Nature — sorteada na criação (selvagem) ou lida do save (jogador). Afeta
+## atk/def/spa/spd/spe em ±10% (ver GameData.NATURES); nunca afeta HP.
+var nature      : String = "hardy"
+
 # Moves carregados (Array de Dicts com dados completos + pp_current)
 var moves       : Array[Dictionary] = []
 
@@ -65,6 +74,8 @@ static func create(p_species_id: int, p_level: int, p_is_player: bool,
 
 	var species    := GameData.get_species(p_species_id)
 	bp.species_name = species.get("name", "???")
+	bp.ability      = species.get("ability", "")
+	bp.nature       = GameData.roll_random_nature()
 
 	# IVs: usa override ou gera aleatórios para Pokémon selvagem
 	if p_ivs.is_empty():
@@ -110,6 +121,9 @@ static func from_save(poke_save: Dictionary) -> BattlePokemon:
 
 	var species : Dictionary = GameData.get_species(bp.species_id)
 	bp.species_name = species.get("name", "???")
+	bp.ability       = species.get("ability", "")
+	bp.held_item     = str(poke_save.get("held_item", ""))
+	bp.nature        = str(poke_save.get("nature", "hardy"))
 	bp.ivs = poke_save.get("ivs", bp.ivs).duplicate()
 	bp.evs = poke_save.get("evs", bp.evs).duplicate()
 
@@ -131,20 +145,29 @@ static func from_save(poke_save: Dictionary) -> BattlePokemon:
 # ──────────────────────────────────────────────────────────────────────────────
 # Cálculo de stats (fórmula moderna Gen 3+)
 # ──────────────────────────────────────────────────────────────────────────────
+## Achado grave (Fase 1 do Diário, 31/08): as chaves lidas aqui (atk/def/spa/
+## spd/spe) nunca bateram com as chaves reais de species.json (attack/defense/
+## sp_atk/sp_def/speed) — todo Pokémon do jogo, em toda batalha desde sempre,
+## lutava com essas 5 stats no valor-padrão (45), nunca com a stat real da
+## espécie. Só HP estava certo (a chave "hp" bate nos dois lados por coincidência).
 func _calculate_stats(base: Dictionary) -> void:
 	max_hp  = _calc_hp (base.get("hp",  45))
 	hp      = max_hp
-	attack  = _calc_stat(base.get("atk", 45), ivs["atk"], evs["atk"])
-	defense = _calc_stat(base.get("def", 45), ivs["def"], evs["def"])
-	sp_atk  = _calc_stat(base.get("spa", 45), ivs["spa"], evs["spa"])
-	sp_def  = _calc_stat(base.get("spd", 45), ivs["spd"], evs["spd"])
-	speed   = _calc_stat(base.get("spe", 45), ivs["spe"], evs["spe"])
+	attack  = _calc_stat(base.get("attack", 45), ivs["atk"], evs["atk"], "atk")
+	defense = _calc_stat(base.get("defense", 45), ivs["def"], evs["def"], "def")
+	sp_atk  = _calc_stat(base.get("sp_atk", 45), ivs["spa"], evs["spa"], "spa")
+	sp_def  = _calc_stat(base.get("sp_def", 45), ivs["spd"], evs["spd"], "spd")
+	speed   = _calc_stat(base.get("speed", 45), ivs["spe"], evs["spe"], "spe")
 
 func _calc_hp(base_val: int) -> int:
 	return floori((2.0 * base_val + ivs["hp"] + floori(evs["hp"] / 4.0)) * level / 100.0) + level + 10
 
-func _calc_stat(base_val: int, iv: int, ev: int) -> int:
-	return floori((2.0 * base_val + iv + floori(ev / 4.0)) * level / 100.0) + 5
+## stat_key: "atk"/"def"/"spa"/"spd"/"spe" — usado só pra saber se a nature
+## sobe/desce ESSA stat (HP nunca é afetado por nature).
+func _calc_stat(base_val: int, iv: int, ev: int, stat_key: String) -> int:
+	var raw := floori((2.0 * base_val + iv + floori(ev / 4.0)) * level / 100.0) + 5
+	var nature_mult := GameData.get_nature_multiplier(nature, stat_key)
+	return maxi(1, floori(raw * nature_mult))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Stat efetivo com stage modifier

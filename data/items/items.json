@@ -68,5 +68,10 @@
   "tm12": {"id":"tm12", "name":"MT12 Psíquico",      "category":"tm_hm", "teaches":"psychic",      "price":3500, "description":"Ensina Psíquico (Psíquico, pode baixar Def. Esp.)."},
   "hm01": {"id":"hm01", "name":"MO01 Cortar",        "category":"tm_hm", "teaches":"cut",          "price":0,    "description":"Ensina Cortar. Não pode ser apagado."},
   "hm02": {"id":"hm02", "name":"MO02 Voar",          "category":"tm_hm", "teaches":"fly",          "price":0,    "description":"Ensina Voar. Não pode ser apagado."},
-  "hm03": {"id":"hm03", "name":"MO03 Força",         "category":"tm_hm", "teaches":"strength",     "price":0,    "description":"Ensina Força. Não pode ser apagado."}
+  "hm03": {"id":"hm03", "name":"MO03 Força",         "category":"tm_hm", "teaches":"strength",     "price":0,    "description":"Ensina Força. Não pode ser apagado."},
+
+  "charcoal":     {"id":"charcoal",     "name":"Charcoal",     "category":"held", "boost_type":"Fire",     "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes de Fogo em 20%."},
+  "mystic_water":  {"id":"mystic_water", "name":"Mystic Water", "category":"held", "boost_type":"Water",    "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes de Água em 20%."},
+  "miracle_seed": {"id":"miracle_seed", "name":"Miracle Seed", "category":"held", "boost_type":"Grass",    "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes de Planta em 20%."},
+  "magnet":       {"id":"magnet",       "name":"Magnet",       "category":"held", "boost_type":"Electric", "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes Elétricos em 20%."}
 }

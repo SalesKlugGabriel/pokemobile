@@ -33,10 +33,16 @@ const ITEM_POOLS := {
 		{"id": "rare_candy",   "quantity": 1, "weight": 10}
 	],
 	"epic": [
-		{"id": "max_potion",   "quantity": 1, "weight": 35},
+		{"id": "max_potion",   "quantity": 1, "weight": 30},
 		{"id": "master_ball",  "quantity": 1, "weight": 5},
-		{"id": "hp_up",        "quantity": 1, "weight": 30},
-		{"id": "full_restore", "quantity": 1, "weight": 30}
+		{"id": "hp_up",        "quantity": 1, "weight": 25},
+		{"id": "full_restore", "quantity": 1, "weight": 25},
+		# Itens segurados (Fase 1 do Diário) — raros de propósito, ficam
+		# equipados pro Pokémon pra sempre depois de achados.
+		{"id": "charcoal",     "quantity": 1, "weight": 4},
+		{"id": "mystic_water", "quantity": 1, "weight": 4},
+		{"id": "miracle_seed", "quantity": 1, "weight": 4},
+		{"id": "magnet",       "quantity": 1, "weight": 3}
 	]
 }
 

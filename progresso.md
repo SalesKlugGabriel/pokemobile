@@ -9,6 +9,55 @@
 
 ---
 
+## v0.2.5 — Fase 1 do Diário: Nature, Ability, Item segurado, Bestiary — e um bug crítico achado no caminho (2026-08-31, continuação)
+
+**Pedido:** seguir a Fase 1 do Diário — Nature, Ability passiva, Held Item ativo em batalha
+(o dado já existia, nunca era lido), Bestiary com contagem de derrota.
+
+**🔴 Achado crítico no meio do caminho, corrigido:** escrevendo o teste da Nature, o número
+batido a mão não fechava com o jogo. Causa: `BattlePokemon._calculate_stats()` (o cálculo de
+ataque/defesa/velocidade usado em TODA batalha do jogo, sempre foi assim) lia as chaves
+`"atk"/"def"/"spa"/"spd"/"spe"` — só que `species.json` usa `"attack"/"defense"/"sp_atk"/
+"sp_def"/"speed"`. Como a chave nunca batia, `.get(chave, 45)` sempre caía no valor-padrão
+**45, pra qualquer Pokémon, sempre** — só o HP estava certo (a chave "hp" bate nos dois
+lados por coincidência). Na prática: todo Pokémon do jogo, em toda batalha desde que o
+sistema foi escrito, lutava com ataque/defesa/velocidade genéricos, nunca com a estatística
+real da espécie (um Golem não batia mais forte que um Caterpie). Mesmo bug encontrado e
+corrigido em `FollowerPokemon.gd` e `WildPokemon.gd` (o sistema de "bodyguard" do overworld,
+hoje sem uso real, mas corrigido igual por consistência).
+
+**O que foi construído, com essa base agora corrigida:**
+- **Nature**: 25 natures clássicas (`GameData.NATURES`), sorteada ao criar/capturar um
+  Pokémon, ±10% numa stat (nunca HP) — aplicada dentro do próprio cálculo que acabou de ser
+  corrigido acima.
+- **Ability passiva**: campo novo em `species.json`, preenchido pra 19 espécies alcançáveis
+  no jogo hoje (as 3 linhas dos iniciais + Pidgey/Rattata/Zubat/Geodude, cada linha evolutiva
+  com a ability real da série) — as outras 132 espécies ficam sem ability por enquanto
+  (padrão seguro, sem quebrar nada, é conteúdo pra preencher aos poucos). Efeito de dano
+  implementado pra 4 delas: Overgrow/Blaze/Torrent (+50% no próprio tipo com HP ≤ 1/3) e Guts
+  (+50% em golpe físico quando statusado).
+- **Held Item ativo**: 4 itens novos (Charcoal/Mystic Water/Miracle Seed/Magnet, categoria
+  "held", +20% de dano no tipo correspondente) — achável como loot raro (tier épico) e
+  equipável de verdade (`SaveManager.equip_held_item`/`unequip_held_item`, com troca segura
+  se já tinha outro item). Sem tela pra isso ainda (Fase de layout).
+- **Bestiary**: `SaveManager.record_defeat(species_id)`/`get_defeat_count()` — contagem por
+  espécie, incrementada em toda vitória contra Pokémon selvagem (não conta treinador).
+
+**Testado:** `scripts/tests/teste_fase1_pokemon.gd` (headless, mesmo padrão da Fase 0), 36
+conferências — Nature aplicada certo no stat final (valor batido a mão contra a fórmula
+real), ability ativando/desativando conforme HP e status, item segurado afetando só o tipo
+certo, equipar/desequipar trocando com o inventário, Bestiary sobrevivendo a salvar/
+recarregar. Publicado e confirmado ao vivo: batalha selvagem real (Bulbasaur vs Rattata)
+funcionando normal, sem erro no console.
+
+**Próximo passo:** Fase 2 (árvore de skills do Treinador — já existe, só nunca foi salva/
+instanciada até a Fase 0 arrumar isso — e Pesca, que não existe ainda).
+
+**Precisa de decisão do Gabriel?** Não pra continuar. Vale saber do achado do bug de stats —
+é a correção mais importante feita no jogo até agora, mesmo não sendo o que foi pedido.
+
+---
+
 ## v0.2.4 — Fase 0 do Diário: motor de Quests/Ginásios ligado de verdade (2026-08-31, continuação)
 
 **Pedido do Gabriel:** seguir o "Diário PokéMobile" (plano de fases) em ordem de execução,

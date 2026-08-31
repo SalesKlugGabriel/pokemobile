@@ -27,7 +27,7 @@ var save_data: Dictionary = {
 	"diaries": [],
 	"badges": [],
 	"titles": [],
-	"pokedex": { "seen": [], "caught": [] },
+	"pokedex": { "seen": [], "caught": [], "defeated": {} },
 	"world": {
 		"current_map": "world_map",
 		"last_pokemon_center": "world_map",
@@ -106,7 +106,7 @@ func new_game(trainer_name: String, starter_species_id: int) -> void:
 	save_data["diaries"]   = []
 	save_data["badges"]    = []
 	save_data["titles"]    = []
-	save_data["pokedex"]   = { "seen": [], "caught": [] }
+	save_data["pokedex"]   = { "seen": [], "caught": [], "defeated": {} }
 	save_data["world"]["current_map"]          = "world_map"
 	save_data["world"]["last_pokemon_center"]  = "world_map"
 	save_data["world"]["visited_maps"]         = []
@@ -284,6 +284,39 @@ func learn_move(index: int, move_id: String, slot_index: int = -1) -> bool:
 	team[index] = poke
 	return true
 
+## Equipa um item segurado no Pokémon do índice, tirando do inventário. Se ele
+## já segurava outro item, esse item volta pro inventário (troca, não perde).
+## Retorna false se o item não existe no inventário.
+func equip_held_item(index: int, item_id: String) -> bool:
+	var team: Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return false
+	if not has_item(item_id, 1):
+		return false
+	var poke : Dictionary = team[index]
+	var old_item : String = str(poke.get("held_item", ""))
+	remove_item(item_id, 1)
+	if not old_item.is_empty():
+		add_item(old_item, 1)
+	poke["held_item"] = item_id
+	team[index] = poke
+	return true
+
+## Tira o item segurado do Pokémon do índice, devolvendo pro inventário.
+## Retorna o item_id removido ("" se ele não segurava nada).
+func unequip_held_item(index: int) -> String:
+	var team: Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return ""
+	var poke : Dictionary = team[index]
+	var item_id : String = str(poke.get("held_item", ""))
+	if item_id.is_empty():
+		return ""
+	add_item(item_id, 1)
+	poke["held_item"] = ""
+	team[index] = poke
+	return item_id
+
 ## Cura todo o time: HP e PP restaurados, status removido. Salva o jogo.
 func heal_team() -> void:
 	for poke in save_data["team"]:
@@ -376,6 +409,20 @@ func is_seen(species_id: int) -> bool:
 
 func is_caught(species_id: int) -> bool:
 	return species_id in save_data["pokedex"]["caught"]
+
+## Bestiary — quantas vezes essa espécie já foi derrotada em batalha selvagem
+## (não conta treinador, não é "quem venceu de quem", é presença registrada).
+func record_defeat(species_id: int) -> void:
+	var dex: Dictionary = save_data["pokedex"]
+	if not dex.has("defeated"):
+		dex["defeated"] = {}
+	var key := str(species_id)
+	dex["defeated"][key] = int(dex["defeated"].get(key, 0)) + 1
+	mark_seen(species_id)
+
+func get_defeat_count(species_id: int) -> int:
+	var dex: Dictionary = save_data.get("pokedex", {})
+	return int(dex.get("defeated", {}).get(str(species_id), 0))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # HELPERS — INSÍGNIAS E TÍTULOS
@@ -548,6 +595,7 @@ func _make_pokemon_data(species_id: int, level: int) -> Dictionary:
 		"exp":        level * level * level,  # início exato do nível
 		"ivs":        ivs,
 		"evs":        { "hp":0, "atk":0, "def":0, "spa":0, "spd":0, "spe":0 },
+		"nature":     GameData.roll_random_nature(),
 		"is_shiny":   false,
 		"hp_current": hp_max,
 		"hp_max":     hp_max,
@@ -575,6 +623,7 @@ func make_caught_data(bp) -> Dictionary:
 		"exp":        bp.level * bp.level * bp.level,
 		"ivs":        bp.ivs,
 		"evs":        { "hp":0, "atk":0, "def":0, "spa":0, "spd":0, "spe":0 },
+		"nature":     bp.nature,
 		"is_shiny":   bp.is_shiny,
 		"hp_current": bp.hp,
 		"hp_max":     bp.max_hp,
