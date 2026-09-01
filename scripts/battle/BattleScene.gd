@@ -107,7 +107,16 @@ func show_action_menu() -> void:
 	_hide_all_menus()
 	action_menu.visible = true
 	dialog_box.visible  = true
-	dialog_text.text    = "O que fazer?"
+	if BattleManager.is_safari_battle:
+		dialog_text.text = "Zona Safari — %d bolas restantes" % BattleManager.get_safari_balls_left()
+		btn_fight.text   = "BOLA"
+		btn_bag.text     = "ISCA"
+		btn_pokemon.text = "PEDRA"
+	else:
+		dialog_text.text = "O que fazer?"
+		btn_fight.text   = "LUTAR"
+		btn_bag.text     = "MOCHILA"
+		btn_pokemon.text = "POKÉMON"
 
 func show_message(msg: String) -> void:
 	_message_queue.append(msg)
@@ -188,11 +197,18 @@ func _hide_all_menus() -> void:
 
 func _on_fight_pressed() -> void:
 	AudioManager.play_sfx("select")
+	if BattleManager.is_safari_battle:
+		BattleManager.player_safari_throw_ball()
+		return
 	_hide_all_menus()
 	move_menu.visible = true
 	_populate_move_buttons()
 
 func _on_bag_pressed() -> void:
+	if BattleManager.is_safari_battle:
+		AudioManager.play_sfx("select")
+		BattleManager.player_safari_throw_bait()
+		return
 	_hide_all_menus()
 	# Cria BagScene na primeira abertura
 	if _bag_scene_instance == null:
@@ -268,6 +284,9 @@ func _populate_move_buttons() -> void:
 # ──────────────────────────────────────────────────────────────────────────────
 func _on_pokemon_pressed() -> void:
 	AudioManager.play_sfx("select")
+	if BattleManager.is_safari_battle:
+		BattleManager.player_safari_throw_rock()
+		return
 	show_switch_menu(false)
 
 func _on_switch_back_pressed() -> void:

@@ -52,6 +52,11 @@ signal pokemon_center_visited(map_id: String)
 signal game_saved()
 signal game_over()
 signal player_tile_entered(tile: Vector2i)
+## Andar alcançado dentro de uma estrutura de múltiplos andares (torre, caverna
+## profunda...). structure_id bate com o "target" de objetivos reach_floor/
+## traverse_floors em quests.json (ex: "pokemon_tower", "cerulean_cave").
+## Emitido por FloorMap quando a cena declara floor_number > 0.
+signal floor_reached(structure_id: String, floor: int)
 
 # --- UI ---
 signal dialogue_started(npc_id: String, lines: Array)   # diálogo com linhas carregadas

@@ -164,6 +164,7 @@ func _connect_event_bus() -> void:
 	EventBus.dialog_ended.connect(_on_dialog_ended)
 	EventBus.item_picked_up.connect(_on_item_picked_up)
 	EventBus.zone_changed.connect(_on_zone_changed)
+	EventBus.floor_reached.connect(_on_floor_reached)
 
 
 func _give_rewards(quest_data: Dictionary) -> void:
@@ -307,3 +308,21 @@ func _on_zone_changed(zone_name: String) -> void:
 			var obj: Dictionary = objectives[i]
 			if obj.get("type", "") in ["reach_zone", "infiltrate"] and obj.get("target", "") == zone_name:
 				update_objective(quest_id, i, 1)
+
+
+## reach_floor/traverse_floors: o objetivo já tinha o "required" calculado
+## (_get_objective_required lê "floor" ou "floors"), só faltava algo chamar
+## update_objective quando o jogador de fato chega lá. `floor` é o andar
+## alcançado agora — usa o MAIOR já visto (voltar pra um andar de cima não
+## reduz o progresso; passar direto de um andar alto pro objetivo já conta).
+func _on_floor_reached(structure_id: String, floor: int) -> void:
+	for quest_id in _active_quests.keys():
+		var quest_data: Dictionary = _all_quests.get(quest_id, {})
+		var objectives: Array = quest_data.get("objectives", [])
+		for i in objectives.size():
+			var obj: Dictionary = objectives[i]
+			if obj.get("type", "") in ["reach_floor", "traverse_floors"] \
+					and str(obj.get("target", "")) == structure_id:
+				var current: int = get_objective_progress(quest_id, i)
+				if floor > current:
+					update_objective(quest_id, i, floor)

@@ -100,9 +100,9 @@ func _try_spawn() -> void:
 	if spawn_pos == Vector2.ZERO:
 		return
 
-	_spawn_pokemon(chosen, spawn_pos)
+	_spawn_pokemon(chosen, spawn_pos, str(zone.get("id", "")))
 
-func _spawn_pokemon(entry: Dictionary, pos: Vector2) -> void:
+func _spawn_pokemon(entry: Dictionary, pos: Vector2, zone_id: String = "") -> void:
 	var instance := _wild_scene.instantiate()
 	if not instance:
 		return
@@ -115,7 +115,7 @@ func _spawn_pokemon(entry: Dictionary, pos: Vector2) -> void:
 		entry.get("level_max", 5)
 	)
 	if instance.has_method("initialize"):
-		instance.initialize(entry.get("id", 1), level, entry.get("behavior", "aggressive"))
+		instance.initialize(entry.get("id", 1), level, entry.get("behavior", "aggressive"), zone_id)
 
 	_spawn_parent.add_child(instance)
 	_wild_instances.append(instance)
