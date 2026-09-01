@@ -172,13 +172,21 @@
       "name": "Saffron City",
       "region": "kanto",
       "tile_rect": {
-        "x": 195,
-        "y": 132,
-        "w": 30,
-        "h": 26
+        "x": 760,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
       "bgm": "saffron_city",
-      "wild_pokemon": [],
+      "wild_pokemon": [
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 20,
+          "level_max": 24,
+          "weight": 40
+        }
+      ],
       "npcs": []
     },
     {
@@ -573,10 +581,10 @@
       "name": "Route 9",
       "region": "kanto",
       "tile_rect": {
-        "x": 140,
-        "y": 52,
-        "w": 80,
-        "h": 8
+        "x": 700,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
       "bgm": "route_9",
       "wild_pokemon": [
@@ -595,11 +603,18 @@
           "weight": 35
         },
         {
-          "id": 77,
-          "name": "Ponyta",
+          "id": 23,
+          "name": "Ekans",
           "level_min": 22,
           "level_max": 26,
-          "weight": 35
+          "weight": 20
+        },
+        {
+          "id": 27,
+          "name": "Sandshrew",
+          "level_min": 22,
+          "level_max": 26,
+          "weight": 15
         }
       ],
       "npcs": []

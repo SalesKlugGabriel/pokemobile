@@ -643,10 +643,10 @@
     },
     "objectives": [
       {
-        "type": "defeat_count",
-        "target": "rocket_agent",
-        "count": 4,
-        "zone": "saffron"
+        "type": "capture_count",
+        "target": "abra",
+        "count": 3,
+        "zone": "saffron_city"
       },
       {
         "type": "defeat",
@@ -666,7 +666,7 @@
       ]
     },
     "requires": [
-      "GYM-06"
+      "GYM-05"
     ],
     "unlocks": [
       "ROCKET-05"

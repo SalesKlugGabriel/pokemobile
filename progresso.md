@@ -64,6 +64,42 @@ MAIN quests).
 
 ---
 
+## v0.3.3 — Tier 6: Rota 9 → Saffron City (Sabrina) (2026-08-31, continuação)
+
+**Pedido:** "continue com o mapa". Rota 9 → Saffron City, a leste de Fuchsia (mapa cresceu de
+700 pra **820 de largura**). Saffron ganhou Ginásio (Sabrina, time real: Kadabra Nv.38 +
+Alakazam Nv.43, badge Marsh), Centro Pokémon e o prédio da Silph Co. (só o prédio, sem interior
+ligado — a "operação Silph" é conteúdo de história futura).
+
+**Dois achados antes de construir**, mesma classe dos ajustes de GYM-02/GYM-05: (1) `quests.json`
+já tinha a GYM-07 escrita desde o plano mestre com objetivo `defeat_count rocket_agent` — mecânica
+de "agente Rocket" fora das MAIN quests que não existe no motor. Trocado por `capture_count abra
+×3 zona saffron_city` (Abra é o Pokémon Psíquico real de Kanto ligado a Saffron). (2) GYM-07
+exigia `requires: GYM-06` (Blaine/Cinnabar) — mas Cinnabar precisa de travessia de oceano, ainda
+fora de escopo. Como o mapa seguiu a ordem geográfica (Fuchsia→Saffron), não a ordem de badge
+oficial do jogo (que tem Sabrina como 6ª e Blaine como 7ª), troquei a exigência pra `GYM-05`
+(Koga) — senão a quest da Sabrina nunca inicializaria de verdade (ficaria muda, sem erro
+visível). **Documentado aqui pra reconsiderar quando Cinnabar for construída.**
+
+**Testado:** `teste_fase3_tier6.gd` (14 conferências) — caminho contínuo, Ginásio/Centro
+Pokémon/Silph Co. existem, Sabrina com time real iniciando GYM-07 com o `requires` corrigido,
+Abra alcançável. 1 teste do Tier 5 ajustado (largura mudou de novo). **9 arquivos de teste
+juntos: 169 conferências, 0 falhas.** Publicado (o primeiro `curl` logo após o redeploy voltou
+404 — janela normal de propagação do Traefik, confirmado 200 poucos segundos depois).
+
+**Mapa hoje**: Pallet→Viridian→Pewter→(Mt Moon)→Cerulean→Vermilion→Celadon→Fuchsia→Saffron —
+**6 badges reais** (Brock/Misty/Lt.Surge/Erika/Koga/Sabrina) funcionando de ponta a ponta.
+
+**Próximo passo:** o que falta pro "mapa terminado" (mundo aberto contíguo, sem contar
+ilha/oceano): Viridian ainda não tem Giovanni de verdade (é o "líder sumido" da lore — GYM-08 já
+existe em quests.json); Cinnabar (Blaine) e Lavender Town/Pokémon Tower exigem litoral/travessia
+de água, fora de escopo até Surf existir; Rota 24/25 + Bill's House (desvio ao norte de
+Cerulean) ainda não foi construído.
+
+**Precisa de decisão do Gabriel?** Não — seguindo a ordem combinada.
+
+---
+
 ## v0.3.0 — Tier 3: Rota 5 → Rota 6 → Vermilion City (Lt. Surge) (2026-08-31, continuação)
 
 **Pedido do Gabriel:** deixar mecânica de locomoção por último; ordem definida: **mapa →

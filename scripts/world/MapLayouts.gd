@@ -61,9 +61,13 @@ const CELADON_COLS   : int = 60
 # Tier 5 (continuação, 31/08): Rota 8 → Fuchsia City (Koga, GYM-05).
 const ROUTE8_COLS    : int = 60
 const FUCHSIA_COLS   : int = 60
+# Tier 6 (continuação, 31/08): Rota 9 → Saffron City (Sabrina, GYM-07).
+const ROUTE9_COLS    : int = 60
+const SAFFRON_COLS   : int = 60
 const W_TOTAL : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS \
 	+ ROUTE5_COLS + ROUTE6_COLS + VERMILION_COLS \
-	+ ROUTE7_COLS + CELADON_COLS + ROUTE8_COLS + FUCHSIA_COLS  # 700
+	+ ROUTE7_COLS + CELADON_COLS + ROUTE8_COLS + FUCHSIA_COLS \
+	+ ROUTE9_COLS + SAFFRON_COLS  # 820
 
 static func _gen_world_map() -> Array:
 	var W := W_TOTAL
@@ -349,6 +353,57 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 		if fc == 50 or fc == 58 or r == 20 or r == 32:
 			return "E"
 		return "G"
+
+	# ── Fuchsia só vai até FUCHSIA_COLS; dali pra leste é Tier 6 ───────────
+	if fc < FUCHSIA_COLS:
+		return "."
+
+	# ── Rota 9 (Tier 6) ── local r9 0 .. ROUTE9_COLS-1
+	var r9 := fc - FUCHSIA_COLS
+	if r9 < ROUTE9_COLS:
+		if no_caminho:
+			return "P"
+		if (r9 + r * 2) % 9 == 6:
+			return "R"  # Rota 9 é pedregosa (leva pro Rock Tunnel no Kanto real)
+		if (r9 * 2 + r) % 13 == 10:
+			return "T"
+		return "."
+
+	# ── Saffron City ── local sf a partir de ROUTE9_COLS
+	var sf := r9 - ROUTE9_COLS
+
+	# ── Ginásio de Saffron (Sabrina) ── cols 10-22, rows 6-14
+	if sf >= 10 and sf <= 22 and r >= 6 and r <= 14:
+		if sf == 10 or sf == 22: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if sf >= 15 and sf <= 17: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and sf >= 15 and sf <= 17:
+		return "P"
+
+	# ── Centro Pokémon de Saffron ── cols 35-47, rows 6-14
+	if sf >= 35 and sf <= 47 and r >= 6 and r <= 14:
+		if sf == 35 or sf == 47: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if sf >= 40 and sf <= 42: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and sf >= 40 and sf <= 42:
+		return "P"
+
+	# ── Silph Co. (torre alta, só o prédio — sem interior ligado ainda) ──
+	if sf >= 50 and sf <= 58 and r >= 4 and r <= 14:
+		if sf == 50 or sf == 58: return "W"
+		if r == 4: return "H"
+		if r == 14:
+			if sf >= 53 and sf <= 55: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and sf >= 53 and sf <= 55:
+		return "P"
 
 	return "."
 

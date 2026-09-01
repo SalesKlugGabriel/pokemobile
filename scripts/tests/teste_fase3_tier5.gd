@@ -30,7 +30,7 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] == 700, "world_map agora tem 700 de largura (Tier 5 somou Rota8+Fuchsia)")
+	_assert(layout["width"] >= 700, "world_map tem pelo menos 700 de largura (Rota8+Fuchsia cabem)")
 
 	var quebras := 0
 	for c in range(520, 698):
