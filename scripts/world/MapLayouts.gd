@@ -586,6 +586,22 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 	if r >= 14 and r <= 16 and ce >= 53 and ce <= 55:
 		return "P"
 
+	# ── Rocket Hideout — entrada/porão (Tier 15), abaixo do corredor
+	# principal (r>=21, no_caminho é só r16-20 — não colide). Cena própria
+	# (RocketHideout.tscn, warp de verdade — é "subterrâneo", a mesma
+	# exceção já usada em Mt Moon/Rock Tunnel/Safari Zone), mas por ora só a
+	# entrada + sala vazia: sem grunts/mecânica de Equipe Rocket ainda, isso
+	# é conteúdo de Fase 2 ("Pokémon e estruturas"). Cols 24-31, rows 21-30.
+	if ce >= 24 and ce <= 31 and r >= 21 and r <= 28:
+		if ce == 24 or ce == 31: return "W"
+		if r == 21: return "H"
+		if r == 28:
+			if ce >= 27 and ce <= 28: return "P"
+			return "W"
+		return "I"
+	if r >= 28 and r <= 30 and ce >= 27 and ce <= 28:
+		return "P"
+
 	# ── Jardins de Celadon (o verde que dá nome à cidade) ──
 	if (ce + r * 3) % 11 == 4 and r >= 20 and r <= 34 and ce >= 2 and ce <= 55:
 		return "F"
@@ -1283,6 +1299,39 @@ static func _safarizone_cell(c: int, r: int, W: int, H: int) -> String:
 	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Rocket Hideout — 18×14, cena própria (Tier 15, 01/09). Porão sob a entrada
+# em Celadon — mesma exceção de warp de Mt Moon/Rock Tunnel/Safari Zone
+# ("subterrâneo"). Por ora só a sala de entrada, vazia: sem Team Rocket,
+# sem mecânica de infiltração — isso é "Pokémon e estruturas" (Fase 2),
+# ainda não construído. Mesmo template do PokéCenter (H roof / W parede /
+# I chão / P porta / T grama na borda), só maior e sem balcão.
+# ──────────────────────────────────────────────────────────────────────────────
+static func _gen_rockethideout() -> Array:
+	var W := 18
+	var H := 14
+	var grid : Array = []
+	for r in H:
+		var row := ""
+		for c in W:
+			row += _rockethideout_cell(c, r, W, H)
+		grid.append(row)
+	return grid
+
+static func _rockethideout_cell(c: int, r: int, W: int, H: int) -> String:
+	if r == 0:
+		return "H"
+	if r == 1:
+		return "W"
+	if r == H - 1:
+		return "T"
+	if r == H - 2:
+		if c >= 8 and c <= 9: return "P"
+		return "W"
+	if c == 0 or c == W - 1:
+		return "W"
+	return "I"
+
+# ──────────────────────────────────────────────────────────────────────────────
 # API pública
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -1306,6 +1355,9 @@ static func get_layout(map_id: String) -> Dictionary:
 		"safari_zone":
 			var tiles := _gen_safarizone()
 			return {"tiles": tiles, "width": 44, "height": 44}
+		"rocket_hideout":
+			var tiles := _gen_rockethideout()
+			return {"tiles": tiles, "width": 18, "height": 14}
 		_:
 			return {}
 

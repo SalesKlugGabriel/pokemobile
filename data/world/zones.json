@@ -1858,10 +1858,10 @@
       "name": "Rocket Hideout",
       "region": "kanto",
       "tile_rect": {
-        "x": 195,
-        "y": 88,
-        "w": 14,
-        "h": 16
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 14
       },
       "bgm": "rock_tunnel",
       "wild_pokemon": [
@@ -1887,7 +1887,8 @@
           "weight": 30
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "Cena própria (RocketHideout.tscn), coordenada local 0-based, mesma exceção de warp de Mt Moon/Rock Tunnel/Safari Zone (\"subterrâneo\"). Entrada em Celadon (prédio já existe desde o Tier 4, porta nova no Tier 15). Por ora só a sala de entrada, vazia — sem Team Rocket/mecânica de infiltração ainda (fica pra \"Pokémon e estruturas\", Fase 2)."
     },
     {
       "id": "ss_anne_dock",
