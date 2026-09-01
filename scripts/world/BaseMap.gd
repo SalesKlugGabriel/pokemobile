@@ -31,6 +31,15 @@ func _ready() -> void:
 	if structure_id != "" and floor_number > 0:
 		EventBus.floor_reached.emit(structure_id, floor_number)
 	_setup_world_systems()
+	# O mundo aberto tem UM tile condicionado a estado de save (a porta do
+	# Ginásio de Viridian, que só abre depois de MAIN-08) — repinta se uma
+	# quest completar enquanto o mapa já está carregado, senão o jogador só
+	# veria a porta abrir depois de sair e voltar pro mapa.
+	if map_id == "world_map":
+		QuestManager.quest_completed.connect(_on_quest_completed_repaint)
+
+func _on_quest_completed_repaint(_quest_id: String) -> void:
+	_paint_tiles()
 
 func _setup_world_systems() -> void:
 	if not player:

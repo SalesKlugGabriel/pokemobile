@@ -274,6 +274,19 @@ func _on_battle_ended(result: Dictionary) -> void:
 						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
 					elif target == enemy_name:
 						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
+					# Achado construindo a história principal (02/09/2026): MAIN-04
+					# e UTIL-11 pedem "water_pokemon" — não é nome de espécie nem
+					# de treinador, é TIPO. Reconhece qualquer alvo "<tipo>_pokemon"
+					# (ex: "water_pokemon", "fire_pokemon") checando o tipo real da
+					# espécie derrotada — reaproveitável por qualquer quest futura
+					# do tipo "derrote N Pokémon de tipo X", sem precisar de código
+					# novo pra cada tipo.
+					elif is_wild and target.ends_with("_pokemon"):
+						var type_name : String = target.replace("_pokemon", "").capitalize()
+						var species_data : Dictionary = GameData.get_species(int(result.get("enemy_species", 0)))
+						var types : Array = species_data.get("types", [])
+						if type_name in types:
+							update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
 				"defeat_alpha":
 					if result.get("is_alpha", false):
 						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)

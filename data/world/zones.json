@@ -1879,7 +1879,7 @@
       ],
       "npcs": [],
       "map_id": "cinnabar_island",
-      "notes": "Fachada dentro de Cinnabar Island (Tier 11, 01/09) — coordenada LOCAL da própria cena (CinnabarIsland.tscn), não do world_map. Sem interior/warp (mesma regra de Silph Co. — não é caverna/subterrâneo). Interior + andares ficam pra Fase 2 'Pokémon e estruturas'."
+      "notes": "Fachada dentro de Cinnabar Island — coordenada LOCAL da própria cena. Interior de verdade (3 andares, pokemon_mansion_f1..f3) construído em 02/09 pra MAIN-07, com warp real na própria fachada."
     },
     {
       "id": "rocket_hideout",
@@ -2147,6 +2147,203 @@
         }
       ],
       "notes": "Topo da Torre (02/09) — andar-alvo da MAIN-05 (reach_floor=5). Cubone entra no lugar do Zubat (tema: Cubone órfão, referência clássica do Gen 1). Agente Sombra 2 guarda este andar."
+    },
+    {
+      "id": "pokemon_mansion_f1",
+      "name": "Pokémon Mansion - 1º Andar",
+      "region": "kanto",
+      "map_id": "pokemon_mansion_f1",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 14
+      },
+      "bgm": "cinnabar_island",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 40,
+          "weight": 30
+        },
+        {
+          "id": 88,
+          "name": "Grimer",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 25
+        },
+        {
+          "id": 89,
+          "name": "Muk",
+          "level_min": 33,
+          "level_max": 40,
+          "weight": 15
+        },
+        {
+          "id": 109,
+          "name": "Koffing",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 20
+        },
+        {
+          "id": 110,
+          "name": "Weezing",
+          "level_min": 33,
+          "level_max": 40,
+          "weight": 10
+        }
+      ],
+      "npcs": [],
+      "notes": "Cena própria (PokemonMansion_Fx.tscn, 02/09, MAIN-07) — reaproveita o spawn pré-cadastrado da fachada. structure_id='pokemon_mansion' pro reach_floor da MAIN-07."
+    },
+    {
+      "id": "pokemon_mansion_f2",
+      "name": "Pokémon Mansion - 2º Andar",
+      "region": "kanto",
+      "map_id": "pokemon_mansion_f2",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 14
+      },
+      "bgm": "cinnabar_island",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 40,
+          "weight": 30
+        },
+        {
+          "id": 88,
+          "name": "Grimer",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 25
+        },
+        {
+          "id": 89,
+          "name": "Muk",
+          "level_min": 33,
+          "level_max": 40,
+          "weight": 15
+        },
+        {
+          "id": 109,
+          "name": "Koffing",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 20
+        },
+        {
+          "id": 110,
+          "name": "Weezing",
+          "level_min": 33,
+          "level_max": 40,
+          "weight": 10
+        }
+      ],
+      "npcs": [],
+      "notes": "Cena própria (PokemonMansion_Fx.tscn, 02/09, MAIN-07) — reaproveita o spawn pré-cadastrado da fachada. structure_id='pokemon_mansion' pro reach_floor da MAIN-07."
+    },
+    {
+      "id": "pokemon_mansion_f3",
+      "name": "Pokémon Mansion - 3º Andar",
+      "region": "kanto",
+      "map_id": "pokemon_mansion_f3",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 14
+      },
+      "bgm": "cinnabar_island",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 40,
+          "weight": 30
+        },
+        {
+          "id": 88,
+          "name": "Grimer",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 25
+        },
+        {
+          "id": 89,
+          "name": "Muk",
+          "level_min": 33,
+          "level_max": 40,
+          "weight": 15
+        },
+        {
+          "id": 109,
+          "name": "Koffing",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 20
+        },
+        {
+          "id": 110,
+          "name": "Weezing",
+          "level_min": 33,
+          "level_max": 40,
+          "weight": 10
+        }
+      ],
+      "npcs": [],
+      "notes": "Cena própria (PokemonMansion_Fx.tscn, 02/09, MAIN-07) — reaproveita o spawn pré-cadastrado da fachada. structure_id='pokemon_mansion' pro reach_floor da MAIN-07."
+    },
+    {
+      "id": "rocket_hq",
+      "name": "Quartel General da Equipe Rocket",
+      "region": "kanto",
+      "map_id": "rocket_hq_f1",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 14
+      },
+      "bgm": "rock_tunnel",
+      "wild_pokemon": [],
+      "npcs": [],
+      "notes": "Cena própria (RocketHQ_F1.tscn, 02/09, MAIN-08) — escondido embaixo do Game Corner de Celadon. id='rocket_hq' bate com o objetivo 'infiltrate' da MAIN-08 (via ZoneManager/zone_changed, mesmo handler já usado por reach_zone/infiltrate)."
+    },
+    {
+      "id": "celadon_game_corner",
+      "name": "Game Corner de Celadon",
+      "region": "kanto",
+      "map_id": "celadon_game_corner",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 14
+      },
+      "bgm": "celadon_city",
+      "wild_pokemon": [],
+      "npcs": [
+        {
+          "id": "bruno",
+          "dialog_id": "bruno_game_corner",
+          "tile": [
+            4,
+            6
+          ]
+        }
+      ],
+      "notes": "Cena própria (CeladonGameCorner.tscn, 02/09, MAIN-06) — cassino fachada da Equipe Rocket, com o Quartel General escondido embaixo (mesma cena, warp adicional)."
     }
   ]
 }

@@ -631,6 +631,19 @@ static func _celadon_cell(ce: int, r: int) -> String:
 	if r >= 14 and r <= 16 and ce >= 53 and ce <= 55:
 		return "P"
 
+	# Game Corner (02/09, MAIN-06/MAIN-08) — cassino da Equipe Rocket, com o
+	# Quartel General escondido por baixo. Espelha a posição do Rocket
+	# Hideout (do outro lado da rua), mesma altura.
+	if ce >= 2 and ce <= 9 and r >= 21 and r <= 28:
+		if ce == 2 or ce == 9: return "W"
+		if r == 21: return "H"
+		if r == 28:
+			if ce >= 5 and ce <= 6: return "P"
+			return "W"
+		return "I"
+	if r >= 28 and r <= 30 and ce >= 5 and ce <= 6:
+		return "P"
+
 	# Rocket Hideout — entrada/porão (Tier 15), warp de verdade.
 	if ce >= 24 and ce <= 31 and r >= 21 and r <= 28:
 		if ce == 24 or ce == 31: return "W"
@@ -1245,6 +1258,20 @@ static func _route1_cell(c: int, r: int, W: int) -> String:
 # PokéCenter Viridian: cols 70-82, rows 4-12
 # Ginásio (fechado): cols 18-34, rows 4-14
 # ──────────────────────────────────────────────────────────────────────────────
+## Verdade só depois que MAIN-08 (resgate do Carvalho no Quartel General)
+## completa — é o gatilho de história que "revela" o Giovanni como Líder do
+## Ginásio de Viridian. `Engine.get_main_loop()` pode ser nulo fora de uma
+## árvore rodando (não deveria acontecer em jogo real, mas evita erro se
+## `MapLayouts` for chamado num contexto sem SceneTree).
+static func _giovanni_liberado() -> bool:
+	var loop : SceneTree = Engine.get_main_loop()
+	if loop == null:
+		return false
+	var qm : Node = loop.root.get_node_or_null("QuestManager")
+	if qm == null:
+		return false
+	return qm.is_quest_complete("MAIN-08")
+
 static func _viridian_cell(c: int, r: int, W: int) -> String:
 	# Bordas laterais
 	if c <= 2 or c >= W - 3:
@@ -1263,13 +1290,21 @@ static func _viridian_cell(c: int, r: int, W: int) -> String:
 	if r == 29 and c >= 5 and c <= 93:
 		return "P"
 
-	# ── Ginásio (fechado) ── cols 18-34, rows 6-18
+	# ── Ginásio de Viridian (Giovanni) — FECHADO até MAIN-08 completar (02/09:
+	# destravado como parte da história principal). cols 18-34, rows 6-18.
+	# Único lugar do mapa que consulta estado de save — justificado porque é
+	# a única forma de representar "abre depois de um evento de história"
+	# com a arquitetura atual (tiles procedurais, sem camada de eventos).
 	if c >= 18 and c <= 34 and r >= 6 and r <= 18:
 		if c == 18 or c == 34: return "W"
 		if r == 6: return "H"
+		if _giovanni_liberado():
+			if r == 18:
+				if c >= 25 and c <= 27: return "P"
+				return "W"
+			return "I"
 		if r == 18:
-			# Porta bloqueada (ginásio fechado)
-			return "W"
+			return "W"  # porta bloqueada (ginásio fechado)
 		return "W"  # interior inacessível
 
 	# ── PokéCenter Viridian ── cols 70-82, rows 6-14
@@ -1750,6 +1785,16 @@ static func get_layout(map_id: String) -> Dictionary:
 		"silph_co_f1", "silph_co_f2":
 			return {"tiles": _gen_andar_estrutura(true), "width": 18, "height": 14}
 		"silph_co_f3":
+			return {"tiles": _gen_andar_estrutura(false), "width": 18, "height": 14}
+		"celadon_game_corner":
+			return {"tiles": _gen_andar_estrutura(false), "width": 18, "height": 14}
+		"rocket_hq_f1":
+			return {"tiles": _gen_andar_estrutura(true), "width": 18, "height": 14}
+		"rocket_hq_f2":
+			return {"tiles": _gen_andar_estrutura(false), "width": 18, "height": 14}
+		"pokemon_mansion_f1", "pokemon_mansion_f2":
+			return {"tiles": _gen_andar_estrutura(true), "width": 18, "height": 14}
+		"pokemon_mansion_f3":
 			return {"tiles": _gen_andar_estrutura(false), "width": 18, "height": 14}
 		_:
 			return {}

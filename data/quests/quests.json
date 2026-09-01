@@ -11,15 +11,7 @@
     "objectives": [
       {
         "type": "talk",
-        "target": "professor_oak"
-      },
-      {
-        "type": "receive_item",
-        "item": "starter_pokemon"
-      },
-      {
-        "type": "read_item",
-        "item": "carta_carvalho"
+        "target": "oak_intro"
       }
     ],
     "rewards": {
@@ -38,7 +30,8 @@
     "requires": [],
     "unlocks": [
       "MAIN-02"
-    ]
+    ],
+    "_ajuste_editorial": "objetivos originais eram talk(professor_oak)+receive_item(starter_pokemon)+read_item(carta_carvalho) -- 'target' de talk bate com DIALOG_ID no motor, não com nome solto (corrigido pra 'oak_intro'); starter já é dado na tela de Novo Jogo, antes do NPC existir (receive_item não tem como disparar); read_item não tem handler. Simplificado pra só 'talk' -- 2 conversas com o Prof. Carvalho (a 1a liga a quest, a 2a completa)."
   },
   "MAIN-02": {
     "id": "MAIN-02",
@@ -186,9 +179,8 @@
     },
     "objectives": [
       {
-        "type": "find_npc",
-        "target": "bruno_game_corner",
-        "condition": "without_alert"
+        "type": "talk",
+        "target": "bruno_game_corner"
       }
     ],
     "rewards": {
@@ -205,7 +197,8 @@
     ],
     "unlocks": [
       "MAIN-07"
-    ]
+    ],
+    "_ajuste_editorial": "objetivo original era find_npc(bruno_game_corner, condition:without_alert) -- 'find_npc' e a condição de furtividade não têm handler no motor (não existe mecânica de stealth/alerta). Virou 'talk' simples com o Bruno, dentro do Game Corner novo de Celadon."
   },
   "MAIN-07": {
     "id": "MAIN-07",
@@ -218,8 +211,9 @@
     },
     "objectives": [
       {
-        "type": "traverse_dungeon",
-        "target": "pokemon_mansion"
+        "type": "reach_floor",
+        "target": "pokemon_mansion",
+        "floor": 3
       }
     ],
     "rewards": {
@@ -236,7 +230,8 @@
     ],
     "unlocks": [
       "MAIN-08"
-    ]
+    ],
+    "_ajuste_editorial": "objetivo original era traverse_dungeon(pokemon_mansion) -- tipo sem handler. Virou reach_floor (handler já existe desde a Fase 2), com 3 andares novos construídos na Mansão de Cinnabar."
   },
   "MAIN-08": {
     "id": "MAIN-08",
@@ -253,8 +248,8 @@
         "target": "rocket_hq"
       },
       {
-        "type": "rescue",
-        "target": "carvalho"
+        "type": "talk",
+        "target": "carvalho_resgate"
       },
       {
         "type": "defeat",
@@ -276,7 +271,8 @@
     "unlocks": [
       "MAIN-09",
       "GYM-08"
-    ]
+    ],
+    "_ajuste_editorial": "'rescue' não tem handler -- virou 'talk' com o Carvalho preso (dialog_id carvalho_resgate) dentro do Quartel General. 'infiltrate' e 'defeat' já tinham handler (infiltrate reaproveita reach_zone/zone_changed; defeat já era usado em toda batalha de treinador)."
   },
   "MAIN-09": {
     "id": "MAIN-09",

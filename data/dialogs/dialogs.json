@@ -247,6 +247,31 @@
     "Mais um querendo bancar o herói? Que saco.",
     "Vem então, vamos acabar logo com isso."
   ],
+  "bruno_game_corner": [
+    "Psiu... vem cá, treinador.",
+    "Sei que você anda de olho na Equipe Rocket. Esse cassino é fachada — tem um esconderijo deles bem aqui embaixo.",
+    "Vi um deles entrando atrás daquela máquina ali. Se você for procurar, cuidado."
+  ],
+  "carvalho_resgate": [
+    "V-Você veio! Eu sabia que apareceria, treinador!",
+    "Esses bandidos da Equipe Rocket me trancaram aqui há dias — queriam que eu revelasse os segredos da Fratura.",
+    "Não contei nada! Mas preciso sair daqui — me ajude a voltar pra Pallet Town."
+  ],
+  "agente_sombra_final_encontro": [
+    "Chegou até aqui? Impressionante — mas também será seu último passo.",
+    "Ninguém sai do Quartel General depois de ver o rosto do comandante.",
+    "Prepare-se."
+  ],
+  "agente_sombra_1_encontro": [
+    "Ei, moleque! Essa caverna não é lugar pra curioso.",
+    "A Equipe Rocket tem interesse nos fósseis daqui — e você não vai atrapalhar."
+  ],
+  "giovanni_gym": [
+    "Então era você quem andava atrapalhando os planos da Equipe Rocket.",
+    "Sim, eu sou o Líder deste Ginásio — e também o comandante que você acabou de derrotar no Quartel General.",
+    "Um Líder de Ginásio precisa saber quando recuar. Eu recuei. Mas não vou perder pra você de novo.",
+    "Vamos ver do que você é feito, treinador."
+  ],
   "agente_silph_4": [
     "Você chegou longe. Longe demais.",
     "Eu sou a última barreira antes da sala do presidente. Não vai passar."

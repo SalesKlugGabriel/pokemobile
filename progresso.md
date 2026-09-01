@@ -9,6 +9,54 @@
 
 ---
 
+## v0.5.0 — A história principal está destravada (2026-09-02)
+
+**Pedido do Gabriel: finalizar "Pokémon e estruturas" e destravar a história principal (MAIN-01
+a MAIN-09), terminando no Ginásio de Viridian/Giovanni.** Maior entrega de conteúdo numa sessão
+só até agora.
+
+**Descoberta que mudou o escopo do trabalho**: o `QuestManager` já sabia, desde a Fase 0
+(31/08), AUTO-INICIAR a próxima quest da cadeia (`unlocks`) assim que uma anterior completa —
+só nunca tinha sido exercitado ponta a ponta. Isso significa que eu não precisei criar um NPC
+"gatilho" pra cada quest da história — só fechar os OBJETIVOS de cada uma com conteúdo/mecânica
+real, e a cascata inteira (Prof. Carvalho → ... → Giovanni) roda sozinha.
+
+**Conteúdo novo construído**:
+- **Agente Sombra 1** (Mt Moon) — MAIN-03.
+- **Handler novo, reutilizável**: `defeat_count` por TIPO de Pokémon (ex: "water_pokemon"), não só
+  por espécie/nome de treinador — resolve MAIN-04 e já deixa UTIL-11 pronta de graça.
+- **Game Corner de Celadon** (cassino fachada da Equipe Rocket) com o Bruno — MAIN-06.
+- **Quartel General da Equipe Rocket**, escondido embaixo do Game Corner (2 andares): Prof.
+  Carvalho preso (resgate) + Agente Sombra Final (chefe) — MAIN-08.
+- **Mansão Pokémon** (Cinnabar) ganhou 3 andares de verdade — MAIN-07.
+- **Giovanni no Ginásio de Viridian** — só destrava DEPOIS que MAIN-08 completa. Peça de motor
+  nova: `MapLayouts.gd` ganhou o ÚNICO tile do jogo condicionado a estado de save (consulta
+  `QuestManager` via busca dinâmica de nó, não por nome solto — não quebra os testes headless).
+  `BaseMap.gd` escuta `quest_completed` e repinta o `world_map` na hora, sem precisar recarregar.
+
+**3 ajustes editoriais em quests.json** (mesma classe já usada 6+ vezes nesta sessão): MAIN-01
+simplificada pra só "talk" (o resto dos objetivos originais não tinha como disparar com a
+implementação real de Novo Jogo); MAIN-06 trocou "stealth" (não existe no motor) por conversa
+normal; MAIN-07 trocou "traverse_dungeon" (sem handler) por "reach_floor" (handler já existia);
+MAIN-08 trocou "rescue" (sem handler) por "talk" com o Carvalho preso.
+
+**Também fechado**: Celadon Mart (v0.4.1) e Silph Co./Torre Pokémon (v0.4.2) já tinham saído
+nesta mesma sessão — com isso, toda cidade construída até agora tem as próprias estruturas
+funcionando (Ginásio, Centro, e quando aplicável loja/estrutura de história), exceto o **S.S.
+Anne** (Vermilion), que segue só fachada — não tem nenhuma quest pedindo o interior dele, fica
+pra quando você quiser essa peça específica.
+
+**Testado**: `teste_fase2_historia_principal.gd` novo (37 conferências — a cascata inteira
+MAIN-01→MAIN-09 rodada de ponta a ponta, incluindo a porta do Ginásio de Viridian fechada→aberta
+de verdade) + os 7 testes de warps indevidos ganharam as exceções novas. **Suíte inteira: 31
+arquivos, 549 conferências, 0 falhas.** Publicado, `curl` confirma 200.
+
+**Não construído (fora do pedido de hoje)**: MAIN-10 em diante (Cerulean Cave/Mewtwo — pós-jogo),
+ROCKET-01 a 04 e ROCKET-06 (cadeia paralela da Equipe Rocket, não bloqueiam a história principal),
+os quests UTIL-* e COLETOR-* (secundárias).
+
+---
+
 ## v0.4.2 — Silph Co. e Torre Pokémon ganham interior de verdade (2026-09-02)
 
 **Gabriel autorizou a exceção de warp** pros dois (perguntado na sessão anterior: nenhum dos dois

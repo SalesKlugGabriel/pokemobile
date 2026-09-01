@@ -63,7 +63,7 @@ func _teste_geral() -> void:
 		if warp_zones:
 			for w in warp_zones.get_children():
 				if w.target_map != "" and not w.target_map.contains("PokemonCenter") \
-				and not w.target_map.contains("MtMoon") and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone") and not w.target_map.contains("RocketHideout") and not w.target_map.contains("VictoryRoad") and not w.target_map.contains("DiglettsCave") and not w.target_map.contains("PokemonTower") and not w.target_map.contains("SilphCo"):
+				and not w.target_map.contains("MtMoon") and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone") and not w.target_map.contains("RocketHideout") and not w.target_map.contains("VictoryRoad") and not w.target_map.contains("DiglettsCave") and not w.target_map.contains("PokemonTower") and not w.target_map.contains("SilphCo") and not w.target_map.contains("GameCorner") and not w.target_map.contains("RocketHQ") and not w.target_map.contains("PokemonMansion"):
 					alvos_indevidos += 1
 				if w.target_map.contains("PokemonCenter"):
 					pokecenter_warps += 1

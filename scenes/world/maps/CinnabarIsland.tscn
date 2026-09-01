@@ -18,6 +18,9 @@ size = Vector2(48, 16)
 [sub_resource type="RectangleShape2D" id="Shape_barco"]
 size = Vector2(48, 32)
 
+[sub_resource type="RectangleShape2D" id="Shape_mansion"]
+size = Vector2(48, 16)
+
 [node name="CinnabarIsland" type="Node2D"]
 script = ExtResource("1_basemap")
 map_id = "cinnabar_island"
@@ -81,6 +84,14 @@ spawn_tile = Vector2i(445, 27)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpBarcoVolta"]
 shape = SubResource("Shape_barco")
+
+[node name="WarpPokemonMansion" parent="WarpZones" instance=ExtResource("11_warpzone")]
+position = Vector2(328, 456)
+target_map = "res://scenes/world/maps/PokemonMansion_F1.tscn"
+spawn_tile = Vector2i(8, 11)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpPokemonMansion"]
+shape = SubResource("Shape_mansion")
 
 [node name="DialogBox" parent="." instance=ExtResource("7_dialog")]
 
