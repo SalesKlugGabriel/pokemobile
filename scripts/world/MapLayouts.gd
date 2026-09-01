@@ -531,6 +531,21 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 	if r >= 14 and r <= 16 and vc >= 40 and vc <= 42:
 		return "P"
 
+	# ── S.S. Anne — navio ancorado no cais (Tier 16). Só fachada, sem
+	# interior/warp ainda — mesmo padrão de Silph Co./Torre Pokémon/Celadon
+	# Mart (conteúdo real, NPCs, HM Corte, é Fase 2 "Pokémon e estruturas").
+	# Cols 2-14, rows 22-32 — não colide com Ginásio/Centro (rows 6-14) nem
+	# com o Marinheiro (vc~30,r~22) ou o Capitão (vc~46,r~26).
+	if vc >= 2 and vc <= 14 and r >= 22 and r <= 32:
+		if vc == 2 or vc == 14: return "W"
+		if r == 22: return "H"
+		if r == 32:
+			if vc >= 7 and vc <= 9: return "P"
+			return "W"
+		return "I"
+	if r >= 32 and r <= 34 and vc >= 7 and vc <= 9:
+		return "P"
+
 	# ── Doca/porto (Vermilion é cidade portuária) ──
 	if (vc + r * 2) % 15 == 3 and r >= 22 and r <= 34 and vc >= 2 and vc <= 55:
 		return "~"

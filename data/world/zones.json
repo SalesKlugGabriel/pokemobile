@@ -1900,14 +1900,15 @@
       "name": "S.S. Anne",
       "region": "kanto",
       "tile_rect": {
-        "x": 163,
-        "y": 190,
-        "w": 24,
-        "h": 12
+        "x": 402,
+        "y": 22,
+        "w": 13,
+        "h": 11
       },
       "bgm": "vermilion_city",
       "wild_pokemon": [],
-      "npcs": []
+      "npcs": [],
+      "notes": "Fachada do navio ancorado no cais de Vermilion (Tier 16) — coordenada global do world_map, dentro da própria cidade. Sem interior/NPC/warp ainda (Fase 2: 'Pokémon e estruturas' — HM Corte, diálogo do marinheiro, viagem a Kanto real)."
     },
     {
       "id": "silph_co_entrance",
