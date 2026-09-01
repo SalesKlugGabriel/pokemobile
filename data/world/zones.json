@@ -118,6 +118,79 @@
       "npcs": []
     },
     {
+      "id": "vermilion_praia",
+      "name": "Praia de Vermilion",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 400,
+        "y": 35,
+        "w": 60,
+        "h": 12
+      },
+      "bgm": "route_24",
+      "wild_pokemon": [
+        {
+          "id": 98,
+          "name": "Krabby",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 40
+        },
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 30
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "mar_de_vermilion",
+      "name": "Mar de Vermilion",
+      "region": "kanto",
+      "notes": "Formato exato definido por MapLayouts.shore_de_vermilion() — o mapa submarino (futuro, precisa de Mergulho) tem que reusar essa função pra bater o contorno.",
+      "tile_rect": {
+        "x": 400,
+        "y": 46,
+        "w": 60,
+        "h": 30
+      },
+      "bgm": "route_24",
+      "wild_pokemon": [
+        {
+          "id": 72,
+          "name": "Tentacool",
+          "level_min": 15,
+          "level_max": 25,
+          "weight": 35
+        },
+        {
+          "id": 120,
+          "name": "Staryu",
+          "level_min": 15,
+          "level_max": 22,
+          "weight": 25
+        },
+        {
+          "id": 116,
+          "name": "Horsea",
+          "level_min": 15,
+          "level_max": 22,
+          "weight": 25
+        },
+        {
+          "id": 118,
+          "name": "Goldeen",
+          "level_min": 15,
+          "level_max": 22,
+          "weight": 15
+        }
+      ],
+      "npcs": []
+    },
+    {
       "id": "lavender_town",
       "name": "Lavender Town",
       "region": "kanto",

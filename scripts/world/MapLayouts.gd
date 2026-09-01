@@ -90,6 +90,21 @@ const NORTE_OFFSET : int = ROUTE24_ROWS + ROUTE25_ROWS  # 40
 const RAMO_NORTE_COL_INICIO : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + 27
 const RAMO_NORTE_COL_FIM    : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + 29
 
+# Tier 9 (01/09): litoral de verdade — praia + mar ao SUL de Vermilion City
+# (cidade portuária, já tinha decoração de "doca"). Pedido do Gabriel:
+# bioma sempre com identidade própria (praia tem que parecer praia, não
+# grama com água do lado) — areia com curva de costa orgânica (função seno,
+# não corte reto) + rochedos de maré esparsos, terminando num mar aberto
+# que fica registrado aqui como fonte única de verdade pra quando o mapa
+# SUBMARINO for construído (tem que ter exatamente o mesmo formato). Mesma
+# arquitetura "desvio" do Tier 8, mas ao SUL — não precisa de linha
+# negativa dessa vez, porque ao sul de Vermilion (r>PEWTER_ROWS) já era
+# borda vazia (a Rota 2 só existe a oeste, c<W_ANTIGO), então dá pra
+# reivindicar essas linhas direto no array principal, sem pintura à parte.
+const COASTLINE_ROWS : int = 40
+const VERMILION_COAST_COL_INICIO : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS + ROUTE5_COLS + ROUTE6_COLS
+const VERMILION_COAST_COL_FIM    : int = VERMILION_COAST_COL_INICIO + VERMILION_COLS - 1
+
 static func _gen_world_map() -> Array:
 	var W := W_TOTAL
 	var H := 120 + OFFSET_ANTIGO
@@ -145,7 +160,20 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 		# de Cerulean pra cima. Abre passagem só nas colunas do ramo.
 		if c >= RAMO_NORTE_COL_INICIO and c <= RAMO_NORTE_COL_FIM and r <= 2:
 			return "P"
+		# Mesma classe, Tier 9: _leste_de_pewter_cell trata r>=PEWTER_ROWS-1
+		# como borda SUL — fazia sentido antes de existir litoral saindo de
+		# Vermilion pra baixo. Abre passagem em toda a largura da cidade
+		# (é o cais/orla — faz sentido dar pra entrar na praia de qualquer
+		# ponto da frente da cidade, não só um corredorzinho).
+		if c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM and r >= PEWTER_ROWS - 1:
+			return "S"
 		return _leste_de_pewter_cell(c - W_ANTIGO, r)
+
+	# ── Litoral de Vermilion (Tier 9) — só existe na faixa de colunas da
+	# cidade; fora dela cai no fallback de sempre (Rota 2 / borda) ─────────
+	if r <= PEWTER_ROWS + COASTLINE_ROWS \
+	and c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM:
+		return _vermilion_coastline_cell(c, r - PEWTER_ROWS, W)
 
 	# ── Rota 2 (linhas 37-72) — só existe na largura antiga; o resto é borda
 	if r <= OFFSET_ANTIGO:
@@ -231,6 +259,35 @@ static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
 	if (c + r * 2) % 13 == 6:
 		return "F"
 	return "."
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Litoral de Vermilion — praia + mar aberto ao SUL da cidade (Tier 9).
+# `c` é GLOBAL (a praia ocupa a largura inteira de Vermilion). `cr` é 1..
+# COASTLINE_ROWS (1 = colado na cidade, COASTLINE_ROWS = mar aberto, mais
+# ao sul). A linha da costa (curva de areia→água) usa `sin()`, não corte
+# reto — pedido do Gabriel: praia precisa PARECER praia, com curva
+# orgânica de erosão, não um retângulo de areia colado num retângulo de
+# água. `SHORE_MAR` é a fonte única de verdade do formato do mar — quando
+# o mapa SUBMARINO for construído (mecânica de Mergulho, ainda não existe),
+# ele tem que reusar essa mesma função pra bater exatamente o contorno.
+# ──────────────────────────────────────────────────────────────────────────────
+static func shore_de_vermilion(vc: int) -> int:
+	return 6 + int(round(3.0 * sin(float(vc) * 0.22) + 2.0 * sin(float(vc) * 0.09 + 1.7)))
+
+static func _vermilion_coastline_cell(c: int, cr: int, W: int) -> String:
+	var vc := c - VERMILION_COAST_COL_INICIO
+	var shore := shore_de_vermilion(vc)
+
+	if cr < shore:
+		# ── Areia (praia) — rochedo de maré esparso, sem árvore/flor (não
+		# combina com praia) ──
+		if (vc + cr * 3) % 17 == 5:
+			return "R"
+		return "S"
+
+	# ── Mar aberto. Guardado o formato exato (via shore_de_vermilion) pro
+	# mapa submarino reusar quando Mergulho existir. ──
+	return "~"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Rota 3 → Mt Moon (entrada) → Rota 4 → Cerulean City — leste de Pewter,

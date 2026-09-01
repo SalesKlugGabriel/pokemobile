@@ -187,6 +187,47 @@ primeiro desvio real — Rota 24/25 saindo de Cerulean pra norte, terminando na 
 
 ---
 
+## v0.3.6 — Tier 9: Litoral de Vermilion — praia + mar aberto (2026-09-01)
+
+**Pedido:** "Continue" + regra nova e permanente do Gabriel: **todo bioma precisa ter identidade
+visual própria** — caverna com piso diferente/estruturas geológicas/rotas não-lineares (erosão
+natural ou escavação de Pokémon tipo Pedra/Terra), litoral com aspecto de praia de verdade, e
+quando o mapa **submarino** existir, ele tem que ter **exatamente o mesmo tamanho e formato** do
+oceano de superfície, com camadas de profundidade pra quests/raids no futuro. Registrado como
+regra permanente na memória (não só pra este tier).
+
+**Construído**: praia + mar ao SUL de Vermilion City (cidade portuária, já tinha decoração de
+"doca" desde o Tier 3 — fazia sentido geográfico). Linha da costa **orgânica** (função `sin()`,
+`shore_de_vermilion()`), não um corte reto — a areia avança e recua por coluna, com rochedos de
+maré espalhados, sem árvore/flor (não combina com praia). Zona nova `mar_de_vermilion` **guarda
+a função que define seu formato exato como nota** — é a fonte única de verdade que o mapa
+submarino (fase de mecânicas, precisa de Mergulho) vai reusar pra bater o contorno certinho,
+conforme pedido.
+
+**Arquitetura**: mais simples que o Tier 8 — como a área ao sul de Vermilion já era borda vazia
+(Rota 2 só existe a oeste), o litoral entrou direto no array principal, sem precisar de linha
+negativa nem pintura à parte. Mesmo assim é um "desvio" (fora do corredor leste-oeste), então
+usei o mesmo cuidado de seam: a orla inteira de Vermilion (linhas 35-36) virou areia, corrigido
+pra não bloquear a entrada na praia.
+
+**Testado**: `teste_fase3_tier9.gd` (12 conferências, incluindo checar que a curva da praia
+varia por coluna — não é uma linha reta). **12 arquivos de teste juntos: 207 conferências, 0
+falhas** — de novo nenhum teste anterior precisou de ajuste. Publicado, `curl` confirma 200.
+
+**Ainda pendente da lista**: Mt Moon (Tier 2) foi construído ANTES dessa regra de tematização
+existir — é uma caverna bem simples (retângulo + rochas espalhadas), sem estrutura geológica ou
+rota não-linear de verdade. Não retrofitei agora (o pedido foi "continue", não "arrume o que já
+existe") — fica registrado que Mt Moon não bate com o padrão novo, e o Rock Tunnel (próximo item
+da lista, ainda não construído) é a primeira chance de aplicar o padrão logo de cara.
+
+**Próximo passo**: Rock Tunnel (aplicando a regra de caverna não-linear pela primeira vez) ou
+seguir esticando o litoral (mais praia, rumo a uma futura Ilha Cinnabar).
+
+**Precisa de decisão do Gabriel?** Não — mas vale perguntar se ele quer que eu retrofite Mt Moon
+pro padrão novo antes de seguir, ou se deixa pra depois.
+
+---
+
 ## v0.3.0 — Tier 3: Rota 5 → Rota 6 → Vermilion City (Lt. Surge) (2026-08-31, continuação)
 
 **Pedido do Gabriel:** deixar mecânica de locomoção por último; ordem definida: **mapa →

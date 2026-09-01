@@ -258,6 +258,12 @@ is_trainer = true
 trainer_team = Array[Dictionary]([{"species_id": 29, "level": 22}, {"species_id": 32, "level": 22}])
 is_patrolling = false
 
+[node name="PescadorVermilionPraia" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(6648, 632)
+npc_name = "Pescador"
+dialog_id = "pescador_vermilion_praia"
+is_patrolling = false
+
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("4_zm")
 
