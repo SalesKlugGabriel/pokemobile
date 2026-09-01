@@ -1,6 +1,7 @@
-## teste_fase3_mapa.gd — Teste headless da expansão do mapa (Rota 2 + Pewter
-## City) e do Ginásio do Brock. Roda com:
-## godot4 --headless --script res://scripts/tests/teste_fase3_mapa.gd
+## teste_fase3_mapa.gd — Teste headless da expansão do mapa (mundo aberto:
+## Pewter City + Rota 2 dentro do MESMO world_map, sem warp — decisão do
+## Gabriel em 31/08: warp só pra caverna/subterrâneo/submarino/continente).
+## Roda com: godot4 --headless --script res://scripts/tests/teste_fase3_mapa.gd
 extends SceneTree
 
 var _ok    := 0
@@ -8,7 +9,7 @@ var _fail  := 0
 var _rodou := false
 
 func _initialize() -> void:
-	print("=== Teste Fase 3 (Rota 2 + Pewter City + Brock) ===")
+	print("=== Teste Fase 3 (mundo aberto: Pewter City + Rota 2) ===")
 
 func _process(_delta: float) -> bool:
 	if _rodou:
@@ -28,60 +29,91 @@ func _assert(cond: bool, label: String) -> void:
 		print("  FALHA - %s" % label)
 
 func _teste_geral() -> void:
-	# ---- 1. Layouts existem e têm o tamanho certo ----
-	var r2 = MapLayouts.get_layout("route_2")
-	_assert(r2.get("width", 0) == 16 and r2.get("height", 0) == 50,
-		"route_2 gera 16x50 (veio %sx%s)" % [r2.get("width"), r2.get("height")])
-	var pc = MapLayouts.get_layout("pewter_city")
-	_assert(pc.get("width", 0) == 40 and pc.get("height", 0) == 30,
-		"pewter_city gera 40x30 (veio %sx%s)" % [pc.get("width"), pc.get("height")])
+	var layout = MapLayouts.get_layout("world_map")
+	var tiles : Array = layout["tiles"]
+	var H : int = layout["height"]
 
-	# ---- 2. Rota 2: corredor central caminhável, bordas bloqueadas ----
-	var r2_tiles : Array = r2["tiles"]
-	_assert(r2_tiles[25][7] == "P", "Rota 2: corredor central (col 7) é caminho no meio do mapa")
-	_assert(r2_tiles[25][0] == "T", "Rota 2: borda oeste é árvore (bloqueada)")
-	_assert(r2_tiles[0][7] == "T" and r2_tiles[49][7] == "T",
-		"Rota 2: bordas norte/sul são árvore — a saída de verdade é 1 tile antes")
-	_assert(r2_tiles[1][7] == "P" and r2_tiles[48][7] == "P",
-		"Rota 2: os tiles logo depois da borda (rows 1 e 48) são caminháveis — onde os warps ficam")
+	_assert(layout["width"] == 100 and H == 192,
+		"world_map agora é 100x192 (Pewter+Rota2 somaram 72 linhas)")
 
-	# ---- 3. Pewter: Ginásio e Centro Pokémon existem, com porta ----
-	var pc_tiles : Array = pc["tiles"]
-	_assert(pc_tiles[10][14] == "I", "Pewter: interior do Ginásio (col 14, row 10) é piso caminhável")
-	_assert(pc_tiles[6][14] == "H", "Pewter: telhado do Ginásio (row 6) existe")
-	_assert(pc_tiles[14][14] == "P", "Pewter: porta do Ginásio (col 14, row 14) é caminho")
-	_assert(pc_tiles[10][30] == "I", "Pewter: interior do Centro Pokémon (col 30, row 10) é piso")
-	_assert(pc_tiles[28][20] == "P", "Pewter: corredor sul (col 20, row 28) caminhável — onde chega vindo da Rota 2")
-	_assert(pc_tiles[29][20] == "T", "Pewter: borda sul (row 29) é árvore, exatamente como o resto do mapa")
+	# ---- 1. Pewter City (linhas 1-36) ----
+	_assert(tiles[10][26] == "I", "Pewter: interior do Ginásio (col 26, row 10) é piso")
+	_assert(tiles[6][26] == "H", "Pewter: telhado do Ginásio (row 6) existe")
+	_assert(tiles[18][26] == "P", "Pewter: porta do Ginásio (row 18) é caminho")
+	_assert(tiles[10][76] == "I", "Pewter: interior do Centro Pokémon (col 76, row 10) é piso")
+	_assert(tiles[14][76] == "P", "Pewter: porta do Centro Pokémon (row 14) é caminho")
 
-	# ---- 4. As cenas carregam de verdade e o Brock tem time de batalha ----
-	var route2_scene := load("res://scenes/world/maps/Route2.tscn") as PackedScene
-	_assert(route2_scene != null, "Route2.tscn carrega sem erro")
-	var pewter_scene := load("res://scenes/world/maps/PewterCity.tscn") as PackedScene
-	_assert(pewter_scene != null, "PewterCity.tscn carrega sem erro")
+	# ---- 2. Corredor central é UM SÓ, sem quebra, de Pewter até Pallet ----
+	# (a prova de que é mundo aberto de verdade: anda reto por 190 linhas
+	# sem nenhum warp no meio — só bate em parede/água/caverna, isso não
+	# existe ainda nesse trecho)
+	# Pallet é o fim da estrada (sul do mapa) — o corredor dela só vai até
+	# old_r=115 (o resto é a borda sul, de propósito, sem quebra "no meio").
+	var fim_do_corredor := 115 + MapLayouts.OFFSET_ANTIGO
+	var quebras := 0
+	for r in range(3, fim_do_corredor + 1):
+		if tiles[r][50] != "P" and tiles[r][50] != "I" and tiles[r][50] != "W" and tiles[r][50] != "H":
+			quebras += 1
+	_assert(quebras == 0,
+		"corredor central (col 50) é caminhável do topo (Pewter) até o fim de Pallet, sem quebra (%d quebras)" % quebras)
 
-	if pewter_scene:
-		var inst := pewter_scene.instantiate()
+	# ---- 3. Rota 2 (linhas locais 37-72) tem grama/árvore, não é cidade ----
+	_assert(tiles[55][20] == "." or tiles[55][20] == "T" or tiles[55][20] == "F",
+		"Rota 2 (row 55, fora do corredor) é grama/árvore/flor, não prédio")
+
+	# ---- 4. Viridian/Rota 1/Pallet continuam exatamente onde sempre foram
+	# (só que 72 linhas mais pra baixo) — prova que nada do que já existia
+	# mudou de desenho, só de posição ----
+	_assert(tiles[74 + 8][26] == "W" or tiles[74 + 8][26] == "H",
+		"Ginásio de Viridian (fechado) continua existindo, só deslocado 72 linhas")
+	_assert(tiles[152 + 6][50] == "P",
+		"Corredor de Pallet continua no mesmo lugar relativo, só deslocado")
+
+	# ---- 5. As cenas antigas (separadas) não existem mais ----
+	_assert(not FileAccess.file_exists("res://scenes/world/maps/Route2.tscn"),
+		"Route2.tscn (cena separada, abordagem antiga) foi removida")
+	_assert(not FileAccess.file_exists("res://scenes/world/maps/PewterCity.tscn"),
+		"PewterCity.tscn (cena separada, abordagem antiga) foi removida")
+
+	# ---- 6. WorldMap.tscn carrega, Brock e Colecionador têm time real ----
+	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene
+	_assert(world_scene != null, "WorldMap.tscn carrega sem erro")
+	if world_scene:
+		var inst := world_scene.instantiate()
 		var brock := inst.get_node_or_null("Entities/Brock")
-		_assert(brock != null, "Brock existe na cena de Pewter")
+		_assert(brock != null, "Brock existe dentro do WorldMap único (não é mais cena separada)")
 		if brock:
-			_assert(brock.npc_name == "Brock", "nome do NPC é 'Brock' (bate com o alvo da quest GYM-01)")
-			_assert(brock.is_trainer, "Brock está marcado como treinador")
-			_assert(brock.trainer_team.size() == 2, "Brock tem um time de 2 Pokémon")
-			_assert(brock.trainer_team[0]["species_id"] == 74, "primeiro Pokémon do Brock é Geodude (74)")
-			_assert(brock.trainer_team[1]["species_id"] == 95, "segundo Pokémon do Brock é Onix (95)")
+			_assert(brock.trainer_team.size() == 2 and brock.trainer_team[0]["species_id"] == 74,
+				"Brock continua com o time real (Geodude + Onix)")
+			_assert(brock.starts_quest_id == "GYM-01", "Brock continua iniciando a GYM-01")
+		var colecionador := inst.get_node_or_null("Entities/Colecionador")
+		_assert(colecionador != null and not colecionador.trainer_team.is_empty(),
+			"Colecionador de Insetos existe com time real")
+		# Nenhum warp de cidade/rota deve sobrar — só o do Centro Pokémon
+		# (caverna/subterrâneo seria a única outra exceção válida, ainda não existe)
+		var warp_zones := inst.get_node_or_null("WarpZones")
+		var alvos_nao_pokecenter := 0
+		if warp_zones:
+			for w in warp_zones.get_children():
+				if w.target_map != "" and not w.target_map.contains("PokemonCenter"):
+					alvos_nao_pokecenter += 1
+		_assert(alvos_nao_pokecenter == 0,
+			"nenhum warp de cidade/rota sobrou no WorldMap — só os do Centro Pokémon (%d de sobra)" % alvos_nao_pokecenter)
 		inst.free()
 
-	# ---- 5. zones.json: Rota 2 tem Geodude no spawn selvagem ----
+	# ---- 7. zones.json bate com o mapa único novo ----
 	var f := FileAccess.open("res://data/world/zones.json", FileAccess.READ)
 	var data = JSON.parse_string(f.get_as_text())
 	f.close()
-	var route2_zone : Dictionary = {}
+	var by_id := {}
 	for z in data["zones"]:
-		if z["id"] == "route_2":
-			route2_zone = z
+		by_id[z["id"]] = z
+	_assert(int(by_id["viridian_city"]["tile_rect"]["y"]) == 74,
+		"zones.json: viridian_city foi atualizado pro novo y (74)")
+	_assert(int(by_id["pallet_town"]["tile_rect"]["y"]) == 152,
+		"zones.json: pallet_town foi atualizado pro novo y (152)")
 	var tem_geodude := false
-	for w in route2_zone.get("wild_pokemon", []):
+	for w in by_id["route_2"].get("wild_pokemon", []):
 		if int(w.get("id", 0)) == 74:
 			tem_geodude = true
-	_assert(tem_geodude, "Rota 2 tem Geodude na tabela de spawn selvagem (precisa pra GYM-01)")
+	_assert(tem_geodude, "zones.json: Rota 2 tem Geodude no spawn selvagem")

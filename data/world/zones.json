@@ -6,7 +6,7 @@
       "region": "kanto",
       "tile_rect": {
         "x": 0,
-        "y": 80,
+        "y": 152,
         "w": 100,
         "h": 39
       },
@@ -29,7 +29,7 @@
       "region": "kanto",
       "tile_rect": {
         "x": 0,
-        "y": 2,
+        "y": 74,
         "w": 100,
         "h": 37
       },
@@ -52,7 +52,7 @@
       "region": "kanto",
       "tile_rect": {
         "x": 0,
-        "y": 39,
+        "y": 111,
         "w": 100,
         "h": 41
       },
@@ -82,8 +82,8 @@
       "tile_rect": {
         "x": 0,
         "y": 0,
-        "w": 40,
-        "h": 30
+        "w": 100,
+        "h": 37
       },
       "bgm": "pewter_city",
       "wild_pokemon": [],
@@ -230,9 +230,9 @@
       "region": "kanto",
       "tile_rect": {
         "x": 0,
-        "y": 0,
-        "w": 16,
-        "h": 50
+        "y": 37,
+        "w": 100,
+        "h": 37
       },
       "bgm": "route_2",
       "wild_pokemon": [

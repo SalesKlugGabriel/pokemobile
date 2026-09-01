@@ -18,7 +18,7 @@ size = Vector2(48, 16)
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_viridian"]
 size = Vector2(48, 16)
 
-[sub_resource type="RectangleShape2D" id="Shape_route2"]
+[sub_resource type="RectangleShape2D" id="Shape_pokecenter_pewter"]
 size = Vector2(48, 16)
 
 [node name="WorldMap" type="Node2D"]
@@ -36,7 +36,7 @@ format = 2
 [node name="NPCs" type="Node2D" parent="Entities"]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(800, 1760)
+position = Vector2(800, 2912)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
@@ -46,29 +46,29 @@ drag_vertical_enabled = true
 limit_left = 0
 limit_top = 0
 limit_right = 1600
-limit_bottom = 1920
+limit_bottom = 3072
 zoom = Vector2(3.0, 3.0)
 
 [node name="ProfCarvalho" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(416, 1392)
+position = Vector2(416, 2544)
 npc_name = "Prof. Carvalho"
 dialog_id = "oak_intro"
 is_patrolling = false
 
 [node name="Morador1" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(192, 1680)
+position = Vector2(192, 2832)
 npc_name = "Morador"
 dialog_id = "pallet_resident_1"
 is_patrolling = false
 
 [node name="Moradora2" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(992, 1680)
+position = Vector2(992, 2832)
 npc_name = "Moradora"
 dialog_id = "pallet_resident_2"
 is_patrolling = false
 
 [node name="Treinador1" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(800, 944)
+position = Vector2(800, 2096)
 npc_name = "Treinador"
 dialog_id = "route_1_trainer_1"
 is_trainer = true
@@ -76,41 +76,64 @@ trainer_team = Array[Dictionary]([{"species_id": 19, "level": 4}])
 is_patrolling = false
 
 [node name="Campista" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(800, 768)
+position = Vector2(800, 1920)
 npc_name = "Campista"
 dialog_id = "route_1_camper"
 is_patrolling = false
 
 [node name="Guarda" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(800, 464)
+position = Vector2(800, 1616)
 npc_name = "Guarda"
 dialog_id = "viridian_guard"
 is_patrolling = false
 
 [node name="Pesquisadora" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(880, 528)
+position = Vector2(880, 1680)
 npc_name = "Pesquisadora"
 dialog_id = "viridian_researcher"
 is_patrolling = false
 
 [node name="Vendedor" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(888, 168)
+position = Vector2(888, 1320)
 npc_name = "Vendedor"
 dialog_id = "viridian_shopkeeper"
 opens_shop_on_dialog_end = true
 is_patrolling = false
 
 [node name="Anciao" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(272, 528)
+position = Vector2(272, 1680)
 npc_name = "Ancião"
 dialog_id = "viridian_elder"
 is_patrolling = false
 
 [node name="Pescador" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(1064, 984)
+position = Vector2(1064, 2136)
 npc_name = "Pescador"
 dialog_id = "route1_fisherman"
 gift_item_id = "old_rod"
+is_patrolling = false
+
+[node name="Colecionador" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(968, 888)
+npc_name = "Colecionador de Insetos"
+dialog_id = "route2_bugcatcher"
+is_trainer = true
+trainer_team = Array[Dictionary]([{"species_id": 10, "level": 6}, {"species_id": 13, "level": 7}])
+is_patrolling = false
+
+[node name="Brock" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(424, 168)
+npc_name = "Brock"
+dialog_id = "brock_gym"
+starts_quest_id = "GYM-01"
+is_trainer = true
+trainer_team = Array[Dictionary]([{"species_id": 74, "level": 12}, {"species_id": 95, "level": 14}])
+is_patrolling = false
+
+[node name="PewterLocal" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(488, 360)
+npc_name = "Morador"
+dialog_id = "pewter_local"
 is_patrolling = false
 
 [node name="ZoneManager" type="Node" parent="."]
@@ -122,7 +145,7 @@ script = ExtResource("4b_sm")
 [node name="WarpZones" type="Node2D" parent="."]
 
 [node name="WarpPokeCenter_Pallet" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(1200, 1440)
+position = Vector2(1200, 2592)
 target_map = "res://scenes/world/maps/PokemonCenter.tscn"
 spawn_tile = Vector2i(7, 11)
 is_pokemon_center_entrance = true
@@ -131,7 +154,7 @@ is_pokemon_center_entrance = true
 shape = SubResource("Shape_pokecenter_pallet")
 
 [node name="WarpPokeCenter_Viridian" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(1200, 224)
+position = Vector2(1200, 1376)
 target_map = "res://scenes/world/maps/PokemonCenter.tscn"
 spawn_tile = Vector2i(7, 11)
 is_pokemon_center_entrance = true
@@ -139,13 +162,14 @@ is_pokemon_center_entrance = true
 [node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Viridian"]
 shape = SubResource("Shape_pokecenter_viridian")
 
-[node name="WarpRoute2" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(800, 72)
-target_map = "res://scenes/world/maps/Route2.tscn"
-spawn_tile = Vector2i(7, 47)
+[node name="WarpPokeCenter_Pewter" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(1224, 232)
+target_map = "res://scenes/world/maps/PokemonCenter.tscn"
+spawn_tile = Vector2i(7, 11)
+is_pokemon_center_entrance = true
 
-[node name="CollisionShape2D" parent="WarpZones/WarpRoute2"]
-shape = SubResource("Shape_route2")
+[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Pewter"]
+shape = SubResource("Shape_pokecenter_pewter")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 

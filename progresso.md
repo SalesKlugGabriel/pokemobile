@@ -9,6 +9,57 @@
 
 ---
 
+## v0.2.8 — Correção de arquitetura: mundo aberto de verdade, sem warp entre cidade/rota (2026-08-31, continuação)
+
+**Regra do Gabriel:** warp só serve pra caverna, subterrâneo, submarino ou troca de
+continente. Cidade e rota têm que ser **o mesmo mapa contínuo**, andável, com Surf/Voar/
+Teleporte como formas de atravessar mais rápido no futuro. A v0.2.7 (Rota 2 + Pewter como
+cenas separadas, ligadas por warp) contrariava essa regra — desfeita e reconstruída certa.
+
+**O que mudou:** `Route2.tscn` e `PewterCity.tscn` foram apagados. Pewter City e Rota 2 agora
+são **parte do mesmo `world_map` único** que já continha Pallet/Rota 1/Viridian — o jogador
+anda direto do Ginásio do Brock até Pallet Town sem nenhuma transição de tela no meio (só
+existe warp pra dentro do Centro Pokémon, que é "interior", não mundo aberto — a mesma
+exceção que já valia antes).
+
+- `world_map` cresceu de 100×120 pra **100×192** — as 72 linhas novas (Pewter + Rota 2)
+  entraram ao NORTE de Viridian.
+- Decisão de segurança pra não arriscar o que já estava testado: o código de Viridian/Rota 1/
+  Pallet (`_viridian_cell`/`_route1_cell`/`_pallet_cell`) **não foi tocado** — só ganhou um
+  "tradutor" de número de linha (`old_r = r - 72`) na função que decide qual pedaço do mapa é
+  qual. Toda a lógica interna de cada um continua exatamente igual a antes.
+- **Achado no caminho**: Viridian tratava as 3 primeiras linhas como "borda norte" (fazia
+  sentido quando era literalmente o topo do mapa) — isso criava uma parede de 3 tiles bem no
+  meio do corredor, agora que a Rota 2 continua pra cima. Corrigido só nas colunas do
+  corredor, sem mexer em mais nada de Viridian.
+- Brock, o Colecionador de Insetos e o Centro Pokémon de Pewter viraram NPCs/warp dentro do
+  `WorldMap.tscn` (não mais de uma cena própria) — reaproveitado tudo que já tinha sido
+  escrito na v0.2.7 (time do Brock, `starts_quest_id`, diálogos), só reposicionado.
+- `zones.json` atualizado: os y de pallet_town/route_1/viridian_city subiram 72 (mesmo
+  deslocamento), pewter_city e route_2 ganharam tile_rect de verdade no frame único.
+
+**Testado:** `teste_fase3_mapa.gd` reescrito pra provar mundo aberto de verdade — o teste mais
+importante novo é "anda reto do topo do mapa até quase o fim de Pallet pela coluna do
+corredor, sem nenhuma quebra" (190 linhas conferidas, 0 quebras) — e que nenhum warp de
+cidade/rota sobrou no WorldMap.tscn (só os do Centro Pokémon). `teste_fase2_pesca.gd` também
+precisou de ajuste (o lago da Rota 1 continuava certo no jogo, só o TESTE checava a linha
+antiga, sem saber do deslocamento novo — achado de teste, não de jogo). Os 4 arquivos de
+teste juntos (Fases 0-3): **97 conferências, 0 falhas**. Publicado; confirmado ao vivo sem
+erro nenhum no console, andando de verdade por Pallet → Rota 1 → Viridian sem nenhuma tela de
+carregamento no meio. Não cheguei a ver Pewter com os próprios olhos desta vez — a distância
+até lá dobrou (a viagem agora é ~146 tiles a pé, o dobro de antes), e minha navegação
+automática por script não é rápida o bastante pra isso num tempo razoável; pra um jogador de
+verdade segurando a tecla, é uma caminhada de talvez 1 minuto.
+
+**Próximo passo:** Tier 2 da expansão de mapa (Rota 3 → Mt Moon → Rota 4 → Cerulean City,
+destrava a Misty) — mesmo padrão agora validado (mundo único, sem warp, código antigo
+intocado, só a tradução de linha).
+
+**Precisa de decisão do Gabriel?** Não — a arquitetura pedida está implementada e testada.
+Vale confirmar Pewter/Brock ao vivo quando puder (é uma caminhada mais longa agora).
+
+---
+
 ## v0.2.7 — Fase 3 do Diário, Tier 1: Rota 2 + Pewter City + Ginásio do Brock (2026-08-31, continuação)
 
 **Correção do Gabriel:** Brock é o Líder de Pewter City, não de Viridian (eu tinha sugerido

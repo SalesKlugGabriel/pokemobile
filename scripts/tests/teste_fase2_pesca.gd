@@ -34,17 +34,21 @@ func _assert(cond: bool, label: String) -> void:
 
 func _teste_geral() -> void:
 	# ---- 1. O lago existe de verdade no mapa ----
+	# O lago mora dentro de _route1_cell (número de linha PRÓPRIO da Rota 1,
+	# 55-60) — desde a Fase 3 (mundo aberto, Pewter+Rota2 entraram ao norte),
+	# a Rota 1 inteira está OFFSET_ANTIGO linhas mais pra baixo no mapa único.
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
+	var off : int = MapLayouts.OFFSET_ANTIGO
 	var achou_agua := false
-	for r in range(55, 61):
+	for r in range(55 + off, 61 + off):
 		var row : String = tiles[r]
 		for c in range(63, 71):
 			if row[c] == "~":
 				achou_agua = true
-	_assert(achou_agua, "existe pelo menos 1 tile de água (~) no lago da Rota 1 (cols 63-70, rows 55-60)")
-	_assert(tiles[58][66] == "~", "o centro do lago (col 66, row 58) é água")
-	_assert(tiles[61][66] != "~", "logo abaixo do lago (row 61) já não é mais água (onde o Pescador fica)")
+	_assert(achou_agua, "existe pelo menos 1 tile de água (~) no lago da Rota 1 (cols 63-70, rows 55-60 + deslocamento)")
+	_assert(tiles[58 + off][66] == "~", "o centro do lago (col 66) é água")
+	_assert(tiles[61 + off][66] != "~", "logo abaixo do lago já não é mais água (onde o Pescador fica)")
 
 	# ---- 2. FishingSystem: distribuição e faixas ----
 	var fs := FishingSystem.new()
