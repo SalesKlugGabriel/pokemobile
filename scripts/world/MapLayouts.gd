@@ -571,6 +571,20 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 	# ── Rota 10 (Tier 7) ── local r10 0 .. ROUTE10_COLS-1
 	var r10 := sf - SAFFRON_COLS
 	if r10 < ROUTE10_COLS:
+		# Boca do Rock Tunnel (Tier 10) — moldura de rocha ACIMA do caminho
+		# principal (rows 12-15), nunca atravessando rows 16-20 (no_caminho).
+		# Achado: a primeira versão testava r10 contra a faixa 12-24 ANTES de
+		# checar no_caminho — isso bloqueava o corredor leste-oeste em 4
+		# colunas (as que flanqueiam a entrada), quebrando a travessia de
+		# Saffron até Lavender. O Mt Moon tem o mesmo desenho (moldura antes
+		# do no_caminho) — não quebrou nenhum teste porque nenhuma conferência
+		# de continuidade passava exatamente por cima da boca dele, mas é a
+		# MESMA classe de bug, só nunca provada. Aqui: no_caminho SEMPRE
+		# vence (caminho nunca bloqueado); a moldura só existe acima dele.
+		if r10 >= 20 and r10 <= 27 and r >= 12 and r <= 15:
+			if r10 >= 22 and r10 <= 25:
+				return "P"  # continuação da entrada até a moldura
+			return "R"
 		if no_caminho:
 			return "P"
 		if (r10 + r * 2) % 9 == 7:
@@ -938,6 +952,76 @@ static func _mtmoon_cell(c: int, r: int, W: int, H: int) -> String:
 	return "I"
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Rock Tunnel — 36×36, cena própria (caverna/subterrâneo, mesma exceção de
+# warp do Mt Moon). Tier 10 (01/09): PRIMEIRA caverna construída depois da
+# regra de tematização de bioma do Gabriel — diferente do Mt Moon (retângulo
+# + rochas espalhadas em grade), aqui o interior é escavado por CAMINHADA
+# ALEATÓRIA (drunkard's walk) com seed FIXA — determinístico (sempre gera a
+# mesma caverna), mas o resultado parece erosão/escavação de verdade: túnel
+# principal sinuoso + 3 ramos secundários saindo de pontos já escavados
+# (nunca isolados — sempre alcançáveis a partir da entrada). Piso usa "D"
+# (dark path), não "I", pra já ter identidade visual diferente do Mt Moon
+# mesmo sem sprite novo. Entrada/saída única, ao sul (opcional, não é
+# passagem obrigatória entre duas rotas — dungeon lateral de recompensa).
+# ──────────────────────────────────────────────────────────────────────────────
+const ROCKTUNNEL_SEED : int = 20260901  # fixo — mesma caverna sempre, nunca mudar sem querer regenerar tudo
+
+static func _gen_rocktunnel() -> Array:
+	var W := 36
+	var H := 36
+	var grid_chars : Array = []
+	for r in H:
+		var row : Array = []
+		for c in W:
+			row.append("R")
+		grid_chars.append(row)
+
+	# Porta única (entrada/saída) — sul, cols 17-18
+	grid_chars[H - 1][17] = "P"
+	grid_chars[H - 1][18] = "P"
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = ROCKTUNNEL_SEED
+
+	var visitados : Array = []
+	_rocktunnel_carve(grid_chars, W, H, 17, H - 2, 500, rng, visitados)
+	for i in 3:
+		var idx := rng.randi_range(0, visitados.size() - 1)
+		var pt : Vector2i = visitados[idx]
+		_rocktunnel_carve(grid_chars, W, H, pt.x, pt.y, 120, rng, visitados)
+
+	var grid : Array = []
+	for r in H:
+		var row := ""
+		for c in W:
+			row += grid_chars[r][c]
+		grid.append(row)
+	return grid
+
+## Escava uma "caminhada aleatória" a partir de (start_c, start_r), marcando
+## cada tile visitado como piso ("D"). Nunca escava a borda (c/r=0 ou W-1/
+## H-1 continuam rocha sólida). `visitados` acumula todo tile já escavado —
+## usado pra escolher onde começar os ramos secundários, garantindo que
+## NUNCA fiquem isolados (sempre partem de um tile já alcançável).
+static func _rocktunnel_carve(grid_chars: Array, W: int, H: int, start_c: int, start_r: int,
+	steps: int, rng: RandomNumberGenerator, visitados: Array) -> void:
+	var c := start_c
+	var r := start_r
+	for i in steps:
+		if r >= 1 and r <= H - 2 and c >= 1 and c <= W - 2:
+			if grid_chars[r][c] != "D":
+				grid_chars[r][c] = "D"
+				visitados.append(Vector2i(c, r))
+		var dir := rng.randi_range(0, 3)
+		match dir:
+			0: r -= 1
+			1: r += 1
+			2: c -= 1
+			3: c += 1
+		c = clampi(c, 1, W - 2)
+		r = clampi(r, 1, H - 2)
+
+# ──────────────────────────────────────────────────────────────────────────────
 # API pública
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -952,6 +1036,9 @@ static func get_layout(map_id: String) -> Dictionary:
 		"mt_moon":
 			var tiles := _gen_mtmoon()
 			return {"tiles": tiles, "width": 20, "height": 30}
+		"rock_tunnel":
+			var tiles := _gen_rocktunnel()
+			return {"tiles": tiles, "width": 36, "height": 36}
 		_:
 			return {}
 

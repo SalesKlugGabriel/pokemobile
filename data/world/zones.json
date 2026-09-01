@@ -1365,11 +1365,12 @@
       "id": "rock_tunnel",
       "name": "Rock Tunnel",
       "region": "kanto",
+      "notes": "Cena própria (RockTunnel.tscn), coordenada local 0-based, igual ao Mt Moon. Interior gerado por caminhada aleatória com seed fixa (MapLayouts._gen_rocktunnel) — não-linear de propósito (regra de tematização de caverna, 01/09), diferente do Mt Moon (retângulo + rochas espalhadas, construído antes dessa regra existir).",
       "tile_rect": {
-        "x": 222,
-        "y": 60,
-        "w": 18,
-        "h": 35
+        "x": 0,
+        "y": 0,
+        "w": 36,
+        "h": 36
       },
       "bgm": "rock_tunnel",
       "wild_pokemon": [

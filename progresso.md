@@ -228,6 +228,50 @@ pro padrão novo antes de seguir, ou se deixa pra depois.
 
 ---
 
+## v0.3.7 — Tier 10: Rock Tunnel — a primeira caverna não-linear (2026-09-01)
+
+**Pedido:** "Continue" + referência visual de tileset mandada pelo Gabriel (guardada em
+`docs/tileset-referencia-visual.md` + `docs/referencias/tileset-visual-referencia.png`, é pra
+implementar só quando "sprites mais legais" virar foco de verdade — não agora).
+
+**Construído**: Rock Tunnel, dungeon lateral opcional com entrada na Rota 10 (moldura de rocha
+ao redor de uma boca caminhável, mesmo tratamento visual do Mt Moon). Zubat/Geodude/Onix (spawn
+real do Gen 1, já estava certo no `zones.json`, só precisou virar cena de verdade).
+
+**A parte importante**: é a PRIMEIRA caverna construída depois da regra de tematização de bioma
+do Gabriel (01/09) — em vez do padrão do Mt Moon (retângulo + rochas espalhadas em grade), o
+interior é gerado por **caminhada aleatória** (`_rocktunnel_carve`, "drunkard's walk") com
+**seed fixa** (determinístico — sempre gera a mesma caverna, mas o RESULTADO parece
+erosão/escavação de verdade): 1 túnel principal sinuoso de 500 passos + 3 ramos secundários de
+120 passos cada, sempre partindo de um ponto JÁ escavado (nunca ficam isolados). Piso usa "D"
+(caminho escuro) em vez de "I", pra já ter identidade visual diferente do Mt Moon mesmo sem
+sprite novo.
+
+**🔴 Bug achado e corrigido antes de publicar**: a primeira versão da moldura de rocha da boca da
+caverna checava a área ANTES de checar o corredor leste-oeste principal — isso bloqueava a
+travessia de Saffron até Lavender em 4 colunas (as que flanqueiam a entrada). Corrigido: o
+corredor principal SEMPRE vence, a moldura só existe acima dele, nunca atravessando. **Achado
+relacionado, investigado e descartado como bug real**: o Mt Moon usa a mesma ordem de código
+(moldura antes do corredor) — mas lá isso nunca bloqueia de verdade a travessia, porque fora da
+faixa de linhas 12-24 (onde fica a moldura) o resto da Rota 3/4 já é grama livre nessa mesma
+coluna, então dá pra contornar por cima ou por baixo. Não é um bloqueio funcional, só um desenho
+um pouco menos consistente que o do Rock Tunnel — não precisa de correção.
+
+**Testado**: `teste_fase3_tier10.gd` (16 conferências) — inclui prova de determinismo (gerar
+duas vezes dá exatamente a mesma caverna), prova de não-linearidade (piso se espalha por mais de
+15 linhas E colunas), prova de que ainda é MAIS rocha que piso (238 piso / 1056 rocha — continua
+parecendo caverna, não virou sala aberta), e um flood-fill provando que os 238 tiles de piso são
+TODOS alcançáveis a partir da porta (nenhum ramo secundário isolado). 2 testes antigos ajustados
+(mesma classe de sempre: warp novo — Rock Tunnel — precisava entrar na lista de exceções
+permitidas nos testes anteriores). **13 arquivos de teste juntos: 223 conferências, 0 falhas.**
+Publicado, `curl` confirma 200.
+
+**Próximo passo**: mais litoral/ilhas (rumo a Cinnabar) ou seguir com outro item da lista.
+
+**Precisa de decisão do Gabriel?** Não.
+
+---
+
 ## v0.3.0 — Tier 3: Rota 5 → Rota 6 → Vermilion City (Lt. Surge) (2026-08-31, continuação)
 
 **Pedido do Gabriel:** deixar mecânica de locomoção por último; ordem definida: **mapa →

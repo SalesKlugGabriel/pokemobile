@@ -24,6 +24,9 @@ size = Vector2(48, 16)
 [sub_resource type="RectangleShape2D" id="Shape_mtmoon"]
 size = Vector2(48, 64)
 
+[sub_resource type="RectangleShape2D" id="Shape_rocktunnel"]
+size = Vector2(64, 80)
+
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_cerulean"]
 size = Vector2(48, 16)
 
@@ -306,6 +309,14 @@ spawn_tile = Vector2i(9, 27)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpMtMoon"]
 shape = SubResource("Shape_mtmoon")
+
+[node name="WarpRockTunnel" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(13496, 296)
+target_map = "res://scenes/world/maps/RockTunnel.tscn"
+spawn_tile = Vector2i(17, 34)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRockTunnel"]
+shape = SubResource("Shape_rocktunnel")
 
 [node name="WarpPokeCenter_Cerulean" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(4184, 232)

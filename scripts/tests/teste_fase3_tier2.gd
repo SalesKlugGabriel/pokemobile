@@ -91,11 +91,12 @@ func _teste_geral() -> void:
 			for w in warp_zones.get_children():
 				if w.target_map.contains("MtMoon"):
 					vai_pro_mtmoon = true
-				elif w.target_map != "" and not w.target_map.contains("PokemonCenter"):
+				elif w.target_map != "" and not w.target_map.contains("PokemonCenter") \
+				and not w.target_map.contains("RockTunnel"):
 					alvos_indevidos += 1
 		_assert(vai_pro_mtmoon, "existe um warp pra dentro do Mt Moon (caverna — exceção permitida)")
 		_assert(alvos_indevidos == 0,
-			"nenhum OUTRO warp de cidade/rota sobrou — só Centro Pokémon e Mt Moon (%d indevidos)" % alvos_indevidos)
+			"nenhum OUTRO warp de cidade/rota sobrou — só Centro Pokémon, Mt Moon e Rock Tunnel (%d indevidos)" % alvos_indevidos)
 		inst.free()
 
 	# ---- 6. zones.json: spawns reais de Rota 3/Mt Moon/Rota 4 ----
