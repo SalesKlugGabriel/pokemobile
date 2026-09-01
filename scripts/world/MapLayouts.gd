@@ -64,10 +64,14 @@ const FUCHSIA_COLS   : int = 60
 # Tier 6 (continuação, 31/08): Rota 9 → Saffron City (Sabrina, GYM-07).
 const ROUTE9_COLS    : int = 60
 const SAFFRON_COLS   : int = 60
+# Tier 7 (continuação, 01/09): Rota 10 → Lavender Town (Torre Pokémon, só
+# fachada por enquanto — mesmo tratamento já dado à Silph Co./Celadon Mart).
+const ROUTE10_COLS   : int = 60
+const LAVENDER_COLS  : int = 60
 const W_TOTAL : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS \
 	+ ROUTE5_COLS + ROUTE6_COLS + VERMILION_COLS \
 	+ ROUTE7_COLS + CELADON_COLS + ROUTE8_COLS + FUCHSIA_COLS \
-	+ ROUTE9_COLS + SAFFRON_COLS  # 820
+	+ ROUTE9_COLS + SAFFRON_COLS + ROUTE10_COLS + LAVENDER_COLS  # 940
 
 static func _gen_world_map() -> Array:
 	var W := W_TOTAL
@@ -403,6 +407,50 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 			return "W"
 		return "I"
 	if r >= 14 and r <= 16 and sf >= 53 and sf <= 55:
+		return "P"
+
+	# ── Saffron só vai até SAFFRON_COLS; dali pra leste é Tier 7 ───────────
+	if sf < SAFFRON_COLS:
+		return "."
+
+	# ── Rota 10 (Tier 7) ── local r10 0 .. ROUTE10_COLS-1
+	var r10 := sf - SAFFRON_COLS
+	if r10 < ROUTE10_COLS:
+		if no_caminho:
+			return "P"
+		if (r10 + r * 2) % 9 == 7:
+			return "T"
+		if (r10 * 2 + r) % 13 == 11:
+			return "F"
+		return "."
+
+	# ── Lavender Town ── local lv a partir de ROUTE10_COLS
+	var lv := r10 - ROUTE10_COLS
+
+	# ── Torre Pokémon (prédio alto, só a fachada — a torre de verdade com os
+	# andares/fantasmas fica pra quando "Pokémon e estruturas" virar foco).
+	# Achado (mesma classe do seam de sempre): r<=2 é tratado como borda
+	# absoluta no topo de _leste_de_pewter_cell — o telhado não pode cair
+	# nessa faixa, senão nunca é alcançado. Roof em r==4, igual à Silph Co. ──
+	if lv >= 10 and lv <= 22 and r >= 4 and r <= 14:
+		if lv == 10 or lv == 22: return "W"
+		if r == 4: return "H"
+		if r == 14:
+			if lv >= 15 and lv <= 17: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and lv >= 15 and lv <= 17:
+		return "P"
+
+	# ── Centro Pokémon de Lavender ── cols 35-47, rows 6-14
+	if lv >= 35 and lv <= 47 and r >= 6 and r <= 14:
+		if lv == 35 or lv == 47: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if lv >= 40 and lv <= 42: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and lv >= 40 and lv <= 42:
 		return "P"
 
 	return "."

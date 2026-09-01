@@ -122,10 +122,10 @@
       "name": "Lavender Town",
       "region": "kanto",
       "tile_rect": {
-        "x": 240,
-        "y": 80,
-        "w": 20,
-        "h": 20
+        "x": 880,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
       "bgm": "lavender_town",
       "wild_pokemon": [],
@@ -624,33 +624,40 @@
       "name": "Route 10",
       "region": "kanto",
       "tile_rect": {
-        "x": 218,
-        "y": 60,
-        "w": 8,
-        "h": 42
+        "x": 820,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
-      "bgm": "route_9",
+      "bgm": "route_10",
       "wild_pokemon": [
         {
           "id": 81,
           "name": "Magnemite",
-          "level_min": 22,
-          "level_max": 32,
-          "weight": 30
-        },
-        {
-          "id": 74,
-          "name": "Geodude",
-          "level_min": 22,
+          "level_min": 24,
           "level_max": 30,
-          "weight": 35
+          "weight": 30
         },
         {
           "id": 100,
           "name": "Voltorb",
-          "level_min": 22,
-          "level_max": 28,
+          "level_min": 24,
+          "level_max": 30,
           "weight": 35
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 23,
+          "level_max": 28,
+          "weight": 20
+        },
+        {
+          "id": 20,
+          "name": "Raticate",
+          "level_min": 26,
+          "level_max": 30,
+          "weight": 15
         }
       ],
       "npcs": []

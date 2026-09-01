@@ -100,6 +100,50 @@ Cerulean) ainda não foi construído.
 
 ---
 
+## v0.3.4 — Tier 7: Rota 10 → Lavender Town (2026-09-01)
+
+**Pedido:** "vamos continuar" (retomando pela lista de pendências deixada na memória). Rota 10 →
+Lavender Town, a leste de Saffron (mapa cresceu de 820 pra **940 de largura**). Lavender ganhou
+a Torre Pokémon (só a fachada — a torre de verdade com andares/fantasmas fica pra quando
+"Pokémon e estruturas" virar foco, mesmo tratamento já dado à Silph Co./Celadon Mart) e Centro
+Pokémon. Sr. Fuji e um morador local com diálogo, sem quest ligada ainda (MAIN-05 não é wireable
+hoje — ver achado abaixo).
+
+**Achado importante antes de construir**: `MAIN-05` (a quest do Sr. Fuji) usa o tipo de
+objetivo `reach_floor`, e conferindo `QuestManager.gd` de verdade — **esse tipo nunca foi
+implementado**, só existe como dado no JSON (mesma classe dos achados de `alpha_arbok`/
+`rocket_agent`, mas dessa vez é a cadeia MAIN inteira: nenhuma quest MAIN-01 a MAIN-12 tem um
+NPC de verdade no mundo que a inicie — só as 6 GYM têm `starts_quest_id` real). Decisão: não
+tentar wire a MAIN-05 agora (seria inventar mecânica nova, fora do escopo "mapa") — Sr. Fuji
+fica só com diálogo de sabor por enquanto, documentado pra quando a cadeia de história virar
+foco de verdade.
+
+**🔴 Bug achado e corrigido no caminho, sem relação com Lavender**: o Centro Pokémon de Saffron
+(construído no Tier 6) tinha o prédio no mapa mas **o warp de entrada nunca foi criado** — só a
+`RectangleShape2D` ficou órfã no arquivo, nenhum `WarpZone` a usava. Corrigido (node
+`WarpPokeCenter_Saffron` adicionado). Novo teste trava essa classe de bug pra sempre: conta
+quantos Centros Pokémon têm prédio construído (9) contra quantos têm warp de entrada — se
+algum dia meu divergir de novo, o teste quebra.
+
+**Segundo achado, mesma sessão**: telhado da Torre Pokémon caiu na faixa `r<=2` que
+`_leste_de_pewter_cell` trata como borda absoluta (mesma classe de seam de sempre) — corrigido
+movendo o telhado pra `r==4`, igual ao padrão já usado na Silph Co.
+
+**Testado:** `teste_fase3_tier7.gd` (10 conferências, incluindo a trava anti-regressão dos
+warps de Centro Pokémon) + ajuste de 1 asserção desatualizada no teste do Tier 6. **10 arquivos
+de teste juntos: 179 conferências, 0 falhas.** Publicado, `curl` confirma 200.
+
+**Mapa hoje**: Pallet→Viridian→Pewter→(Mt Moon)→Cerulean→Vermilion→Celadon→Fuchsia→Saffron→
+Lavender — ainda 6 badges reais (Lavender não é ginásio).
+
+**Próximo passo (pendências, em ordem — ver memória do PokéMobile):** Rota 24/25 + Casa do Bill
+(desvio ao NORTE de Cerulean — precisa de arquitetura nova, não é só continuar pra leste);
+litoral/mar/ilhas de verdade (pré-requisito pra Cinnabar/Blaine); Rock Tunnel.
+
+**Precisa de decisão do Gabriel?** Não — seguindo a ordem combinada.
+
+---
+
 ## v0.3.0 — Tier 3: Rota 5 → Rota 6 → Vermilion City (Lt. Surge) (2026-08-31, continuação)
 
 **Pedido do Gabriel:** deixar mecânica de locomoção por último; ordem definida: **mapa →
