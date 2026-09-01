@@ -9,6 +9,64 @@
 
 ---
 
+## Fase 2 (paralela ao Tier 14 do mapa) — Zona Safari + motor reach_floor/traverse_floors (2026-09-01)
+
+**Contexto:** rodou numa sessão-filha isolada (git worktree própria, branch `fase2-safari-quests`),
+em PARALELO com outra sessão que seguia expandindo o mapa (Tier 14). Por isso os dois trabalhos
+NÃO tocam nos mesmos arquivos de propósito (nada de `MapLayouts.gd`/`WorldMap.tscn`/
+`data/world/zones.json` aqui) e **este trabalho ainda não foi mesclado nem publicado** — fica
+pendente até alguém revisar e fazer o merge com o resultado do Tier 14.
+
+**1. Mecânica própria da Zona Safari** (pendência registrada desde o Tier 12, 01/09): Bola Safari
+limitada por visita (30, restaura ao ENTRAR na zona, não a cada batalha), Isca (mais fácil o
+Pokémon ficar, mais difícil capturar) e Pedra (mais fácil capturar, mais fácil fugir) — papéis
+opostos, regra clássica do gênero. **Sem lutar/fugir de verdade**: os 4 botões do menu de ação
+são reaproveitados (LUTAR→BOLA, MOCHILA→ISCA, POKÉMON→PEDRA, FUGIR continua FUGIR) em vez de
+desenhar UI nova — `BattleScene` só troca texto/handler quando `BattleManager.is_safari_battle`
+é verdadeiro. Fórmula de captura é a mesma de sempre (shake count), só troca o multiplicador da
+bola pelo acumulado de isca/pedra da batalha. `WildPokemon` ganhou campo `zone_id` (setado pelo
+`SpawnManager` a partir da zona onde nasceu) — é como `BattleManager` sabe que está numa batalha
+Safari.
+
+**Achado no caminho, virou decisão de arquitetura**: pra deixar a detecção "é batalha Safari?"
+testável sem disparar `SceneTransition.fade_to()` (troca de cena assíncrona, arriscada em teste
+headless — ver próximo parágrafo), extraí a lógica pra uma função isolada
+(`_is_safari_zone_entity()`) chamada por `_on_wild_encounter_started()`.
+
+**2. Motor `reach_floor`/`traverse_floors`** (achado registrado no Tier 7, 01/09): o
+`_get_objective_required()` do `QuestManager` já sabia calcular o alvo (lia `floor`/`floors` do
+JSON), mas nada nunca chamava `update_objective()` pra esses dois tipos — MAIN-05 (Sr. Fuji/Torre
+Pokémon), MAIN-10 (Cerulean Cave) e UTIL-05 (Seafoam) ficariam pra sempre travadas em 0/N.
+Sinal novo `EventBus.floor_reached(structure_id, floor)`, emitido por `FloorMap._ready()` quando a
+cena declara `structure_id`+`floor_number` (2 campos novos, opcionais — todo `FloorMap` que já
+existia, incluindo Mt Moon/Rock Tunnel/Torre Pokémon, continua com os padrões vazios e não emite
+nada, retrocompatível). `QuestManager` usa o MAIOR andar já visto (voltar não regride o
+progresso). Não constrói o conteúdo da Torre Pokémon/Cerulean Cave em si — só o motor que faltava.
+
+**Testado:** 2 arquivos novos, headless (`godot4 --headless --script`):
+`teste_fase2_safari.gd` (20 conferências) e `teste_fase2_quest_floors.gd` (13 conferências).
+**Suíte inteira: 18 arquivos, 306 conferências, 0 falhas** (16 arquivos antigos continuam
+passando sem nenhuma mudança).
+
+**Escopo deliberadamente fora dos testes automatizados**: captura bem-sucedida e fuga de verdade
+do Pokémon na Zona Safari não são exercitadas ponta a ponta pelos testes — as duas caem em
+`BattleManager._end_battle()`, que usa `await create_timer(...)` seguido de
+`SceneTransition.fade_to()` (tween + troca de cena). Uma sonda descartável confirmou que `await`
+dentro do ciclo `_process()` de um script `--script` headless não é resumido de forma confiável
+(o processo termina antes da continuação rodar) — o MESMO caminho que nenhum teste do projeto já
+testava ponta a ponta antes (nem a captura normal, fora da Zona Safari, tinha esse tipo de
+cobertura). Os testes cobrem tudo que é síncrono e determinístico (contagem de bolas, matemática
+de isca/pedra, bloqueio de Lutar/Mochila/Pokémon, detecção de zona) e documentam essa lacuna no
+próprio cabeçalho do arquivo de teste. Fica pra confirmação visual ao vivo (mesmo padrão já usado
+noutras partes do projeto) quando alguém puxar essa branch pro navegador.
+
+**Pendente:** revisar e mesclar `fase2-safari-quests` com o resultado do Tier 14 (mapa), depois
+publicar os dois juntos (build Web + Docker + deploy).
+
+**Precisa de decisão do Gabriel?** Não pra construir — só quando alguém for mesclar/publicar.
+
+---
+
 ## v0.3.1 — Tier 4: Rota 7 → Celadon City (Erika) (2026-08-31, continuação)
 
 **Pedido:** "continue com o mapa". Rota 7 → Celadon City, a leste de Vermilion (mapa cresceu

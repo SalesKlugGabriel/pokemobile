@@ -11,6 +11,15 @@ extends Node2D
 ## Visão ampliada com HM05 Flash (verificado via SaveManager)
 @export var dark_cave : bool   = false
 
+## ID da ESTRUTURA de múltiplos andares (ex: "pokemon_tower", "cerulean_cave")
+## — bate com o "target" de objetivos reach_floor/traverse_floors em
+## quests.json. Vazio = este andar não conta pra nenhum objetivo desse tipo
+## (padrão pra todo FloorMap que já existia antes desta peça de motor).
+@export var structure_id : String = ""
+## Número deste andar dentro da estrutura acima. 0 = não é andar rastreado
+## (não emite floor_reached). Ex: 5 pro 5º andar da Torre Pokémon.
+@export var floor_number : int    = 0
+
 const DARK_RADIUS_TILES := 3
 
 func _ready() -> void:
@@ -21,6 +30,8 @@ func _ready() -> void:
 	EventBus.map_changed.emit("", zone_id)
 	if zone_id != "":
 		EventBus.zone_changed.emit(zone_id)
+	if structure_id != "" and floor_number > 0:
+		EventBus.floor_reached.emit(structure_id, floor_number)
 	if dark_cave:
 		_apply_darkness()
 

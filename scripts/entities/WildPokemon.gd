@@ -12,6 +12,10 @@ extends CharacterBody2D
 @export var wild_level : int    = 5
 @export var behavior   : String = "neutral"   # "aggressive" | "neutral" | "flee"
 @export var is_alpha   : bool   = false
+## ID da zona onde nasceu (data/world/zones.json) — setado pelo SpawnManager.
+## Usado pelo BattleManager pra saber se é uma batalha de Zona Safari
+## ("" pros spawns sem zona conhecida, ex: pesca via spawn_specific).
+@export var zone_id    : String = ""
 
 ## Alias para compatibilidade com BattleManager (espera .level)
 var level : int:
@@ -98,10 +102,11 @@ func _ready() -> void:
 ## "initialize" (`if instance.has_method("initialize")`), mas como não achava
 ## o método, todo Pokémon selvagem nascia com os valores padrão do Inspector
 ## (Bulbasaur nível 5), ignorando o que a zona sorteou (Pidgey/Rattata/etc).
-func initialize(new_species_id: int, new_level: int, new_behavior: String = "aggressive") -> void:
+func initialize(new_species_id: int, new_level: int, new_behavior: String = "aggressive", new_zone_id: String = "") -> void:
 	species_id = new_species_id
 	wild_level  = new_level
 	behavior    = new_behavior
+	zone_id     = new_zone_id
 
 ## Achado (mesma causa do Pokémon companheiro): sem isto, o Pokémon selvagem
 ## nunca tinha sprite nenhum — existia, se movia e reagia, mas era 100%

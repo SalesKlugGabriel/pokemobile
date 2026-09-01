@@ -73,6 +73,27 @@ var enemy_pokemon  : BattlePokemon = null
 var is_wild_battle : bool          = true
 var wild_entity    : Node          = null   # PokemonEntity ou WildPokemon
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Zona Safari — regra clássica do Gen 1: Bola Safari limitada por visita,
+# sem lutar/fugir de verdade — só Bola / Isca / Pedra, e o Pokémon pode fugir
+# sozinho a cada turno. Reaproveita _capture_success()/_end_battle() já
+# existentes; só a FÓRMULA de captura e o "turno" são diferentes.
+# ──────────────────────────────────────────────────────────────────────────────
+const SAFARI_ZONE_ID          : String = "safari_zone"
+const SAFARI_BALLS_PER_VISIT  : int    = 30
+const SAFARI_BASE_FLEE_CHANCE : float  = 0.20
+const SAFARI_BAIT_CATCH_MULT  : float  = 0.5   # isca: mais fácil ficar, mais difícil capturar
+const SAFARI_BAIT_FLEE_MULT   : float  = 0.5
+const SAFARI_ROCK_CATCH_MULT  : float  = 1.5   # pedra: mais difícil ficar, mais fácil capturar
+const SAFARI_ROCK_FLEE_MULT   : float  = 1.5
+
+var is_safari_battle   : bool  = false
+var _safari_balls_left : int   = SAFARI_BALLS_PER_VISIT
+## Multiplicadores acumulados na batalha atual (isca/pedra podem ser usadas
+## várias vezes no mesmo encontro, efeito acumula por turno).
+var _safari_catch_mult : float = 1.0
+var _safari_flee_mult  : float = 1.0
+
 ## Referência à cena de batalha ativa
 var battle_scene   : Node          = null
 
@@ -94,6 +115,22 @@ var _enemy_seeded      : bool   = false
 # ──────────────────────────────────────────────────────────────────────────────
 func _ready() -> void:
 	EventBus.wild_encounter_started.connect(_on_wild_encounter_started)
+	EventBus.zone_changed.connect(_on_zone_changed_safari)
+
+## Restock das Bolas Safari — acontece ao ENTRAR na zona (não a cada
+## batalha), igual ao jogo original: cada "visita" dá 30 bolas de novo.
+func _on_zone_changed_safari(zone_id: String) -> void:
+	if zone_id == SAFARI_ZONE_ID:
+		_safari_balls_left = SAFARI_BALLS_PER_VISIT
+
+## Zona Safari: WildPokemon carrega zone_id (setado pelo SpawnManager a
+## partir da zona atual) — .get() é seguro mesmo em entidades sem esse campo
+## (pesca via spawn_specific, etc.), devolve null em vez de erro. Isolado do
+## resto de _on_wild_encounter_started() pra dar pra testar sem disparar
+## SceneTransition (usado direto pelos testes headless com um dublê simples).
+func _is_safari_zone_entity(pokemon_entity: Node) -> bool:
+	var zid = pokemon_entity.get("zone_id")
+	return zid != null and str(zid) == SAFARI_ZONE_ID
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Entrada na batalha
@@ -111,6 +148,11 @@ func _on_wild_encounter_started(pokemon_entity: Node) -> void:
 	phase          = BattlePhase.STARTING
 	_player_seeded = false
 	_enemy_seeded  = false
+
+	is_safari_battle = _is_safari_zone_entity(pokemon_entity)
+	if is_safari_battle:
+		_safari_catch_mult = 1.0
+		_safari_flee_mult  = 1.0
 
 	# Monta BattlePokemon do inimigo e registra no pokédex
 	enemy_pokemon = BattlePokemon.create(
@@ -145,12 +187,16 @@ func on_battle_scene_ready(scene: Node) -> void:
 func player_select_move(move_index: int) -> void:
 	if phase != BattlePhase.PLAYER_ACTION:
 		return
+	if is_safari_battle:
+		return  # Zona Safari não permite lutar de verdade — só Bola/Isca/Pedra
 	_player_action     = "fight"
 	_player_move_index = move_index
 	_resolve_turn()
 
 func player_use_item(item_id: String, target: BattlePokemon) -> void:
 	if phase != BattlePhase.PLAYER_ACTION:
+		return
+	if is_safari_battle:
 		return
 	_player_action  = "item"
 	_player_item_id = item_id
@@ -166,6 +212,7 @@ func player_try_run() -> void:
 		battle_scene.show_message("Não dá pra fugir de batalhas de treinador!")
 		return
 	# Fórmula de fuga: sempre funciona contra selvagens por enquanto
+	# (Zona Safari também usa este caminho — "Correr" sempre funciona ali)
 	_end_battle("run")
 
 func player_throw_pokeball(ball_item_id: String) -> void:
@@ -174,6 +221,8 @@ func player_throw_pokeball(ball_item_id: String) -> void:
 	if not is_wild_battle:
 		battle_scene.show_message("Não dá pra capturar Pokémon de treinadores!")
 		return
+	if is_safari_battle:
+		return  # Zona Safari usa player_safari_throw_ball(), não Pokébola normal
 	if not SaveManager.remove_item(ball_item_id):
 		battle_scene.show_message("Sem Pokébola!")
 		battle_scene.show_action_menu()
@@ -181,12 +230,87 @@ func player_throw_pokeball(ball_item_id: String) -> void:
 	phase = BattlePhase.CAPTURE
 	_attempt_capture(ball_item_id)
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Ações do jogador — Zona Safari (Bola / Isca / Pedra / Correr via player_try_run)
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Quantas Bolas Safari restam nesta visita (consultado pela BattleScene pro HUD).
+func get_safari_balls_left() -> int:
+	return _safari_balls_left
+
+func player_safari_throw_ball() -> void:
+	if phase != BattlePhase.PLAYER_ACTION or not is_safari_battle:
+		return
+	if _safari_balls_left <= 0:
+		battle_scene.show_message("Sem Bolas Safari!")
+		battle_scene.show_action_menu()
+		return
+	_safari_balls_left -= 1
+	phase = BattlePhase.CAPTURE
+	_attempt_safari_capture()
+
+func player_safari_throw_bait() -> void:
+	if phase != BattlePhase.PLAYER_ACTION or not is_safari_battle:
+		return
+	_safari_catch_mult *= SAFARI_BAIT_CATCH_MULT
+	_safari_flee_mult  *= SAFARI_BAIT_FLEE_MULT
+	battle_scene.show_message("Você jogou isca!")
+	_safari_end_of_turn()
+
+func player_safari_throw_rock() -> void:
+	if phase != BattlePhase.PLAYER_ACTION or not is_safari_battle:
+		return
+	_safari_catch_mult *= SAFARI_ROCK_CATCH_MULT
+	_safari_flee_mult  *= SAFARI_ROCK_FLEE_MULT
+	battle_scene.show_message("Você jogou uma pedra!")
+	_safari_end_of_turn()
+
+## Depois de Isca/Pedra/Bola-que-falhou: o Pokémon pode fugir sozinho, sem
+## nenhum ataque de nenhum dos dois lados (Zona Safari nunca luta de verdade).
+func _safari_end_of_turn() -> void:
+	var flee_chance := clampf(SAFARI_BASE_FLEE_CHANCE * _safari_flee_mult, 0.0, 1.0)
+	if RNGManager.chance(flee_chance):
+		_end_battle("safari_flee")
+		return
+	phase = BattlePhase.PLAYER_ACTION
+	battle_scene.show_action_menu()
+
+## Mesma fórmula de captura de sempre, mas com base_rate ajustado por isca/
+## pedra em vez do multiplicador da bola (não existe "bola" de verdade aqui)
+## e sem os bônus de status/skill — a Zona Safari é um subsistema à parte,
+## não usa veneno/sono (não dá pra lutar) nem o ramo mestre_captura.
+func _attempt_safari_capture() -> void:
+	var species  := GameData.get_species(enemy_pokemon.species_id)
+	var base_rate: int = species.get("catch_rate", 45)
+
+	var a : float = (3.0 * enemy_pokemon.max_hp - 2.0 * enemy_pokemon.hp) \
+			* base_rate * _safari_catch_mult / (3.0 * enemy_pokemon.max_hp)
+	a = clampf(a, 0.0, 255.0)
+
+	var b : float = 65536.0 / pow(255.0 / maxf(1.0, a), 0.1875)
+	var shakes    := 0
+	for _i in 4:
+		if RNGManager.randi_range(0, 65535) < roundi(b):
+			shakes += 1
+		else:
+			break
+
+	battle_scene.animate_capture(shakes)
+
+	if shakes == 4:
+		_capture_success()
+	else:
+		battle_scene.show_message("Oh não! O Pokémon escapou!")
+		_safari_end_of_turn()
+
 ## Troca de Pokémon — tanto voluntária (botão POKÉMON no menu de ação) quanto
 ## forçada (o ativo desmaiou e ainda sobra time). `new_index` é o índice no
 ## time do SaveManager.
 func player_switch_pokemon(new_index: int) -> void:
 	if phase != BattlePhase.PLAYER_ACTION and phase != BattlePhase.FORCED_SWITCH:
 		return
+	if is_safari_battle:
+		return  # Zona Safari nunca luta de verdade — não há como desmaiar/trocar
 	var team := SaveManager.get_team()
 	if new_index < 0 or new_index >= team.size():
 		return
@@ -957,6 +1081,8 @@ func _end_battle(result: String) -> void:
 				EventBus.game_over.emit()
 		"run":
 			battle_scene.show_message("Fugiu com segurança!")
+		"safari_flee":
+			battle_scene.show_message("O %s fugiu!" % (enemy_pokemon.species_name if enemy_pokemon else "Pokémon"))
 		"capture":
 			pass  # mensagem já exibida em _capture_success
 
@@ -1003,6 +1129,7 @@ func start_trainer_battle(npc: Node) -> void:
 	trainer_team_data = npc.trainer_team
 	trainer_team_idx  = 0
 	is_wild_battle    = false
+	is_safari_battle  = false
 	_player_seeded    = false
 	_enemy_seeded     = false
 	phase             = BattlePhase.STARTING
