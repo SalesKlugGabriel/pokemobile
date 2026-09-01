@@ -9,6 +9,43 @@
 
 ---
 
+## v0.4.2 — Silph Co. e Torre Pokémon ganham interior de verdade (2026-09-02)
+
+**Gabriel autorizou a exceção de warp** pros dois (perguntado na sessão anterior: nenhum dos dois
+é caverna/subterrâneo, mas ele topou abrir mesmo assim, igual já tinha feito pra Zona Safari).
+
+**Torre Pokémon (Lavender) — 5 andares, ligada à MAIN-05** ("A Torre dos Que Partem", Sr. Fuji).
+Cada andar é uma cena própria (padrão de sempre: `BaseMap.gd` + `MapLayouts.gd`, sala 18×14
+reaproveitando o mesmo desenho do Rocket Hideout), com escada pro andar seguinte. Fantasmas
+selvagens (Zubat/Gastly/Haunter, spawn pré-cadastrado do plano mestre original) nos 4 primeiros
+andares; o 5º troca Zubat por Cubone (referência clássica do Gen 1: o Cubone órfão da torre) e
+tem o "Agente Sombra 2" (Equipe Rocket, time de 3) guardando o topo — bate exatamente com os 2
+objetivos da MAIN-05 (`reach_floor` andar 5 + `defeat agente_sombra_2`).
+
+**Silph Co. (Saffron) — 3 andares, ligada à ROCKET-05** ("Operação Saffron"). 4 "Agentes Silph"
+espalhados pelos 3 andares (1+2+1, o último mais forte — "última barreira antes da sala do
+presidente", sem resolver o mistério do Giovanni, que continua bloqueado por história).
+
+**Peça nova de motor**: `BaseMap.gd` ganhou `structure_id`/`floor_number` (mesmos campos que já
+existiam no antigo `FloorMap.gd`, órfão desde antes da arquitetura atual — unificado aqui, porque
+todo andar novo usa `BaseMap`+`MapLayouts`, não mais aquele sistema velho de `TileMapLayer`).
+Emite `EventBus.floor_reached` na hora certa, reaproveitando o handler que a Fase 2 (01/09) já
+tinha construído no `QuestManager` — zero mudança de motor nesse handler.
+
+**2 ajustes editoriais nas quests** (mesma classe já usada em GYM-05/GYM-07 antes): MAIN-05 não
+exige mais MAIN-04 (nunca foi ligada a nenhum NPC, deixaria a quest pra sempre inalcançável) —
+agora só depende do Sr. Fuji oferecer. ROCKET-05 trocou o objetivo `help_npc`/`expel_agents`
+(tipo sem handler nenhum no motor) por `defeat_count` de 4 Agentes Silph — mesmo padrão já
+testado em ROCKET-07.
+
+**Testado**: `teste_fase2_silph_torre.gd` novo (47 conferências — os 8 andares carregam, escadas
+encadeiam certo, NPCs com time real, zonas com spawn certo, quests com objetivo alcançável).
+7 testes antigos ganharam a exceção "PokemonTower"/"SilphCo" na lista de warps indevidos (mesma
+lição de sempre). Suíte inteira: 30 arquivos, **512 conferências, 0 falhas**. Publicado, `curl`
+confirma 200.
+
+---
+
 ## v0.4.1 — Celadon Mart ganha vendedor de verdade (2026-09-02)
 
 **Pedido do Gabriel**: "por enquanto tá bom [o mapa], vamos seguir em frente" — primeiro passo

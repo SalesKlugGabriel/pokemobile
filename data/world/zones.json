@@ -1678,7 +1678,8 @@
           "weight": 20
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "SUPERADO em 02/09 pelos 5 andares reais (pokemon_tower_f1..f5) -- mantido só por histórico do plano mestre original, não corresponde a nada construído no mapa."
     },
     {
       "id": "cerulean_cave",
@@ -1947,6 +1948,205 @@
       "wild_pokemon": [],
       "npcs": [],
       "notes": "Fachada da torre em Saffron (Tier 6, 20/08) — coordenada global do world_map. Sem interior/warp (regra do Gabriel: warp só pra caverna/subterrâneo/submarino/troca de continente — Silph Co. não é nenhum desses). Interior + 'Operação Saffron' (ROCKET-05) ficam pra Fase 2 'Pokémon e estruturas'. (coordenada atualizada na reorganização geográfica de 02/09)."
+    },
+    {
+      "id": "pokemon_tower_f1",
+      "name": "Torre Pokémon - 1º Andar",
+      "region": "kanto",
+      "map_id": "pokemon_tower_f1",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 14
+      },
+      "bgm": "lavender_town",
+      "wild_pokemon": [
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 20,
+          "level_max": 28,
+          "weight": 40
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level_min": 20,
+          "level_max": 28,
+          "weight": 40
+        },
+        {
+          "id": 93,
+          "name": "Haunter",
+          "level_min": 22,
+          "level_max": 30,
+          "weight": 20
+        }
+      ],
+      "npcs": [],
+      "notes": "Cena própria (PokemonTower_Fx.tscn, 02/09) — reaproveita o spawn pré-cadastrado do plano mestre original (Zubat/Gastly/Haunter). structure_id='pokemon_tower' pra objetivo reach_floor da MAIN-05."
+    },
+    {
+      "id": "pokemon_tower_f2",
+      "name": "Torre Pokémon - 2º Andar",
+      "region": "kanto",
+      "map_id": "pokemon_tower_f2",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 14
+      },
+      "bgm": "lavender_town",
+      "wild_pokemon": [
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 20,
+          "level_max": 28,
+          "weight": 40
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level_min": 20,
+          "level_max": 28,
+          "weight": 40
+        },
+        {
+          "id": 93,
+          "name": "Haunter",
+          "level_min": 22,
+          "level_max": 30,
+          "weight": 20
+        }
+      ],
+      "npcs": [],
+      "notes": "Cena própria (PokemonTower_Fx.tscn, 02/09) — reaproveita o spawn pré-cadastrado do plano mestre original (Zubat/Gastly/Haunter). structure_id='pokemon_tower' pra objetivo reach_floor da MAIN-05."
+    },
+    {
+      "id": "pokemon_tower_f3",
+      "name": "Torre Pokémon - 3º Andar",
+      "region": "kanto",
+      "map_id": "pokemon_tower_f3",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 14
+      },
+      "bgm": "lavender_town",
+      "wild_pokemon": [
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 20,
+          "level_max": 28,
+          "weight": 40
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level_min": 20,
+          "level_max": 28,
+          "weight": 40
+        },
+        {
+          "id": 93,
+          "name": "Haunter",
+          "level_min": 22,
+          "level_max": 30,
+          "weight": 20
+        }
+      ],
+      "npcs": [],
+      "notes": "Cena própria (PokemonTower_Fx.tscn, 02/09) — reaproveita o spawn pré-cadastrado do plano mestre original (Zubat/Gastly/Haunter). structure_id='pokemon_tower' pra objetivo reach_floor da MAIN-05."
+    },
+    {
+      "id": "pokemon_tower_f4",
+      "name": "Torre Pokémon - 4º Andar",
+      "region": "kanto",
+      "map_id": "pokemon_tower_f4",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 14
+      },
+      "bgm": "lavender_town",
+      "wild_pokemon": [
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 20,
+          "level_max": 28,
+          "weight": 40
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level_min": 20,
+          "level_max": 28,
+          "weight": 40
+        },
+        {
+          "id": 93,
+          "name": "Haunter",
+          "level_min": 22,
+          "level_max": 30,
+          "weight": 20
+        }
+      ],
+      "npcs": [],
+      "notes": "Cena própria (PokemonTower_Fx.tscn, 02/09) — reaproveita o spawn pré-cadastrado do plano mestre original (Zubat/Gastly/Haunter). structure_id='pokemon_tower' pra objetivo reach_floor da MAIN-05."
+    },
+    {
+      "id": "pokemon_tower_f5",
+      "name": "Torre Pokémon - 5º Andar",
+      "region": "kanto",
+      "map_id": "pokemon_tower_f5",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 14
+      },
+      "bgm": "lavender_town",
+      "wild_pokemon": [
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level_min": 26,
+          "level_max": 34,
+          "weight": 35
+        },
+        {
+          "id": 93,
+          "name": "Haunter",
+          "level_min": 28,
+          "level_max": 36,
+          "weight": 35
+        },
+        {
+          "id": 104,
+          "name": "Cubone",
+          "level_min": 26,
+          "level_max": 32,
+          "weight": 30
+        }
+      ],
+      "npcs": [
+        {
+          "id": "agente_sombra_2",
+          "dialog_id": "agente_sombra_2_encontro",
+          "tile": [
+            8,
+            6
+          ]
+        }
+      ],
+      "notes": "Topo da Torre (02/09) — andar-alvo da MAIN-05 (reach_floor=5). Cubone entra no lugar do Zubat (tema: Cubone órfão, referência clássica do Gen 1). Agente Sombra 2 guarda este andar."
     }
   ]
 }

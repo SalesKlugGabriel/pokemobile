@@ -169,12 +169,11 @@
         }
       ]
     },
-    "requires": [
-      "MAIN-04"
-    ],
+    "requires": [],
     "unlocks": [
       "MAIN-06"
-    ]
+    ],
+    "_ajuste_editorial": "requires original era ['MAIN-04'], que nunca foi ligada a nenhum NPC (nenhuma quest MAIN-01..04 é iniciável hoje) -- ajustado em 02/09 pra deixar MAIN-05 alcançável via Sr. Fuji, mesma classe de ajuste já feita em GYM-07 (requires GYM-06->GYM-05)."
   },
   "MAIN-06": {
     "id": "MAIN-06",
@@ -848,9 +847,9 @@
     },
     "objectives": [
       {
-        "type": "help_npc",
-        "target": "sabrina",
-        "action": "expel_agents"
+        "type": "defeat_count",
+        "target": "agente_silph",
+        "count": 4
       }
     ],
     "rewards": {
@@ -867,7 +866,8 @@
     ],
     "unlocks": [
       "ROCKET-06"
-    ]
+    ],
+    "_ajuste_editorial": "objetivo original era {'type':'help_npc','target':'sabrina','action':'expel_agents'} -- tipo sem handler no QuestManager. Trocado por defeat_count (mesmo padrão já usado em ROCKET-07/GYM-02/GYM-05), reaproveitando o handler já testado."
   },
   "ROCKET-06": {
     "id": "ROCKET-06",

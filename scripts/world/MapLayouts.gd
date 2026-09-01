@@ -1678,6 +1678,39 @@ static func _rockethideout_cell(c: int, r: int, W: int, H: int) -> String:
 	return "I"
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Andar simples de estrutura de múltiplos andares (Torre Pokémon, Silph Co.,
+# 02/09) — sala 18×14 reaproveitando o MESMO desenho do Rocket Hideout
+# (porta sempre embaixo, cols8-9), com uma porta OPCIONAL em cima (escada
+# pro andar seguinte) pros andares que não são o topo da estrutura.
+# ──────────────────────────────────────────────────────────────────────────────
+static func _gen_andar_estrutura(escada_cima: bool) -> Array:
+	var W := 18
+	var H := 14
+	var grid : Array = []
+	for r in H:
+		var row := ""
+		for c in W:
+			row += _andar_estrutura_cell(c, r, W, H, escada_cima)
+		grid.append(row)
+	return grid
+
+static func _andar_estrutura_cell(c: int, r: int, W: int, H: int, escada_cima: bool) -> String:
+	if r == 0:
+		if escada_cima and c >= 8 and c <= 9: return "P"
+		return "H"
+	if r == 1:
+		if escada_cima and c >= 8 and c <= 9: return "P"
+		return "W"
+	if r == H - 1:
+		return "T"
+	if r == H - 2:
+		if c >= 8 and c <= 9: return "P"
+		return "W"
+	if c == 0 or c == W - 1:
+		return "W"
+	return "I"
+
+# ──────────────────────────────────────────────────────────────────────────────
 # API pública
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -1710,6 +1743,14 @@ static func get_layout(map_id: String) -> Dictionary:
 		"digletts_cave":
 			var tiles := _gen_digglettscave()
 			return {"tiles": tiles, "width": 28, "height": 28}
+		"pokemon_tower_f1", "pokemon_tower_f2", "pokemon_tower_f3", "pokemon_tower_f4":
+			return {"tiles": _gen_andar_estrutura(true), "width": 18, "height": 14}
+		"pokemon_tower_f5":
+			return {"tiles": _gen_andar_estrutura(false), "width": 18, "height": 14}
+		"silph_co_f1", "silph_co_f2":
+			return {"tiles": _gen_andar_estrutura(true), "width": 18, "height": 14}
+		"silph_co_f3":
+			return {"tiles": _gen_andar_estrutura(false), "width": 18, "height": 14}
 		_:
 			return {}
 

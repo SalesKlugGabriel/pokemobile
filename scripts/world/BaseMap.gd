@@ -7,6 +7,18 @@ extends Node2D
 ## ID único do mapa (ex: "pallet_town", "route_1")
 @export var map_id : String = "unknown_map"
 
+## ID da ESTRUTURA de múltiplos andares (ex: "pokemon_tower", "silph_co") —
+## bate com o "target" de objetivos reach_floor/traverse_floors em
+## quests.json. Vazio = este mapa não conta pra nenhum objetivo desse tipo
+## (padrão pra toda cena que já existia antes desta peça de motor, mesmo
+## campo que o antigo FloorMap.gd já tinha — unificado aqui porque todo
+## andar novo usa BaseMap+MapLayouts, não mais o FloorMap/TileMapLayer
+## antigo, que ficou órfão desde antes da arquitetura atual existir).
+@export var structure_id : String = ""
+## Número deste andar dentro da estrutura acima. 0 = não é andar rastreado
+## (não emite floor_reached). Ex: 5 pro 5º andar da Torre Pokémon.
+@export var floor_number : int    = 0
+
 @onready var tilemap : TileMap       = $TileMap
 @onready var player  : TrainerEntity = $Entities/Player
 
@@ -16,6 +28,8 @@ func _ready() -> void:
 	WorldManager.register_map(map_id, tilemap, player)
 	WorldManager.apply_pending_spawn()
 	EventBus.map_changed.emit("", map_id)
+	if structure_id != "" and floor_number > 0:
+		EventBus.floor_reached.emit(structure_id, floor_number)
 	_setup_world_systems()
 
 func _setup_world_systems() -> void:
