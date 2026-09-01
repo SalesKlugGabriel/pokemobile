@@ -1541,11 +1541,12 @@
       "id": "seafoam_islands",
       "name": "Seafoam Islands",
       "region": "kanto",
+      "notes": "3 ilhotas dentro do mar aberto, continuando ao sul do Arquipélago Tropical (Tier 14, 01/09), contorno definido por MapLayouts._seafoam_cell(). SEM warp de propósito — só alcançável quando existir Surf (nadar) ou Fly, nenhum construído ainda. Tema frio/rochoso (praia pálida + piso escuro + rochedo), sem vegetação — oposto do Arquipélago Tropical, por pedido do Gabriel de identidade visual própria por bioma.",
       "tile_rect": {
-        "x": 50,
-        "y": 260,
-        "w": 40,
-        "h": 20
+        "x": 400,
+        "y": 117,
+        "w": 60,
+        "h": 40
       },
       "bgm": "mt_moon",
       "wild_pokemon": [

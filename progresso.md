@@ -9,6 +9,56 @@
 
 ---
 
+## v0.3.11 — Tier 14: Seafoam Islands (2026-09-01)
+
+**Pedido:** "siga com o plano de ação do PokéMobile" — sem pedido específico novo, seguindo a
+ordem já combinada com o Gabriel (Mapa → Pokémon e estruturas → Mecânicas → Sprites), item 1
+ainda em aberto: "resto do Kanto original". Escolhido Seafoam Islands por ser o item mais
+simples/isolado da lista (mesmo padrão do Tier 13, risco mínimo).
+
+**Construído:** 3 ilhotas dentro do mar aberto, continuando ao sul do Arquipélago Tropical
+(Tier 13) — mesma faixa de colunas de Vermilion, sem gastar largura nova no mapa. **De propósito:
+SEM warp, SEM prédio, SEM NPC** — mesma regra dos Tiers 11/13 (só alcançável quando existir Surf
+ou Fly, nenhum dos dois construído ainda).
+
+**Tema deliberadamente OPOSTO ao Arquipélago Tropical** (regra permanente de tematização de
+bioma do Gabriel, 01/09): onde o arquipélago é denso/verde (T/F/G), Seafoam é frio/rochoso —
+praia pálida em anel fino, interior de piso escuro ("D") + rochedo esparso ("R"), **zero
+vegetação**. O teste trava isso explicitamente (conta T/F/G e exige zero). Spawn real do Gen 1
+já estava pré-cadastrado em `zones.json` desde o plano mestre original (Zubat/Dewgong/Seel/
+Articuno) — só precisou atualizar o `tile_rect` (era um placeholder genérico, x=50/y=260, sem
+relação com o mapa real) pra bater com a posição de verdade construída (x=400, y=117, w=60,
+h=40) e adicionar as `notes` explicando a regra "sem warp", igual foi feito pro arquipélago.
+
+**Arquitetura:** mesma técnica do Tier 13 — a área ao sul do arquipélago já era borda vazia,
+então Seafoam entrou direto no array principal, sem linha negativa nem coluna nova. Zero
+mudança em código já testado.
+
+**Testado:** `teste_fase3_tier14.gd` novo (16 conferências, incluindo checar que NENHUM warp foi
+criado — mesmo padrão do Tier 13). **17 arquivos de teste juntos: 289 conferências, 0 falhas** —
+nenhum teste anterior tocado (não precisou de exceção nova na lista de "warps indevidos" porque
+não criou warp nenhum).
+
+**Publicado:** export Web, imagem Docker reconstruída, `docker service update --force
+pokemobile_pokemobile_app`, `curl` confirma 200 em https://poke.workprog.pro.
+
+**Não feito nesta sessão** (ficou só em Seafoam, por escolha — 1 item bem testado em vez de
+vários pela metade): nenhuma estrutura adicional (S.S. Anne/Rocket Hideout/Silph Co. entrada)
+entrou neste Tier.
+
+**Próximo passo:** dentro de "resto do Kanto", ainda faltam (sem posição geográfica decidida
+ainda no mapa atual, que já divergiu da geografia canônica): Victory Road/Elite Four/Indigo
+Plateau (dependem de Route 22/23 a oeste de Viridian, nunca mapeadas), Diglett's Cave/Route 11,
+Power Plant, S.S. Anne (fachada no cais de Vermilion), Rocket Hideout (porão em Celadon), Silph
+Co. (entrada em Saffron — o prédio já existe), Nugget Bridge, Pokémon Mansion (interior —
+fachada já existe em Cinnabar). Viridian Gym/Giovanni segue bloqueado por história (não é tarefa
+de mapa). Qualquer um desses é candidato ao próximo Tier — pedir ao Gabriel se prefere continuar
+"resto do Kanto" ou já passar pra fase 2 (Pokémon e estruturas).
+
+**Precisa de decisão do Gabriel?** Não — seguindo a ordem combinada.
+
+---
+
 ## v0.3.1 — Tier 4: Rota 7 → Celadon City (Erika) (2026-08-31, continuação)
 
 **Pedido:** "continue com o mapa". Rota 7 → Celadon City, a leste de Vermilion (mapa cresceu

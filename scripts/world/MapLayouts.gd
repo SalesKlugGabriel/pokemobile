@@ -114,6 +114,15 @@ const VERMILION_COAST_COL_FIM    : int = VERMILION_COAST_COL_INICIO + VERMILION_
 # lagoa interna), contorno orgânico igual ao resto do litoral.
 const ARQUIPELAGO_ROWS : int = 40
 
+# Tier 14 (01/09): Seafoam Islands — continuando o mar mais ao sul do
+# Arquipélago Tropical, mesma faixa de colunas (Vermilion). Mesma regra dos
+# Tiers 11/13: só alcançável quando Surf/Fly existir — SEM warp/prédio/NPC de
+# propósito. Tema diferente do Arquipélago (regra de tematização de bioma do
+# Gabriel): ilhotas frias/rochosas tipo gruta costeira (praia pálida + piso
+# escuro rochoso + rochedo esparso), NADA de vegetação (T/F/G) — é o oposto
+# do visual tropical, não "a mesma ilha com Pokémon diferente".
+const SEAFOAM_ROWS : int = 40
+
 static func _gen_world_map() -> Array:
 	var W := W_TOTAL
 	var H := 120 + OFFSET_ANTIGO
@@ -189,6 +198,12 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 	if r <= PEWTER_ROWS + COASTLINE_ROWS + ARQUIPELAGO_ROWS \
 	and c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM:
 		return _arquipelago_tropical_cell(c, r - PEWTER_ROWS - COASTLINE_ROWS, W)
+
+	# ── Seafoam Islands (Tier 14) — continuação do mar, mais ao sul do
+	# Arquipélago Tropical. Sem warp de propósito (só Surf/Fly no futuro) ──
+	if r <= PEWTER_ROWS + COASTLINE_ROWS + ARQUIPELAGO_ROWS + SEAFOAM_ROWS \
+	and c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM:
+		return _seafoam_cell(c, r - PEWTER_ROWS - COASTLINE_ROWS - ARQUIPELAGO_ROWS, W)
 
 	# ── Rota 2 (linhas 37-72) — só existe na largura antiga; o resto é borda
 	if r <= OFFSET_ANTIGO:
@@ -346,6 +361,56 @@ static func _ilha_tropical_terreno(vc: int, cr: int, dist: float, raio: float) -
 	if (vc * 2 + cr) % 7 == 3:
 		return "F"
 	return "G"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Seafoam Islands — mar aberto continuando ao sul do Arquipélago Tropical
+# (Tier 14). Igual aos Tiers 11/13: SEM warp/prédio/NPC de propósito — só
+# alcançável quando Surf/Fly existir. Tema DIFERENTE do arquipélago (regra
+# de tematização de bioma do Gabriel): ilhotas frias/rochosas tipo gruta
+# costeira — praia pálida em anel fino, interior de piso escuro rochoso
+# ("D") com rochedo esparso ("R"), ZERO vegetação (nem "T" nem "F" nem "G")
+# — é o oposto visual do arquipélago tropical (denso/verde), não a mesma
+# ilha com Pokémon trocado.
+# ──────────────────────────────────────────────────────────────────────────────
+static func _seafoam_cell(c: int, cr: int, W: int) -> String:
+	var vc := c - VERMILION_COAST_COL_INICIO
+
+	# ── Ilhota 1 (noroeste, pequena) ──
+	var i1_dx := float(vc - 12)
+	var i1_dy := float(cr - 10)
+	var i1_dist := sqrt(i1_dx * i1_dx + i1_dy * i1_dy)
+	var i1_raio := 6.0 + 1.5 * sin(atan2(i1_dy, i1_dx) * 3.0) + 1.0 * sin(atan2(i1_dy, i1_dx) * 5.0)
+	if i1_dist < i1_raio:
+		return _ilhota_seafoam_terreno(vc, cr, i1_dist, i1_raio)
+
+	# ── Ilhota 2 (central, maior — a principal do arquipélago) ──
+	var i2_dx := float(vc - 32)
+	var i2_dy := float(cr - 20)
+	var i2_dist := sqrt(i2_dx * i2_dx + i2_dy * i2_dy)
+	var i2_raio := 9.0 + 2.0 * sin(atan2(i2_dy, i2_dx) * 3.0) + 1.5 * sin(atan2(i2_dy, i2_dx) * 4.0)
+	if i2_dist < i2_raio:
+		return _ilhota_seafoam_terreno(vc, cr, i2_dist, i2_raio)
+
+	# ── Ilhota 3 (sudeste, pequena) ──
+	var i3_dx := float(vc - 48)
+	var i3_dy := float(cr - 30)
+	var i3_dist := sqrt(i3_dx * i3_dx + i3_dy * i3_dy)
+	var i3_raio := 5.0 + 1.5 * sin(atan2(i3_dy, i3_dx) * 4.0)
+	if i3_dist < i3_raio:
+		return _ilhota_seafoam_terreno(vc, cr, i3_dist, i3_raio)
+
+	# ── Resto é mar aberto — só Surf atravessa ──
+	return "~"
+
+## Terreno interno de uma ilhota de Seafoam: anel fino de praia pálida perto
+## da borda (ilhota pequena, não tem faixa larga como as ilhas tropicais),
+## interior rochoso/escuro, sem vegetação nenhuma.
+static func _ilhota_seafoam_terreno(vc: int, cr: int, dist: float, raio: float) -> String:
+	if dist > raio - 1.5:
+		return "S"  # praia pálida/gelada
+	if (vc + cr * 3) % 9 == 0:
+		return "R"  # rochedo / boca de gruta esparsa
+	return "D"  # piso escuro rochoso — interior de ilhota-gruta
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Rota 3 → Mt Moon (entrada) → Rota 4 → Cerulean City — leste de Pewter,
