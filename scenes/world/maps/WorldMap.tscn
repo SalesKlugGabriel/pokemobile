@@ -54,6 +54,9 @@ size = Vector2(48, 16)
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_indigo"]
 size = Vector2(48, 16)
 
+[sub_resource type="RectangleShape2D" id="Shape_digletts"]
+size = Vector2(48, 16)
+
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_lavender"]
 size = Vector2(48, 16)
 
@@ -426,6 +429,14 @@ is_pokemon_center_entrance = true
 
 [node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Indigo"]
 shape = SubResource("Shape_pokecenter_indigo")
+
+[node name="WarpDiglettsCave" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(6856, -280)
+target_map = "res://scenes/world/maps/DiglettsCave.tscn"
+spawn_tile = Vector2i(13, 26)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpDiglettsCave"]
+shape = SubResource("Shape_digletts")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 

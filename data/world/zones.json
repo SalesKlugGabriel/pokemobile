@@ -823,12 +823,12 @@
       "name": "Route 11",
       "region": "kanto",
       "tile_rect": {
-        "x": 210,
-        "y": 142,
-        "w": 40,
-        "h": 8
+        "x": 424,
+        "y": -19,
+        "w": 9,
+        "h": 19
       },
-      "bgm": "route_5",
+      "bgm": "route_11",
       "wild_pokemon": [
         {
           "id": 21,
@@ -852,7 +852,8 @@
           "weight": 30
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "Espora ao NORTE de Vermilion (Tier 19) — segundo ramo do world_map em linhas negativas (coluna diferente do ramo de Cerulean do Tier 8, não colide). Termina na boca de Diglett's Cave (cena própria); sem saída pra outro lugar (beco sem saída, mesmo padrão da Casa do Bill)."
     },
     {
       "id": "route_12",
@@ -1736,10 +1737,10 @@
       "name": "Diglett's Cave",
       "region": "kanto",
       "tile_rect": {
-        "x": 60,
-        "y": 112,
-        "w": 115,
-        "h": 40
+        "x": 0,
+        "y": 0,
+        "w": 28,
+        "h": 28
       },
       "bgm": "mt_moon",
       "wild_pokemon": [
@@ -1758,7 +1759,9 @@
           "weight": 10
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "map_id": "digletts_cave",
+      "notes": "Cena própria (DiglettsCave.tscn), coordenada local 0-based, igual Mt Moon/Rock Tunnel/Victory Road. Interior gerado por caminhada aleatória com seed fixa (MapLayouts._gen_digglettscave, reaproveita _rocktunnel_carve). Boca no fim da Rota 11 (Tier 19), ao norte de Vermilion."
     },
     {
       "id": "victory_road",

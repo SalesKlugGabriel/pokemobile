@@ -90,6 +90,16 @@ const NORTE_OFFSET : int = ROUTE24_ROWS + ROUTE25_ROWS  # 40
 const RAMO_NORTE_COL_INICIO : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + 27
 const RAMO_NORTE_COL_FIM    : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + 29
 
+# Tier 19 (01/09): Rota 11 → Diglett's Cave — SEGUNDO ramo em linhas
+# negativas, desta vez saindo de Vermilion (não de Cerulean) pra norte.
+# Independente do ramo do Tier 8 (coluna diferente, mesmo espaço de linhas
+# negativas — não colide). Rota 11 é uma espora (beco sem saída, como a
+# Casa do Bill): termina na boca de Diglett's Cave, sem precisar de
+# "contornar" (não há nada depois pra alcançar de outro jeito).
+const ROUTE11_NORTE_ROWS : int = 20
+const ROUTE11_NORTE_COL_INICIO : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS + ROUTE5_COLS + ROUTE6_COLS + 27
+const ROUTE11_NORTE_COL_FIM    : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS + ROUTE5_COLS + ROUTE6_COLS + 29
+
 # Tier 17 (01/09): Nugget Bridge — travessia de rio dentro da Rota 24 (fb =
 # "from border", ver _norte_de_cerulean_cell). O TreinadorRota24 (Tier 8) já
 # fica bem no meio dessa faixa (fb~30) — a mesma referência canônica de
@@ -207,6 +217,11 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 		# como borda norte — fazia sentido antes de existir a Rota 24 saindo
 		# de Cerulean pra cima. Abre passagem só nas colunas do ramo.
 		if c >= RAMO_NORTE_COL_INICIO and c <= RAMO_NORTE_COL_FIM and r <= 2:
+			return "P"
+		# Mesma classe (Tier 19): abre passagem pro ramo de Vermilion pra
+		# norte (Rota 11 -> Diglett's Cave) - colunas diferentes do ramo
+		# de Cerulean acima, nao colide.
+		if c >= ROUTE11_NORTE_COL_INICIO and c <= ROUTE11_NORTE_COL_FIM and r <= 2:
 			return "P"
 		# Mesma classe, Tier 9: _leste_de_pewter_cell trata r>=PEWTER_ROWS-1
 		# como borda SUL — fazia sentido antes de existir litoral saindo de
@@ -334,6 +349,58 @@ static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
 	if (c + r * 3) % 9 == 4:
 		return "T"
 	if (c + r * 2) % 13 == 6:
+		return "F"
+	return "."
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Rota 11 → Diglett's Cave — ramo a NORTE de Vermilion (Tier 19). Mesma
+# técnica do ramo norte de Cerulean (Tier 8), coluna diferente (não colide).
+# `fb` = "from border" (1 = mais ao norte/longe de Vermilion, ROUTE11_NORTE_
+# ROWS-1 = mais perto). Espora sem saída — termina na boca de Diglett's
+# Cave, não precisa de "contornar" (não há nada além pra alcançar).
+# ──────────────────────────────────────────────────────────────────────────────
+## Diferente do ramo de Cerulean (Tier 8), que pinta a largura INTEIRA do
+## mapa por linha (ok pra ele, porque é o único ramo naquela faixa de
+## linhas) — este ramo pinta SÓ a própria faixa de colunas (ROUTE11_NORTE_
+## COL_INICIO-3 .. FIM+3). Motivo: as linhas negativas (r=-1..-20) são
+## COMPARTILHADAS com o ramo de Cerulean (r=-1..-39) — pintar a largura
+## inteira aqui sobrescreveria o corredor da Rota 24/25 com borda, já que
+## `_norte_de_vermilion_cell` devolve "T" fora da própria faixa de colunas.
+static func _gen_norte_de_vermilion() -> Array:
+	var col_inicio := ROUTE11_NORTE_COL_INICIO - 3
+	var band_w := (ROUTE11_NORTE_COL_FIM + 3) - col_inicio + 1
+	var grid : Array = []
+	for i in ROUTE11_NORTE_ROWS:
+		var r := i - ROUTE11_NORTE_ROWS
+		var row := ""
+		for lc in band_w:
+			if r == -ROUTE11_NORTE_ROWS:
+				row += "T"
+			else:
+				row += _norte_de_vermilion_cell(col_inicio + lc, r, W_TOTAL)
+		grid.append(row)
+	return grid
+
+static func _norte_de_vermilion_cell(c: int, r: int, W: int) -> String:
+	var fb := r + ROUTE11_NORTE_ROWS
+
+	if c < ROUTE11_NORTE_COL_INICIO - 3 or c > ROUTE11_NORTE_COL_FIM + 3:
+		return "T"
+
+	var no_corredor := c >= ROUTE11_NORTE_COL_INICIO and c <= ROUTE11_NORTE_COL_FIM
+
+	# ── Boca de Diglett's Cave — bem no fim da espora (fb 1-6, mais longe) ──
+	if fb >= 1 and fb <= 6:
+		if no_corredor:
+			return "P"  # corredor sempre caminhável, mesmo dentro da moldura
+		return "R"  # rochedo ao redor da boca (só nas colunas de margem)
+
+	# ── Rota 11 (o resto da espora, fb 7..ROUTE11_NORTE_ROWS-1) ────────────
+	if no_corredor:
+		return "P"
+	if (c + r * 2) % 9 == 5:
+		return "T"
+	if (c * 2 + r) % 13 == 9:
 		return "F"
 	return "."
 
@@ -1337,6 +1404,43 @@ static func _gen_victoryroad() -> Array:
 	return grid
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Diglett's Cave — 28×28, cena própria (Tier 19). Mesma técnica de caminhada
+# aleatória não-linear. Boca na Rota 11 (espora ao norte de Vermilion).
+# ──────────────────────────────────────────────────────────────────────────────
+const DIGLETTSCAVE_SEED : int = 20260901190  # fixo — mesma caverna sempre
+
+static func _gen_digglettscave() -> Array:
+	var W := 28
+	var H := 28
+	var grid_chars : Array = []
+	for r in H:
+		var row : Array = []
+		for c in W:
+			row.append("R")
+		grid_chars.append(row)
+
+	grid_chars[H - 1][13] = "P"
+	grid_chars[H - 1][14] = "P"
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = DIGLETTSCAVE_SEED
+
+	var visitados : Array = []
+	_rocktunnel_carve(grid_chars, W, H, 13, H - 2, 500, rng, visitados)
+	for i in 3:
+		var idx := rng.randi_range(0, visitados.size() - 1)
+		var pt : Vector2i = visitados[idx]
+		_rocktunnel_carve(grid_chars, W, H, pt.x, pt.y, 150, rng, visitados)
+
+	var grid : Array = []
+	for r in H:
+		var row := ""
+		for c in W:
+			row += grid_chars[r][c]
+		grid.append(row)
+	return grid
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Cinnabar Island — 40×40, cena própria (só alcançável de barco — a viagem
 # em si é o "trocar de ilha", exceção de warp igual caverna/subterrâneo).
 # Tier 11 (01/09): contorno da ilha ORGÂNICO (mesma técnica de sin()/
@@ -1534,6 +1638,9 @@ static func get_layout(map_id: String) -> Dictionary:
 		"victory_road":
 			var tiles := _gen_victoryroad()
 			return {"tiles": tiles, "width": 32, "height": 32}
+		"digletts_cave":
+			var tiles := _gen_digglettscave()
+			return {"tiles": tiles, "width": 28, "height": 28}
 		_:
 			return {}
 
@@ -1574,6 +1681,20 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 			for j in row.length():
 				var c := -(j + 1)
 				var ch := row[j]
+				var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
+				tilemap.set_cell(0, Vector2i(c, r), 0, atlas)
+
+		# Ramo da Rota 11 → Diglett's Cave (Tier 19) — segundo ramo em
+		# linhas negativas, saindo de Vermilion (coluna diferente do ramo
+		# de Cerulean, não colide).
+		var norte_verm : Array = _gen_norte_de_vermilion()
+		var norte_verm_col_inicio := ROUTE11_NORTE_COL_INICIO - 3
+		for i in norte_verm.size():
+			var row : String = norte_verm[i]
+			var r := i - ROUTE11_NORTE_ROWS
+			for lc in row.length():
+				var c := norte_verm_col_inicio + lc
+				var ch := row[lc]
 				var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
 				tilemap.set_cell(0, Vector2i(c, r), 0, atlas)
 
