@@ -131,6 +131,22 @@ const ARQUIPELAGO_ROWS : int = 40
 # do visual tropical, não "a mesma ilha com Pokémon diferente".
 const SEAFOAM_ROWS : int = 40
 
+# Tier 18 (01/09): Rota 22 → Victory Road (caverna, opcional/lateral, mesmo
+# padrão do Mt Moon/Rock Tunnel — não bloqueia, dá pra contornar) → Indigo
+# Plateau (Liga Pokémon, FECHADA — bloqueada pela mesma história do Ginásio
+# de Viridian/Giovanni, GYM-08). Primeiro ramo em COLUNAS NEGATIVAS (todos os
+# ramos anteriores — Tier 8/9 — usavam linhas negativas ou positivas, nunca
+# colunas): sai do corredor leste-oeste de Viridian (row 28-29, mesmo
+# corredor do "passeio da cidade") pra OESTE. Mesma técnica de sempre: gerado
+# e pintado à PARTE (`_gen_oeste_de_viridian`), sem tocar no array principal
+# — só um seam-fix pontual em `_world_cell`/`_viridian_cell` pra abrir a
+# passagem, igual toda vez que um ramo novo nasce de território já testado.
+const ROUTE22_COLS  : int = 60   # mais perto de Viridian
+const INDIGO_COLS   : int = 40   # mais a oeste, término (Liga Pokémon)
+const OESTE_OFFSET  : int = ROUTE22_COLS + INDIGO_COLS  # 100 (c=-1..-100)
+const OESTE_ROWS    : int = 36   # mesma altura de banda que toda rota (estilo PEWTER_ROWS)
+const OESTE_ROW_INICIO : int = 82   # global; local row 18-19 cai em 100-101 (seam)
+
 static func _gen_world_map() -> Array:
 	var W := W_TOTAL
 	var H := 120 + OFFSET_ANTIGO
@@ -166,7 +182,13 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 	# sempre tiveram), e manter "r==0" AQUI bloquearia incondicionalmente a
 	# passagem da Rota 24 pra dentro de Cerulean, sem chance do seam-fix
 	# (abaixo) nunca ser alcançado — mesmo problema, uma camada acima.
-	if r >= H - 1 or c == 0 or c >= W - 1:
+	# Mesma classe (Tier 18): "c==0" sozinho bloquearia incondicionalmente a
+	# passagem da Rota 22 (ramo oeste) pra dentro de Viridian — abre exceção
+	# só nas 2 linhas do corredor leste-oeste de Viridian (old_r 28/29 →
+	# global 100/101), igual "r==0" abriu exceção pro ramo norte no Tier 8.
+	if r >= H - 1 or c >= W - 1:
+		return "T"
+	if c == 0 and r != OFFSET_ANTIGO + 28 and r != OFFSET_ANTIGO + 29:
 		return "T"
 
 	# ── Pewter City (linhas 1-36) — e, a leste dela, Rota 3/Mt Moon/Rota 4/
@@ -234,6 +256,12 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 		# meio do corredor. Corrigido só nas colunas do corredor, sem tocar
 		# em nada mais de Viridian (loja/NPC/decoração continuam iguais).
 		if old_r <= 3 and c >= 44 and c <= 56:
+			return "P"
+		# Mesma classe (Tier 18): _viridian_cell trata c<=2 como borda oeste —
+		# fazia sentido antes de existir a Rota 22 saindo pra oeste. Abre
+		# passagem só nas 2 linhas do corredor leste-oeste (old_r 28/29,
+		# "passeio da cidade"), sem tocar em mais nada de Viridian.
+		if (old_r == 28 or old_r == 29) and c <= 2:
 			return "P"
 		return _viridian_cell(c, old_r, W_ANTIGO)
 
@@ -306,6 +334,77 @@ static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
 	if (c + r * 3) % 9 == 4:
 		return "T"
 	if (c + r * 2) % 13 == 6:
+		return "F"
+	return "."
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Rota 22 → Victory Road → Indigo Plateau — ramo a OESTE de Viridian (Tier
+# 18). Primeiro ramo em COLUNAS NEGATIVAS (todos os anteriores usavam
+# linhas). `j` é local, 1..OESTE_OFFSET (1 = mais perto de Viridian, c=-1;
+# OESTE_OFFSET = mais longe, c=-OESTE_OFFSET, perto da borda). `lr` é a
+# linha local dentro da banda (0..OESTE_ROWS-1) — global r = OESTE_ROW_INICIO
+# + lr. O corredor leste-oeste da banda (lr 16-20) alinha com o seam em
+# Viridian (global row 100/101 = OESTE_ROW_INICIO+18/+19).
+# ──────────────────────────────────────────────────────────────────────────────
+static func _gen_oeste_de_viridian() -> Array:
+	var grid : Array = []
+	for lr in OESTE_ROWS:
+		var row := ""
+		for j in range(1, OESTE_OFFSET + 1):
+			if lr == 0 or lr == OESTE_ROWS - 1 or j == OESTE_OFFSET:
+				row += "T"
+			else:
+				row += _oeste_de_viridian_cell(j, lr)
+		grid.append(row)
+	return grid
+
+static func _oeste_de_viridian_cell(j: int, lr: int) -> String:
+	var no_corredor := lr >= 16 and lr <= 20
+
+	# ── Rota 22 (mais perto de Viridian) ── j 1..ROUTE22_COLS ──────────────
+	if j <= ROUTE22_COLS:
+		# Victory Road — boca da caverna, opcional/lateral (mesmo padrão do
+		# Mt Moon/Rock Tunnel: dá pra contornar por fora da faixa da moldura,
+		# não bloqueia o corredor). j 25-31, lr 8-24.
+		if j >= 25 and j <= 31 and lr >= 8 and lr <= 24:
+			if no_corredor and j >= 27 and j <= 29:
+				return "P"  # entrada caminhável (warp fica aqui)
+			return "R"  # rochedo da montanha ao redor da boca da caverna
+		if no_corredor:
+			return "P"
+		if (j + lr * 2) % 9 == 7:
+			return "T"
+		if (j * 2 + lr) % 13 == 11:
+			return "F"
+		return "."
+
+	# ── Indigo Plateau ── local ip a partir de ROUTE22_COLS ────────────────
+	var ip := j - ROUTE22_COLS
+
+	# ── Liga Pokémon — FECHADA (mesma história do Ginásio de Viridian/
+	# Giovanni, GYM-08: porta nunca abre até essa cadeia existir) ──────────
+	if ip >= 10 and ip <= 22 and lr >= 6 and lr <= 14:
+		if ip == 10 or ip == 22: return "W"
+		if lr == 6: return "H"
+		if lr == 14: return "W"  # porta bloqueada, igual ao Ginásio de Viridian
+		return "W"  # interior inacessível
+
+	# ── Centro Pokémon de Indigo Plateau ── ip 25-37, lr 6-14 ──────────────
+	if ip >= 25 and ip <= 37 and lr >= 6 and lr <= 14:
+		if ip == 25 or ip == 37: return "W"
+		if lr == 6: return "H"
+		if lr == 14:
+			if ip >= 30 and ip <= 32: return "P"
+			return "W"
+		return "I"
+	if lr >= 14 and lr <= 16 and ip >= 30 and ip <= 32:
+		return "P"
+
+	if no_corredor:
+		return "P"
+	if (j + lr * 3) % 9 == 8:
+		return "T"
+	if (j + lr * 2) % 13 == 12:
 		return "F"
 	return "."
 
@@ -1141,6 +1240,7 @@ static func _mtmoon_cell(c: int, r: int, W: int, H: int) -> String:
 # passagem obrigatória entre duas rotas — dungeon lateral de recompensa).
 # ──────────────────────────────────────────────────────────────────────────────
 const ROCKTUNNEL_SEED : int = 20260901  # fixo — mesma caverna sempre, nunca mudar sem querer regenerar tudo
+const VICTORYROAD_SEED : int = 20260901180  # fixo — mesma caverna sempre
 
 static func _gen_rocktunnel() -> Array:
 	var W := 36
@@ -1196,6 +1296,45 @@ static func _rocktunnel_carve(grid_chars: Array, W: int, H: int, start_c: int, s
 			3: c += 1
 		c = clampi(c, 1, W - 2)
 		r = clampi(r, 1, H - 2)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Victory Road — 32×32, cena própria (Tier 18). Não-linear de propósito
+# (regra de tematização de caverna, mesma técnica de caminhada aleatória do
+# Rock Tunnel, reaproveitando `_rocktunnel_carve` — não é específica de Rock
+# Tunnel apesar do nome, é genérica). Única porta (entrada — a saída pra
+# Indigo Plateau é a MESMA porta, mesmo padrão do Mt Moon: dois warps
+# próximos, não um túnel ligando dois pontos distantes do mapa).
+# ──────────────────────────────────────────────────────────────────────────────
+static func _gen_victoryroad() -> Array:
+	var W := 32
+	var H := 32
+	var grid_chars : Array = []
+	for r in H:
+		var row : Array = []
+		for c in W:
+			row.append("R")
+		grid_chars.append(row)
+
+	grid_chars[H - 1][15] = "P"
+	grid_chars[H - 1][16] = "P"
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = VICTORYROAD_SEED
+
+	var visitados : Array = []
+	_rocktunnel_carve(grid_chars, W, H, 15, H - 2, 700, rng, visitados)
+	for i in 4:
+		var idx := rng.randi_range(0, visitados.size() - 1)
+		var pt : Vector2i = visitados[idx]
+		_rocktunnel_carve(grid_chars, W, H, pt.x, pt.y, 200, rng, visitados)
+
+	var grid : Array = []
+	for r in H:
+		var row := ""
+		for c in W:
+			row += grid_chars[r][c]
+		grid.append(row)
+	return grid
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Cinnabar Island — 40×40, cena própria (só alcançável de barco — a viagem
@@ -1392,6 +1531,9 @@ static func get_layout(map_id: String) -> Dictionary:
 		"rocket_hideout":
 			var tiles := _gen_rockethideout()
 			return {"tiles": tiles, "width": 18, "height": 14}
+		"victory_road":
+			var tiles := _gen_victoryroad()
+			return {"tiles": tiles, "width": 32, "height": 32}
 		_:
 			return {}
 
@@ -1422,13 +1564,30 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 				var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
 				tilemap.set_cell(0, Vector2i(col_idx, r), 0, atlas)
 
+		# Ramo da Rota 22 → Victory Road → Indigo Plateau (Tier 18) —
+		# pintado à PARTE em COLUNAS negativas (primeiro ramo nesse eixo),
+		# mesma ideia do ramo norte só espelhada de linha pra coluna.
+		var oeste : Array = _gen_oeste_de_viridian()
+		for lr in oeste.size():
+			var row : String = oeste[lr]
+			var r := OESTE_ROW_INICIO + lr
+			for j in row.length():
+				var c := -(j + 1)
+				var ch := row[j]
+				var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
+				tilemap.set_cell(0, Vector2i(c, r), 0, atlas)
+
 static func get_pixel_bounds(map_id: String) -> Rect2i:
 	var layout := get_layout(map_id)
 	if layout.is_empty():
 		return Rect2i(0, 0, 1280, 720)
+	var x0 := 0
 	var y0 := 0
+	var extra_w := 0
 	var extra_h := 0
 	if map_id == "world_map":
+		x0 = -OESTE_OFFSET
+		extra_w = OESTE_OFFSET
 		y0 = -NORTE_OFFSET
 		extra_h = NORTE_OFFSET
-	return Rect2i(0, y0 * 16, layout["width"] * 16, (layout["height"] + extra_h) * 16)
+	return Rect2i(x0 * 16, y0 * 16, (layout["width"] + extra_w) * 16, (layout["height"] + extra_h) * 16)

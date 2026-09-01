@@ -363,14 +363,15 @@
       "name": "Indigo Plateau",
       "region": "kanto",
       "tile_rect": {
-        "x": 2,
-        "y": 37,
-        "w": 16,
-        "h": 16
+        "x": -100,
+        "y": 82,
+        "w": 40,
+        "h": 36
       },
       "bgm": "indigo_plateau",
       "wild_pokemon": [],
-      "npcs": []
+      "npcs": [],
+      "notes": "Fim da Rota 22, a OESTE de Viridian (Tier 18) — coordenada global do world_map (colunas negativas). Liga Pokémon (prédio) FECHADA — mesma história do Ginásio de Viridian/Giovanni (GYM-08), porta nunca abre até essa cadeia de quest existir. Centro Pokémon funcional já ligado (WarpPokeCenter_Indigo)."
     },
     {
       "id": "bills_house",
@@ -1197,12 +1198,12 @@
       "name": "Route 22",
       "region": "kanto",
       "tile_rect": {
-        "x": 10,
-        "y": 108,
-        "w": 35,
-        "h": 8
+        "x": -60,
+        "y": 82,
+        "w": 60,
+        "h": 36
       },
-      "bgm": "route_1",
+      "bgm": "route_22",
       "wild_pokemon": [
         {
           "id": 16,
@@ -1226,7 +1227,8 @@
           "weight": 20
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "Ramo a OESTE de Viridian (Tier 18) — primeiro ramo do world_map em colunas negativas. Corredor leste-oeste sai da própria Viridian (row 28/29 do mapa antigo). Victory Road (cena própria) tem a boca em j=27-31 dentro desta faixa, mas não bloqueia — dá pra contornar (mesmo padrão opcional/lateral do Mt Moon/Rock Tunnel)."
     },
     {
       "id": "route_23",
@@ -1763,10 +1765,10 @@
       "name": "Victory Road",
       "region": "kanto",
       "tile_rect": {
-        "x": 8,
-        "y": 45,
-        "w": 10,
-        "h": 65
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
       },
       "bgm": "rock_tunnel",
       "wild_pokemon": [
@@ -1806,7 +1808,9 @@
           "weight": 15
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "map_id": "victory_road",
+      "notes": "Cena própria (VictoryRoad.tscn), coordenada local 0-based, igual Mt Moon/Rock Tunnel. Interior gerado por caminhada aleatória com seed fixa (MapLayouts._gen_victoryroad, reaproveita _rocktunnel_carve) — não-linear de propósito (regra de tematização de caverna). Boca na Rota 22 (Tier 18), opcional/lateral — não bloqueia a passagem até Indigo Plateau."
     },
     {
       "id": "pokemon_mansion",

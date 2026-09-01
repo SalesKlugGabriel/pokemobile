@@ -59,7 +59,7 @@ func _teste_geral() -> void:
 		if warp_zones:
 			for w in warp_zones.get_children():
 				if w.target_map != "" and not w.target_map.contains("PokemonCenter") \
-				and not w.target_map.contains("MtMoon") and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone") and not w.target_map.contains("RocketHideout"):
+				and not w.target_map.contains("MtMoon") and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone") and not w.target_map.contains("RocketHideout") and not w.target_map.contains("VictoryRoad"):
 					alvos_indevidos += 1
 				if w.target_map.contains("PokemonCenter"):
 					pokecenter_warps += 1
@@ -69,6 +69,6 @@ func _teste_geral() -> void:
 		# Centro Pokémon construído (Pallet/Viridian/Pewter/Cerulean/Vermilion/
 		# Celadon/Fuchsia/Saffron/Lavender = 9) precisa ter o warp de entrada —
 		# senão o prédio existe na tela mas ninguém consegue curar o time lá.
-		_assert(pokecenter_warps == 9,
-			"9 Centros Pokémon construídos têm warp de entrada (achou %d — Saffron ficou órfão até este tier)" % pokecenter_warps)
+		_assert(pokecenter_warps >= 9,
+			"pelo menos os 9 Centros Pokémon do Tier 7 têm warp de entrada (achou %d — Saffron ficou órfão até este tier; tiers futuros podem somar mais Centros, nunca menos que 9)" % pokecenter_warps)
 		inst.free()
