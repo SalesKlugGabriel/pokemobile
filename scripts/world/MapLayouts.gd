@@ -73,6 +73,23 @@ const W_TOTAL : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS \
 	+ ROUTE7_COLS + CELADON_COLS + ROUTE8_COLS + FUCHSIA_COLS \
 	+ ROUTE9_COLS + SAFFRON_COLS + ROUTE10_COLS + LAVENDER_COLS  # 940
 
+# Tier 8 (01/09): Rota 24 → Rota 25 → Casa do Bill — desvio ao NORTE de
+# Cerulean (não é continuar pra leste). Diferente de Pewter/Rota 2 (que
+# empurrou TUDO pra baixo e exigiu traduzir a linha de cada NPC/warp já
+# testado), este ramo é gerado e pintado à PARTE, em linhas NEGATIVAS
+# (r=-1 é a linha logo ao norte de Cerulean, r=-NORTE_OFFSET é a borda) —
+# o `tiles` principal (`_gen_world_map`) continua exatamente r=0..H-1, sem
+# nenhuma mudança, pra não quebrar nenhuma conferência de teste já escrita
+# com esse índice (todo teste dos Tiers 1-7 lê `tiles[N][...]` assumindo
+# índice do array == linha do mundo). O TileMap do Godot aceita coordenada
+# negativa de verdade (testado) — só a pintura (`paint()`) sabe do ramo.
+const ROUTE24_ROWS : int = 20   # mais perto de Cerulean
+const ROUTE25_ROWS : int = 20   # mais ao norte, termina na Casa do Bill
+const NORTE_OFFSET : int = ROUTE24_ROWS + ROUTE25_ROWS  # 40
+# Colunas globais do corredor (dentro da faixa de Cerulean: cc 27-29 local).
+const RAMO_NORTE_COL_INICIO : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + 27
+const RAMO_NORTE_COL_FIM    : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + 29
+
 static func _gen_world_map() -> Array:
 	var W := W_TOTAL
 	var H := 120 + OFFSET_ANTIGO
@@ -84,9 +101,31 @@ static func _gen_world_map() -> Array:
 		grid.append(row)
 	return grid
 
+## Ramo da Rota 24/25 (Tier 8) — array próprio, NORTE_OFFSET linhas, full
+## width. `grid[0]` é a linha mais ao norte (r=-NORTE_OFFSET, borda),
+## `grid[NORTE_OFFSET-1]` é a mais próxima de Cerulean (r=-1).
+static func _gen_norte_de_cerulean() -> Array:
+	var W := W_TOTAL
+	var grid : Array = []
+	for i in NORTE_OFFSET:
+		var r := i - NORTE_OFFSET
+		var row := ""
+		for c in W:
+			if r == -NORTE_OFFSET or c == 0 or c >= W - 1:
+				row += "T"
+			else:
+				row += _norte_de_cerulean_cell(c, r, W)
+		grid.append(row)
+	return grid
+
 static func _world_cell(c: int, r: int, W: int, H: int) -> String:
-	# Bordas absolutas
-	if r == 0 or r >= H - 1 or c == 0 or c >= W - 1:
+	# Bordas absolutas. Achado (Tier 8): "r==0" NÃO faz mais parte dessa
+	# checagem — a borda norte em r=0 já é garantida por dentro de
+	# _pewter_cell/_leste_de_pewter_cell (ambas têm "r<=2 → T" próprio, como
+	# sempre tiveram), e manter "r==0" AQUI bloquearia incondicionalmente a
+	# passagem da Rota 24 pra dentro de Cerulean, sem chance do seam-fix
+	# (abaixo) nunca ser alcançado — mesmo problema, uma camada acima.
+	if r >= H - 1 or c == 0 or c >= W - 1:
 		return "T"
 
 	# ── Pewter City (linhas 1-36) — e, a leste dela, Rota 3/Mt Moon/Rota 4/
@@ -101,6 +140,11 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 			if c >= W_ANTIGO - 3 and r >= 16 and r <= 20:
 				return "P"
 			return _pewter_cell(c, r, W_ANTIGO)
+		# Achado (mesma classe, Tier 8): _leste_de_pewter_cell trata r<=2
+		# como borda norte — fazia sentido antes de existir a Rota 24 saindo
+		# de Cerulean pra cima. Abre passagem só nas colunas do ramo.
+		if c >= RAMO_NORTE_COL_INICIO and c <= RAMO_NORTE_COL_FIM and r <= 2:
+			return "P"
 		return _leste_de_pewter_cell(c - W_ANTIGO, r)
 
 	# ── Rota 2 (linhas 37-72) — só existe na largura antiga; o resto é borda
@@ -133,6 +177,60 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 
 	# ── Pallet Town (rows 80-119 no mapa antigo) ────────────────────────────
 	return _pallet_cell(c, old_r, W_ANTIGO)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Rota 24 → Rota 25 → Casa do Bill — ramo ao norte de Cerulean (Tier 8).
+# `c` é GLOBAL (o corredor só existe numa faixa estreita de colunas). `r` é
+# NEGATIVO aqui (r=-1 é a linha logo ao norte de Cerulean/Pewter, r=
+# -NORTE_OFFSET+1 é a mais distante, perto da borda do mapa). `fb` ("from
+# border") inverte isso pra positivo — 1 = mais ao norte, NORTE_OFFSET-1 =
+# mais perto de Cerulean — só pra deixar a aritmética legível, igual ao
+# resto do arquivo usa números pequenos crescendo "pra dentro" da cidade.
+# ──────────────────────────────────────────────────────────────────────────────
+static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
+	var fb := r + NORTE_OFFSET
+
+	# Fora da faixa de colunas do ramo (corredor + Casa do Bill ao lado):
+	# nada existe ainda nessa latitude.
+	if c < RAMO_NORTE_COL_INICIO - 3 or c > RAMO_NORTE_COL_FIM + 12:
+		return "T"
+
+	var no_corredor := c >= RAMO_NORTE_COL_INICIO and c <= RAMO_NORTE_COL_FIM
+
+	# ── Casa do Bill — AO LADO do corredor (não em cima, senão bloquearia a
+	# única passagem entre Rota 24 e Rota 25), mesmo padrão de toda cidade:
+	# prédio ao lado do caminho principal + um trecho curto ligando os dois ──
+	var casa_col_inicio := RAMO_NORTE_COL_FIM + 4
+	var casa_col_fim    := RAMO_NORTE_COL_FIM + 12
+	if fb >= 3 and fb <= 9 and c >= casa_col_inicio and c <= casa_col_fim:
+		if c == casa_col_inicio or c == casa_col_fim: return "W"
+		if fb == 3: return "H"
+		if fb == 9:
+			if c >= casa_col_inicio + 3 and c <= casa_col_inicio + 5: return "P"  # porta
+			return "W"
+		return "I"
+	# ── Trecho ligando a porta da Casa do Bill até o corredor principal ──
+	if fb >= 9 and fb <= 10 and c >= RAMO_NORTE_COL_FIM and c <= casa_col_inicio + 4:
+		return "P"
+
+	# ── Rota 25 (mais ao norte, fb 1..ROUTE25_ROWS-1, já descontada a casa) ──
+	if fb < ROUTE25_ROWS:
+		if no_corredor:
+			return "P"
+		if (c + r * 2) % 9 == 3:
+			return "T"
+		if (c * 2 + r) % 13 == 5:
+			return "F"
+		return "."
+
+	# ── Rota 24 (mais perto de Cerulean, fb ROUTE25_ROWS..NORTE_OFFSET-1) ──
+	if no_corredor:
+		return "P"
+	if (c + r * 3) % 9 == 4:
+		return "T"
+	if (c + r * 2) % 13 == 6:
+		return "F"
+	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Rota 3 → Mt Moon (entrada) → Rota 4 → Cerulean City — leste de Pewter,
@@ -814,8 +912,26 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 			var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
 			tilemap.set_cell(0, Vector2i(col_idx, row_idx), 0, atlas)
 
+	# Ramo da Rota 24/25 (Tier 8) — pintado à PARTE em linhas negativas, sem
+	# mexer no array principal acima (que todo teste dos Tiers 1-7 lê por
+	# índice == linha do mundo). Só existe no world_map.
+	if map_id == "world_map":
+		var norte : Array = _gen_norte_de_cerulean()
+		for i in norte.size():
+			var row : String = norte[i]
+			var r := i - NORTE_OFFSET
+			for col_idx in row.length():
+				var ch := row[col_idx]
+				var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
+				tilemap.set_cell(0, Vector2i(col_idx, r), 0, atlas)
+
 static func get_pixel_bounds(map_id: String) -> Rect2i:
 	var layout := get_layout(map_id)
 	if layout.is_empty():
 		return Rect2i(0, 0, 1280, 720)
-	return Rect2i(0, 0, layout["width"] * 16, layout["height"] * 16)
+	var y0 := 0
+	var extra_h := 0
+	if map_id == "world_map":
+		y0 = -NORTE_OFFSET
+		extra_h = NORTE_OFFSET
+	return Rect2i(0, y0 * 16, layout["width"] * 16, (layout["height"] + extra_h) * 16)

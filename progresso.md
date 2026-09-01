@@ -144,6 +144,49 @@ litoral/mar/ilhas de verdade (pré-requisito pra Cinnabar/Blaine); Rock Tunnel.
 
 ---
 
+## v0.3.5 — Tier 8: Rota 24 → Rota 25 → Casa do Bill (2026-09-01)
+
+**Pedido:** "vamos continuar" (item 1 da lista de pendências deixada na memória). Primeiro
+**desvio** do mapa — não é continuar pra leste, é um ramo ao NORTE de Cerulean, terminando na
+Casa do Bill. Bill ganhou diálogo de sabor (referência clássica do Gen 1: o acidente do
+teletransportador com um Clefairy), e um treinador na Rota 24 com time real (Nidoran-M+F).
+
+**Decisão de arquitetura, a mais importante desta sessão até aqui**: os Tiers 1-7 sempre
+continuaram pra LESTE (largura crescendo), então bastava "traduzir" o número da coluna sem
+tocar em nada. Um ramo pra CIMA (norte) é outra categoria de problema — geograficamente, "norte"
+só existe deslocando TODA LINHA de todo NPC/warp/zona já testado (a mesma técnica usada pra criar
+Pewter/Rota 2 ao norte de Viridian, no início do projeto). **Em vez disso, usei linha NEGATIVA**:
+o Godot aceita coordenada de tile negativa de verdade (confirmado), então o ramo novo (Rota 24 →
+Rota 25 → Casa do Bill) vive em `r < 0`, pintado à PARTE do array principal — e por isso **nenhum
+NPC, warp ou zona dos Tiers 1-7 precisou mudar uma linha sequer**. Resultado prático: os 7
+arquivos de teste anteriores passaram **sem tocar em nenhum deles** — a primeira vez nesta série
+de tiers que isso acontece.
+
+**Achado no meio do design, corrigido antes de testar**: a primeira versão colocava a Casa do
+Bill **em cima do próprio corredor** (bloqueando a única passagem entre Rota 24 e Rota 25) —
+corrigido pra ficar AO LADO do caminho principal, com um trecho curto ligando a porta ao
+corredor, mesmo padrão usado em toda cidade (Ginásio/Centro Pokémon nunca ficam em cima do
+caminho, sempre ao lado).
+
+**Testado**: `teste_fase3_tier8.gd` (16 conferências) — esse teste é diferente dos anteriores:
+em vez de só ler `tiles[row][col]` do array (que não cobre o ramo, de propósito), ele **pinta um
+`TileMap` de verdade** via `MapLayouts.paint()` e lê de volta com `get_cell_atlas_coords()` —
+validando o código de pintura de verdade, não só os dados. **11 arquivos de teste juntos: 195
+conferências, 0 falhas** (os 7 anteriores intocados). Web build exportado, imagem Docker
+reconstruída e redeployada, publicado — `curl` confirma 200 (o primeiro veio 404, mesma janela
+de propagação do Traefik já documentada, resolvido em ~5s) — e smoke test ao vivo (Playwright)
+sem erro de página novo.
+
+**Mapa hoje**: o corredor leste-oeste principal (Pallet→...→Lavender, 940 de largura) ganhou seu
+primeiro desvio real — Rota 24/25 saindo de Cerulean pra norte, terminando na Casa do Bill.
+
+**Próximo passo (pendências, ver memória do PokéMobile)**: litoral/mar/ilhas de verdade
+(pré-requisito pra Cinnabar/Blaine); Rock Tunnel; resto do Kanto original.
+
+**Precisa de decisão do Gabriel?** Não — seguindo a ordem combinada.
+
+---
+
 ## v0.3.0 — Tier 3: Rota 5 → Rota 6 → Vermilion City (Lt. Surge) (2026-08-31, continuação)
 
 **Pedido do Gabriel:** deixar mecânica de locomoção por último; ordem definida: **mapa →

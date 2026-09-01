@@ -244,6 +244,20 @@ npc_name = "Morador"
 dialog_id = "lavender_local"
 is_patrolling = false
 
+[node name="Bill" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(4120, -536)
+npc_name = "Bill"
+dialog_id = "bill_intro"
+is_patrolling = false
+
+[node name="TreinadorRota24" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(3976, -152)
+npc_name = "Treinador"
+dialog_id = "rota24_treinador"
+is_trainer = true
+trainer_team = Array[Dictionary]([{"species_id": 29, "level": 22}, {"species_id": 32, "level": 22}])
+is_patrolling = false
+
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("4_zm")
 

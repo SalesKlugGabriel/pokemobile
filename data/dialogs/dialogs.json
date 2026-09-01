@@ -171,5 +171,15 @@
     "Lavender Town — a cidade mais silenciosa de Kanto. Tem seus motivos.",
     "Aquela torre ali no centro... eu evito olhar pra ela depois que escurece.",
     "O Sr. Fuji mora perto daqui. Bom homem, mas carrega um peso grande."
+  ],
+  "bill_intro": [
+    "Oh! Visita! Não é sempre que alguém sobe até aqui pela Rota 25.",
+    "Sou o Bill — pesquisador de Pokémon, meio recluso, e inventor de coisas que quase sempre dão errado.",
+    "Uma vez tentei melhorar meu teletransportador particular e quase fiquei preso num corpo de Clefairy pra sempre. Longa história.",
+    "De qualquer forma, seja bem-vindo à minha casa! Fica à vontade."
+  ],
+  "rota24_treinador": [
+    "Ei! Ainda não tinha visto um treinador subir até aqui.",
+    "A Rota 24 pode ser tranquila, mas meus Pokémon não são."
   ]
 }
