@@ -21,6 +21,12 @@ size = Vector2(48, 16)
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_pewter"]
 size = Vector2(48, 16)
 
+[sub_resource type="RectangleShape2D" id="Shape_mtmoon"]
+size = Vector2(48, 64)
+
+[sub_resource type="RectangleShape2D" id="Shape_pokecenter_cerulean"]
+size = Vector2(48, 16)
+
 [node name="WorldMap" type="Node2D"]
 script = ExtResource("1_basemap")
 map_id = "world_map"
@@ -45,7 +51,7 @@ drag_horizontal_enabled = true
 drag_vertical_enabled = true
 limit_left = 0
 limit_top = 0
-limit_right = 1600
+limit_right = 4480
 limit_bottom = 3072
 zoom = Vector2(3.0, 3.0)
 
@@ -136,6 +142,21 @@ npc_name = "Morador"
 dialog_id = "pewter_local"
 is_patrolling = false
 
+[node name="Misty" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(3784, 168)
+npc_name = "Misty"
+dialog_id = "misty_gym"
+starts_quest_id = "GYM-02"
+is_trainer = true
+trainer_team = Array[Dictionary]([{"species_id": 120, "level": 18}, {"species_id": 121, "level": 21}])
+is_patrolling = false
+
+[node name="CeruleanLocal" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(4008, 360)
+npc_name = "Moradora"
+dialog_id = "cerulean_local"
+is_patrolling = false
+
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("4_zm")
 
@@ -170,6 +191,23 @@ is_pokemon_center_entrance = true
 
 [node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Pewter"]
 shape = SubResource("Shape_pokecenter_pewter")
+
+[node name="WarpMtMoon" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(2552, 296)
+target_map = "res://scenes/world/maps/MtMoon.tscn"
+spawn_tile = Vector2i(9, 27)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpMtMoon"]
+shape = SubResource("Shape_mtmoon")
+
+[node name="WarpPokeCenter_Cerulean" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(4184, 232)
+target_map = "res://scenes/world/maps/PokemonCenter.tscn"
+spawn_tile = Vector2i(7, 11)
+is_pokemon_center_entrance = true
+
+[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Cerulean"]
+shape = SubResource("Shape_pokecenter_cerulean")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 

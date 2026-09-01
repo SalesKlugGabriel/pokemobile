@@ -33,8 +33,10 @@ func _teste_geral() -> void:
 	var tiles : Array = layout["tiles"]
 	var H : int = layout["height"]
 
-	_assert(layout["width"] == 100 and H == 192,
-		"world_map agora é 100x192 (Pewter+Rota2 somaram 72 linhas)")
+	# largura cresce a cada tier novo (Tier 2 já somou Rota3+MtMoon+Rota4+
+	# Cerulean a leste de Pewter) — aqui só confere a ALTURA, que é o que
+	# esta fase (Pewter+Rota2, ao norte) realmente controla.
+	_assert(H == 192, "world_map tem 192 de altura (Pewter+Rota2 somaram 72 linhas)")
 
 	# ---- 1. Pewter City (linhas 1-36) ----
 	_assert(tiles[10][26] == "I", "Pewter: interior do Ginásio (col 26, row 10) é piso")
@@ -95,10 +97,13 @@ func _teste_geral() -> void:
 		var alvos_nao_pokecenter := 0
 		if warp_zones:
 			for w in warp_zones.get_children():
-				if w.target_map != "" and not w.target_map.contains("PokemonCenter"):
+				# Mt Moon é caverna — exceção permitida (ver Tier 2). Só
+				# cidade/rota ligada por warp que não deveria existir.
+				if w.target_map != "" and not w.target_map.contains("PokemonCenter") \
+				and not w.target_map.contains("MtMoon"):
 					alvos_nao_pokecenter += 1
 		_assert(alvos_nao_pokecenter == 0,
-			"nenhum warp de cidade/rota sobrou no WorldMap — só os do Centro Pokémon (%d de sobra)" % alvos_nao_pokecenter)
+			"nenhum warp de CIDADE/ROTA indevido sobrou no WorldMap — só Centro Pokémon e Mt Moon (%d de sobra)" % alvos_nao_pokecenter)
 		inst.free()
 
 	# ---- 7. zones.json bate com o mapa único novo ----

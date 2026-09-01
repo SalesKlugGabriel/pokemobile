@@ -9,6 +9,68 @@
 
 ---
 
+## v0.2.9 — Tier 2: Rota 3 → Mt Moon → Rota 4 → Cerulean City (Misty) (2026-08-31, continuação)
+
+**Pedido do Gabriel:** mandou o mapa real de Kanto (imagem) e pediu pra construir tudo —
+ilhas, mar, spawn de Pokémon por localização real, mapa grande o bastante pra levar ~30 min
+andando de ponta a ponta (reduzido depois por Fly/montaria/bike), e continuar pro próximo
+pedaço. **Registro honesto de escopo**: reconstruir o Kanto inteiro pixel a pixel igual à
+imagem (litoral, baías, ilhas) e os sistemas de Fly/Surf-pra-atravessar/Bike/montaria são,
+juntos, o maior trabalho que este projeto já teve pela frente — não cabe numa sessão só. Este
+Tier 2 é progresso real e testado na mesma direção, não a coisa inteira ainda.
+
+**Construído:** Rota 3 → Mt Moon → Rota 4 → Cerulean City, a LESTE de Pewter (mesma faixa de
+linhas, mundo aberto contínuo — mapa cresceu de 100 pra **280 de largura**). Mt Moon virou
+**cena própria** (a exceção de warp que o próprio Gabriel autorizou: "só em caverna,
+subterrâneo, submarino ou trocando de continente") — entrada ao sul (Rota 3), saída ao norte
+(Rota 4), sem volta pela superfície, tem que atravessar a caverna de verdade. Cerulean City
+ganhou Ginásio (Misty, time real: Staryu Nv.18 + Starmie Nv.21) e Centro Pokémon.
+
+**Spawn selvagem real do Gen 1** (pesquisado, não inventado) — Rota 3: Rattata/Spearow/
+Nidoran♂/Nidoran♀/Mankey/Jigglypuff. Mt Moon: Zubat/Paras/Geodude/Clefairy (rara). Rota 4:
+Rattata/Spearow/Sandshrew/Nidoran♂/Nidoran♀.
+
+**Achado corrigido no caminho, mesma classe de sempre**: o próprio código de Pewter tratava
+suas 3 últimas colunas como borda leste (fazia sentido quando Pewter era o fim do mapa) — virava
+parede bem no meio do caminho principal agora que a Rota 3 continua pra leste. Corrigido só
+nas linhas do caminho (16-20), sem tocar em mais nada de Pewter.
+
+**GYM-02 simplificado**: o objetivo original exigia derrotar um "alpha_tentacruel" — mecânica
+de Alpha que não existe de verdade no jogo (nunca é marcada, mesmo achado do GYM-01/Pewter
+com Pewter/Brock). Removido; agora só exige derrotar a Misty, igual ao padrão real dos jogos
+(badge = vencer o líder).
+
+**❌ Ainda não construído, registrado pra não esquecer** (fora do escopo desta sessão):
+- Litoral/mar/ilhas de verdade batendo com a imagem (hoje o "oceano" nem existe — o mapa é só
+  terra firme com uma cidade seguindo a outra).
+- **Fly, Surf-pra-atravessar-mapa, Bike/Moto e montaria (Tauros/Dodrio)** — sistemas de
+  movimento novos, nenhum construído ainda. Pesca (Fase 2) já usa "Surf" como conceito de
+  água, mas surfar PARA ATRAVESSAR o mapa é outra coisa, não existe.
+- Calibração fina de "~30 min de ponta a ponta" — as rotas ficaram bem mais longas que antes
+  (Rota 3+Mt Moon+Rota 4 juntas têm ~120 tiles de caminho principal, contra ~13 da Rota 2), mas
+  não tem como cronometrar direito sem o mapa inteiro pronto nem os sistemas de velocidade.
+- Restante do Kanto: Rota 24/25 (Bill's House), Celadon City, Rota 5-9, Vermilion City, Rota
+  10 (Rock Tunnel), Lavender Town, Saffron City, Fuchsia City, Safari Zone, Cinnabar Island,
+  Seafoam Islands, Indigo Plateau — tudo já mapeado em `zones.json` (52 zonas no total,
+  pesquisa que já existia antes desta sessão), falta construir peça por peça.
+
+**Testado:** `scripts/tests/teste_fase3_tier2.gd` (21 conferências) — caminho contínuo até a
+boca do Mt Moon, Mt Moon carrega e tem entrada/saída certas, Misty com time real, spawn real
+de cada zona. Os 5 arquivos de teste juntos (Fases 0-3 + Tier 2): **118 conferências, 0
+falhas**. 2 testes antigos precisaram de ajuste (achado de teste, não de jogo: a largura do
+mapa mudou de tier pra tier, e a lista de "warp que não deveria existir" precisava aceitar o
+Mt Moon como exceção válida). Publicado; confirmado ao vivo sem erro no console.
+
+**Próximo passo:** proponho perguntar ao Gabriel se prefere (a) continuar emendando tiers de
+conteúdo (Tier 3: Rota 24/25 → Celadon, no mesmo estilo simplificado) ou (b) parar a expansão
+de mapa por ora e priorizar Fly/Bike/Surf-pra-atravessar (que tornam qualquer mapa grande
+worth it) antes de continuar esticando o território.
+
+**Precisa de decisão do Gabriel?** Sim — ver "Próximo passo" acima. E vale saber do
+recorte de escopo (litoral/ilhas e sistemas de transporte ainda não existem).
+
+---
+
 ## v0.2.8 — Correção de arquitetura: mundo aberto de verdade, sem warp entre cidade/rota (2026-08-31, continuação)
 
 **Regra do Gabriel:** warp só serve pra caverna, subterrâneo, submarino ou troca de

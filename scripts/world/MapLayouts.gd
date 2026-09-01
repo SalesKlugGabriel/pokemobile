@@ -42,8 +42,18 @@ const PEWTER_ROWS  : int = 36   # linhas 1-36 (global)
 const ROUTE2_ROWS  : int = 36   # linhas 37-72 (global)
 const OFFSET_ANTIGO : int = PEWTER_ROWS + ROUTE2_ROWS  # 72 — a partir daqui, é o mapa de sempre
 
+# Largura original (Pewter/Rota2/Viridian/Rota1/Pallet — tudo que já existia).
+const W_ANTIGO : int = 100
+# Tier 2 (Gabriel, 31/08): Rota 3 → Mt Moon (entrada) → Rota 4 → Cerulean City,
+# tudo a LESTE de Pewter, na mesma faixa de linhas (1-36) — mundo aberto de
+# verdade, sem warp de rota/cidade (só a caverna em si vira cena própria).
+const ROUTE3_COLS    : int = 60
+const ROUTE4_COLS    : int = 60
+const CERULEAN_COLS  : int = 60
+const W_TOTAL : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS  # 280
+
 static func _gen_world_map() -> Array:
-	var W := 100
+	var W := W_TOTAL
 	var H := 120 + OFFSET_ANTIGO
 	var grid : Array = []
 	for r in H:
@@ -58,16 +68,31 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 	if r == 0 or r >= H - 1 or c == 0 or c >= W - 1:
 		return "T"
 
-	# ── Pewter City (linhas 1-36) ───────────────────────────────────────────
+	# ── Pewter City (linhas 1-36) — e, a leste dela, Rota 3/Mt Moon/Rota 4/
+	# Cerulean, na MESMA faixa de linhas (a "largura antiga" W_ANTIGO é onde
+	# Pewter termina; dali pra leste é território novo) ────────────────────
 	if r <= PEWTER_ROWS:
-		return _pewter_cell(c, r, W)
+		if c < W_ANTIGO:
+			# Achado (mesma classe do seam de Viridian/Rota2): _pewter_cell
+			# trata c>=W-3 como borda leste — fazia sentido quando Pewter
+			# era o fim do mapa. Agora que a Rota 3 continua pra leste, isso
+			# virava parede bem no meio do caminho principal (row 16-20).
+			if c >= W_ANTIGO - 3 and r >= 16 and r <= 20:
+				return "P"
+			return _pewter_cell(c, r, W_ANTIGO)
+		return _leste_de_pewter_cell(c - W_ANTIGO, r)
 
-	# ── Rota 2 (linhas 37-72) ───────────────────────────────────────────────
+	# ── Rota 2 (linhas 37-72) — só existe na largura antiga; o resto é borda
 	if r <= OFFSET_ANTIGO:
-		return _route2_cell(c, r - PEWTER_ROWS, W)
+		if c >= W_ANTIGO:
+			return "T"
+		return _route2_cell(c, r - PEWTER_ROWS, W_ANTIGO)
 
 	# ── Daqui pra baixo: exatamente o mapa antigo (Viridian/Rota 1/Pallet),
-	# só com o número de linha traduzido de volta pro valor original ──────────
+	# só com o número de linha traduzido de volta pro valor original — e,
+	# de novo, só existe até W_ANTIGO; o resto é borda ──────────────────────
+	if c >= W_ANTIGO:
+		return "T"
 	var old_r := r - OFFSET_ANTIGO
 
 	# ── Viridian City (rows 2-38 no mapa antigo) ────────────────────────────
@@ -79,14 +104,85 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 		# em nada mais de Viridian (loja/NPC/decoração continuam iguais).
 		if old_r <= 3 and c >= 44 and c <= 56:
 			return "P"
-		return _viridian_cell(c, old_r, W)
+		return _viridian_cell(c, old_r, W_ANTIGO)
 
 	# ── Rota 1 (rows 39-79 no mapa antigo) ──────────────────────────────────
 	if old_r <= 79:
-		return _route1_cell(c, old_r, W)
+		return _route1_cell(c, old_r, W_ANTIGO)
 
 	# ── Pallet Town (rows 80-119 no mapa antigo) ────────────────────────────
-	return _pallet_cell(c, old_r, W)
+	return _pallet_cell(c, old_r, W_ANTIGO)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Rota 3 → Mt Moon (entrada) → Rota 4 → Cerulean City — leste de Pewter,
+# linhas 1-36 (mesma faixa). `c` já vem local (0 = logo a leste da borda de
+# Pewter). Caminho principal é horizontal, rows 16-20; resto é grama/árvore
+# esparsa (Rota 3/4) ou a cidade em si (Cerulean).
+# ──────────────────────────────────────────────────────────────────────────────
+static func _leste_de_pewter_cell(c: int, r: int) -> String:
+	if r <= 2 or r >= PEWTER_ROWS - 1:
+		return "T"
+
+	# ── Caminho principal leste-oeste ── rows 16-20
+	var no_caminho := r >= 16 and r <= 20
+
+	# ── Rota 3 ── local cols 0-59
+	if c < ROUTE3_COLS:
+		if no_caminho:
+			return "P"
+		if (c + r * 2) % 9 == 0:
+			return "T"
+		if (c * 2 + r) % 13 == 4:
+			return "F"
+		return "."
+
+	# ── Mt Moon: boca da caverna ── local cols ROUTE3_COLS-3 .. ROUTE3_COLS+3
+	# (a entrada em si — a caverna de verdade é uma cena própria, warp aqui)
+	if c >= ROUTE3_COLS - 4 and c < ROUTE3_COLS + 4 and r >= 12 and r <= 24:
+		if no_caminho and c >= ROUTE3_COLS - 2 and c < ROUTE3_COLS + 2:
+			return "P"  # entrada caminhável (warp fica aqui)
+		return "R"  # rochedo da montanha ao redor da boca da caverna
+
+	# ── Rota 4 ── local cols ROUTE3_COLS .. ROUTE3_COLS+ROUTE4_COLS-1
+	if c < ROUTE3_COLS + ROUTE4_COLS:
+		if no_caminho:
+			return "P"
+		if (c + r * 3) % 9 == 1:
+			return "T"
+		if (c + r * 2) % 13 == 5:
+			return "S"  # Rota 4 é mais arenosa (perto de Cerulean/Celadon)
+		return "."
+
+	# ── Cerulean City ── local cols ROUTE3_COLS+ROUTE4_COLS em diante
+	var cc := c - ROUTE3_COLS - ROUTE4_COLS  # local dentro da própria cidade
+
+	# ── Ginásio de Cerulean (Misty) ── cols 10-22, rows 6-14
+	if cc >= 10 and cc <= 22 and r >= 6 and r <= 14:
+		if cc == 10 or cc == 22: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if cc >= 15 and cc <= 17: return "P"  # porta
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and cc >= 15 and cc <= 17:
+		return "P"
+
+	# ── Centro Pokémon de Cerulean ── cols 35-47, rows 6-14
+	if cc >= 35 and cc <= 47 and r >= 6 and r <= 14:
+		if cc == 35 or cc == 47: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if cc >= 40 and cc <= 42: return "P"  # porta
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and cc >= 40 and cc <= 42:
+		return "P"
+
+	# ── Rio/lago decorativo (Cerulean é a "Cidade Azulada") ──
+	if (cc + r * 3) % 19 == 6 and r >= 22 and r <= 34 and cc >= 2 and cc <= 55:
+		return "~"
+
+	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Pewter City — linhas 1-36 (globais), full 100 largo.
@@ -385,6 +481,37 @@ static func _gen_pokemon_center() -> Array:
 	]
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Mt Moon — 20×30, cena própria (é caverna/subterrâneo — a ÚNICA situação em
+# que o Gabriel pediu warp de verdade, 31/08). Entrada ao sul (vem da Rota 3),
+# saída ao norte (sai na Rota 4) — sem volta pela superfície, tem que atravessar.
+# ──────────────────────────────────────────────────────────────────────────────
+static func _gen_mtmoon() -> Array:
+	var W := 20
+	var H := 30
+	var grid : Array = []
+	for r in H:
+		var row := ""
+		for c in W:
+			row += _mtmoon_cell(c, r, W, H)
+		grid.append(row)
+	return grid
+
+static func _mtmoon_cell(c: int, r: int, W: int, H: int) -> String:
+	if c == 0 or c == W - 1:
+		return "W"
+	if r == 0:
+		if c >= 9 and c <= 10: return "P"  # saída (Rota 4)
+		return "W"
+	if r == H - 1:
+		if c >= 9 and c <= 10: return "P"  # entrada (Rota 3)
+		return "W"
+	# Rochas espalhadas — nunca nas colunas 9-10 (mantém sempre um caminho
+	# reto entrada→saída, mesmo que sinuoso pelas rochas ao redor)
+	if (c + r * 2) % 7 == 0 and (c < 8 or c > 11):
+		return "R"
+	return "I"
+
+# ──────────────────────────────────────────────────────────────────────────────
 # API pública
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -392,10 +519,13 @@ static func get_layout(map_id: String) -> Dictionary:
 	match map_id:
 		"world_map":
 			var tiles := _gen_world_map()
-			return {"tiles": tiles, "width": 100, "height": 120 + OFFSET_ANTIGO}
+			return {"tiles": tiles, "width": W_TOTAL, "height": 120 + OFFSET_ANTIGO}
 		"pokemon_center":
 			var tiles := _gen_pokemon_center()
 			return {"tiles": tiles, "width": 16, "height": 14}
+		"mt_moon":
+			var tiles := _gen_mtmoon()
+			return {"tiles": tiles, "width": 20, "height": 30}
 		_:
 			return {}
 

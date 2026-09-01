@@ -94,10 +94,10 @@
       "name": "Cerulean City",
       "region": "kanto",
       "tile_rect": {
-        "x": 127,
-        "y": 37,
-        "w": 26,
-        "h": 26
+        "x": 220,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
       "bgm": "cerulean_city",
       "wild_pokemon": [],
@@ -265,40 +265,54 @@
       "name": "Route 3",
       "region": "kanto",
       "tile_rect": {
-        "x": 55,
-        "y": 55,
-        "w": 55,
-        "h": 8
+        "x": 100,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
       "bgm": "route_3",
       "wild_pokemon": [
         {
-          "id": 16,
-          "name": "Pidgey",
-          "level_min": 10,
-          "level_max": 14,
-          "weight": 30
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 6,
+          "level_max": 10,
+          "weight": 25
         },
         {
           "id": 21,
           "name": "Spearow",
-          "level_min": 10,
-          "level_max": 14,
-          "weight": 30
+          "level_min": 6,
+          "level_max": 10,
+          "weight": 25
+        },
+        {
+          "id": 32,
+          "name": "Nidoran-M",
+          "level_min": 6,
+          "level_max": 9,
+          "weight": 18
+        },
+        {
+          "id": 29,
+          "name": "Nidoran-F",
+          "level_min": 6,
+          "level_max": 9,
+          "weight": 18
+        },
+        {
+          "id": 56,
+          "name": "Mankey",
+          "level_min": 7,
+          "level_max": 10,
+          "weight": 9
         },
         {
           "id": 39,
           "name": "Jigglypuff",
-          "level_min": 10,
-          "level_max": 13,
-          "weight": 20
-        },
-        {
-          "id": 74,
-          "name": "Geodude",
-          "level_min": 10,
-          "level_max": 12,
-          "weight": 20
+          "level_min": 6,
+          "level_max": 9,
+          "weight": 5
         }
       ],
       "npcs": []
@@ -308,40 +322,47 @@
       "name": "Route 4",
       "region": "kanto",
       "tile_rect": {
-        "x": 110,
-        "y": 52,
-        "w": 30,
-        "h": 8
+        "x": 160,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
-      "bgm": "route_3",
+      "bgm": "route_4",
       "wild_pokemon": [
         {
-          "id": 16,
-          "name": "Pidgey",
-          "level_min": 13,
-          "level_max": 16,
-          "weight": 30
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 8,
+          "level_max": 12,
+          "weight": 25
         },
         {
           "id": 21,
           "name": "Spearow",
-          "level_min": 13,
-          "level_max": 16,
-          "weight": 30
-        },
-        {
-          "id": 74,
-          "name": "Geodude",
-          "level_min": 13,
-          "level_max": 15,
+          "level_min": 8,
+          "level_max": 12,
           "weight": 25
         },
         {
-          "id": 4,
-          "name": "Charmander",
-          "level_min": 15,
-          "level_max": 16,
-          "weight": 15
+          "id": 27,
+          "name": "Sandshrew",
+          "level_min": 8,
+          "level_max": 12,
+          "weight": 25
+        },
+        {
+          "id": 32,
+          "name": "Nidoran-M",
+          "level_min": 8,
+          "level_max": 11,
+          "weight": 12
+        },
+        {
+          "id": 29,
+          "name": "Nidoran-F",
+          "level_min": 8,
+          "level_max": 11,
+          "weight": 13
         }
       ],
       "npcs": []
@@ -1150,39 +1171,39 @@
       "name": "Mt. Moon",
       "region": "kanto",
       "tile_rect": {
-        "x": 75,
-        "y": 52,
-        "w": 35,
-        "h": 18
+        "x": 0,
+        "y": 0,
+        "w": 20,
+        "h": 30
       },
       "bgm": "mt_moon",
       "wild_pokemon": [
         {
           "id": 41,
           "name": "Zubat",
-          "level_min": 10,
-          "level_max": 15,
+          "level_min": 7,
+          "level_max": 12,
           "weight": 45
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 8,
+          "level_max": 12,
+          "weight": 25
         },
         {
           "id": 74,
           "name": "Geodude",
-          "level_min": 10,
-          "level_max": 14,
-          "weight": 35
+          "level_min": 8,
+          "level_max": 12,
+          "weight": 25
         },
         {
           "id": 35,
           "name": "Clefairy",
-          "level_min": 10,
-          "level_max": 14,
-          "weight": 15
-        },
-        {
-          "id": 100,
-          "name": "Voltorb",
-          "level_min": 10,
-          "level_max": 13,
+          "level_min": 9,
+          "level_max": 11,
           "weight": 5
         }
       ],
