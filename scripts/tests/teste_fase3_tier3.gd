@@ -1,5 +1,7 @@
-## teste_fase3_tier3.gd — Teste headless do Tier 3 da expansão de mapa
-## (Rota 5 → Rota 6 → Vermilion City + Ginásio do Lt. Surge).
+## teste_fase3_tier3.gd — Teste headless do Tier 3 (Vermilion City + Ginásio
+## do Lt. Surge). Reescrito em 02/09 (reorganização geográfica): Vermilion
+## não fica mais numa fileira reta a leste de Cerulean — agora fica
+## diretamente ABAIXO de Cerulean (via Rota 5 → Saffron → Rota 6).
 ## Roda com: godot4 --headless --script res://scripts/tests/teste_fase3_tier3.gd
 extends SceneTree
 
@@ -8,7 +10,7 @@ var _fail  := 0
 var _rodou := false
 
 func _initialize() -> void:
-	print("=== Teste Fase 3 Tier 3 (Rota 5 → Rota 6 → Vermilion) ===")
+	print("=== Teste Fase 3 Tier 3 (Vermilion, embaixo de Saffron) ===")
 
 func _process(_delta: float) -> bool:
 	if _rodou:
@@ -30,20 +32,25 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] >= 460, "world_map tem pelo menos 460 de largura (Rota5+Rota6+Vermilion cabem)")
 
-	# ---- 1. Caminho contínuo de Cerulean até Vermilion, sem quebra ----
-	# (220 = fim de Cerulean, 460 = fim do mapa)
+	# ---- 1. Corredor N-S contínuo de Cerulean até Vermilion (col 247-249,
+	# de r=37 até o fim de Vermilion) ----
+	# "~" é permitido: dentro de Vermilion, col 248 (cc=28) cai na decoração
+	# esparsa da doca (cidade portuária) — mesmo padrão de sempre, não é
+	# quebra de verdade (o resto do corredor sempre tem P/./I do lado).
 	var quebras := 0
-	for c in range(220, 458):
-		if tiles[18][c] != "P" and tiles[18][c] != "." :
+	for r in range(MapLayouts.ROUTE5_SUL_START, MapLayouts.VERMILION_ROW_INICIO + MapLayouts.VERMILION_ROWS):
+		var ch : String = tiles[r][248]
+		if ch != "P" and ch != "." and ch != "I" and ch != "~":
 			quebras += 1
-	_assert(quebras == 0, "caminho de Cerulean até Vermilion (row 18) é contínuo (%d quebras)" % quebras)
+	_assert(quebras == 0, "corredor N-S de Cerulean até Vermilion (col 248) é contínuo (%d quebras)" % quebras)
 
-	# ---- 2. Ginásio e Centro Pokémon de Vermilion existem ----
-	_assert(tiles[10][416] == "I", "Vermilion: interior do Ginásio (Lt. Surge) é piso")
-	_assert(tiles[6][416] == "H", "Vermilion: telhado do Ginásio existe")
-	_assert(tiles[10][441] == "I", "Vermilion: interior do Centro Pokémon é piso")
+	# ---- 2. Ginásio e Centro Pokémon de Vermilion existem, na posição real ----
+	var vc0 := MapLayouts.SPINE_COL_INICIO
+	var vr0 := MapLayouts.VERMILION_ROW_INICIO
+	_assert(tiles[vr0 + 10][vc0 + 16] == "I", "Vermilion: interior do Ginásio (Lt. Surge) é piso")
+	_assert(tiles[vr0 + 6][vc0 + 16] == "H", "Vermilion: telhado do Ginásio existe")
+	_assert(tiles[vr0 + 10][vc0 + 41] == "I", "Vermilion: interior do Centro Pokémon é piso")
 
 	# ---- 3. WorldMap: Lt. Surge tem time real ----
 	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene
@@ -83,6 +90,4 @@ func _teste_geral() -> void:
 				achou_voltorb = true
 	_assert(achou_voltorb, "Voltorb existe em algum spawn selvagem (objetivo da GYM-03 é alcançável)")
 
-	# ---- 5. Todos os 5 arquivos de teste anteriores continuam passando é
-	# conferido rodando cada um separadamente — aqui só a soma de fases ----
-	_assert(MapLayouts.OFFSET_ANTIGO == 72, "OFFSET_ANTIGO continua 72 — Tiers 2/3 não tocaram no norte do mapa")
+	_assert(MapLayouts.OFFSET_ANTIGO == 72, "OFFSET_ANTIGO continua 72 — norte do mapa (Pewter/Viridian/Rota1/Pallet) intocado")

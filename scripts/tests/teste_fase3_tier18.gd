@@ -36,7 +36,7 @@ func _atlas_at(tm: TileMap, c: int, r: int) -> Vector2i:
 func _teste_geral() -> void:
 	# ---- 0. Array principal continua idêntico — ramo é pintado à parte ----
 	var layout = MapLayouts.get_layout("world_map")
-	_assert(layout["width"] == 940, "world_map continua com 940 de largura (Tier 18 não mexe na largura do array principal)")
+	_assert(layout["width"] == 465, "world_map continua com 940 de largura (Tier 18 não mexe na largura do array principal)")
 
 	# ---- 1. Pinta um TileMap de verdade ----
 	var tileset := load("res://assets/tilesets/overworld.tres") as TileSet

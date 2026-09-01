@@ -34,9 +34,12 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var world_layout = MapLayouts.get_layout("world_map")
 	var world_tiles : Array = world_layout["tiles"]
-	# Silph Co.: cols globais 810-818, rows 4-14 (Saffron sf50-58, r4-14)
-	_assert(world_tiles[4][814] == "H", "Silph Co.: telhado bate com a coordenada real do zones.json")
-	_assert(world_tiles[10][814] == "I", "Silph Co.: interior bate com a coordenada real")
+	# Silph Co.: reorganização de 02/09 — Saffron agora fica embaixo de
+	# Cerulean (cc50-58, r4-14 dentro da própria cidade).
+	var cc0 := MapLayouts.SPINE_COL_INICIO
+	var r0 := MapLayouts.SAFFRON_ROW_INICIO
+	_assert(world_tiles[r0 + 4][cc0 + 54] == "H", "Silph Co.: telhado bate com a coordenada real do zones.json")
+	_assert(world_tiles[r0 + 10][cc0 + 54] == "I", "Silph Co.: interior bate com a coordenada real")
 
 	var cinnabar_layout = MapLayouts.get_layout("cinnabar_island")
 	var cinnabar_tiles : Array = cinnabar_layout["tiles"]
@@ -53,7 +56,8 @@ func _teste_geral() -> void:
 
 	var silph : Dictionary = by_id.get("silph_co_entrance", {})
 	var sr : Dictionary = silph.get("tile_rect", {})
-	_assert(sr.get("x", 0) == 810 and sr.get("y", 0) == 4, "zones.json: silph_co_entrance aponta pra coordenada real (810,4)")
+	_assert(sr.get("x", 0) == cc0 + 50 and sr.get("y", 0) == r0 + 4,
+		"zones.json: silph_co_entrance aponta pra coordenada real (%d,%d)" % [cc0 + 50, r0 + 4])
 
 	var mansion : Dictionary = by_id.get("pokemon_mansion", {})
 	_assert(mansion.get("map_id", "") == "cinnabar_island", "zones.json: pokemon_mansion aponta pro map_id cinnabar_island")

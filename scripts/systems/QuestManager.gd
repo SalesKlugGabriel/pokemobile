@@ -263,6 +263,15 @@ func _on_battle_ended(result: Dictionary) -> void:
 						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
 					elif target == "wild_pokemon" and is_wild:
 						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
+					# Achado ao construir o Rocket Hideout (Fase 2, 01/09/2026):
+					# faltava o par por NOME DE TREINADOR do "defeat_count" — só existia
+					# pra "defeat" (1 vitória só). Vários capangas com o mesmo npc_name
+					# (ex: 3x "Capanga Rocket") precisam contar cada derrota como +1,
+					# igual ao "defeat" já faz pra trainer_name, só que somando em vez
+					# de fixar em 1. Mesmo padrão, reaproveitável por qualquer quest
+					# futura com "várias vitórias contra o mesmo tipo de treinador".
+					elif not is_wild and target == trainer_name:
+						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
 					elif target == enemy_name:
 						update_objective(quest_id, i, get_objective_progress(quest_id, i) + 1)
 				"defeat_alpha":

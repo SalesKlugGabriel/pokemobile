@@ -1,7 +1,9 @@
 ## teste_fase3_tier13.gd — Teste headless do Tier 13 da expansão de mapa
 ## (Arquipélago Tropical — 2 ilhas no mar aberto, SEM warp de propósito;
-## só alcançável quando Surf/Fly existir. Pedido do Gabriel: construir e
-## deixar pronto, mesmo sem jeito de chegar lá ainda).
+## só alcançável quando Surf/Fly existir). Ajustado em 02/09 (reorganização
+## geográfica): a faixa de colunas do litoral de Vermilion mudou de 400-459
+## pra 220-279 — usa as constantes de MapLayouts em vez de número cravado,
+## pra não quebrar de novo se a geografia mudar outra vez.
 ## Roda com: godot4 --headless --script res://scripts/tests/teste_fase3_tier13.gd
 extends SceneTree
 
@@ -32,30 +34,35 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] == 940 and layout["height"] == 192,
+	_assert(layout["width"] == 465 and layout["height"] == 330,
 		"world_map não mudou de tamanho (arquipélago reaproveita a faixa de colunas de Vermilion)")
 
+	var col_ini : int = MapLayouts.VERMILION_COAST_COL_INICIO
+	var col_fim : int = MapLayouts.VERMILION_COAST_COL_FIM
+	var row_ini : int = MapLayouts.VERMILION_COAST_ROW_INICIO + MapLayouts.COASTLINE_ROWS
+	var row_fim : int = row_ini + MapLayouts.ARQUIPELAGO_ROWS - 1
+
 	# ---- 1. As duas ilhas existem (centro é terra, não mar/praia) ----
-	_assert(tiles[91][415] != "~" and tiles[91][415] != "S", "Ilha 1: o centro é terreno de verdade")
-	_assert(tiles[103][442] != "~" and tiles[103][442] != "S", "Ilha 2: o centro é terreno de verdade")
+	_assert(tiles[row_ini + 15][col_ini + 15] != "~" and tiles[row_ini + 15][col_ini + 15] != "S", "Ilha 1: o centro é terreno de verdade")
+	_assert(tiles[row_ini + 27][col_ini + 42] != "~" and tiles[row_ini + 27][col_ini + 42] != "S", "Ilha 2: o centro é terreno de verdade")
 
 	# ---- 2. Existe mar aberto entre/ao redor das ilhas (não é um continente
 	# sólido) ----
-	_assert(tiles[80][400] == "~", "existe mar aberto perto da borda oeste do arquipélago")
-	_assert(tiles[116][459] == "~", "existe mar aberto perto do canto sudeste do arquipélago")
+	_assert(tiles[row_ini][col_ini] == "~", "existe mar aberto perto da borda oeste do arquipélago")
+	_assert(tiles[row_fim][col_fim] == "~", "existe mar aberto perto do canto sudeste do arquipélago")
 
 	# ---- 3. Praia ao redor de pelo menos uma das ilhas ----
 	var achou_praia := false
-	for r in range(77, 117):
-		for c in range(400, 460):
+	for r in range(row_ini, row_fim + 1):
+		for c in range(col_ini, col_fim + 1):
 			if tiles[r][c] == "S":
 				achou_praia = true
 	_assert(achou_praia, "existe praia ao redor das ilhas")
 
 	# ---- 4. Vegetação tropical densa existe (T/F/G, não só água) ----
 	var achou_vegetacao := false
-	for r in range(77, 117):
-		for c in range(400, 460):
+	for r in range(row_ini, row_fim + 1):
+		for c in range(col_ini, col_fim + 1):
 			var ch : String = tiles[r][c]
 			if ch == "T" or ch == "F" or ch == "G":
 				achou_vegetacao = true
@@ -63,12 +70,12 @@ func _teste_geral() -> void:
 
 	# ---- 5. Continuidade do mar: sem quebra entre o litoral de Vermilion
 	# (Tier 9) e o arquipélago (Tier 13) — mesma "água", só continuando ----
-	_assert(tiles[76][430] == "~" or tiles[76][430] == "S", "linha de transição (r=76) é praia/mar, não borda")
-	_assert(tiles[78][430] != "T", "logo depois da transição (r=78) já é o arquipélago, não borda")
+	_assert(tiles[row_ini - 1][col_ini + 30] == "~" or tiles[row_ini - 1][col_ini + 30] == "S", "linha de transição é praia/mar, não borda")
+	_assert(tiles[row_ini + 1][col_ini + 30] != "T", "logo depois da transição já é o arquipélago, não borda")
 
 	# ---- 6. Fora da faixa de colunas do arquipélago, continua borda — não
 	# vazou pro resto do mapa ----
-	_assert(tiles[95][390] == "T", "fora da faixa de colunas do arquipélago (col 390) continua borda")
+	_assert(tiles[row_ini + 10][col_ini - 10] == "T", "fora da faixa de colunas do arquipélago continua borda")
 
 	# ---- 7. zones.json: zona registrada, spawn real do Gen 1, sem warp associado ----
 	var f := FileAccess.open("res://data/world/zones.json", FileAccess.READ)

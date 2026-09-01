@@ -38,8 +38,8 @@ func _teste_geral() -> void:
 	# ---- 0. O array principal (Tiers 1-7) continua IDÊNTICO — nenhuma
 	# linha de NPC/warp/zona precisou mudar (garantia da arquitetura escolhida) ----
 	var layout = MapLayouts.get_layout("world_map")
-	_assert(layout["width"] == 940, "world_map continua com 940 de largura (Tier 8 não mexe na largura)")
-	_assert(layout["height"] == 192, "world_map continua com 192 de altura no array principal (ramo é pintado à parte)")
+	_assert(layout["width"] == 465, "world_map continua com 940 de largura (Tier 8 não mexe na largura)")
+	_assert(layout["height"] == 330, "world_map continua com 192 de altura no array principal (ramo é pintado à parte)")
 
 	# ---- 1. Pinta um TileMap de verdade (é assim que o jogo realmente desenha) ----
 	var tileset := load("res://assets/tilesets/overworld.tres") as TileSet

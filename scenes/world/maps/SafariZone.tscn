@@ -56,7 +56,7 @@ script = ExtResource("5_sm")
 [node name="WarpSaida" parent="WarpZones" instance=ExtResource("11_warpzone")]
 position = Vector2(344, 688)
 target_map = "res://scenes/world/maps/WorldMap.tscn"
-spawn_tile = Vector2i(694, 33)
+spawn_tile = Vector2i(454, 166)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpSaida"]
 shape = SubResource("Shape_saida")

@@ -49,7 +49,7 @@ script = ExtResource("4_sm")
 [node name="WarpSouth" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(216, 432)
 target_map = "res://scenes/world/maps/WorldMap.tscn"
-spawn_tile = Vector2i(428, -17)
+spawn_tile = Vector2i(303, 152)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpSouth"]
 shape = SubResource("Shape_south")

@@ -50,28 +50,72 @@ const W_ANTIGO : int = 100
 const ROUTE3_COLS    : int = 60
 const ROUTE4_COLS    : int = 60
 const CERULEAN_COLS  : int = 60
-# Tier 3 (Gabriel, 31/08 — "terminar mapa" antes de mecânica/sprite): Rota 5 →
-# Rota 6 → Vermilion City (Lt. Surge), continuando a leste de Cerulean.
-const ROUTE5_COLS    : int = 60
-const ROUTE6_COLS    : int = 60
+const SPINE_COL_INICIO : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS  # 220 — início de Cerulean
+
+# ──────────────────────────────────────────────────────────────────────────────
+# REORGANIZAÇÃO GEOGRÁFICA (02/09) — pedido do Gabriel com referência visual
+# do Kanto real: Saffron embaixo de Cerulean, Vermilion embaixo de Saffron,
+# Celadon à esquerda de Saffron (mar de verdade separando de Viridian — só
+# atravessa por Saffron ou, no futuro, nadando), Lavender à direita de
+# Saffron (herda a Rock Tunnel que já existia), Fuchsia embaixo de Lavender.
+# Substitui a "fileira reta" dos Tiers 3-7 (Vermilion→Celadon→Fuchsia→
+# Saffron→Lavender, tudo em fila a leste de Cerulean) por uma CRUZ ao sul de
+# Cerulean. Pewter↔Cerulean (Rota3/MtMoon/Rota4) e tudo ao NORTE de Cerulean
+# (Rota24/25/Casa do Bill) e a OESTE de Viridian (Rota22/Victory Road/Indigo
+# Plateau) continuam exatamente iguais — só o que ficava a LESTE de Cerulean
+# foi desmontado e remontado. Cada cidade manteve o próprio desenho interno
+# (Ginásio/Centro/etc. nas mesmas posições relativas) — só mudou ONDE ela é
+# ancorada no mapa; o código de cada prédio foi extraído pra uma função
+# própria por cidade, reutilizável não importa de que direção se chega.
+# ──────────────────────────────────────────────────────────────────────────────
+const CIDADE_ROWS : int = 36   # toda cidade nova usa a mesma altura de banda
+
+# Rota 5 (Cerulean → Saffron, pra baixo).
+const ROUTE5_SUL_ROWS : int = 30
+const ROUTE5_SUL_START : int = PEWTER_ROWS + 1  # 37 (r=36 é a linha de transição/seam)
+const SAFFRON_ROW_INICIO : int = ROUTE5_SUL_START + ROUTE5_SUL_ROWS  # 67
+const SAFFRON_ROWS : int = CIDADE_ROWS
+const SAFFRON_COLS : int = 60
+
+# Rota 6 (Saffron → Vermilion, pra baixo).
+const ROUTE6_SUL_ROWS : int = 30
+const VERMILION_ROW_INICIO : int = SAFFRON_ROW_INICIO + SAFFRON_ROWS + ROUTE6_SUL_ROWS  # 132
+const VERMILION_ROWS : int = CIDADE_ROWS
 const VERMILION_COLS : int = 60
-# Tier 4 (continuação, 31/08): Rota 7 → Celadon City (Erika).
-const ROUTE7_COLS    : int = 60
+
+# Rota 7 (Saffron → Celadon, pra esquerda) — mar de verdade separa Celadon
+# de Viridian (não dá pra ir a pé; só por Saffron, ou nadando no futuro).
+const ROUTE7_SUL_COLS : int = 40
 const CELADON_COLS   : int = 60
-# Tier 5 (continuação, 31/08): Rota 8 → Fuchsia City (Koga, GYM-05).
-const ROUTE8_COLS    : int = 60
-const FUCHSIA_COLS   : int = 60
-# Tier 6 (continuação, 31/08): Rota 9 → Saffron City (Sabrina, GYM-07).
+const CELADON_COL_FIM    : int = SPINE_COL_INICIO - 1 - ROUTE7_SUL_COLS       # 179
+const CELADON_COL_INICIO : int = CELADON_COL_FIM - CELADON_COLS + 1          # 120
+const MAR_CELADON_VIRIDIAN_COL_INICIO : int = W_ANTIGO                       # 100
+const MAR_CELADON_VIRIDIAN_COL_FIM    : int = CELADON_COL_INICIO - 1         # 119
+
+# Rota 8 (Saffron → Lavender, pra direita) — reaproveita o comprimento e a
+# boca de Rock Tunnel que já existiam nas antigas Rota 9 + Rota 10.
 const ROUTE9_COLS    : int = 60
-const SAFFRON_COLS   : int = 60
-# Tier 7 (continuação, 01/09): Rota 10 → Lavender Town (Torre Pokémon, só
-# fachada por enquanto — mesmo tratamento já dado à Silph Co./Celadon Mart).
 const ROUTE10_COLS   : int = 60
+const ROUTE8_SUL_COLS : int = ROUTE9_COLS + ROUTE10_COLS                     # 120
+const LAVENDER_COL_INICIO : int = SPINE_COL_INICIO + CERULEAN_COLS + ROUTE8_SUL_COLS  # 400
 const LAVENDER_COLS  : int = 60
-const W_TOTAL : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS \
-	+ ROUTE5_COLS + ROUTE6_COLS + VERMILION_COLS \
-	+ ROUTE7_COLS + CELADON_COLS + ROUTE8_COLS + FUCHSIA_COLS \
-	+ ROUTE9_COLS + SAFFRON_COLS + ROUTE10_COLS + LAVENDER_COLS  # 940
+
+# Rota (Lavender → Fuchsia, pra baixo) — Fuchsia fica embaixo de Lavender,
+# mesmas colunas.
+const ROUTE_LAVENDER_FUCHSIA_ROWS : int = 30
+const FUCHSIA_ROW_INICIO : int = SAFFRON_ROW_INICIO + SAFFRON_ROWS + ROUTE_LAVENDER_FUCHSIA_ROWS  # 132
+const FUCHSIA_ROWS  : int = CIDADE_ROWS
+const FUCHSIA_COLS  : int = 60
+
+# Rota 11 → Diglett's Cave — espora a LESTE de Vermilion (Tier 19, refeita
+# aqui: antes saía "ao norte" só porque Vermilion morava lá; agora que
+# Vermilion tem saída norte/sul ocupadas por Cerulean/costa, a espora sai
+# a leste, mesma ideia de sempre — beco sem saída, sem "contornar").
+const ROUTE11_LESTE_COLS : int = 30
+const ROUTE11_COL_INICIO : int = SPINE_COL_INICIO + CERULEAN_COLS  # 280
+
+const W_TOTAL : int = LAVENDER_COL_INICIO + LAVENDER_COLS + 5   # 465 (margem de borda)
+const H_TOTAL : int = 330   # cobre Cerulean→Saffron→Vermilion→costa→Power Plant + margem
 
 # Tier 8 (01/09): Rota 24 → Rota 25 → Casa do Bill — desvio ao NORTE de
 # Cerulean (não é continuar pra leste). Diferente de Pewter/Rota 2 (que
@@ -87,18 +131,8 @@ const ROUTE24_ROWS : int = 20   # mais perto de Cerulean
 const ROUTE25_ROWS : int = 20   # mais ao norte, termina na Casa do Bill
 const NORTE_OFFSET : int = ROUTE24_ROWS + ROUTE25_ROWS  # 40
 # Colunas globais do corredor (dentro da faixa de Cerulean: cc 27-29 local).
-const RAMO_NORTE_COL_INICIO : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + 27
-const RAMO_NORTE_COL_FIM    : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + 29
-
-# Tier 19 (01/09): Rota 11 → Diglett's Cave — SEGUNDO ramo em linhas
-# negativas, desta vez saindo de Vermilion (não de Cerulean) pra norte.
-# Independente do ramo do Tier 8 (coluna diferente, mesmo espaço de linhas
-# negativas — não colide). Rota 11 é uma espora (beco sem saída, como a
-# Casa do Bill): termina na boca de Diglett's Cave, sem precisar de
-# "contornar" (não há nada depois pra alcançar de outro jeito).
-const ROUTE11_NORTE_ROWS : int = 20
-const ROUTE11_NORTE_COL_INICIO : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS + ROUTE5_COLS + ROUTE6_COLS + 27
-const ROUTE11_NORTE_COL_FIM    : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS + ROUTE5_COLS + ROUTE6_COLS + 29
+const RAMO_NORTE_COL_INICIO : int = SPINE_COL_INICIO + 27
+const RAMO_NORTE_COL_FIM    : int = SPINE_COL_INICIO + 29
 
 # Tier 17 (01/09): Nugget Bridge — travessia de rio dentro da Rota 24 (fb =
 # "from border", ver _norte_de_cerulean_cell). O TreinadorRota24 (Tier 8) já
@@ -114,13 +148,12 @@ const NUGGET_BRIDGE_FB_FIM    : int = 33
 # grama com água do lado) — areia com curva de costa orgânica (função seno,
 # não corte reto) + rochedos de maré esparsos, terminando num mar aberto
 # que fica registrado aqui como fonte única de verdade pra quando o mapa
-# SUBMARINO for construído (tem que ter exatamente o mesmo formato). Mesma
-# arquitetura "desvio" do Tier 8, mas ao SUL — não precisa de linha
-# negativa dessa vez, porque ao sul de Vermilion (r>PEWTER_ROWS) já era
-# borda vazia (a Rota 2 só existe a oeste, c<W_ANTIGO), então dá pra
-# reivindicar essas linhas direto no array principal, sem pintura à parte.
+# SUBMARINO for construído (tem que ter exatamente o mesmo formato). Desde a
+# reorganização de 02/09, a costa sai do NOVO sul de Vermilion (linha
+# VERMILION_COAST_ROW_INICIO), não mais logo depois de Pewter.
 const COASTLINE_ROWS : int = 40
-const VERMILION_COAST_COL_INICIO : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS + ROUTE5_COLS + ROUTE6_COLS
+const VERMILION_COAST_ROW_INICIO : int = VERMILION_ROW_INICIO + VERMILION_ROWS  # 168
+const VERMILION_COAST_COL_INICIO : int = SPINE_COL_INICIO
 const VERMILION_COAST_COL_FIM    : int = VERMILION_COAST_COL_INICIO + VERMILION_COLS - 1
 
 # Tier 13 (01/09): Arquipélago Tropical — mar aberto continuando ao sul do
@@ -167,7 +200,7 @@ const OESTE_ROW_INICIO : int = 82   # global; local row 18-19 cai em 100-101 (se
 
 static func _gen_world_map() -> Array:
 	var W := W_TOTAL
-	var H := 120 + OFFSET_ANTIGO
+	var H := H_TOTAL
 	var grid : Array = []
 	for r in H:
 		var row := ""
@@ -226,43 +259,77 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 		# de Cerulean pra cima. Abre passagem só nas colunas do ramo.
 		if c >= RAMO_NORTE_COL_INICIO and c <= RAMO_NORTE_COL_FIM and r <= 2:
 			return "P"
-		# Mesma classe (Tier 19): abre passagem pro ramo de Vermilion pra
-		# norte (Rota 11 -> Diglett's Cave) - colunas diferentes do ramo
-		# de Cerulean acima, nao colide.
-		if c >= ROUTE11_NORTE_COL_INICIO and c <= ROUTE11_NORTE_COL_FIM and r <= 2:
+		# Reorganização de 02/09: Cerulean agora também sai pro SUL (Rota 5,
+		# rumo a Saffron) pelas MESMAS colunas do ramo norte (cc 27-29) —
+		# mesma classe de seam, abrindo a borda sul de _leste_de_pewter_cell.
+		if c >= RAMO_NORTE_COL_INICIO and c <= RAMO_NORTE_COL_FIM and r >= PEWTER_ROWS - 1:
 			return "P"
-		# Mesma classe, Tier 9: _leste_de_pewter_cell trata r>=PEWTER_ROWS-1
-		# como borda SUL — fazia sentido antes de existir litoral saindo de
-		# Vermilion pra baixo. Abre passagem em toda a largura da cidade
-		# (é o cais/orla — faz sentido dar pra entrar na praia de qualquer
-		# ponto da frente da cidade, não só um corredorzinho).
-		if c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM and r >= PEWTER_ROWS - 1:
-			return "S"
 		return _leste_de_pewter_cell(c - W_ANTIGO, r)
 
-	# ── Litoral de Vermilion (Tier 9) — só existe na faixa de colunas da
-	# cidade; fora dela cai no fallback de sempre (Rota 2 / borda) ─────────
-	if r <= PEWTER_ROWS + COASTLINE_ROWS \
-	and c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM:
-		return _vermilion_coastline_cell(c, r - PEWTER_ROWS, W)
+	# ── Mar entre Celadon e Viridian (reorganização de 02/09) — separação DE
+	# VERDADE, pedido do Gabriel: não dá pra ir a pé, só por Saffron (ou
+	# nadando, quando Surf existir). Mesma faixa de linhas de Celadon. ─────
+	if c >= MAR_CELADON_VIRIDIAN_COL_INICIO and c <= MAR_CELADON_VIRIDIAN_COL_FIM \
+	and r >= SAFFRON_ROW_INICIO and r <= SAFFRON_ROW_INICIO + SAFFRON_ROWS - 1:
+		return "~"
 
-	# ── Arquipélago Tropical (Tier 13) — continuação do mar, mais ao sul.
-	# Sem warp de propósito (só Surf/Fly no futuro vão levar até lá) ───────
-	if r <= PEWTER_ROWS + COASTLINE_ROWS + ARQUIPELAGO_ROWS \
-	and c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM:
-		return _arquipelago_tropical_cell(c, r - PEWTER_ROWS - COASTLINE_ROWS, W)
+	# ── Rota 7 → Celadon (reorganização de 02/09: Celadon fica a OESTE de
+	# Saffron, não mais a leste de Vermilion) — mesma faixa de linhas de
+	# Saffron (r local 0-35 = mesmo "no_caminho" r16-20 de sempre) ────────
+	if c >= CELADON_COL_INICIO and c < SPINE_COL_INICIO \
+	and r >= SAFFRON_ROW_INICIO and r <= SAFFRON_ROW_INICIO + SAFFRON_ROWS - 1:
+		var local_r := r - SAFFRON_ROW_INICIO
+		if c < CELADON_COL_INICIO + CELADON_COLS:
+			return _celadon_cell(c - CELADON_COL_INICIO, local_r)
+		return _route7_cell(SPINE_COL_INICIO - 1 - c, local_r)
 
-	# ── Seafoam Islands (Tier 14) — continuação do mar, mais ao sul do
-	# Arquipélago Tropical. Sem warp de propósito (só Surf/Fly no futuro) ──
-	if r <= PEWTER_ROWS + COASTLINE_ROWS + ARQUIPELAGO_ROWS + SEAFOAM_ROWS \
-	and c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM:
-		return _seafoam_cell(c, r - PEWTER_ROWS - COASTLINE_ROWS - ARQUIPELAGO_ROWS, W)
+	# ── Espinha central: Cerulean → Rota 5 → Saffron → Rota 6 → Vermilion →
+	# litoral/ilhas (reorganização de 02/09 — antes essa faixa de colunas só
+	# tinha Cerulean; agora continua pro SUL em vez de leste) ──────────────
+	if c >= SPINE_COL_INICIO and c < SPINE_COL_INICIO + CERULEAN_COLS:
+		var cc_spine := c - SPINE_COL_INICIO
+		if r >= ROUTE5_SUL_START and r < VERMILION_COAST_ROW_INICIO:
+			return _sul_de_cerulean_cell(cc_spine, r - ROUTE5_SUL_START)
+		if r >= VERMILION_COAST_ROW_INICIO and r < VERMILION_COAST_ROW_INICIO + COASTLINE_ROWS:
+			return _vermilion_coastline_cell(c, r - VERMILION_COAST_ROW_INICIO + 1, W)
+		if r < VERMILION_COAST_ROW_INICIO + COASTLINE_ROWS + ARQUIPELAGO_ROWS:
+			return _arquipelago_tropical_cell(c, r - VERMILION_COAST_ROW_INICIO - COASTLINE_ROWS, W)
+		if r < VERMILION_COAST_ROW_INICIO + COASTLINE_ROWS + ARQUIPELAGO_ROWS + SEAFOAM_ROWS:
+			return _seafoam_cell(c, r - VERMILION_COAST_ROW_INICIO - COASTLINE_ROWS - ARQUIPELAGO_ROWS, W)
+		if r < VERMILION_COAST_ROW_INICIO + COASTLINE_ROWS + ARQUIPELAGO_ROWS + SEAFOAM_ROWS + POWERPLANT_ROWS:
+			return _powerplant_cell(c, r - VERMILION_COAST_ROW_INICIO - COASTLINE_ROWS - ARQUIPELAGO_ROWS - SEAFOAM_ROWS, W)
 
-	# ── Power Plant (Tier 20) — continuação do mar, mais ao sul do Seafoam.
-	# Sem warp de propósito (só Surf/Fly no futuro) ────────────────────────
-	if r <= PEWTER_ROWS + COASTLINE_ROWS + ARQUIPELAGO_ROWS + SEAFOAM_ROWS + POWERPLANT_ROWS \
-	and c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM:
-		return _powerplant_cell(c, r - PEWTER_ROWS - COASTLINE_ROWS - ARQUIPELAGO_ROWS - SEAFOAM_ROWS, W)
+	# ── Rota 11 → Diglett's Cave, a LESTE de Vermilion (reorganização de
+	# 02/09) — mesma faixa de linhas de Vermilion ─────────────────────────
+	if c >= ROUTE11_COL_INICIO and c < ROUTE11_COL_INICIO + ROUTE11_LESTE_COLS \
+	and r >= VERMILION_ROW_INICIO and r <= VERMILION_ROW_INICIO + VERMILION_ROWS - 1:
+		return _route11_digletts_cell(c - ROUTE11_COL_INICIO, r - VERMILION_ROW_INICIO)
+
+	# ── Rota 8 → Lavender (reorganização de 02/09: Lavender fica a LESTE de
+	# Saffron — reaproveita o comprimento e a boca de Rock Tunnel que já
+	# existiam) — mesma faixa de linhas de Saffron ─────────────────────────
+	if c >= SPINE_COL_INICIO + CERULEAN_COLS and c < LAVENDER_COL_INICIO + LAVENDER_COLS \
+	and r >= SAFFRON_ROW_INICIO and r <= SAFFRON_ROW_INICIO + SAFFRON_ROWS - 1:
+		var local_r8 := r - SAFFRON_ROW_INICIO
+		if c < LAVENDER_COL_INICIO:
+			return _route8_cell(c - (SPINE_COL_INICIO + CERULEAN_COLS), local_r8)
+		return _lavender_cell(c - LAVENDER_COL_INICIO, local_r8)
+
+	# ── Rota Lavender→Fuchsia + Fuchsia (reorganização de 02/09: Fuchsia
+	# fica embaixo de Lavender) — mesmas colunas de Lavender ───────────────
+	if c >= LAVENDER_COL_INICIO and c < LAVENDER_COL_INICIO + LAVENDER_COLS \
+	and r > SAFFRON_ROW_INICIO + SAFFRON_ROWS - 1 and r < VERMILION_COAST_ROW_INICIO:
+		var local_lf := r - (SAFFRON_ROW_INICIO + SAFFRON_ROWS)
+		var lc := c - LAVENDER_COL_INICIO
+		if local_lf < ROUTE_LAVENDER_FUCHSIA_ROWS:
+			if lc >= 27 and lc <= 29:
+				return "P"
+			if (lc + local_lf * 2) % 9 == 6:
+				return "T"
+			if (lc * 2 + local_lf) % 13 == 10:
+				return "F"
+			return "."
+		return _fuchsia_cell(lc, local_lf - ROUTE_LAVENDER_FUCHSIA_ROWS)
 
 	# ── Rota 2 (linhas 37-72) — só existe na largura antiga; o resto é borda
 	if r <= OFFSET_ANTIGO:
@@ -367,55 +434,304 @@ static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
 	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Rota 11 → Diglett's Cave — ramo a NORTE de Vermilion (Tier 19). Mesma
-# técnica do ramo norte de Cerulean (Tier 8), coluna diferente (não colide).
-# `fb` = "from border" (1 = mais ao norte/longe de Vermilion, ROUTE11_NORTE_
-# ROWS-1 = mais perto). Espora sem saída — termina na boca de Diglett's
-# Cave, não precisa de "contornar" (não há nada além pra alcançar).
+# Rota 11 → Diglett's Cave — espora a LESTE de Vermilion (refeita em 02/09:
+# antes saía "ao norte" só porque Vermilion não tinha mais nenhuma saída
+# livre; agora que o norte/sul de Vermilion já são Cerulean/costa, a espora
+# sai a leste). Vive dentro do array PRINCIPAL agora (não precisa mais de
+# pintura à parte — a reorganização geográfica já deixou essa faixa de
+# colunas livre no array principal). `dist` = distância da borda leste de
+# Vermilion (0 = colado nela). `vr` = linha local, MESMA banda de Vermilion
+# (0-35) — o corredor de Vermilion (cc>=57, vr16-20) entra direto aqui.
 # ──────────────────────────────────────────────────────────────────────────────
-## Diferente do ramo de Cerulean (Tier 8), que pinta a largura INTEIRA do
-## mapa por linha (ok pra ele, porque é o único ramo naquela faixa de
-## linhas) — este ramo pinta SÓ a própria faixa de colunas (ROUTE11_NORTE_
-## COL_INICIO-3 .. FIM+3). Motivo: as linhas negativas (r=-1..-20) são
-## COMPARTILHADAS com o ramo de Cerulean (r=-1..-39) — pintar a largura
-## inteira aqui sobrescreveria o corredor da Rota 24/25 com borda, já que
-## `_norte_de_vermilion_cell` devolve "T" fora da própria faixa de colunas.
-static func _gen_norte_de_vermilion() -> Array:
-	var col_inicio := ROUTE11_NORTE_COL_INICIO - 3
-	var band_w := (ROUTE11_NORTE_COL_FIM + 3) - col_inicio + 1
-	var grid : Array = []
-	for i in ROUTE11_NORTE_ROWS:
-		var r := i - ROUTE11_NORTE_ROWS
-		var row := ""
-		for lc in band_w:
-			if r == -ROUTE11_NORTE_ROWS:
-				row += "T"
-			else:
-				row += _norte_de_vermilion_cell(col_inicio + lc, r, W_TOTAL)
-		grid.append(row)
-	return grid
-
-static func _norte_de_vermilion_cell(c: int, r: int, W: int) -> String:
-	var fb := r + ROUTE11_NORTE_ROWS
-
-	if c < ROUTE11_NORTE_COL_INICIO - 3 or c > ROUTE11_NORTE_COL_FIM + 3:
+static func _route11_digletts_cell(dist: int, vr: int) -> String:
+	if vr <= 2 or vr >= VERMILION_ROWS - 3:
 		return "T"
 
-	var no_corredor := c >= ROUTE11_NORTE_COL_INICIO and c <= ROUTE11_NORTE_COL_FIM
+	var no_corredor := vr >= 16 and vr <= 20
 
-	# ── Boca de Diglett's Cave — bem no fim da espora (fb 1-6, mais longe) ──
-	if fb >= 1 and fb <= 6:
-		if no_corredor:
-			return "P"  # corredor sempre caminhável, mesmo dentro da moldura
-		return "R"  # rochedo ao redor da boca (só nas colunas de margem)
+	# ── Boca de Diglett's Cave — no fim da espora ──
+	if dist >= 20 and dist <= 27 and vr >= 12 and vr <= 15:
+		if no_corredor and dist >= 22 and dist <= 24:
+			return "P"  # entrada caminhável (warp fica aqui)
+		return "R"  # rochedo ao redor da boca
 
-	# ── Rota 11 (o resto da espora, fb 7..ROUTE11_NORTE_ROWS-1) ────────────
 	if no_corredor:
 		return "P"
-	if (c + r * 2) % 9 == 5:
+	if (dist + vr * 2) % 9 == 5:
 		return "T"
-	if (c * 2 + r) % 13 == 9:
+	if (dist * 2 + vr) % 13 == 9:
 		return "F"
+	return "."
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Espinha central: Cerulean → Rota 5 → Saffron → Rota 6 → Vermilion (reorg.
+# de 02/09). `cc` é a coluna local (0-59, MESMA largura de Cerulean — todas
+# as cidades desta espinha ficam exatamente uma embaixo da outra). `sr` é a
+# linha local a partir de ROUTE5_SUL_START (sr=0 logo depois do seam de
+# Cerulean). Cada cidade tem sua própria função (_saffron_cell/
+# _vermilion_cell) — nenhuma delas precisa de parede de borda própria: como
+# em toda cidade do jogo desde sempre, a rota entra e vira grama "." comum
+# (só as próprias rotas têm o tile de caminho "P" de verdade).
+# ──────────────────────────────────────────────────────────────────────────────
+static func _sul_de_cerulean_cell(cc: int, sr: int) -> String:
+	# ── Rota 5 (Cerulean → Saffron) ──
+	if sr < ROUTE5_SUL_ROWS:
+		if cc >= 27 and cc <= 29:
+			return "P"
+		if (cc + sr * 2) % 9 == 2:
+			return "T"
+		if (cc * 2 + sr) % 13 == 6:
+			return "F"
+		return "."
+
+	var sfr := sr - ROUTE5_SUL_ROWS
+	if sfr < SAFFRON_ROWS:
+		return _saffron_cell(cc, sfr)
+
+	# ── Rota 6 (Saffron → Vermilion) ──
+	var vr6 := sfr - SAFFRON_ROWS
+	if vr6 < ROUTE6_SUL_ROWS:
+		if cc >= 27 and cc <= 29:
+			return "P"
+		if (cc + vr6 * 3) % 9 == 3:
+			return "T"
+		if (cc + vr6 * 2) % 13 == 7:
+			return "F"
+		return "."
+
+	var vmr := vr6 - ROUTE6_SUL_ROWS
+	if vmr < VERMILION_ROWS:
+		return _vermilion_cell(cc, vmr)
+
+	return "."
+
+## Saffron City — cruzamento das 4 rotas (Cerulean ao norte, Vermilion ao
+## sul, Celadon a oeste, Lavender a leste). Ginásio (Sabrina)/Centro/Silph
+## Co. nas mesmas posições relativas de sempre.
+static func _saffron_cell(cc: int, r: int) -> String:
+	if cc >= 10 and cc <= 22 and r >= 6 and r <= 14:
+		if cc == 10 or cc == 22: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if cc >= 15 and cc <= 17: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and cc >= 15 and cc <= 17:
+		return "P"
+
+	if cc >= 35 and cc <= 47 and r >= 6 and r <= 14:
+		if cc == 35 or cc == 47: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if cc >= 40 and cc <= 42: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and cc >= 40 and cc <= 42:
+		return "P"
+
+	# Silph Co. — torre alta, só o prédio, sem interior ligado ainda.
+	if cc >= 50 and cc <= 58 and r >= 4 and r <= 14:
+		if cc == 50 or cc == 58: return "W"
+		if r == 4: return "H"
+		if r == 14:
+			if cc >= 53 and cc <= 55: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and cc >= 53 and cc <= 55:
+		return "P"
+
+	return "."
+
+## Vermilion City — cidade portuária, Ginásio (Lt. Surge)/Centro/S.S. Anne/
+## doca, exatamente como sempre. Ao norte (Rota 6) vem de Saffron; ao sul
+## continua na costa (praia/Arquipélago/Seafoam/Power Plant); a leste, a
+## Rota 11 → Diglett's Cave.
+static func _vermilion_cell(cc: int, r: int) -> String:
+	if cc >= 10 and cc <= 22 and r >= 6 and r <= 14:
+		if cc == 10 or cc == 22: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if cc >= 15 and cc <= 17: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and cc >= 15 and cc <= 17:
+		return "P"
+
+	if cc >= 35 and cc <= 47 and r >= 6 and r <= 14:
+		if cc == 35 or cc == 47: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if cc >= 40 and cc <= 42: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and cc >= 40 and cc <= 42:
+		return "P"
+
+	# S.S. Anne — navio ancorado no cais (Tier 16). Só fachada.
+	if cc >= 2 and cc <= 14 and r >= 22 and r <= 32:
+		if cc == 2 or cc == 14: return "W"
+		if r == 22: return "H"
+		if r == 32:
+			if cc >= 7 and cc <= 9: return "P"
+			return "W"
+		return "I"
+	if r >= 32 and r <= 34 and cc >= 7 and cc <= 9:
+		return "P"
+
+	# Doca/porto (Vermilion é cidade portuária).
+	if (cc + r * 2) % 15 == 3 and r >= 22 and r <= 34 and cc >= 2 and cc <= 55:
+		return "~"
+
+	return "."
+
+## Rota 7 (Saffron → Celadon, pra oeste). `dist` cresce se afastando de
+## Saffron (0 = colado nela).
+static func _route7_cell(dist: int, r: int) -> String:
+	if r >= 16 and r <= 20:
+		return "P"
+	if (dist + r * 2) % 9 == 4:
+		return "T"
+	if (dist * 2 + r) % 13 == 8:
+		return "F"
+	return "."
+
+## Celadon City — Ginásio (Erika)/Centro/Loja de Departamentos/Rocket
+## Hideout/Jardins, exatamente como sempre. Fica a OESTE de Saffron; a
+## OESTE de Celadon (colunas < CELADON_COL_INICIO) é o mar que separa de
+## Viridian de verdade.
+static func _celadon_cell(ce: int, r: int) -> String:
+	if ce >= 10 and ce <= 22 and r >= 6 and r <= 14:
+		if ce == 10 or ce == 22: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if ce >= 15 and ce <= 17: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and ce >= 15 and ce <= 17:
+		return "P"
+
+	if ce >= 35 and ce <= 47 and r >= 6 and r <= 14:
+		if ce == 35 or ce == 47: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if ce >= 40 and ce <= 42: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and ce >= 40 and ce <= 42:
+		return "P"
+
+	# Grande Loja de Departamentos (Celadon Mart).
+	if ce >= 50 and ce <= 58 and r >= 8 and r <= 14:
+		if ce == 50 or ce == 58: return "W"
+		if r == 8: return "H"
+		if r == 14:
+			if ce >= 53 and ce <= 55: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and ce >= 53 and ce <= 55:
+		return "P"
+
+	# Rocket Hideout — entrada/porão (Tier 15), warp de verdade.
+	if ce >= 24 and ce <= 31 and r >= 21 and r <= 28:
+		if ce == 24 or ce == 31: return "W"
+		if r == 21: return "H"
+		if r == 28:
+			if ce >= 27 and ce <= 28: return "P"
+			return "W"
+		return "I"
+	if r >= 28 and r <= 30 and ce >= 27 and ce <= 28:
+		return "P"
+
+	# Jardins de Celadon (o verde que dá nome à cidade).
+	if (ce + r * 3) % 11 == 4 and r >= 20 and r <= 34 and ce >= 2 and ce <= 55:
+		return "F"
+
+	return "."
+
+## Rota 8 (Saffron → Lavender, pra leste). Reaproveita o comprimento e a
+## boca de Rock Tunnel que já existiam nas antigas Rota 9 (pedregosa) e
+## Rota 10 (a boca em si). `dist` cresce se afastando de Saffron.
+static func _route8_cell(dist: int, r: int) -> String:
+	if dist < ROUTE9_COLS:
+		if r >= 16 and r <= 20:
+			return "P"
+		if (dist + r * 2) % 9 == 6:
+			return "R"  # pedregosa (leva pro Rock Tunnel no Kanto real)
+		if (dist * 2 + r) % 13 == 10:
+			return "T"
+		return "."
+
+	var r10 := dist - ROUTE9_COLS
+	# Boca do Rock Tunnel — moldura de rocha ACIMA do corredor (rows 12-15),
+	# nunca atravessando o corredor em si (r16-20 sempre vence).
+	if r10 >= 20 and r10 <= 27 and r >= 12 and r <= 15:
+		if r10 >= 22 and r10 <= 25:
+			return "P"
+		return "R"
+	if r >= 16 and r <= 20:
+		return "P"
+	if (r10 + r * 2) % 9 == 7:
+		return "T"
+	if (r10 * 2 + r) % 13 == 11:
+		return "F"
+	return "."
+
+## Lavender Town — Torre Pokémon (só fachada) + Centro, exatamente como
+## sempre. Fica a LESTE de Saffron; ao SUL (nova rota) fica Fuchsia.
+static func _lavender_cell(lv: int, r: int) -> String:
+	if lv >= 10 and lv <= 22 and r >= 4 and r <= 14:
+		if lv == 10 or lv == 22: return "W"
+		if r == 4: return "H"
+		if r == 14:
+			if lv >= 15 and lv <= 17: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and lv >= 15 and lv <= 17:
+		return "P"
+
+	if lv >= 35 and lv <= 47 and r >= 6 and r <= 14:
+		if lv == 35 or lv == 47: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if lv >= 40 and lv <= 42: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and lv >= 40 and lv <= 42:
+		return "P"
+
+	return "."
+
+## Fuchsia City — Ginásio (Koga)/Centro/Zona Safari (portão), exatamente
+## como sempre. Fica embaixo de Lavender.
+static func _fuchsia_cell(fc: int, r: int) -> String:
+	if fc >= 10 and fc <= 22 and r >= 6 and r <= 14:
+		if fc == 10 or fc == 22: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if fc >= 15 and fc <= 17: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and fc >= 15 and fc <= 17:
+		return "P"
+
+	if fc >= 35 and fc <= 47 and r >= 6 and r <= 14:
+		if fc == 35 or fc == 47: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if fc >= 40 and fc <= 42: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and fc >= 40 and fc <= 42:
+		return "P"
+
+	# Zona Safari — portão de entrada (warp de verdade).
+	if fc >= 50 and fc <= 58 and r >= 20 and r <= 32:
+		if r == 32 and fc >= 53 and fc <= 55:
+			return "P"
+		if fc == 50 or fc == 58 or r == 20 or r == 32:
+			return "E"
+		return "G"
+
 	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -714,300 +1030,9 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 	if cc < CERULEAN_COLS:
 		return "."
 
-	# ── Rota 5 (Tier 3) ── local cc CERULEAN_COLS .. +ROUTE5_COLS-1
-	var cr := cc - CERULEAN_COLS
-	if cr < ROUTE5_COLS:
-		if no_caminho:
-			return "P"
-		if (cr + r * 2) % 9 == 2:
-			return "T"
-		if (cr * 2 + r) % 13 == 6:
-			return "F"
-		return "."
-
-	# ── Rota 6 ── local cr ROUTE5_COLS .. +ROUTE6_COLS-1
-	if cr < ROUTE5_COLS + ROUTE6_COLS:
-		if no_caminho:
-			return "P"
-		if (cr + r * 3) % 9 == 3:
-			return "T"
-		if (cr + r * 2) % 13 == 7:
-			return "F"
-		return "."
-
-	# ── Vermilion City ── local vc a partir de ROUTE5_COLS+ROUTE6_COLS
-	var vc := cr - ROUTE5_COLS - ROUTE6_COLS
-
-	# ── Ginásio de Vermilion (Lt. Surge) ── cols 10-22, rows 6-14
-	if vc >= 10 and vc <= 22 and r >= 6 and r <= 14:
-		if vc == 10 or vc == 22: return "W"
-		if r == 6: return "H"
-		if r == 14:
-			if vc >= 15 and vc <= 17: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and vc >= 15 and vc <= 17:
-		return "P"
-
-	# ── Centro Pokémon de Vermilion ── cols 35-47, rows 6-14
-	if vc >= 35 and vc <= 47 and r >= 6 and r <= 14:
-		if vc == 35 or vc == 47: return "W"
-		if r == 6: return "H"
-		if r == 14:
-			if vc >= 40 and vc <= 42: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and vc >= 40 and vc <= 42:
-		return "P"
-
-	# ── S.S. Anne — navio ancorado no cais (Tier 16). Só fachada, sem
-	# interior/warp ainda — mesmo padrão de Silph Co./Torre Pokémon/Celadon
-	# Mart (conteúdo real, NPCs, HM Corte, é Fase 2 "Pokémon e estruturas").
-	# Cols 2-14, rows 22-32 — não colide com Ginásio/Centro (rows 6-14) nem
-	# com o Marinheiro (vc~30,r~22) ou o Capitão (vc~46,r~26).
-	if vc >= 2 and vc <= 14 and r >= 22 and r <= 32:
-		if vc == 2 or vc == 14: return "W"
-		if r == 22: return "H"
-		if r == 32:
-			if vc >= 7 and vc <= 9: return "P"
-			return "W"
-		return "I"
-	if r >= 32 and r <= 34 and vc >= 7 and vc <= 9:
-		return "P"
-
-	# ── Doca/porto (Vermilion é cidade portuária) ──
-	if (vc + r * 2) % 15 == 3 and r >= 22 and r <= 34 and vc >= 2 and vc <= 55:
-		return "~"
-
-	# ── Vermilion só vai até VERMILION_COLS; dali pra leste é Tier 4 ────────
-	if vc < VERMILION_COLS:
-		return "."
-
-	# ── Rota 7 (Tier 4) ── local vr 0 .. ROUTE7_COLS-1
-	var vr := vc - VERMILION_COLS
-	if vr < ROUTE7_COLS:
-		if no_caminho:
-			return "P"
-		if (vr + r * 2) % 9 == 4:
-			return "T"
-		if (vr * 2 + r) % 13 == 8:
-			return "F"
-		return "."
-
-	# ── Celadon City ── local ce a partir de ROUTE7_COLS
-	var ce := vr - ROUTE7_COLS
-
-	# ── Ginásio de Celadon (Erika) ── cols 10-22, rows 6-14
-	if ce >= 10 and ce <= 22 and r >= 6 and r <= 14:
-		if ce == 10 or ce == 22: return "W"
-		if r == 6: return "H"
-		if r == 14:
-			if ce >= 15 and ce <= 17: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and ce >= 15 and ce <= 17:
-		return "P"
-
-	# ── Centro Pokémon de Celadon ── cols 35-47, rows 6-14
-	if ce >= 35 and ce <= 47 and r >= 6 and r <= 14:
-		if ce == 35 or ce == 47: return "W"
-		if r == 6: return "H"
-		if r == 14:
-			if ce >= 40 and ce <= 42: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and ce >= 40 and ce <= 42:
-		return "P"
-
-	# ── Grande Loja de Departamentos (Celadon Mart) — cols 50-58, rows 8-14
-	if ce >= 50 and ce <= 58 and r >= 8 and r <= 14:
-		if ce == 50 or ce == 58: return "W"
-		if r == 8: return "H"
-		if r == 14:
-			if ce >= 53 and ce <= 55: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and ce >= 53 and ce <= 55:
-		return "P"
-
-	# ── Rocket Hideout — entrada/porão (Tier 15), abaixo do corredor
-	# principal (r>=21, no_caminho é só r16-20 — não colide). Cena própria
-	# (RocketHideout.tscn, warp de verdade — é "subterrâneo", a mesma
-	# exceção já usada em Mt Moon/Rock Tunnel/Safari Zone), mas por ora só a
-	# entrada + sala vazia: sem grunts/mecânica de Equipe Rocket ainda, isso
-	# é conteúdo de Fase 2 ("Pokémon e estruturas"). Cols 24-31, rows 21-30.
-	if ce >= 24 and ce <= 31 and r >= 21 and r <= 28:
-		if ce == 24 or ce == 31: return "W"
-		if r == 21: return "H"
-		if r == 28:
-			if ce >= 27 and ce <= 28: return "P"
-			return "W"
-		return "I"
-	if r >= 28 and r <= 30 and ce >= 27 and ce <= 28:
-		return "P"
-
-	# ── Jardins de Celadon (o verde que dá nome à cidade) ──
-	if (ce + r * 3) % 11 == 4 and r >= 20 and r <= 34 and ce >= 2 and ce <= 55:
-		return "F"
-
-	# ── Celadon só vai até CELADON_COLS; dali pra leste é Tier 5 ───────────
-	if ce < CELADON_COLS:
-		return "."
-
-	# ── Rota 8 (Tier 5) ── local r8 0 .. ROUTE8_COLS-1
-	var r8 := ce - CELADON_COLS
-	if r8 < ROUTE8_COLS:
-		if no_caminho:
-			return "P"
-		if (r8 + r * 2) % 9 == 5:
-			return "T"
-		if (r8 * 2 + r) % 13 == 9:
-			return "F"
-		return "."
-
-	# ── Fuchsia City ── local fc a partir de ROUTE8_COLS
-	var fc := r8 - ROUTE8_COLS
-
-	# ── Ginásio de Fuchsia (Koga) ── cols 10-22, rows 6-14
-	if fc >= 10 and fc <= 22 and r >= 6 and r <= 14:
-		if fc == 10 or fc == 22: return "W"
-		if r == 6: return "H"
-		if r == 14:
-			if fc >= 15 and fc <= 17: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and fc >= 15 and fc <= 17:
-		return "P"
-
-	# ── Centro Pokémon de Fuchsia ── cols 35-47, rows 6-14
-	if fc >= 35 and fc <= 47 and r >= 6 and r <= 14:
-		if fc == 35 or fc == 47: return "W"
-		if r == 6: return "H"
-		if r == 14:
-			if fc >= 40 and fc <= 42: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and fc >= 40 and fc <= 42:
-		return "P"
-
-	# ── Zona Safari — portão de entrada (Tier 12: virou warp de verdade,
-	# antes era só decorativa) ──
-	if fc >= 50 and fc <= 58 and r >= 20 and r <= 32:
-		if r == 32 and fc >= 53 and fc <= 55:
-			return "P"  # portão (warp fica aqui)
-		if fc == 50 or fc == 58 or r == 20 or r == 32:
-			return "E"
-		return "G"
-
-	# ── Fuchsia só vai até FUCHSIA_COLS; dali pra leste é Tier 6 ───────────
-	if fc < FUCHSIA_COLS:
-		return "."
-
-	# ── Rota 9 (Tier 6) ── local r9 0 .. ROUTE9_COLS-1
-	var r9 := fc - FUCHSIA_COLS
-	if r9 < ROUTE9_COLS:
-		if no_caminho:
-			return "P"
-		if (r9 + r * 2) % 9 == 6:
-			return "R"  # Rota 9 é pedregosa (leva pro Rock Tunnel no Kanto real)
-		if (r9 * 2 + r) % 13 == 10:
-			return "T"
-		return "."
-
-	# ── Saffron City ── local sf a partir de ROUTE9_COLS
-	var sf := r9 - ROUTE9_COLS
-
-	# ── Ginásio de Saffron (Sabrina) ── cols 10-22, rows 6-14
-	if sf >= 10 and sf <= 22 and r >= 6 and r <= 14:
-		if sf == 10 or sf == 22: return "W"
-		if r == 6: return "H"
-		if r == 14:
-			if sf >= 15 and sf <= 17: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and sf >= 15 and sf <= 17:
-		return "P"
-
-	# ── Centro Pokémon de Saffron ── cols 35-47, rows 6-14
-	if sf >= 35 and sf <= 47 and r >= 6 and r <= 14:
-		if sf == 35 or sf == 47: return "W"
-		if r == 6: return "H"
-		if r == 14:
-			if sf >= 40 and sf <= 42: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and sf >= 40 and sf <= 42:
-		return "P"
-
-	# ── Silph Co. (torre alta, só o prédio — sem interior ligado ainda) ──
-	if sf >= 50 and sf <= 58 and r >= 4 and r <= 14:
-		if sf == 50 or sf == 58: return "W"
-		if r == 4: return "H"
-		if r == 14:
-			if sf >= 53 and sf <= 55: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and sf >= 53 and sf <= 55:
-		return "P"
-
-	# ── Saffron só vai até SAFFRON_COLS; dali pra leste é Tier 7 ───────────
-	if sf < SAFFRON_COLS:
-		return "."
-
-	# ── Rota 10 (Tier 7) ── local r10 0 .. ROUTE10_COLS-1
-	var r10 := sf - SAFFRON_COLS
-	if r10 < ROUTE10_COLS:
-		# Boca do Rock Tunnel (Tier 10) — moldura de rocha ACIMA do caminho
-		# principal (rows 12-15), nunca atravessando rows 16-20 (no_caminho).
-		# Achado: a primeira versão testava r10 contra a faixa 12-24 ANTES de
-		# checar no_caminho — isso bloqueava o corredor leste-oeste em 4
-		# colunas (as que flanqueiam a entrada), quebrando a travessia de
-		# Saffron até Lavender. O Mt Moon tem o mesmo desenho (moldura antes
-		# do no_caminho) — não quebrou nenhum teste porque nenhuma conferência
-		# de continuidade passava exatamente por cima da boca dele, mas é a
-		# MESMA classe de bug, só nunca provada. Aqui: no_caminho SEMPRE
-		# vence (caminho nunca bloqueado); a moldura só existe acima dele.
-		if r10 >= 20 and r10 <= 27 and r >= 12 and r <= 15:
-			if r10 >= 22 and r10 <= 25:
-				return "P"  # continuação da entrada até a moldura
-			return "R"
-		if no_caminho:
-			return "P"
-		if (r10 + r * 2) % 9 == 7:
-			return "T"
-		if (r10 * 2 + r) % 13 == 11:
-			return "F"
-		return "."
-
-	# ── Lavender Town ── local lv a partir de ROUTE10_COLS
-	var lv := r10 - ROUTE10_COLS
-
-	# ── Torre Pokémon (prédio alto, só a fachada — a torre de verdade com os
-	# andares/fantasmas fica pra quando "Pokémon e estruturas" virar foco).
-	# Achado (mesma classe do seam de sempre): r<=2 é tratado como borda
-	# absoluta no topo de _leste_de_pewter_cell — o telhado não pode cair
-	# nessa faixa, senão nunca é alcançado. Roof em r==4, igual à Silph Co. ──
-	if lv >= 10 and lv <= 22 and r >= 4 and r <= 14:
-		if lv == 10 or lv == 22: return "W"
-		if r == 4: return "H"
-		if r == 14:
-			if lv >= 15 and lv <= 17: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and lv >= 15 and lv <= 17:
-		return "P"
-
-	# ── Centro Pokémon de Lavender ── cols 35-47, rows 6-14
-	if lv >= 35 and lv <= 47 and r >= 6 and r <= 14:
-		if lv == 35 or lv == 47: return "W"
-		if r == 6: return "H"
-		if r == 14:
-			if lv >= 40 and lv <= 42: return "P"
-			return "W"
-		return "I"
-	if r >= 14 and r <= 16 and lv >= 40 and lv <= 42:
-		return "P"
-
+	# Cerulean agora só continua pro SUL (Rota 5 -> Saffron), não mais pro
+	# leste em linha reta -- ver _sul_de_cerulean_cell. Nada além disso
+	# existe dentro de _leste_de_pewter_cell.
 	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -1660,7 +1685,7 @@ static func get_layout(map_id: String) -> Dictionary:
 	match map_id:
 		"world_map":
 			var tiles := _gen_world_map()
-			return {"tiles": tiles, "width": W_TOTAL, "height": 120 + OFFSET_ANTIGO}
+			return {"tiles": tiles, "width": W_TOTAL, "height": H_TOTAL}
 		"pokemon_center":
 			var tiles := _gen_pokemon_center()
 			return {"tiles": tiles, "width": 16, "height": 14}
@@ -1728,19 +1753,6 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 				var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
 				tilemap.set_cell(0, Vector2i(c, r), 0, atlas)
 
-		# Ramo da Rota 11 → Diglett's Cave (Tier 19) — segundo ramo em
-		# linhas negativas, saindo de Vermilion (coluna diferente do ramo
-		# de Cerulean, não colide).
-		var norte_verm : Array = _gen_norte_de_vermilion()
-		var norte_verm_col_inicio := ROUTE11_NORTE_COL_INICIO - 3
-		for i in norte_verm.size():
-			var row : String = norte_verm[i]
-			var r := i - ROUTE11_NORTE_ROWS
-			for lc in row.length():
-				var c := norte_verm_col_inicio + lc
-				var ch := row[lc]
-				var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
-				tilemap.set_cell(0, Vector2i(c, r), 0, atlas)
 
 static func get_pixel_bounds(map_id: String) -> Rect2i:
 	var layout := get_layout(map_id)

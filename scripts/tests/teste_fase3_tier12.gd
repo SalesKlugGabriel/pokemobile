@@ -46,19 +46,22 @@ func _teste_geral() -> void:
 	_assert(achou_lagoa, "existe pelo menos uma lagoa dentro da Zona Safari")
 
 	# ---- 3. WorldMap: portão de Fuchsia virou warp de verdade (não é mais
-	# só decoração) ----
+	# só decoração). Reorganização de 02/09: Fuchsia fica embaixo de
+	# Lavender agora. ----
 	var world_layout = MapLayouts.get_layout("world_map")
 	var wtiles : Array = world_layout["tiles"]
-	_assert(wtiles[32][694] == "P", "Fuchsia: portão da Zona Safari é caminhável (onde fica o warp)")
+	var fc0 := MapLayouts.LAVENDER_COL_INICIO
+	var fr0 := MapLayouts.FUCHSIA_ROW_INICIO
+	_assert(wtiles[fr0 + 32][fc0 + 54] == "P", "Fuchsia: portão da Zona Safari é caminhável (onde fica o warp)")
 
-	# ---- 4. Regressão: linha 18 (corredor leste-oeste) continua passável
-	# nas colunas do cercado da Zona Safari — a cerca não vazou pro
-	# corredor principal (mesma classe de bug do Tier 10) ----
+	# ---- 4. Regressão: corredor leste-oeste (r16-20) continua passável nas
+	# colunas do cercado da Zona Safari — a cerca não vazou pro corredor
+	# principal (mesma classe de bug do Tier 10) ----
 	var quebras := 0
-	for c in range(690, 699):
-		if wtiles[18][c] != "P" and wtiles[18][c] != ".":
+	for c in range(fc0 + 50, fc0 + 59):
+		if wtiles[fr0 + 18][c] != "P" and wtiles[fr0 + 18][c] != ".":
 			quebras += 1
-	_assert(quebras == 0, "corredor leste-oeste (row 18) continua passável nas colunas da Zona Safari (%d quebras)" % quebras)
+	_assert(quebras == 0, "corredor leste-oeste continua passável nas colunas da Zona Safari (%d quebras)" % quebras)
 
 	# ---- 5. Cenas e warps ----
 	var sz_scene := load("res://scenes/world/maps/SafariZone.tscn") as PackedScene
@@ -71,7 +74,7 @@ func _teste_geral() -> void:
 		var achou_saida := false
 		if warps:
 			for w in warps.get_children():
-				if w.target_map.contains("WorldMap") and w.spawn_tile == Vector2i(694, 33):
+				if w.target_map.contains("WorldMap") and w.spawn_tile == Vector2i(MapLayouts.LAVENDER_COL_INICIO + 54, MapLayouts.FUCHSIA_ROW_INICIO + 33):
 					achou_saida = true
 		_assert(achou_saida, "existe warp de saída pra Fuchsia, no tile certo perto do portão")
 		inst.free()

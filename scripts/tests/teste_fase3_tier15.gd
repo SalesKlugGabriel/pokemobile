@@ -33,25 +33,28 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] == 940 and layout["height"] == 192,
+	_assert(layout["width"] == 465 and layout["height"] == 330,
 		"world_map não mudou de tamanho (Rocket Hideout é só uma porta nova em Celadon)")
 
-	# ---- 1. A entrada existe nos globais certos (ce24-31 dentro de Celadon,
-	# que começa em c=520) ----
-	_assert(tiles[21][547] == "H", "telhado da entrada (linha do topo)")
-	_assert(tiles[24][547] == "I", "interior da entrada é chão andável")
-	_assert(tiles[28][547] == "P" and tiles[28][548] == "P", "porta (2 tiles) no rodapé da entrada")
-	_assert(tiles[28][546] == "W", "parede ao lado da porta, fora dela")
-	_assert(tiles[29][547] == "P" and tiles[30][547] == "P", "caminho continua 2 linhas abaixo da porta")
+	# ---- 1. A entrada existe nos globais certos (ce24-31 dentro de Celadon —
+	# reorganização de 02/09: Celadon começa em CELADON_COL_INICIO/
+	# SAFFRON_ROW_INICIO agora, não mais em c=520/r global direto) ----
+	var ce0 := MapLayouts.CELADON_COL_INICIO
+	var r0 := MapLayouts.SAFFRON_ROW_INICIO
+	_assert(tiles[r0 + 21][ce0 + 27] == "H", "telhado da entrada (linha do topo)")
+	_assert(tiles[r0 + 24][ce0 + 27] == "I", "interior da entrada é chão andável")
+	_assert(tiles[r0 + 28][ce0 + 27] == "P" and tiles[r0 + 28][ce0 + 28] == "P", "porta (2 tiles) no rodapé da entrada")
+	_assert(tiles[r0 + 28][ce0 + 26] == "W", "parede ao lado da porta, fora dela")
+	_assert(tiles[r0 + 29][ce0 + 27] == "P" and tiles[r0 + 30][ce0 + 27] == "P", "caminho continua 2 linhas abaixo da porta")
 
 	# ---- 2. Não vazou pra cima do corredor leste-oeste (no_caminho, r16-20
 	# continua "P" normalmente em toda a faixa de colunas de Celadon) ----
-	_assert(tiles[18][547] != "W" and tiles[18][547] != "T" and tiles[18][547] != "R",
-		"faixa do corredor leste-oeste (r18) continua andável por baixo da nova porta")
+	_assert(tiles[r0 + 18][ce0 + 27] != "W" and tiles[r0 + 18][ce0 + 27] != "T" and tiles[r0 + 18][ce0 + 27] != "R",
+		"faixa do corredor leste-oeste continua andável por baixo da nova porta")
 
 	# ---- 3. Resto de Celadon (Ginásio/Centro/Mart) intacto ----
-	_assert(tiles[6][536] == "H", "telhado do Ginásio de Celadon intacto (ce16 => c536)")
-	_assert(tiles[8][574] == "H", "telhado do Celadon Mart intacto (ce54 => c574)")
+	_assert(tiles[r0 + 6][ce0 + 16] == "H", "telhado do Ginásio de Celadon intacto")
+	_assert(tiles[r0 + 8][ce0 + 54] == "H", "telhado do Celadon Mart intacto")
 
 	# ---- 4. Interior do Rocket Hideout (cena própria) ----
 	var hl = MapLayouts.get_layout("rocket_hideout")
@@ -108,7 +111,7 @@ func _teste_geral() -> void:
 			for w in warp_zones2.get_children():
 				if w.target_map.contains("WorldMap"):
 					achou_saida = true
-					_assert(w.spawn_tile == Vector2i(547, 29),
+					_assert(w.spawn_tile == Vector2i(MapLayouts.CELADON_COL_INICIO + 27, MapLayouts.SAFFRON_ROW_INICIO + 29),
 						"warp de saída leva de volta pro tile certo em Celadon")
 		_assert(achou_saida, "existe warp de saída de verdade de volta pro WorldMap")
 		inst2.free()

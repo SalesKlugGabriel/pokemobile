@@ -108,22 +108,23 @@
       "name": "Vermilion City",
       "region": "kanto",
       "tile_rect": {
-        "x": 400,
-        "y": 1,
+        "x": 220,
+        "y": 133,
         "w": 60,
         "h": 36
       },
       "bgm": "vermilion_city",
       "wild_pokemon": [],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "vermilion_praia",
       "name": "Praia de Vermilion",
       "region": "kanto",
       "tile_rect": {
-        "x": 400,
-        "y": 35,
+        "x": 220,
+        "y": 169,
         "w": 60,
         "h": 12
       },
@@ -144,16 +145,17 @@
           "weight": 30
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "mar_de_vermilion",
       "name": "Mar de Vermilion",
       "region": "kanto",
-      "notes": "Formato exato definido por MapLayouts.shore_de_vermilion() — o mapa submarino (futuro, precisa de Mergulho) tem que reusar essa função pra bater o contorno.",
+      "notes": "Formato exato definido por MapLayouts.shore_de_vermilion() — o mapa submarino (futuro, precisa de Mergulho) tem que reusar essa função pra bater o contorno. (coordenada atualizada na reorganização geográfica de 02/09).",
       "tile_rect": {
-        "x": 400,
-        "y": 46,
+        "x": 220,
+        "y": 181,
         "w": 60,
         "h": 30
       },
@@ -208,10 +210,10 @@
       "id": "arquipelago_tropical",
       "name": "Arquipélago Tropical",
       "region": "kanto",
-      "notes": "2 ilhas dentro do mar aberto ao sul de Vermilion (Tier 13, 01/09), contorno definido por MapLayouts._arquipelago_tropical_cell(). SEM warp de propósito — só alcançável quando existir Surf (nadar) ou Fly, nenhum construído ainda. Construída pronta, esperando a mecânica.",
+      "notes": "2 ilhas dentro do mar aberto ao sul de Vermilion (Tier 13, 01/09), contorno definido por MapLayouts._arquipelago_tropical_cell(). SEM warp de propósito — só alcançável quando existir Surf (nadar) ou Fly, nenhum construído ainda. Construída pronta, esperando a mecânica. (coordenada atualizada na reorganização geográfica de 02/09).",
       "tile_rect": {
-        "x": 400,
-        "y": 77,
+        "x": 220,
+        "y": 209,
         "w": 60,
         "h": 40
       },
@@ -253,36 +255,38 @@
       "name": "Lavender Town",
       "region": "kanto",
       "tile_rect": {
-        "x": 880,
-        "y": 1,
+        "x": 400,
+        "y": 67,
         "w": 60,
         "h": 36
       },
       "bgm": "lavender_town",
       "wild_pokemon": [],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "celadon_city",
       "name": "Celadon City",
       "region": "kanto",
       "tile_rect": {
-        "x": 520,
-        "y": 1,
+        "x": 120,
+        "y": 67,
         "w": 60,
         "h": 36
       },
       "bgm": "celadon_city",
       "wild_pokemon": [],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "fuchsia_city",
       "name": "Fuchsia City",
       "region": "kanto",
       "tile_rect": {
-        "x": 640,
-        "y": 1,
+        "x": 400,
+        "y": 133,
         "w": 60,
         "h": 36
       },
@@ -296,15 +300,16 @@
           "weight": 40
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "saffron_city",
       "name": "Saffron City",
       "region": "kanto",
       "tile_rect": {
-        "x": 760,
-        "y": 1,
+        "x": 220,
+        "y": 67,
         "w": 60,
         "h": 36
       },
@@ -318,7 +323,8 @@
           "weight": 40
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "cinnabar_island",
@@ -544,10 +550,10 @@
       "name": "Route 5",
       "region": "kanto",
       "tile_rect": {
-        "x": 280,
-        "y": 1,
+        "x": 220,
+        "y": 37,
         "w": 60,
-        "h": 36
+        "h": 30
       },
       "bgm": "route_5",
       "wild_pokemon": [
@@ -594,17 +600,18 @@
           "weight": 5
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "route_6",
       "name": "Route 6",
       "region": "kanto",
       "tile_rect": {
-        "x": 340,
-        "y": 1,
+        "x": 220,
+        "y": 103,
         "w": 60,
-        "h": 36
+        "h": 30
       },
       "bgm": "route_6",
       "wild_pokemon": [
@@ -644,16 +651,17 @@
           "weight": 25
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "route_7",
       "name": "Route 7",
       "region": "kanto",
       "tile_rect": {
-        "x": 460,
-        "y": 1,
-        "w": 60,
+        "x": 180,
+        "y": 67,
+        "w": 40,
         "h": 36
       },
       "bgm": "route_7",
@@ -687,16 +695,17 @@
           "weight": 15
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "route_8",
       "name": "Route 8",
       "region": "kanto",
       "tile_rect": {
-        "x": 580,
-        "y": 1,
-        "w": 60,
+        "x": 280,
+        "y": 67,
+        "w": 120,
         "h": 36
       },
       "bgm": "route_8",
@@ -730,15 +739,16 @@
           "weight": 25
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "route_9",
       "name": "Route 9",
       "region": "kanto",
       "tile_rect": {
-        "x": 700,
-        "y": 1,
+        "x": 280,
+        "y": 67,
         "w": 60,
         "h": 36
       },
@@ -773,15 +783,16 @@
           "weight": 15
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "route_10",
       "name": "Route 10",
       "region": "kanto",
       "tile_rect": {
-        "x": 820,
-        "y": 1,
+        "x": 340,
+        "y": 67,
         "w": 60,
         "h": 36
       },
@@ -816,17 +827,18 @@
           "weight": 15
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "route_11",
       "name": "Route 11",
       "region": "kanto",
       "tile_rect": {
-        "x": 424,
-        "y": -19,
-        "w": 9,
-        "h": 19
+        "x": 280,
+        "y": 133,
+        "w": 30,
+        "h": 36
       },
       "bgm": "route_11",
       "wild_pokemon": [
@@ -853,7 +865,7 @@
         }
       ],
       "npcs": [],
-      "notes": "Espora ao NORTE de Vermilion (Tier 19) — segundo ramo do world_map em linhas negativas (coluna diferente do ramo de Cerulean do Tier 8, não colide). Termina na boca de Diglett's Cave (cena própria); sem saída pra outro lugar (beco sem saída, mesmo padrão da Casa do Bill)."
+      "notes": "Espora ao NORTE de Vermilion (Tier 19) — segundo ramo do world_map em linhas negativas (coluna diferente do ramo de Cerulean do Tier 8, não colide). Termina na boca de Diglett's Cave (cena própria); sem saída pra outro lugar (beco sem saída, mesmo padrão da Casa do Bill). (coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "route_12",
@@ -1548,10 +1560,10 @@
       "id": "seafoam_islands",
       "name": "Seafoam Islands",
       "region": "kanto",
-      "notes": "3 ilhotas dentro do mar aberto, continuando ao sul do Arquipélago Tropical (Tier 14, 01/09), contorno definido por MapLayouts._seafoam_cell(). SEM warp de propósito — só alcançável quando existir Surf (nadar) ou Fly, nenhum construído ainda. Tema frio/rochoso (praia pálida + piso escuro + rochedo), sem vegetação — oposto do Arquipélago Tropical, por pedido do Gabriel de identidade visual própria por bioma.",
+      "notes": "3 ilhotas dentro do mar aberto, continuando ao sul do Arquipélago Tropical (Tier 14, 01/09), contorno definido por MapLayouts._seafoam_cell(). SEM warp de propósito — só alcançável quando existir Surf (nadar) ou Fly, nenhum construído ainda. Tema frio/rochoso (praia pálida + piso escuro + rochedo), sem vegetação — oposto do Arquipélago Tropical, por pedido do Gabriel de identidade visual própria por bioma. (coordenada atualizada na reorganização geográfica de 02/09).",
       "tile_rect": {
-        "x": 400,
-        "y": 117,
+        "x": 220,
+        "y": 249,
         "w": 60,
         "h": 40
       },
@@ -1593,8 +1605,8 @@
       "name": "Power Plant",
       "region": "kanto",
       "tile_rect": {
-        "x": 400,
-        "y": 156,
+        "x": 220,
+        "y": 289,
         "w": 60,
         "h": 30
       },
@@ -1630,7 +1642,7 @@
         }
       ],
       "npcs": [],
-      "notes": "Ilha artificial no mar, continuando ao sul do Seafoam Islands (Tier 20) — mesma faixa de colunas de Vermilion. Prédio da usina é só fachada (mesmo padrão de Silph Co./Torre Pokémon), sem interior/NPC/warp. SEM warp de propósito — só alcançável quando Surf/Fly existir (mesma regra do Arquipélago Tropical/Seafoam Islands)."
+      "notes": "Ilha artificial no mar, continuando ao sul do Seafoam Islands (Tier 20) — mesma faixa de colunas de Vermilion. Prédio da usina é só fachada (mesmo padrão de Silph Co./Torre Pokémon), sem interior/NPC/warp. SEM warp de propósito — só alcançável quando Surf/Fly existir (mesma regra do Arquipélago Tropical/Seafoam Islands). (coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "pokemon_tower",
@@ -1911,30 +1923,30 @@
       "name": "S.S. Anne",
       "region": "kanto",
       "tile_rect": {
-        "x": 402,
-        "y": 22,
+        "x": 222,
+        "y": 155,
         "w": 13,
         "h": 11
       },
       "bgm": "vermilion_city",
       "wild_pokemon": [],
       "npcs": [],
-      "notes": "Fachada do navio ancorado no cais de Vermilion (Tier 16) — coordenada global do world_map, dentro da própria cidade. Sem interior/NPC/warp ainda (Fase 2: 'Pokémon e estruturas' — HM Corte, diálogo do marinheiro, viagem a Kanto real)."
+      "notes": "Fachada do navio ancorado no cais de Vermilion (Tier 16) — coordenada global do world_map, dentro da própria cidade. Sem interior/NPC/warp ainda (Fase 2: 'Pokémon e estruturas' — HM Corte, diálogo do marinheiro, viagem a Kanto real). (coordenada atualizada na reorganização geográfica de 02/09)."
     },
     {
       "id": "silph_co_entrance",
       "name": "Silph Co.",
       "region": "kanto",
       "tile_rect": {
-        "x": 810,
-        "y": 4,
+        "x": 270,
+        "y": 71,
         "w": 9,
         "h": 11
       },
       "bgm": "saffron_city",
       "wild_pokemon": [],
       "npcs": [],
-      "notes": "Fachada da torre em Saffron (Tier 6, 20/08) — coordenada global do world_map. Sem interior/warp (regra do Gabriel: warp só pra caverna/subterrâneo/submarino/troca de continente — Silph Co. não é nenhum desses). Interior + 'Operação Saffron' (ROCKET-05) ficam pra Fase 2 'Pokémon e estruturas'."
+      "notes": "Fachada da torre em Saffron (Tier 6, 20/08) — coordenada global do world_map. Sem interior/warp (regra do Gabriel: warp só pra caverna/subterrâneo/submarino/troca de continente — Silph Co. não é nenhum desses). Interior + 'Operação Saffron' (ROCKET-05) ficam pra Fase 2 'Pokémon e estruturas'. (coordenada atualizada na reorganização geográfica de 02/09)."
     }
   ]
 }

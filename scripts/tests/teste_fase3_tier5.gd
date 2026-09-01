@@ -1,5 +1,8 @@
-## teste_fase3_tier5.gd — Teste headless do Tier 5 da expansão de mapa
-## (Rota 8 → Fuchsia City + Ginásio do Koga).
+## teste_fase3_tier5.gd — Teste headless do Tier 5 (Fuchsia City + Ginásio
+## do Koga). Reescrito em 02/09 (reorganização geográfica): Fuchsia fica
+## embaixo de Lavender agora (rota N-S nova), não mais numa fileira reta a
+## leste de Celadon. A zona "route_8" (com o Ekans da GYM-05) foi
+## realocada pra essa rota nova — mesmo id, coordenada real diferente.
 ## Roda com: godot4 --headless --script res://scripts/tests/teste_fase3_tier5.gd
 extends SceneTree
 
@@ -8,7 +11,7 @@ var _fail  := 0
 var _rodou := false
 
 func _initialize() -> void:
-	print("=== Teste Fase 3 Tier 5 (Rota 8 → Fuchsia) ===")
+	print("=== Teste Fase 3 Tier 5 (Fuchsia, embaixo de Lavender) ===")
 
 func _process(_delta: float) -> bool:
 	if _rodou:
@@ -30,17 +33,23 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] >= 700, "world_map tem pelo menos 700 de largura (Rota8+Fuchsia cabem)")
 
+	# ---- 1. Caminho contínuo de Lavender até Fuchsia (corredor N-S, cols
+	# LAVENDER_COL_INICIO+27..29) ----
+	var col_meio := MapLayouts.LAVENDER_COL_INICIO + 28
+	var r_ini := MapLayouts.SAFFRON_ROW_INICIO + MapLayouts.SAFFRON_ROWS
+	var r_fim := MapLayouts.FUCHSIA_ROW_INICIO + MapLayouts.FUCHSIA_ROWS
 	var quebras := 0
-	for c in range(520, 698):
-		if tiles[18][c] != "P" and tiles[18][c] != ".":
+	for r in range(r_ini, r_fim):
+		if tiles[r][col_meio] != "P" and tiles[r][col_meio] != "." and tiles[r][col_meio] != "I":
 			quebras += 1
-	_assert(quebras == 0, "caminho de Celadon até Fuchsia (row 18) é contínuo (%d quebras)" % quebras)
+	_assert(quebras == 0, "caminho de Lavender até Fuchsia é contínuo (%d quebras)" % quebras)
 
-	_assert(tiles[10][656] == "I", "Fuchsia: interior do Ginásio (Koga) é piso")
-	_assert(tiles[6][656] == "H", "Fuchsia: telhado do Ginásio existe")
-	_assert(tiles[10][681] == "I", "Fuchsia: interior do Centro Pokémon é piso")
+	var fc0 := MapLayouts.LAVENDER_COL_INICIO
+	var fr0 := MapLayouts.FUCHSIA_ROW_INICIO
+	_assert(tiles[fr0 + 10][fc0 + 16] == "I", "Fuchsia: interior do Ginásio (Koga) é piso")
+	_assert(tiles[fr0 + 6][fc0 + 16] == "H", "Fuchsia: telhado do Ginásio existe")
+	_assert(tiles[fr0 + 10][fc0 + 41] == "I", "Fuchsia: interior do Centro Pokémon é piso")
 
 	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene
 	_assert(world_scene != null, "WorldMap.tscn carrega sem erro")
@@ -75,7 +84,7 @@ func _teste_geral() -> void:
 	for w in by_id["route_8"].get("wild_pokemon", []):
 		if int(w.get("id", 0)) == 23:
 			achou_ekans_r8 = true
-	_assert(achou_ekans_r8, "Rota 8 tem Ekans (objetivo 'derrotar 5 Ekans' da GYM-05 é alcançável)")
+	_assert(achou_ekans_r8, "Rota 8 (agora Lavender→Fuchsia) tem Ekans (objetivo 'derrotar 5 Ekans' da GYM-05 é alcançável)")
 
 	var quests_f := FileAccess.open("res://data/quests/quests.json", FileAccess.READ)
 	var quests = JSON.parse_string(quests_f.get_as_text())

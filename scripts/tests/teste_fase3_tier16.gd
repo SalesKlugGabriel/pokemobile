@@ -1,6 +1,7 @@
 ## teste_fase3_tier16.gd — Teste headless do Tier 16 (S.S. Anne, fachada no
-## cais de Vermilion). Sem interior/warp — só a fachada, mesmo padrão de
-## Silph Co./Torre Pokémon/Celadon Mart.
+## cais de Vermilion). Reescrito em 02/09 (reorganização geográfica):
+## Vermilion mudou de posição (agora fica embaixo de Saffron), mas o
+## desenho interno do navio (relativo à própria cidade) não mudou nada.
 ## Roda com: godot4 --headless --script res://scripts/tests/teste_fase3_tier16.gd
 extends SceneTree
 
@@ -32,17 +33,19 @@ func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
 
-	_assert(tiles[22][408] == "H", "S.S. Anne: telhado existe (row 22, col 408)")
-	_assert(tiles[26][408] == "I", "S.S. Anne: interior é piso (row 26, col 408)")
-	_assert(tiles[26][402] == "W", "S.S. Anne: parede oeste existe (col 402)")
-	_assert(tiles[26][414] == "W", "S.S. Anne: parede leste existe (col 414)")
-	_assert(tiles[32][408] == "P", "S.S. Anne: porta existe (row 32, col 408)")
-	_assert(tiles[33][408] == "P", "S.S. Anne: caminho da porta pro corredor (row 33)")
+	var cc0 := MapLayouts.SPINE_COL_INICIO
+	var r0 := MapLayouts.VERMILION_ROW_INICIO
 
-	# Não pode ter derrubado o Ginásio/Centro de Vermilion (rows 6-14) nem o
-	# Marinheiro/Capitão, que ficam em colunas diferentes (vc~30 e vc~46).
-	_assert(tiles[10][415] == "I", "Ginásio de Vermilion continua intacto (col 415, row 10)")
-	_assert(tiles[10][440] == "I", "Centro Pokémon de Vermilion continua intacto (col 440, row 10)")
+	_assert(tiles[r0 + 22][cc0 + 8] == "H", "S.S. Anne: telhado existe")
+	_assert(tiles[r0 + 26][cc0 + 8] == "I", "S.S. Anne: interior é piso")
+	_assert(tiles[r0 + 26][cc0 + 2] == "W", "S.S. Anne: parede oeste existe")
+	_assert(tiles[r0 + 26][cc0 + 14] == "W", "S.S. Anne: parede leste existe")
+	_assert(tiles[r0 + 32][cc0 + 8] == "P", "S.S. Anne: porta existe")
+	_assert(tiles[r0 + 33][cc0 + 8] == "P", "S.S. Anne: caminho da porta pro corredor")
+
+	# Não pode ter derrubado o Ginásio/Centro de Vermilion.
+	_assert(tiles[r0 + 10][cc0 + 16] == "I", "Ginásio de Vermilion continua intacto")
+	_assert(tiles[r0 + 10][cc0 + 41] == "I", "Centro Pokémon de Vermilion continua intacto")
 
 	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene
 	_assert(world_scene != null, "WorldMap.tscn carrega sem erro")
@@ -60,5 +63,5 @@ func _teste_geral() -> void:
 		by_id[z["id"]] = z
 	var ss_anne : Dictionary = by_id.get("ss_anne_dock", {})
 	var r : Dictionary = ss_anne.get("tile_rect", {})
-	_assert(r.get("x", 0) == 402 and r.get("y", 0) == 22 and r.get("w", 0) == 13 and r.get("h", 0) == 11,
-		"zones.json: ss_anne_dock aponta pra coordenada real (402,22,13,11)")
+	_assert(r.get("x", 0) == cc0 + 2 and r.get("y", 0) == r0 + 22 and r.get("w", 0) == 13 and r.get("h", 0) == 11,
+		"zones.json: ss_anne_dock aponta pra coordenada real (%d,%d,13,11)" % [cc0 + 2, r0 + 22])

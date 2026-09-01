@@ -1,6 +1,8 @@
 ## teste_fase3_tier19.gd — Teste headless do Tier 19 (Rota 11 → Diglett's
-## Cave, segundo ramo em linhas negativas — saindo de Vermilion, não de
-## Cerulean). Mesma técnica de pintura à parte do Tier 8.
+## Cave). Reescrito em 02/09 (reorganização geográfica): a espora agora sai
+## a LESTE de Vermilion, dentro do array PRINCIPAL (coordenadas positivas) —
+## antes saía "ao norte" em linhas negativas, só porque Vermilion não tinha
+## mais nenhuma saída livre na fileira reta antiga.
 ## Roda com: godot4 --headless --script res://scripts/tests/teste_fase3_tier19.gd
 extends SceneTree
 
@@ -28,40 +30,32 @@ func _assert(cond: bool, label: String) -> void:
 		_fail += 1
 		print("  FALHA - %s" % label)
 
-func _atlas_at(tm: TileMap, c: int, r: int) -> Vector2i:
-	return tm.get_cell_atlas_coords(0, Vector2i(c, r))
-
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
-	_assert(layout["width"] == 940, "world_map continua com 940 de largura (Tier 19 não mexe no array principal)")
+	var tiles : Array = layout["tiles"]
+	_assert(layout["width"] == 465, "world_map tem 465 de largura")
 
-	var tileset := load("res://assets/tilesets/overworld.tres") as TileSet
-	var tm := TileMap.new()
-	tm.tile_set = tileset
-	MapLayouts.paint(tm, "world_map")
+	# Rota 11: cols ROUTE11_COL_INICIO..+29, rows VERMILION_ROW_INICIO..+35.
+	var c0 := MapLayouts.ROUTE11_COL_INICIO
+	var r0 := MapLayouts.VERMILION_ROW_INICIO
 
-	# ---- Seam: sair de Vermilion (r=0/1/2) pro ramo norte ----
-	_assert(_atlas_at(tm, 428, 0) == MapLayouts.CHAR_MAP["P"], "seam: col 428 na row 0 é caminho (abre a Rota 11)")
-	_assert(_atlas_at(tm, 428, -1) == MapLayouts.CHAR_MAP["P"], "r=-1 (já dentro da Rota 11) é caminhável")
-
-	# ---- Corredor contínuo da Rota 11 até a boca de Diglett's Cave ----
+	# Corredor contínuo (vr16-20, aqui testado em vr18) de dist0 até a boca.
 	var quebras := 0
-	for r in range(-19, 0):
-		if _atlas_at(tm, 428, r) != MapLayouts.CHAR_MAP["P"]:
+	for dist in range(0, 20):
+		if tiles[r0 + 18][c0 + dist] != "P":
 			quebras += 1
-	_assert(quebras == 0, "corredor da Rota 11 contínuo de r=-19 a r=-1 (%d quebras)" % quebras)
+	_assert(quebras == 0, "corredor da Rota 11 contínuo (0 a 19) (%d quebras)" % quebras)
 
-	# ---- Boca de Diglett's Cave existe, com moldura de rocha na margem ----
-	_assert(_atlas_at(tm, 428, -18) == MapLayouts.CHAR_MAP["P"], "boca de Diglett's Cave é caminhável (entrada do warp)")
-	_assert(_atlas_at(tm, 425, -18) == MapLayouts.CHAR_MAP["R"], "margem da boca (col 425, fora do corredor) é rocha")
-	_assert(_atlas_at(tm, 428, -10) == MapLayouts.CHAR_MAP["P"], "corredor além da boca (r=-10) continua caminhável")
+	_assert(tiles[r0 + 18][c0 + 23] == "P", "boca de Diglett's Cave é caminhável (entrada do warp)")
+	_assert(tiles[r0 + 13][c0 + 23] == "R", "moldura de rocha ao redor da boca existe")
 
-	# ---- Não colide com o ramo de Cerulean (Tier 8), coluna bem diferente ----
-	_assert(_atlas_at(tm, 428, -30) == MapLayouts.CHAR_MAP["T"], "fora do alcance da Rota 11 (r=-30, além de ROUTE11_NORTE_ROWS) é borda/vazio")
-	_assert(MapLayouts.ROUTE11_NORTE_COL_INICIO != MapLayouts.RAMO_NORTE_COL_INICIO,
-		"corredor da Rota 11 usa colunas diferentes do ramo de Cerulean (não colide)")
+	# Vermilion não tem parede no próprio limite leste (nenhuma cidade tem —
+	# mesmo padrão de sempre) — a Rota 11 conecta direto, sem precisar de
+	# brecha especial.
+	var vermilion_borda_leste : String = tiles[r0 + 18][MapLayouts.SPINE_COL_INICIO + 58]
+	_assert(vermilion_borda_leste != "T" and vermilion_borda_leste != "W" and vermilion_borda_leste != "R",
+		"Vermilion não bloqueia o próprio limite leste (cc58 é '%s', caminhável)" % vermilion_borda_leste)
 
-	# ---- Warps existem no WorldMap.tscn ----
 	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene
 	_assert(world_scene != null, "WorldMap.tscn carrega sem erro")
 	if world_scene:
@@ -75,7 +69,6 @@ func _teste_geral() -> void:
 		_assert(achou, "warp de entrada pra DiglettsCave.tscn existe")
 		inst.free()
 
-	# ---- Diglett's Cave: cena própria carrega e tem chão suficiente ----
 	var dc_scene := load("res://scenes/world/maps/DiglettsCave.tscn") as PackedScene
 	_assert(dc_scene != null, "DiglettsCave.tscn carrega sem erro")
 	if dc_scene:
@@ -90,14 +83,11 @@ func _teste_geral() -> void:
 		_assert(dc_tiles[27][13] == "P" and dc_tiles[27][14] == "P", "Diglett's Cave: porta de saída existe")
 		inst2.free()
 
-	# ---- zones.json ----
 	var f := FileAccess.open("res://data/world/zones.json", FileAccess.READ)
 	var data = JSON.parse_string(f.get_as_text())
 	f.close()
 	var by_id := {}
 	for z in data["zones"]:
 		by_id[z["id"]] = z
-	_assert(int(by_id["route_11"]["tile_rect"]["y"]) < 0, "route_11 tem y negativo (está ao norte de Vermilion)")
+	_assert(int(by_id["route_11"]["tile_rect"]["x"]) == c0, "route_11 aponta pra coordenada real (x=%d)" % c0)
 	_assert(by_id["digletts_cave"].get("map_id", "") == "digletts_cave", "digletts_cave aponta pra própria cena (map_id)")
-
-	tm.free()

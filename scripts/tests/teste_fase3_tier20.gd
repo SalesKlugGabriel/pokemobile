@@ -1,7 +1,8 @@
 ## teste_fase3_tier20.gd — Teste headless do Tier 20 (Power Plant — ilha
 ## artificial no mar, continuando ao sul do Seafoam Islands). Fachada de
 ## prédio (mesmo padrão de Silph Co./Torre Pokémon), SEM warp — só
-## alcançável quando Surf/Fly existir (mesma regra do Arquipélago/Seafoam).
+## alcançável quando Surf/Fly existir. Ajustado em 02/09 (reorganização
+## geográfica): faixa de colunas de Vermilion mudou de 400-459 pra 220-279.
 ## Roda com: godot4 --headless --script res://scripts/tests/teste_fase3_tier20.gd
 extends SceneTree
 
@@ -33,17 +34,19 @@ func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
 
-	# Colunas 400+vc, linhas 156+cr (offset PEWTER+COASTLINE+ARQUIPELAGO+SEAFOAM=156)
-	_assert(tiles[156 + 8][400 + 27] == "H", "Power Plant: telhado do prédio existe")
-	_assert(tiles[156 + 12][400 + 27] == "I", "Power Plant: interior é piso")
-	_assert(tiles[156 + 20][400 + 27] == "P", "Power Plant: porta existe")
-	_assert(tiles[156 + 15][400 + 20] == "W" or tiles[156 + 15][400 + 20] == "I" or tiles[156 + 15][400 + 20] == "S",
+	var col_ini : int = MapLayouts.VERMILION_COAST_COL_INICIO
+	var row_ini : int = MapLayouts.VERMILION_COAST_ROW_INICIO + MapLayouts.COASTLINE_ROWS + MapLayouts.ARQUIPELAGO_ROWS + MapLayouts.SEAFOAM_ROWS
+
+	_assert(tiles[row_ini + 8][col_ini + 27] == "H", "Power Plant: telhado do prédio existe")
+	_assert(tiles[row_ini + 12][col_ini + 27] == "I", "Power Plant: interior é piso")
+	_assert(tiles[row_ini + 20][col_ini + 27] == "P", "Power Plant: porta existe")
+	_assert(tiles[row_ini + 15][col_ini + 20] == "W" or tiles[row_ini + 15][col_ini + 20] == "I" or tiles[row_ini + 15][col_ini + 20] == "S",
 		"Power Plant: ilha ao redor do prédio é sólida (não mar)")
-	_assert(tiles[156 + 15][400 + 2] == "~", "fora da ilha (dentro da faixa de Vermilion, mas longe do centro) é mar aberto")
-	_assert(tiles[156 + 15][400 + 55] == "~", "fora da ilha (bem a leste) é mar aberto")
+	_assert(tiles[row_ini + 15][col_ini + 2] == "~", "fora da ilha (dentro da faixa de Vermilion, mas longe do centro) é mar aberto")
+	_assert(tiles[row_ini + 15][col_ini + 55] == "~", "fora da ilha (bem a leste) é mar aberto")
 
 	# Não pode ter vazado pra fora da faixa de colunas de Vermilion
-	_assert(tiles[156 + 15][399] != "H" and tiles[156 + 15][399] != "I",
+	_assert(tiles[row_ini + 15][col_ini - 1] != "H" and tiles[row_ini + 15][col_ini - 1] != "I",
 		"prédio da usina não vaza pra fora da faixa de colunas de Vermilion")
 
 	# Sem warp — mesma regra das ilhas anteriores
@@ -68,8 +71,8 @@ func _teste_geral() -> void:
 		by_id[z["id"]] = z
 	var pp : Dictionary = by_id.get("power_plant", {})
 	var r : Dictionary = pp.get("tile_rect", {})
-	_assert(r.get("x", 0) == 400 and r.get("y", 0) == 156 and r.get("w", 0) == 60 and r.get("h", 0) == 30,
-		"zones.json: power_plant aponta pra coordenada real (400,156,60,30)")
+	_assert(r.get("x", 0) == col_ini and r.get("y", 0) == row_ini and r.get("w", 0) == 60 and r.get("h", 0) == MapLayouts.POWERPLANT_ROWS,
+		"zones.json: power_plant aponta pra coordenada real (%d,%d,60,%d)" % [col_ini, row_ini, MapLayouts.POWERPLANT_ROWS])
 	var achou_zapdos := false
 	for w in pp.get("wild_pokemon", []):
 		if int(w.get("id", 0)) == 145:

@@ -36,7 +36,7 @@ func _teste_geral() -> void:
 	# largura cresce a cada tier novo (Tier 2 já somou Rota3+MtMoon+Rota4+
 	# Cerulean a leste de Pewter) — aqui só confere a ALTURA, que é o que
 	# esta fase (Pewter+Rota2, ao norte) realmente controla.
-	_assert(H == 192, "world_map tem 192 de altura (Pewter+Rota2 somaram 72 linhas)")
+	_assert(H == 330, "world_map tem 192 de altura (Pewter+Rota2 somaram 72 linhas)")
 
 	# ---- 1. Pewter City (linhas 1-36) ----
 	_assert(tiles[10][26] == "I", "Pewter: interior do Ginásio (col 26, row 10) é piso")

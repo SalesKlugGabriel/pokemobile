@@ -1,8 +1,10 @@
-## teste_fase3_tier7.gd — Teste headless do Tier 7 da expansão de mapa
-## (Rota 10 → Lavender Town + fachada da Torre Pokémon).
-## Também trava a classe de bug achada nesta sessão: Saffron ganhou o prédio
-## do Centro Pokémon no Tier 6, mas o warp pra entrar nele foi esquecido
-## (o RectangleShape2D chegou a ser criado, órfão, mas nenhum WarpZone o usava).
+## teste_fase3_tier7.gd — Teste headless do Tier 7 (Lavender Town + fachada
+## da Torre Pokémon). Reescrito em 02/09 (reorganização geográfica):
+## Lavender fica a LESTE de Saffron agora (Rota 8, reaproveitando o
+## comprimento e a boca de Rock Tunnel que já existiam nas antigas Rota 9 e
+## Rota 10), não mais numa fileira reta a leste de Saffron-antiga.
+## Também trava a classe de bug achada na sessão original: Saffron ganhou o
+## prédio do Centro Pokémon, mas o warp pra entrar nele foi esquecido.
 ## Roda com: godot4 --headless --script res://scripts/tests/teste_fase3_tier7.gd
 extends SceneTree
 
@@ -11,7 +13,7 @@ var _fail  := 0
 var _rodou := false
 
 func _initialize() -> void:
-	print("=== Teste Fase 3 Tier 7 (Rota 10 → Lavender) ===")
+	print("=== Teste Fase 3 Tier 7 (Lavender, a leste de Saffron) ===")
 
 func _process(_delta: float) -> bool:
 	if _rodou:
@@ -33,17 +35,19 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] == 940, "world_map agora tem 940 de largura (Tier 7 somou Rota10+Lavender)")
+	_assert(layout["width"] == 465, "world_map tem 465 de largura")
 
+	var r0 := MapLayouts.SAFFRON_ROW_INICIO
 	var quebras := 0
-	for c in range(760, 938):
-		if tiles[18][c] != "P" and tiles[18][c] != ".":
+	for c in range(MapLayouts.SPINE_COL_INICIO + MapLayouts.CERULEAN_COLS, MapLayouts.LAVENDER_COL_INICIO + MapLayouts.LAVENDER_COLS):
+		if tiles[r0 + 18][c] != "P" and tiles[r0 + 18][c] != "." and tiles[r0 + 18][c] != "I":
 			quebras += 1
-	_assert(quebras == 0, "caminho de Saffron até Lavender (row 18) é contínuo (%d quebras)" % quebras)
+	_assert(quebras == 0, "caminho de Saffron até Lavender é contínuo (%d quebras)" % quebras)
 
-	_assert(tiles[10][896] == "I", "Lavender: interior da Torre Pokémon (fachada) é piso")
-	_assert(tiles[4][896] == "H", "Lavender: telhado da Torre existe")
-	_assert(tiles[10][921] == "I", "Lavender: interior do Centro Pokémon é piso")
+	var lv0 := MapLayouts.LAVENDER_COL_INICIO
+	_assert(tiles[r0 + 10][lv0 + 16] == "I", "Lavender: interior da Torre Pokémon (fachada) é piso")
+	_assert(tiles[r0 + 4][lv0 + 16] == "H", "Lavender: telhado da Torre existe")
+	_assert(tiles[r0 + 10][lv0 + 41] == "I", "Lavender: interior do Centro Pokémon é piso")
 
 	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene
 	_assert(world_scene != null, "WorldMap.tscn carrega sem erro")
@@ -65,10 +69,6 @@ func _teste_geral() -> void:
 					pokecenter_warps += 1
 		_assert(alvos_indevidos == 0,
 			"nenhum warp de cidade/rota indevido sobrou (%d de sobra)" % alvos_indevidos)
-		# Regressão do bug achado nesta sessão: cada cidade com prédio de
-		# Centro Pokémon construído (Pallet/Viridian/Pewter/Cerulean/Vermilion/
-		# Celadon/Fuchsia/Saffron/Lavender = 9) precisa ter o warp de entrada —
-		# senão o prédio existe na tela mas ninguém consegue curar o time lá.
 		_assert(pokecenter_warps >= 9,
-			"pelo menos os 9 Centros Pokémon do Tier 7 têm warp de entrada (achou %d — Saffron ficou órfão até este tier; tiers futuros podem somar mais Centros, nunca menos que 9)" % pokecenter_warps)
+			"pelo menos os 9 Centros Pokémon do Tier 7 têm warp de entrada (achou %d)" % pokecenter_warps)
 		inst.free()

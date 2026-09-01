@@ -44,3 +44,12 @@ Rocha; Areia ≠ Lama ≠ Solo Envenenado) reforça a regra permanente já regis
 (01/09): cada bioma precisa de identidade própria. Mesmo sem os sprites novos, o **layout**
 (estrutura geológica, rota não-linear em caverna, curva orgânica em litoral) já pode seguir esse
 espírito — é o que orienta a construção do Rock Tunnel e de qualquer caverna/litoral futuro.
+
+## Segunda referência (02/09) — `docs/referencias/tileset-visual-referencia-2.png`
+
+Screenshot de um jogo pronto (estilo Stardew Valley) mostrando o nível de detalhe que o Gabriel
+quer: sprites com sombra/textura de verdade (não bloco de cor sólida), lago com lírios/pedras na
+borda, casa com telhado inclinado/janelas/vaso de flor, cerca de madeira com sebe, HUD de mochila
+com abas (Remédios/Pokébolas/Frutas/Chave/TM-HM). Mesmo status da primeira referência: **guardado
+pro futuro, não implementar agora** — mandado durante a reorganização geográfica de 02/09, sem
+pedido de ação imediata.

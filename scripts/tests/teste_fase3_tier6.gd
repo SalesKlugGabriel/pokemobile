@@ -1,5 +1,7 @@
-## teste_fase3_tier6.gd — Teste headless do Tier 6 da expansão de mapa
-## (Rota 9 → Saffron City + Ginásio da Sabrina).
+## teste_fase3_tier6.gd — Teste headless do Tier 6 (Saffron City + Ginásio
+## da Sabrina). Reescrito em 02/09 (reorganização geográfica): Saffron fica
+## embaixo de Cerulean agora — é o cruzamento das 4 rotas (Cerulean/
+## Vermilion/Celadon/Lavender).
 ## Roda com: godot4 --headless --script res://scripts/tests/teste_fase3_tier6.gd
 extends SceneTree
 
@@ -8,7 +10,7 @@ var _fail  := 0
 var _rodou := false
 
 func _initialize() -> void:
-	print("=== Teste Fase 3 Tier 6 (Rota 9 → Saffron) ===")
+	print("=== Teste Fase 3 Tier 6 (Saffron, embaixo de Cerulean) ===")
 
 func _process(_delta: float) -> bool:
 	if _rodou:
@@ -30,18 +32,22 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] >= 820, "world_map tem pelo menos 820 de largura (Rota9+Saffron cabem)")
 
+	var cc0 := MapLayouts.SPINE_COL_INICIO
+	var r0 := MapLayouts.SAFFRON_ROW_INICIO
+
+	# ---- 1. Caminho contínuo de Cerulean até Saffron (corredor N-S) ----
 	var quebras := 0
-	for c in range(640, 818):
-		if tiles[18][c] != "P" and tiles[18][c] != ".":
+	for r in range(MapLayouts.ROUTE5_SUL_START, r0 + MapLayouts.SAFFRON_ROWS):
+		var ch : String = tiles[r][cc0 + 28]
+		if ch != "P" and ch != "." and ch != "I":
 			quebras += 1
-	_assert(quebras == 0, "caminho de Fuchsia até Saffron (row 18) é contínuo (%d quebras)" % quebras)
+	_assert(quebras == 0, "caminho de Cerulean até Saffron é contínuo (%d quebras)" % quebras)
 
-	_assert(tiles[10][776] == "I", "Saffron: interior do Ginásio (Sabrina) é piso")
-	_assert(tiles[6][776] == "H", "Saffron: telhado do Ginásio existe")
-	_assert(tiles[10][801] == "I", "Saffron: interior do Centro Pokémon é piso")
-	_assert(tiles[10][814] == "I", "Saffron: interior da Silph Co. é piso")
+	_assert(tiles[r0 + 10][cc0 + 16] == "I", "Saffron: interior do Ginásio (Sabrina) é piso")
+	_assert(tiles[r0 + 6][cc0 + 16] == "H", "Saffron: telhado do Ginásio existe")
+	_assert(tiles[r0 + 10][cc0 + 41] == "I", "Saffron: interior do Centro Pokémon é piso")
+	_assert(tiles[r0 + 10][cc0 + 54] == "I", "Saffron: interior da Silph Co. é piso")
 
 	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene
 	_assert(world_scene != null, "WorldMap.tscn carrega sem erro")

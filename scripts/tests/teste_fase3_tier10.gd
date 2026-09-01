@@ -31,12 +31,16 @@ func _assert(cond: bool, label: String) -> void:
 		print("  FALHA - %s" % label)
 
 func _teste_geral() -> void:
-	# ---- 1. Entrada na Rota 10 (superfície) — moldura de rocha + patch caminhável ----
+	# ---- 1. Entrada na Rota 8/10 (superfície) — moldura de rocha + patch
+	# caminhável. Reorganização de 02/09: a Rota 10 (com a boca do Rock
+	# Tunnel) virou a segunda metade da nova Rota 8 (Saffron → Lavender). ----
 	var world_layout = MapLayouts.get_layout("world_map")
 	var wtiles : Array = world_layout["tiles"]
-	_assert(wtiles[18][843] == "P", "Rota 10: entrada do Rock Tunnel é caminhável (onde fica o warp)")
-	_assert(wtiles[13][840] == "R", "Rota 10: moldura de rocha ao lado da boca do Rock Tunnel existe")
-	_assert(wtiles[18][840] == "P", "Rota 10: o corredor leste-oeste (row 18) NUNCA é bloqueado pela moldura da caverna")
+	var r0 := MapLayouts.SAFFRON_ROW_INICIO
+	var entrada_col := MapLayouts.SPINE_COL_INICIO + MapLayouts.CERULEAN_COLS + MapLayouts.ROUTE9_COLS + 23
+	_assert(wtiles[r0 + 18][entrada_col] == "P", "Rota 8: entrada do Rock Tunnel é caminhável (onde fica o warp)")
+	_assert(wtiles[r0 + 13][entrada_col - 3] == "R", "Rota 8: moldura de rocha ao lado da boca do Rock Tunnel existe")
+	_assert(wtiles[r0 + 18][entrada_col - 3] == "P", "Rota 8: o corredor leste-oeste NUNCA é bloqueado pela moldura da caverna")
 
 	# ---- 2. Layout interno: 36x36, determinístico (seed fixa) ----
 	var layout = MapLayouts.get_layout("rock_tunnel")
@@ -126,11 +130,13 @@ func _teste_geral() -> void:
 		var rt_inst := rt_scene.instantiate()
 		var rt_warps := rt_inst.get_node_or_null("WarpZones")
 		var achou_volta := false
+		var saida_col := MapLayouts.SPINE_COL_INICIO + MapLayouts.CERULEAN_COLS + MapLayouts.ROUTE9_COLS + 23
+		var saida_row := MapLayouts.SAFFRON_ROW_INICIO + 18
 		if rt_warps:
 			for w in rt_warps.get_children():
-				if w.target_map.contains("WorldMap") and w.spawn_tile == Vector2i(843, 18):
+				if w.target_map.contains("WorldMap") and w.spawn_tile == Vector2i(saida_col, saida_row):
 					achou_volta = true
-		_assert(achou_volta, "Rock Tunnel tem warp de volta pra Rota 10, no mesmo tile da entrada")
+		_assert(achou_volta, "Rock Tunnel tem warp de volta pra Rota 8, no mesmo tile da entrada")
 		rt_inst.free()
 
 	# ---- 9. zones.json: spawn selvagem real do Gen 1 ----

@@ -899,6 +899,31 @@
     ],
     "unlocks": []
   },
+  "ROCKET-07": {
+    "id": "ROCKET-07",
+    "title": "Capangas no Esconderijo",
+    "category": "rocket",
+    "location_tile": null,
+    "notes": "Sala de entrada do Rocket Hideout (RocketHideout.tscn, map_id rocket_hideout) — quest independente, não faz parte da cadeia principal ROCKET-01..06. Inicia ao falar com o capanga perto da entrada.",
+    "objectives": [
+      {
+        "type": "defeat_count",
+        "target": "capanga_rocket",
+        "count": 3
+      }
+    ],
+    "rewards": {
+      "exp_trainer": 300,
+      "items": [
+        {
+          "id": "escape_rope",
+          "quantity": 2
+        }
+      ]
+    },
+    "requires": [],
+    "unlocks": []
+  },
   "UTIL-01": {
     "id": "UTIL-01",
     "title": "O Mentor",

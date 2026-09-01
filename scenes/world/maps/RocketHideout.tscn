@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
 [ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="8_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/PartyScene.tscn" id="9_party"]
 [ext_resource type="PackedScene" path="res://scenes/world/WarpZone.tscn" id="10_warpzone"]
+[ext_resource type="PackedScene" path="res://scenes/entities/NpcEntity.tscn" id="11_npc"]
 
 [sub_resource type="RectangleShape2D" id="Shape_south"]
 size = Vector2(32, 16)
@@ -38,6 +39,31 @@ limit_right = 288
 limit_bottom = 224
 zoom = Vector2(3.0, 3.0)
 
+[node name="CapangaRocket1" parent="Entities" instance=ExtResource("11_npc")]
+position = Vector2(136, 144)
+npc_name = "Capanga Rocket"
+dialog_id = "capanga_rocket_1"
+starts_quest_id = "ROCKET-07"
+is_trainer = true
+trainer_team = Array[Dictionary]([{"species_id": 23, "level": 24}, {"species_id": 41, "level": 25}])
+is_patrolling = false
+
+[node name="CapangaRocket2" parent="Entities" instance=ExtResource("11_npc")]
+position = Vector2(72, 96)
+npc_name = "Capanga Rocket"
+dialog_id = "capanga_rocket_2"
+is_trainer = true
+trainer_team = Array[Dictionary]([{"species_id": 109, "level": 26}, {"species_id": 19, "level": 24}])
+is_patrolling = false
+
+[node name="CapangaRocket3" parent="Entities" instance=ExtResource("11_npc")]
+position = Vector2(200, 64)
+npc_name = "Capanga Rocket"
+dialog_id = "capanga_rocket_3"
+is_trainer = true
+trainer_team = Array[Dictionary]([{"species_id": 41, "level": 27}, {"species_id": 109, "level": 27}, {"species_id": 19, "level": 25}])
+is_patrolling = false
+
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("3_zm")
 
@@ -49,7 +75,7 @@ script = ExtResource("4_sm")
 [node name="WarpSouth" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(136, 192)
 target_map = "res://scenes/world/maps/WorldMap.tscn"
-spawn_tile = Vector2i(547, 29)
+spawn_tile = Vector2i(147, 96)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpSouth"]
 shape = SubResource("Shape_south")

@@ -1,5 +1,6 @@
-## teste_fase3_tier4.gd — Teste headless do Tier 4 da expansão de mapa
-## (Rota 7 → Celadon City + Ginásio da Erika).
+## teste_fase3_tier4.gd — Teste headless do Tier 4 (Celadon City + Ginásio
+## da Erika). Reescrito em 02/09 (reorganização geográfica): Celadon fica a
+## OESTE de Saffron agora, não mais numa fileira reta a leste de Vermilion.
 ## Roda com: godot4 --headless --script res://scripts/tests/teste_fase3_tier4.gd
 extends SceneTree
 
@@ -8,7 +9,7 @@ var _fail  := 0
 var _rodou := false
 
 func _initialize() -> void:
-	print("=== Teste Fase 3 Tier 4 (Rota 7 → Celadon) ===")
+	print("=== Teste Fase 3 Tier 4 (Celadon, a oeste de Saffron) ===")
 
 func _process(_delta: float) -> bool:
 	if _rodou:
@@ -30,18 +31,24 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] >= 580, "world_map tem pelo menos 580 de largura (Rota7+Celadon cabem)")
 
+	# ---- 1. Caminho contínuo de Saffron até Celadon (corredor r16-20) ----
+	var r0 := MapLayouts.SAFFRON_ROW_INICIO
 	var quebras := 0
-	for c in range(400, 578):
-		if tiles[18][c] != "P" and tiles[18][c] != ".":
+	for c in range(MapLayouts.CELADON_COL_INICIO, MapLayouts.SPINE_COL_INICIO):
+		if tiles[r0 + 18][c] != "P" and tiles[r0 + 18][c] != ".":
 			quebras += 1
-	_assert(quebras == 0, "caminho de Vermilion até Celadon (row 18) é contínuo (%d quebras)" % quebras)
+	_assert(quebras == 0, "caminho de Celadon até Saffron é contínuo (%d quebras)" % quebras)
 
-	_assert(tiles[10][536] == "I", "Celadon: interior do Ginásio (Erika) é piso")
-	_assert(tiles[6][536] == "H", "Celadon: telhado do Ginásio existe")
-	_assert(tiles[10][561] == "I", "Celadon: interior do Centro Pokémon é piso")
-	_assert(tiles[10][574] == "I", "Celadon: interior da Loja de Departamentos é piso")
+	var ce0 := MapLayouts.CELADON_COL_INICIO
+	_assert(tiles[r0 + 10][ce0 + 16] == "I", "Celadon: interior do Ginásio (Erika) é piso")
+	_assert(tiles[r0 + 6][ce0 + 16] == "H", "Celadon: telhado do Ginásio existe")
+	_assert(tiles[r0 + 10][ce0 + 41] == "I", "Celadon: interior do Centro Pokémon é piso")
+	_assert(tiles[r0 + 10][ce0 + 54] == "I", "Celadon: interior da Loja de Departamentos é piso")
+
+	# ---- 2. Mar separando Celadon de Viridian, de verdade ----
+	_assert(tiles[r0 + 10][MapLayouts.MAR_CELADON_VIRIDIAN_COL_INICIO + 5] == "~",
+		"mar entre Celadon e Viridian existe (separação real)")
 
 	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene
 	_assert(world_scene != null, "WorldMap.tscn carrega sem erro")

@@ -9,6 +9,68 @@
 
 ---
 
+## v0.4.0 — Reorganização geográfica: mapa deixa de ser uma linha reta (2026-09-02)
+
+**Pedido do Gabriel**, com uma imagem de referência do Kanto real: Saffron embaixo de Cerulean,
+Vermilion embaixo de Saffron, Celadon à esquerda de Saffron (mar de verdade separando de
+Viridian — só atravessa por Saffron, ou nadando quando Surf existir), Lavender à direita de
+Saffron, Fuchsia embaixo de Lavender. Antes disso, Vermilion→Celadon→Fuchsia→Saffron→Lavender
+eram uma fileira reta a leste de Cerulean (assim desde os Tiers 3-7, 31/08-01/09) — geografia que
+funcionava mas não parecia com o Kanto de verdade.
+
+**Duas perguntas resolvidas com o Gabriel antes de mexer em código** (decisão registrada, não
+assumida): (1) Lavender continua ligada por uma rota que reaproveita a antiga Rota 9/10 + a boca
+do Rock Tunnel, só que agora saindo de Saffron (Rota 8), não mais de Cerulean; (2) o mar entre
+Celadon e Viridian separa de verdade — não é só decoração, precisa de Surf/barco no futuro pra
+atravessar.
+
+**O que mudou por dentro:** o "espinhaço" Cerulean→Saffron→Vermilion virou uma coluna vertical
+nova (Rota 5 desce de Cerulean, Rota 6 desce de Saffron), com Saffron virando um cruzamento de 4
+saídas (norte=Cerulean, sul=Vermilion, oeste=Rota 7→Celadon, leste=Rota 8→Lavender). Cada cidade
+manteve o PRÓPRIO desenho interno (Ginásio/Centro/etc. nas mesmas posições relativas de sempre) —
+só mudou onde ela é ancorada no mapa; o código de cada cidade foi extraído pra uma função própria
+reutilizável, não importa de que direção se chega nela. O litoral de Vermilion (praia→Arquipélago
+→Seafoam→Power Plant) e a Rota 11→Diglett's Cave (agora a leste de Vermilion, não mais ao norte —
+o norte e o sul dela já são ocupados por Cerulean/costa) viajaram junto com a cidade.
+
+**Pewter↔Cerulean (Rota 3/Mt Moon/Rota 4), o norte de Cerulean (Rota 24/25/Casa do Bill/Nugget
+Bridge) e o oeste de Viridian (Rota 22/Victory Road/Indigo Plateau) continuam EXATAMENTE iguais**
+— não fazem parte da fileira reta que foi desmontada.
+
+**🔴 Achado no caminho, corrigido antes de terminar**: um ramo em linha/coluna negativa só pode
+pintar a largura/altura INTEIRA do eixo compartilhado se for o único ocupante dele (mesma lição
+do Tier 19, mas essa não se repetiu aqui — os ramos novos já nasceram pintando só a própria
+faixa). O que apareceu de novo desta vez foi puramente aritmético (off-by-one nos limites de
+linha entre Rota 5/Saffron/Rota 6/Vermilion) — pego pela suíte de testes antes de qualquer commit,
+nunca chegou a rodar em produção.
+
+**Trabalho mecânico grande, sem risco de lógica nova**: recalculadas TODAS as posições de NPC e
+warp em `WorldMap.tscn` que pertenciam às 5 cidades reancoradas (Lt. Surge, Erika, Koga, Sabrina,
+Fuji, os moradores/vendedores locais, o Capitão e o Pescador de Vermilion, os 5 Centros Pokémon,
+os warps de Rock Tunnel/Zona Safari/Rocket Hideout/Diglett's Cave) — cada posição recalculada
+preservando a MESMA posição relativa dentro da própria cidade (não foi um redesenho, só uma
+re-ancoragem), conferida depois por teste, não de cabeça.
+
+**Também mesclado nesta versão**: uma sessão-filha em worktree isolada construiu o Rocket
+Hideout enquanto essa reorganização acontecia (arquivos disjuntos, sem conflito real) — 3
+capangas da Equipe Rocket com times reais e a quest `ROCKET-07` ("Capangas no Esconderijo"),
+achando e corrigindo um handler do `QuestManager` que só contava derrota por espécie, nunca por
+nome de treinador (quebraria "vencer 3 capangas iguais").
+
+**27 arquivos de teste reescritos** pra bater com a geografia nova (a maioria só trocou número
+cravado por constante do `MapLayouts`, pra não quebrar de novo se a geografia mudar outra vez) +
+1 arquivo novo do Rocket Hideout. **Suíte inteira: 28 arquivos, 457 conferências, 0 falhas.**
+
+**Segunda referência visual guardada pro futuro** (não implementada agora): Gabriel mandou um
+screenshot de um jogo estilo Stardew Valley mostrando o nível de detalhe de sprite que quer pra
+fase "sprites mais legais" — ver `docs/tileset-referencia-visual.md`.
+
+**Precisa de decisão do Gabriel?** Não pro que foi feito — mas o mapa ainda tem ~13 "gavetas
+vazias" nunca tocadas desde o plano original de 31/08 (Rotas 12-21, Floresta de Viridian, Caverna
+de Cerulean) — perguntei se ele quer que essas também entrem, ainda sem resposta.
+
+---
+
 ## v0.3.13 — ZoneManager corrigido: zona por map_id, não mais por coordenada crua (2026-09-01)
 
 **Pedido:** "siga com o pokemobile" (retomada de sessão) — antes de seguir com mapa/estruturas
