@@ -55,8 +55,12 @@ const CERULEAN_COLS  : int = 60
 const ROUTE5_COLS    : int = 60
 const ROUTE6_COLS    : int = 60
 const VERMILION_COLS : int = 60
+# Tier 4 (continuação, 31/08): Rota 7 → Celadon City (Erika).
+const ROUTE7_COLS    : int = 60
+const CELADON_COLS   : int = 60
 const W_TOTAL : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS \
-	+ ROUTE5_COLS + ROUTE6_COLS + VERMILION_COLS  # 460
+	+ ROUTE5_COLS + ROUTE6_COLS + VERMILION_COLS \
+	+ ROUTE7_COLS + CELADON_COLS  # 580
 
 static func _gen_world_map() -> Array:
 	var W := W_TOTAL
@@ -241,6 +245,61 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 	# ── Doca/porto (Vermilion é cidade portuária) ──
 	if (vc + r * 2) % 15 == 3 and r >= 22 and r <= 34 and vc >= 2 and vc <= 55:
 		return "~"
+
+	# ── Vermilion só vai até VERMILION_COLS; dali pra leste é Tier 4 ────────
+	if vc < VERMILION_COLS:
+		return "."
+
+	# ── Rota 7 (Tier 4) ── local vr 0 .. ROUTE7_COLS-1
+	var vr := vc - VERMILION_COLS
+	if vr < ROUTE7_COLS:
+		if no_caminho:
+			return "P"
+		if (vr + r * 2) % 9 == 4:
+			return "T"
+		if (vr * 2 + r) % 13 == 8:
+			return "F"
+		return "."
+
+	# ── Celadon City ── local ce a partir de ROUTE7_COLS
+	var ce := vr - ROUTE7_COLS
+
+	# ── Ginásio de Celadon (Erika) ── cols 10-22, rows 6-14
+	if ce >= 10 and ce <= 22 and r >= 6 and r <= 14:
+		if ce == 10 or ce == 22: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if ce >= 15 and ce <= 17: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and ce >= 15 and ce <= 17:
+		return "P"
+
+	# ── Centro Pokémon de Celadon ── cols 35-47, rows 6-14
+	if ce >= 35 and ce <= 47 and r >= 6 and r <= 14:
+		if ce == 35 or ce == 47: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if ce >= 40 and ce <= 42: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and ce >= 40 and ce <= 42:
+		return "P"
+
+	# ── Grande Loja de Departamentos (Celadon Mart) — cols 50-58, rows 8-14
+	if ce >= 50 and ce <= 58 and r >= 8 and r <= 14:
+		if ce == 50 or ce == 58: return "W"
+		if r == 8: return "H"
+		if r == 14:
+			if ce >= 53 and ce <= 55: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and ce >= 53 and ce <= 55:
+		return "P"
+
+	# ── Jardins de Celadon (o verde que dá nome à cidade) ──
+	if (ce + r * 3) % 11 == 4 and r >= 20 and r <= 34 and ce >= 2 and ce <= 55:
+		return "F"
 
 	return "."
 

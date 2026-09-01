@@ -9,6 +9,31 @@
 
 ---
 
+## v0.3.1 — Tier 4: Rota 7 → Celadon City (Erika) (2026-08-31, continuação)
+
+**Pedido:** "continue com o mapa". Rota 7 → Celadon City, a leste de Vermilion (mapa cresceu
+de 460 pra **580 de largura**). Celadon ganhou Ginásio (Erika, time real: Vileplume Nv.29 +
+Victreebel Nv.30), Centro Pokémon e a Loja de Departamentos (Celadon Mart, só o prédio por
+enquanto — sem vendedor ligado ainda, fica pra quando "estruturas" virar foco de verdade).
+
+**Spawn selvagem real do Gen 1**: Rota 7 (Oddish/Bellsprout/Venonat/Abra). Oddish já também
+existe na Rota 5 — junto, dão o "capturar 3 Oddish" da GYM-04 bem alcançável.
+
+**Testado:** `teste_fase3_tier4.gd` (13 conferências) — caminho contínuo, Ginásio/Centro
+Pokémon/Loja de Celadon existem, Erika com time real iniciando GYM-04, Oddish alcançável.
+1 teste do Tier 3 ajustado (largura total mudou de novo, mesma classe de sempre). **7 arquivos
+de teste juntos: 143 conferências, 0 falhas.** Publicado, testado ao vivo sem erro.
+
+**Mapa hoje**: Pallet→Viridian→Pewter→(Mt Moon)→Cerulean→Vermilion→Celadon — **4 badges reais**
+(Brock/Misty/Lt.Surge/Erika) funcionando de ponta a ponta.
+
+**Próximo passo:** Tier 5 (Fuchsia/Koga ou Saffron/Sabrina — ou o desvio de Rota 24/25 +
+Bill's House perto de Cerulean, que ainda falta).
+
+**Precisa de decisão do Gabriel?** Não — seguindo a ordem combinada.
+
+---
+
 ## v0.3.0 — Tier 3: Rota 5 → Rota 6 → Vermilion City (Lt. Surge) (2026-08-31, continuação)
 
 **Pedido do Gabriel:** deixar mecânica de locomoção por último; ordem definida: **mapa →

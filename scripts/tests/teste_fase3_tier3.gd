@@ -30,7 +30,7 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] == 460, "world_map agora tem 460 de largura (Tier 3 somou Rota5+Rota6+Vermilion)")
+	_assert(layout["width"] >= 460, "world_map tem pelo menos 460 de largura (Rota5+Rota6+Vermilion cabem)")
 
 	# ---- 1. Caminho contínuo de Cerulean até Vermilion, sem quebra ----
 	# (220 = fim de Cerulean, 460 = fim do mapa)

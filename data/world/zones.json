@@ -136,10 +136,10 @@
       "name": "Celadon City",
       "region": "kanto",
       "tile_rect": {
-        "x": 180,
-        "y": 80,
-        "w": 40,
-        "h": 30
+        "x": 520,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
       "bgm": "celadon_city",
       "wild_pokemon": [],
@@ -479,33 +479,40 @@
       "name": "Route 7",
       "region": "kanto",
       "tile_rect": {
-        "x": 160,
-        "y": 92,
-        "w": 40,
-        "h": 8
+        "x": 460,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
-      "bgm": "route_5",
+      "bgm": "route_7",
       "wild_pokemon": [
         {
           "id": 43,
           "name": "Oddish",
-          "level_min": 18,
-          "level_max": 22,
-          "weight": 35
-        },
-        {
-          "id": 52,
-          "name": "Meowth",
-          "level_min": 18,
-          "level_max": 22,
-          "weight": 35
-        },
-        {
-          "id": 79,
-          "name": "Slowpoke",
-          "level_min": 18,
-          "level_max": 21,
+          "level_min": 15,
+          "level_max": 19,
           "weight": 30
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 15,
+          "level_max": 19,
+          "weight": 30
+        },
+        {
+          "id": 48,
+          "name": "Venonat",
+          "level_min": 15,
+          "level_max": 19,
+          "weight": 25
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 16,
+          "level_max": 20,
+          "weight": 15
         }
       ],
       "npcs": []
