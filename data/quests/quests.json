@@ -606,9 +606,10 @@
     },
     "objectives": [
       {
-        "type": "fetch_item",
-        "item": "mansion_key",
-        "zone": "pokemon_mansion_floor2"
+        "type": "defeat_count",
+        "target": "growlithe",
+        "count": 3,
+        "zone": "cinnabar_island"
       },
       {
         "type": "defeat",
@@ -934,15 +935,13 @@
     "objectives": [
       {
         "type": "defeat",
-        "target": "alpha_gyarados",
-        "zone": "mar_sul"
+        "target": "gyarados",
+        "zone": "mar_de_vermilion"
       }
     ],
     "rewards": {
       "exp_trainer": 400,
-      "unlocks": [
-        "boat_to_cinnabar"
-      ]
+      "notes": "completar essa quest é o que libera o diálogo/viagem do Capitão de Vermilion pro barco de Cinnabar (NpcEntity.requires_quest_for_travel = 'UTIL-02') — não é um item/flag genérico, é checado direto via QuestManager.is_quest_complete()."
     },
     "requires": [],
     "unlocks": []

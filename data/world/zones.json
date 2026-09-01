@@ -186,6 +186,20 @@
           "level_min": 15,
           "level_max": 22,
           "weight": 15
+        },
+        {
+          "id": 129,
+          "name": "Magikarp",
+          "level_min": 5,
+          "level_max": 15,
+          "weight": 25
+        },
+        {
+          "id": 130,
+          "name": "Gyarados",
+          "level_min": 20,
+          "level_max": 25,
+          "weight": 5
         }
       ],
       "npcs": []
@@ -266,14 +280,37 @@
       "id": "cinnabar_island",
       "name": "Cinnabar Island",
       "region": "kanto",
+      "notes": "Cena própria (CinnabarIsland.tscn), só alcançável de barco (Capitão de Vermilion, exige UTIL-02 completa) — coordenada local 0-based, 40x40, ilha com contorno orgânico (mesma técnica de sin()/distância do litoral de Vermilion).",
       "tile_rect": {
-        "x": 37,
-        "y": 285,
-        "w": 26,
-        "h": 20
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 40
       },
       "bgm": "cinnabar_island",
-      "wild_pokemon": [],
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 40
+        },
+        {
+          "id": 77,
+          "name": "Ponyta",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 35
+        },
+        {
+          "id": 79,
+          "name": "Slowpoke",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        }
+      ],
       "npcs": []
     },
     {

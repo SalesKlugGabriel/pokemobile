@@ -1022,6 +1022,84 @@ static func _rocktunnel_carve(grid_chars: Array, W: int, H: int, start_c: int, s
 		r = clampi(r, 1, H - 2)
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Cinnabar Island — 40×40, cena própria (só alcançável de barco — a viagem
+# em si é o "trocar de ilha", exceção de warp igual caverna/subterrâneo).
+# Tier 11 (01/09): contorno da ilha ORGÂNICO (mesma técnica de sin()/
+# distância do litoral de Vermilion, regra de tematização de bioma), não
+# um retângulo — praia em anel ao redor, rochedo vulcânico esparso no
+# interior (identidade de ilha vulcânica, mesmo sem sprite de lava ainda).
+# ──────────────────────────────────────────────────────────────────────────────
+static func _gen_cinnabar() -> Array:
+	var W := 40
+	var H := 40
+	var grid : Array = []
+	for r in H:
+		var row := ""
+		for c in W:
+			row += _cinnabar_cell(c, r, W, H)
+		grid.append(row)
+	return grid
+
+static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
+	# Cais de madeira — sai da praia sul rumo ao mar, é onde o barco atraca
+	# (warp de volta pra Vermilion fica na ponta) ──
+	if c >= 18 and c <= 21 and r >= 33 and r <= 38:
+		return "D"
+
+	# Contorno orgânico da ilha (praia em anel, mar ao redor) ──
+	var dx := float(c - 20)
+	var dy := float(r - 19)
+	var dist := sqrt(dx * dx + dy * dy)
+	var raio := 15.0 + 2.5 * sin(atan2(dy, dx) * 3.0) + 1.0 * sin(atan2(dy, dx) * 7.0)
+	if dist > raio:
+		return "~"
+	if dist > raio - 2.5:
+		return "S"
+
+	# ── Ginásio de Cinnabar (Blaine) ── cols 10-22, rows 10-18
+	if c >= 10 and c <= 22 and r >= 10 and r <= 18:
+		if c == 10 or c == 22: return "W"
+		if r == 10: return "H"
+		if r == 18:
+			if c >= 15 and c <= 17: return "P"
+			return "W"
+		return "I"
+	if r >= 18 and r <= 19 and c >= 15 and c <= 17:
+		return "P"
+
+	# ── Centro Pokémon ── cols 25-33, rows 10-18
+	if c >= 25 and c <= 33 and r >= 10 and r <= 18:
+		if c == 25 or c == 33: return "W"
+		if r == 10: return "H"
+		if r == 18:
+			if c >= 28 and c <= 29: return "P"
+			return "W"
+		return "I"
+	if r >= 18 and r <= 19 and c >= 28 and c <= 29:
+		return "P"
+
+	# ── Mansão Pokémon — só a fachada por enquanto (interior/andares ficam
+	# pra quando "Pokémon e estruturas" virar foco) ── cols 14-26, rows 22-28
+	if c >= 14 and c <= 26 and r >= 22 and r <= 28:
+		if c == 14 or c == 26: return "W"
+		if r == 22: return "H"
+		if r == 28:
+			if c >= 19 and c <= 21: return "P"
+			return "W"
+		return "I"
+	if r >= 28 and r <= 29 and c >= 19 and c <= 21:
+		return "P"
+
+	# ── Caminho ligando o cais ao resto da ilha ──
+	if c >= 19 and c <= 20 and r >= 29 and r <= 33:
+		return "P"
+
+	# ── Rochedo vulcânico esparso (identidade de ilha vulcânica) ──
+	if (c + r * 3) % 11 == 4:
+		return "R"
+	return "."
+
+# ──────────────────────────────────────────────────────────────────────────────
 # API pública
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -1039,6 +1117,9 @@ static func get_layout(map_id: String) -> Dictionary:
 		"rock_tunnel":
 			var tiles := _gen_rocktunnel()
 			return {"tiles": tiles, "width": 36, "height": 36}
+		"cinnabar_island":
+			var tiles := _gen_cinnabar()
+			return {"tiles": tiles, "width": 40, "height": 40}
 		_:
 			return {}
 

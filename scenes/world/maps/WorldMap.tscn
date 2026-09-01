@@ -267,6 +267,16 @@ npc_name = "Pescador"
 dialog_id = "pescador_vermilion_praia"
 is_patrolling = false
 
+[node name="CapitaoVermilion" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(7136, 424)
+npc_name = "Capitão"
+dialog_id = "capitao_vermilion"
+starts_quest_id = "UTIL-02"
+requires_quest_for_travel = "UTIL-02"
+travel_target_map = "res://scenes/world/maps/CinnabarIsland.tscn"
+travel_spawn_tile = Vector2i(19, 35)
+is_patrolling = false
+
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("4_zm")
 

@@ -30,6 +30,14 @@ extends BaseEntity
 ## estiver ativa/completa, então é seguro conversar de novo.
 @export var starts_quest_id : String = ""
 
+## Viagem condicionada a quest (Capitão do barco pra Cinnabar, 01/09) —
+## vazio = NPC não leva a lugar nenhum. Se preenchido, exige essa quest
+## completa (QuestManager.is_quest_complete) pra realmente viajar; antes
+## disso usa o `dialog_id` normal, depois usa "<dialog_id>_liberado".
+@export var requires_quest_for_travel : String = ""
+@export var travel_target_map  : String   = ""
+@export var travel_spawn_tile  : Vector2i = Vector2i.ZERO
+
 ## Se true, inicia batalha de treinador após o diálogo
 @export var is_trainer     : bool = false
 
@@ -168,6 +176,8 @@ func _effective_dialog_id() -> String:
 		return "nurse_joy_healthy"
 	if not gift_item_id.is_empty() and SaveManager.has_item(gift_item_id, 1):
 		return dialog_id + "_depois"
+	if not requires_quest_for_travel.is_empty() and QuestManager.is_quest_complete(requires_quest_for_travel):
+		return dialog_id + "_liberado"
 	return dialog_id
 
 func _on_dialog_ended() -> void:
@@ -186,6 +196,14 @@ func _on_dialog_ended() -> void:
 		AudioManager.play_sfx("item_get")
 	if not starts_quest_id.is_empty():
 		QuestManager.start_quest(starts_quest_id)
+	# Viagem (barco etc.) — só acontece se a quest exigida já estiver completa;
+	# antes disso o diálogo normal já deixou claro que ainda não dá.
+	if not requires_quest_for_travel.is_empty() and travel_target_map != "" \
+	and QuestManager.is_quest_complete(requires_quest_for_travel):
+		WorldManager.warp_to(travel_target_map, travel_spawn_tile)
+		_interacted_by = null
+		_set_state(State.IDLE)
+		return
 	# Inicia batalha de treinador após o diálogo (se não foi derrotado ainda)
 	if is_trainer and not trainer_defeated and not trainer_team.is_empty():
 		BattleManager.start_trainer_battle(self)

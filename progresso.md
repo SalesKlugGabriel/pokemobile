@@ -272,6 +272,46 @@ Publicado, `curl` confirma 200.
 
 ---
 
+## v0.3.8 — Tier 11: Cinnabar Island de barco (2026-09-01)
+
+**Pedido:** "Continue". Como a travessia de água aberta era uma decisão de arquitetura de verdade
+(ainda não existe Surf), perguntei ao Gabriel como seguir — ele escolheu **barco por enquanto**
+(reaproveitando o que o próprio plano mestre já previa: a quest "Filho do Mar" desbloqueando
+"boat_to_cinnabar").
+
+**Construído**: Cinnabar Island, alcançável só de barco a partir do Capitão de Vermilion.
+Conversar com o Capitão inicia a UTIL-02 ("derrotar o Gyarados que ronda a baía"); só depois
+dela completa o diálogo dele muda (`_liberado`) e a viagem de verdade acontece. Ilha própria
+(cena separada, 40×40) com contorno ORGÂNICO (mesma técnica `sin()`/distância do litoral de
+Vermilion — regra de tematização), Ginásio do Blaine (GYM-06, time real Growlithe Nv.42 +
+Arcanine Nv.47, Volcano Badge), Centro Pokémon, e a Mansão Pokémon só de fachada (interior fica
+pra "Pokémon e estruturas"). Rochedo vulcânico esparso dá identidade de ilha vulcânica mesmo sem
+sprite de lava ainda.
+
+**Peça de motor nova (não só conteúdo)**: `NpcEntity` ganhou viagem condicionada a quest —
+`requires_quest_for_travel`/`travel_target_map`/`travel_spawn_tile`. Reaproveita a mesma
+infraestrutura de diálogo reativo que já existia (`_effective_dialog_id()`, usada antes só pra
+cura/presente) — agora também troca de fala e libera viagem de verdade conforme o estado real da
+quest (`QuestManager.is_quest_complete`), não um "flag" novo desconectado do sistema de quests.
+
+**Dois achados de quest corrigidos antes de testar** (mesma classe de sempre): UTIL-02 pedia
+`alpha_gyarados` (mecânica "alpha" que não existe) — trocado por `defeat gyarados` de verdade
+(Gyarados+Magikarp adicionados ao Mar de Vermilion). GYM-06 (Blaine) pedia `fetch_item` numa
+`pokemon_mansion_floor2` que não existe — trocado por `defeat_count growlithe ×3`, Pokémon real
+de Cinnabar no Gen 1.
+
+**Testado**: `teste_fase3_tier11.gd` (24 conferências) — inclui a prova mais importante: forçar
+`UTIL-02` completa via `QuestManager` e confirmar que o diálogo do Capitão muda de verdade
+(`capitao_vermilion` → `capitao_vermilion_liberado`), não só checar que os campos existem.
+**14 arquivos de teste juntos: 247 conferências, 0 falhas.** Publicado, `curl` confirma 200.
+
+**Próximo passo**: resto do Kanto original (Elite Four, Power Plant, S.S. Anne etc. — placeholders
+em `zones.json`, nada construído) ou aguardar novo pedido do Gabriel.
+
+**Precisa de decisão do Gabriel?** Não — decisão da travessia já tomada nesta sessão.
+
+---
+
 ## v0.3.0 — Tier 3: Rota 5 → Rota 6 → Vermilion City (Lt. Surge) (2026-08-31, continuação)
 
 **Pedido do Gabriel:** deixar mecânica de locomoção por último; ordem definida: **mapa →

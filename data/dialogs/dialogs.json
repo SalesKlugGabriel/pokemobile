@@ -182,6 +182,26 @@
     "Ei! Ainda não tinha visto um treinador subir até aqui.",
     "A Rota 24 pode ser tranquila, mas meus Pokémon não são."
   ],
+  "capitao_vermilion": [
+    "Ô, treinador! Sou o capitão do porto de Vermilion.",
+    "Queria muito levar você até Cinnabar Island de barco, mas o mar lá fora anda perigoso — tem um Gyarados enorme rondando a baía.",
+    "Enquanto esse bicho não for enfrentado, não arrisco meu barco nem minha tripulação. Vai lá resolver isso primeiro."
+  ],
+  "capitao_vermilion_liberado": [
+    "Aquele Gyarados finalmente sossegou! Bom trabalho.",
+    "Agora sim — bem-vindo a bordo! Próxima parada, Cinnabar Island.",
+    "Segura na amurada, a travessia é rápida mas o mar balança!"
+  ],
+  "blaine_gym": [
+    "HA! Sinta o calor do meu Ginásio — sou Blaine, especialista em Pokémon de Fogo!",
+    "Poucos treinadores chegam até uma ilha vulcânica só pra apanhar. Respeito.",
+    "Vamos ver se você aguenta a temperatura!"
+  ],
+  "cinnabar_local": [
+    "Cinnabar Island — uma ilha vulcânica isolada no sul de Kanto.",
+    "A Mansão Pokémon ali guarda segredos antigos, dizem. Eu nunca tive coragem de entrar sozinho.",
+    "O Blaine é o cientista-treinador mais durão que já conheci. Boa sorte no Ginásio dele."
+  ],
   "pescador_vermilion_praia": [
     "Essa praia aqui é diferente da Rota 1 — a água é funda de verdade, tem coisa grande vivendo nela.",
     "Já vi Tentacool boiando bem longe da areia, e um Krabby me beliscou o dedo do pé outro dia.",
