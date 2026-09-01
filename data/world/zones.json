@@ -1719,14 +1719,15 @@
       "name": "Nugget Bridge",
       "region": "kanto",
       "tile_rect": {
-        "x": 138,
-        "y": 38,
-        "w": 6,
-        "h": 18
+        "x": 244,
+        "y": -15,
+        "w": 9,
+        "h": 9
       },
-      "bgm": "route_3",
+      "bgm": "route_24",
       "wild_pokemon": [],
-      "npcs": []
+      "npcs": [],
+      "notes": "Travessia de rio dentro da Rota 24 (Tier 17) — coordenada global do world_map, em linha negativa (mesmo ramo norte de Cerulean do Tier 8). O TreinadorRota24 já existente (Tier 8) fica bem no meio da ponte (fb~30) — mesma referência canônica de 'cadeia de treinadores na ponte', sem precisar de NPC novo."
     },
     {
       "id": "digletts_cave",

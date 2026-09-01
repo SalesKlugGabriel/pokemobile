@@ -90,6 +90,14 @@ const NORTE_OFFSET : int = ROUTE24_ROWS + ROUTE25_ROWS  # 40
 const RAMO_NORTE_COL_INICIO : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + 27
 const RAMO_NORTE_COL_FIM    : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + 29
 
+# Tier 17 (01/09): Nugget Bridge — travessia de rio dentro da Rota 24 (fb =
+# "from border", ver _norte_de_cerulean_cell). O TreinadorRota24 (Tier 8) já
+# fica bem no meio dessa faixa (fb~30) — a mesma referência canônica de
+# "cadeia de treinadores atravessando a ponte" cai de graça, sem precisar de
+# NPC novo.
+const NUGGET_BRIDGE_FB_INICIO : int = 25
+const NUGGET_BRIDGE_FB_FIM    : int = 33
+
 # Tier 9 (01/09): litoral de verdade — praia + mar ao SUL de Vermilion City
 # (cidade portuária, já tinha decoração de "doca"). Pedido do Gabriel:
 # bioma sempre com identidade própria (praia tem que parecer praia, não
@@ -280,6 +288,17 @@ static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
 		if (c * 2 + r) % 13 == 5:
 			return "F"
 		return "."
+
+	# ── Nugget Bridge (Tier 17) — travessia de rio na Rota 24, fb 25-33
+	# (o TreinadorRota24 já existente fica bem no meio da ponte, fb~30 —
+	# mesma referência canônica: cadeia de treinadores atravessando a ponte).
+	# Corredor vira o tabuleiro da ponte ("P"); os lados viram rio ("~") em
+	# vez do mato normal da Rota 24.
+	if fb >= NUGGET_BRIDGE_FB_INICIO and fb <= NUGGET_BRIDGE_FB_FIM \
+	and c >= RAMO_NORTE_COL_INICIO - 3 and c <= RAMO_NORTE_COL_FIM + 3:
+		if no_corredor:
+			return "P"
+		return "~"
 
 	# ── Rota 24 (mais perto de Cerulean, fb ROUTE25_ROWS..NORTE_OFFSET-1) ──
 	if no_corredor:
