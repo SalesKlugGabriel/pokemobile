@@ -220,6 +220,13 @@ npc_name = "Vendedora"
 dialog_id = "celadon_local"
 is_patrolling = false
 
+[node name="CeladonMartVendedor" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(2792, 1240)
+npc_name = "Vendedor"
+dialog_id = "celadon_shopkeeper"
+opens_shop_on_dialog_end = true
+is_patrolling = false
+
 [node name="Koga" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(6664, 2296)
 npc_name = "Koga"

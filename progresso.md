@@ -9,6 +9,34 @@
 
 ---
 
+## v0.4.1 — Celadon Mart ganha vendedor de verdade (2026-09-02)
+
+**Pedido do Gabriel**: "por enquanto tá bom [o mapa], vamos seguir em frente" — primeiro passo
+real da fase "Pokémon e estruturas" (item 2 da ordem geral, depois do Mapa).
+
+A Loja de Departamentos de Celadon existia desde o Tier 4 (31/08) só como prédio — igual Silph
+Co./Torre Pokémon. Diferente delas (que exigiriam warp — e a regra do Gabriel é "warp só pra
+caverna/subterrâneo/submarino/troca de continente"), uma loja neste jogo não precisa de warp:
+o sistema inteiro já funciona como um NPC parado dentro do prédio, no próprio world_map, que abre
+a tela de loja ao fim do diálogo (mesmo mecanismo já usado em Viridian desde 31/08). Bastou
+colocar o NPC (`CeladonMartVendedor`) dentro do prédio de Celadon, com fala própria
+(`celadon_shopkeeper`) — a loja em si é genérica (mesmo catálogo de sempre, `GameData.items`),
+não precisa de estoque específico por cidade.
+
+**Testado**: novo `teste_fase2_celadon_mart.gd` (8 conferências — posição cai no piso do prédio,
+NPC configurado com `opens_shop_on_dialog_end`, diálogo próprio existe). Suíte inteira: 29
+arquivos, 465 conferências, 0 falhas. Publicado, `curl` confirma 200.
+
+**Precisa de decisão do Gabriel**: Silph Co. e a Torre Pokémon continuam só fachada — os dois
+Itens maiores que sobraram de "Pokémon e estruturas" (interior de Silph Co. + "Operação
+Saffron"/ROCKET-05; andares da Torre Pokémon com fantasmas, ligada à MAIN-05, que já tem o motor
+`reach_floor` pronto desde a Fase 2) exigiriam um warp de verdade em cada um — e nenhum dos dois é
+caverna/subterrâneo/submarino. Pra continuar essa frente, preciso saber se o Gabriel quer abrir
+uma exceção nova à regra de warp pra esses dois (como já abriu pra Zona Safari, "espaço fechado
+com um único ponto de acesso"), ou se prefere deixar como está por enquanto.
+
+---
+
 ## v0.4.0 — Reorganização geográfica: mapa deixa de ser uma linha reta (2026-09-02)
 
 **Pedido do Gabriel**, com uma imagem de referência do Kanto real: Saffron embaixo de Cerulean,
