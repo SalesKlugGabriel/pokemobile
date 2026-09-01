@@ -141,6 +141,14 @@ const ARQUIPELAGO_ROWS : int = 40
 # do visual tropical, não "a mesma ilha com Pokémon diferente".
 const SEAFOAM_ROWS : int = 40
 
+# Tier 20 (01/09): Power Plant — continuando o mar mais ao sul do Seafoam
+# Islands, mesma faixa de colunas (Vermilion). Mesma regra dos Tiers 11/13/
+# 14: só alcançável quando Surf/Fly existir — SEM warp/NPC de propósito.
+# Diferente das ilhas anteriores (terreno natural), aqui é uma ilha
+# artificial pequena com um PRÉDIO (fachada, mesmo padrão de Silph Co./
+# Torre Pokémon) — usina elétrica, não bioma.
+const POWERPLANT_ROWS : int = 30
+
 # Tier 18 (01/09): Rota 22 → Victory Road (caverna, opcional/lateral, mesmo
 # padrão do Mt Moon/Rock Tunnel — não bloqueia, dá pra contornar) → Indigo
 # Plateau (Liga Pokémon, FECHADA — bloqueada pela mesma história do Ginásio
@@ -249,6 +257,12 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 	if r <= PEWTER_ROWS + COASTLINE_ROWS + ARQUIPELAGO_ROWS + SEAFOAM_ROWS \
 	and c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM:
 		return _seafoam_cell(c, r - PEWTER_ROWS - COASTLINE_ROWS - ARQUIPELAGO_ROWS, W)
+
+	# ── Power Plant (Tier 20) — continuação do mar, mais ao sul do Seafoam.
+	# Sem warp de propósito (só Surf/Fly no futuro) ────────────────────────
+	if r <= PEWTER_ROWS + COASTLINE_ROWS + ARQUIPELAGO_ROWS + SEAFOAM_ROWS + POWERPLANT_ROWS \
+	and c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM:
+		return _powerplant_cell(c, r - PEWTER_ROWS - COASTLINE_ROWS - ARQUIPELAGO_ROWS - SEAFOAM_ROWS, W)
 
 	# ── Rota 2 (linhas 37-72) — só existe na largura antiga; o resto é borda
 	if r <= OFFSET_ANTIGO:
@@ -596,6 +610,36 @@ static func _ilhota_seafoam_terreno(vc: int, cr: int, dist: float, raio: float) 
 	if (vc + cr * 3) % 9 == 0:
 		return "R"  # rochedo / boca de gruta esparsa
 	return "D"  # piso escuro rochoso — interior de ilhota-gruta
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Power Plant — ilha artificial pequena no mar, continuando ao sul do
+# Seafoam Islands (Tier 20). Diferente das ilhas anteriores (terreno
+# natural, bioma) — aqui é um PRÉDIO (usina), mesmo padrão de fachada de
+# Silph Co./Torre Pokémon: só geografia + fachada, sem interior/NPC/warp.
+# Só alcançável quando Surf/Fly existir, mesma regra de sempre.
+# ──────────────────────────────────────────────────────────────────────────────
+static func _powerplant_cell(c: int, cr: int, W: int) -> String:
+	var vc := c - VERMILION_COAST_COL_INICIO
+	var dx := float(vc - 27)
+	var dy := float(cr - 15)
+	var dist := sqrt(dx * dx + dy * dy)
+	var raio := 13.0 + 1.5 * sin(atan2(dy, dx) * 3.0)
+
+	if dist >= raio:
+		return "~"  # mar aberto
+
+	# ── Prédio da usina — cols 20-35, rows 8-20 (dentro da ilha) ──────────
+	if vc >= 20 and vc <= 35 and cr >= 8 and cr <= 20:
+		if vc == 20 or vc == 35: return "W"
+		if cr == 8: return "H"
+		if cr == 20:
+			if vc >= 26 and vc <= 28: return "P"
+			return "W"
+		return "I"
+	if cr >= 20 and cr <= 22 and vc >= 26 and vc <= 28:
+		return "P"
+
+	return "S"  # areia da ilha ao redor do prédio
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Rota 3 → Mt Moon (entrada) → Rota 4 → Cerulean City — leste de Pewter,

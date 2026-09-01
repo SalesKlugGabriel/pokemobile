@@ -1593,12 +1593,12 @@
       "name": "Power Plant",
       "region": "kanto",
       "tile_rect": {
-        "x": 240,
-        "y": 82,
-        "w": 18,
-        "h": 14
+        "x": 400,
+        "y": 156,
+        "w": 60,
+        "h": 30
       },
-      "bgm": "rock_tunnel",
+      "bgm": "power_plant",
       "wild_pokemon": [
         {
           "id": 81,
@@ -1629,7 +1629,8 @@
           "weight": 15
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "notes": "Ilha artificial no mar, continuando ao sul do Seafoam Islands (Tier 20) — mesma faixa de colunas de Vermilion. Prédio da usina é só fachada (mesmo padrão de Silph Co./Torre Pokémon), sem interior/NPC/warp. SEM warp de propósito — só alcançável quando Surf/Fly existir (mesma regra do Arquipélago Tropical/Seafoam Islands)."
     },
     {
       "id": "pokemon_tower",
