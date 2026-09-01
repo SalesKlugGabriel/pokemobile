@@ -105,6 +105,15 @@ const COASTLINE_ROWS : int = 40
 const VERMILION_COAST_COL_INICIO : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS + ROUTE5_COLS + ROUTE6_COLS
 const VERMILION_COAST_COL_FIM    : int = VERMILION_COAST_COL_INICIO + VERMILION_COLS - 1
 
+# Tier 13 (01/09): Arquipélago Tropical — mar aberto continuando ao sul do
+# litoral de Vermilion, com 2 ilhas. Pedido do Gabriel: o barco só leva a
+# Cinnabar — estas ilhas só vão ficar alcançáveis quando existir Surf (nadar
+# pelo mar) ou Fly (voar até lá), NENHUM dos dois construído ainda. Por isso
+# não têm warp nenhum: ficam prontas, visíveis no mapa, mas sem jeito de
+# chegar lá por enquanto — de propósito. Tema tropical (vegetação densa,
+# lagoa interna), contorno orgânico igual ao resto do litoral.
+const ARQUIPELAGO_ROWS : int = 40
+
 static func _gen_world_map() -> Array:
 	var W := W_TOTAL
 	var H := 120 + OFFSET_ANTIGO
@@ -174,6 +183,12 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 	if r <= PEWTER_ROWS + COASTLINE_ROWS \
 	and c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM:
 		return _vermilion_coastline_cell(c, r - PEWTER_ROWS, W)
+
+	# ── Arquipélago Tropical (Tier 13) — continuação do mar, mais ao sul.
+	# Sem warp de propósito (só Surf/Fly no futuro vão levar até lá) ───────
+	if r <= PEWTER_ROWS + COASTLINE_ROWS + ARQUIPELAGO_ROWS \
+	and c >= VERMILION_COAST_COL_INICIO and c <= VERMILION_COAST_COL_FIM:
+		return _arquipelago_tropical_cell(c, r - PEWTER_ROWS - COASTLINE_ROWS, W)
 
 	# ── Rota 2 (linhas 37-72) — só existe na largura antiga; o resto é borda
 	if r <= OFFSET_ANTIGO:
@@ -288,6 +303,49 @@ static func _vermilion_coastline_cell(c: int, cr: int, W: int) -> String:
 	# ── Mar aberto. Guardado o formato exato (via shore_de_vermilion) pro
 	# mapa submarino reusar quando Mergulho existir. ──
 	return "~"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Arquipélago Tropical — 2 ilhas dentro do mar aberto ao sul de Vermilion
+# (Tier 13). `cr` é local (1 = logo depois do litoral, ARQUIPELAGO_ROWS =
+# mais ao sul). Contorno orgânico igual ao litoral/Cinnabar — cada ilha tem
+# seu próprio centro e função de raio com sin(), pra não ficarem redondas
+# demais. Vegetação densa (mistura de "F"/"T"/"G", mais fechada que o mato
+# esparso do resto do jogo) dá identidade tropical, mesmo sem sprite de
+# palmeira ainda. SEM prédio, SEM NPC — ilhas "cruas", prontas pra quando
+# Surf/Fly destravar o acesso; não faz sentido povoar antes disso.
+# ──────────────────────────────────────────────────────────────────────────────
+static func _arquipelago_tropical_cell(c: int, cr: int, W: int) -> String:
+	var vc := c - VERMILION_COAST_COL_INICIO
+
+	# ── Ilha 1 (menor, a noroeste) ──
+	var i1_dx := float(vc - 15)
+	var i1_dy := float(cr - 15)
+	var i1_dist := sqrt(i1_dx * i1_dx + i1_dy * i1_dy)
+	var i1_raio := 8.0 + 2.0 * sin(atan2(i1_dy, i1_dx) * 3.0) + 1.0 * sin(atan2(i1_dy, i1_dx) * 5.0)
+	if i1_dist < i1_raio:
+		return _ilha_tropical_terreno(vc, cr, i1_dist, i1_raio)
+
+	# ── Ilha 2 (maior, a sudeste) ──
+	var i2_dx := float(vc - 42)
+	var i2_dy := float(cr - 27)
+	var i2_dist := sqrt(i2_dx * i2_dx + i2_dy * i2_dy)
+	var i2_raio := 10.0 + 2.5 * sin(atan2(i2_dy, i2_dx) * 3.0) + 1.5 * sin(atan2(i2_dy, i2_dx) * 4.0)
+	if i2_dist < i2_raio:
+		return _ilha_tropical_terreno(vc, cr, i2_dist, i2_raio)
+
+	# ── Resto é mar aberto — só Surf atravessa ──
+	return "~"
+
+## Terreno interno de uma ilha tropical: anel de praia perto da borda,
+## interior com vegetação densa (identidade tropical).
+static func _ilha_tropical_terreno(vc: int, cr: int, dist: float, raio: float) -> String:
+	if dist > raio - 2.0:
+		return "S"  # praia
+	if (vc + cr * 2) % 4 == 0:
+		return "T"  # vegetação densa — mais frequente que mato comum
+	if (vc * 2 + cr) % 7 == 3:
+		return "F"
+	return "G"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Rota 3 → Mt Moon (entrada) → Rota 4 → Cerulean City — leste de Pewter,
@@ -507,8 +565,11 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 	if r >= 14 and r <= 16 and fc >= 40 and fc <= 42:
 		return "P"
 
-	# ── Safari Zone (entrada só decorativa por enquanto — cerca ao redor) ──
+	# ── Zona Safari — portão de entrada (Tier 12: virou warp de verdade,
+	# antes era só decorativa) ──
 	if fc >= 50 and fc <= 58 and r >= 20 and r <= 32:
+		if r == 32 and fc >= 53 and fc <= 55:
+			return "P"  # portão (warp fica aqui)
 		if fc == 50 or fc == 58 or r == 20 or r == 32:
 			return "E"
 		return "G"
@@ -1100,6 +1161,63 @@ static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Zona Safari — 44×44, cena própria (Tier 12, 01/09). Pedido do Gabriel: usa
+# warp mesmo não sendo caverna/subterrâneo/submarino — reserva cercada,
+# entrada única com guarda, mesma lógica de "espaço fechado só acessível por
+# um ponto" que já vale pra caverna. Cercada por CERCA ("E"), não árvore —
+# dá identidade de reserva controlada, diferente de mata selvagem. Duas
+# lagoas de formato orgânico (mesma técnica sin()/distância do litoral/
+# Cinnabar) — regra de tematização de bioma. Mecânica de captura especial
+# (Bola Safari, sem fugir durante o turno do jogador) FICA PRA DEPOIS
+# ("mecânicas" — item 3 da ordem geral); por ora captura normal, igual ao
+# resto do jogo, já que é sistema de batalha, não de mapa.
+# ──────────────────────────────────────────────────────────────────────────────
+static func _gen_safarizone() -> Array:
+	var W := 44
+	var H := 44
+	var grid : Array = []
+	for r in H:
+		var row := ""
+		for c in W:
+			row += _safarizone_cell(c, r, W, H)
+		grid.append(row)
+	return grid
+
+static func _safarizone_cell(c: int, r: int, W: int, H: int) -> String:
+	# Cerca ao redor (reserva controlada, não mata selvagem) ──
+	if c == 0 or c == W - 1 or r == 0 or r == H - 1:
+		if r == H - 1 and c >= 20 and c <= 23:
+			return "P"  # portão único (entrada/saída, warp aqui)
+		return "E"
+
+	# Caminho do portão pra dentro ──
+	if c >= 20 and c <= 23 and r >= H - 4 and r <= H - 2:
+		return "P"
+
+	# Duas lagoas de contorno orgânico ──
+	var lagoa1_dx := float(c - 12)
+	var lagoa1_dy := float(r - 15)
+	var lagoa1_dist := sqrt(lagoa1_dx * lagoa1_dx + lagoa1_dy * lagoa1_dy)
+	var lagoa1_raio := 5.0 + 1.5 * sin(atan2(lagoa1_dy, lagoa1_dx) * 4.0)
+	if lagoa1_dist < lagoa1_raio:
+		return "~"
+
+	var lagoa2_dx := float(c - 32)
+	var lagoa2_dy := float(r - 28)
+	var lagoa2_dist := sqrt(lagoa2_dx * lagoa2_dx + lagoa2_dy * lagoa2_dy)
+	var lagoa2_raio := 6.0 + 2.0 * sin(atan2(lagoa2_dy, lagoa2_dx) * 3.0)
+	if lagoa2_dist < lagoa2_raio:
+		return "~"
+
+	# Mato alto esparso (usa "G" — grama diferente da "." padrão do resto do
+	# jogo, pra dar identidade própria de reserva/mato fechado) ──
+	if (c + r * 2) % 5 == 0:
+		return "G"
+	if (c * 2 + r) % 17 == 3:
+		return "T"
+	return "."
+
+# ──────────────────────────────────────────────────────────────────────────────
 # API pública
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -1120,6 +1238,9 @@ static func get_layout(map_id: String) -> Dictionary:
 		"cinnabar_island":
 			var tiles := _gen_cinnabar()
 			return {"tiles": tiles, "width": 40, "height": 40}
+		"safari_zone":
+			var tiles := _gen_safarizone()
+			return {"tiles": tiles, "width": 44, "height": 44}
 		_:
 			return {}
 

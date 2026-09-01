@@ -1,0 +1,70 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
+[ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
+[ext_resource type="PackedScene" path="res://scenes/entities/NpcEntity.tscn" id="3_npc"]
+[ext_resource type="Script" path="res://scripts/world/systems/ZoneManager.gd" id="4_zm"]
+[ext_resource type="Script" path="res://scripts/world/systems/SpawnManager.gd" id="5_sm"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld.tres" id="6_tileset"]
+[ext_resource type="PackedScene" path="res://scenes/ui/DialogBox.tscn" id="7_dialog"]
+[ext_resource type="PackedScene" path="res://scenes/ui/OverworldHUD.tscn" id="8_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="9_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PartyScene.tscn" id="10_party"]
+[ext_resource type="PackedScene" path="res://scenes/world/WarpZone.tscn" id="11_warpzone"]
+
+[sub_resource type="RectangleShape2D" id="Shape_saida"]
+size = Vector2(64, 16)
+
+[node name="SafariZone" type="Node2D"]
+script = ExtResource("1_basemap")
+map_id = "safari_zone"
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = ExtResource("6_tileset")
+format = 2
+
+[node name="Entities" type="Node2D" parent="."]
+
+[node name="WildPokemons" type="Node2D" parent="Entities"]
+
+[node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
+position = Vector2(344, 640)
+
+[node name="Camera2D" type="Camera2D" parent="Entities/Player"]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+limit_left = 0
+limit_top = 0
+limit_right = 704
+limit_bottom = 704
+zoom = Vector2(3.0, 3.0)
+
+[node name="GuardaFlorestal" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(344, 608)
+npc_name = "Guarda Florestal"
+dialog_id = "guarda_safari"
+is_patrolling = false
+
+[node name="ZoneManager" type="Node" parent="."]
+script = ExtResource("4_zm")
+
+[node name="SpawnManager" type="Node" parent="."]
+script = ExtResource("5_sm")
+
+[node name="WarpZones" type="Node2D" parent="."]
+
+[node name="WarpSaida" parent="WarpZones" instance=ExtResource("11_warpzone")]
+position = Vector2(344, 688)
+target_map = "res://scenes/world/maps/WorldMap.tscn"
+spawn_tile = Vector2i(694, 33)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpSaida"]
+shape = SubResource("Shape_saida")
+
+[node name="DialogBox" parent="." instance=ExtResource("7_dialog")]
+
+[node name="OverworldHUD" parent="." instance=ExtResource("8_hud")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("9_pause")]
+
+[node name="PartyScene" parent="." instance=ExtResource("10_party")]

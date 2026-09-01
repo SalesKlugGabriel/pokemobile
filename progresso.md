@@ -312,6 +312,64 @@ em `zones.json`, nada construído) ou aguardar novo pedido do Gabriel.
 
 ---
 
+## v0.3.9 — Tier 12: Zona Safari com warp de verdade (2026-09-01)
+
+**Pedido:** "siga com as próximas implementações de mapa, inclusive precisa criar a safari zone
+que utilizará warp" — pedido explícito do Gabriel de usar warp aqui, mesmo Zona Safari não sendo
+caverna/subterrâneo/submarino (a exceção de sempre). Justificativa: é um espaço fechado só
+acessível por um ponto (o portão), mesma lógica de uma caverna.
+
+**Construído**: Zona Safari virou cena própria (44×44) — o cercado decorativo que existia em
+Fuchsia desde o Tier 5 ganhou um portão de verdade, com warp pra dentro. Interior: reserva
+cercada (cerca "E" ao redor, não árvore — dá identidade de espaço controlado, diferente de mata
+selvagem), 2 lagoas de contorno orgânico (mesma técnica `sin()`/distância do litoral), mato mais
+denso (identidade de reserva fechada). Guarda Florestal com diálogo de sabor logo na entrada.
+**Mecânica de captura especial (Bola Safari, sem fugir durante o turno do jogador) fica pra
+depois** — é sistema de batalha, não de mapa; por ora usa captura normal, igual ao resto do jogo.
+Spawn selvagem real do Gen 1 (Tauros, Kangaskhan, Chansey, Tangela, Rhyhorn, Psyduck) já estava
+certo no `zones.json` desde o plano mestre, só precisou de coordenada nova.
+
+**Testado**: `teste_fase3_tier12.gd` (13 conferências, incluindo a prova de que o corredor
+leste-oeste principal continua passável nas colunas do cercado — mesma classe de regressão do
+Tier 10). 7 testes antigos ajustados (novo warp precisa entrar na lista de exceções, mesmo
+ajuste do Tier 10). **15 arquivos de teste juntos: 260 conferências, 0 falhas.**
+
+---
+
+## v0.3.10 — Tier 13: Arquipélago Tropical — construído, ainda inalcançável (2026-09-01)
+
+**Pedido, no meio do trabalho anterior**: "o barco só irá levar a cinnabar, para as outras ilhas
+o usuário terá que conseguir um pokemon aquático que use surf ou um voador com fly para
+acessá-las, mas construa as ilhas e deixe-as prontas com uma temática tropical". Ou seja: as
+próximas ilhas NÃO usam barco (isso é exclusivo de Cinnabar) — ficam só esperando Surf/Fly, que
+ainda não existem. Construir mesmo assim, prontas.
+
+**Construído**: 2 ilhas tropicais dentro do mar aberto, continuando ao sul do litoral de
+Vermilion (Tier 9) — mesma faixa de colunas, sem gastar largura nova no mapa. Contorno orgânico
+(mesma técnica `sin()`/distância), praia ao redor, vegetação tropical densa (mistura de árvore/
+flor/mato mais fechada que o resto do jogo). Spawn real do Gen 1 combinando com o tema
+(Exeggcute, Tangela, Krabby, Slowpoke). **De propósito: SEM warp, SEM prédio, SEM NPC** — não faz
+sentido povoar um lugar que ninguém consegue visitar ainda. O teste até confirma isso
+explicitamente (nenhum warp foi criado).
+
+**Arquitetura**: mesma técnica dos Tiers 9 (litoral simples, array principal) — a área ao sul do
+litoral de Vermilion já era borda vazia, então o arquipélago entrou direto ali, sem precisar de
+linha negativa nem coluna nova.
+
+**Testado**: `teste_fase3_tier13.gd` (13 conferências, incluindo checar que NENHUM warp foi
+criado — o oposto do padrão de todo tier anterior, e documentado como intencional). **16 arquivos
+de teste juntos: 273 conferências, 0 falhas** — nenhum teste anterior tocado.
+
+**Ambos os tiers publicados juntos**: Web build exportado, imagem Docker reconstruída e
+redeployada, `curl` confirma 200.
+
+**Próximo passo**: Ginásio de Viridian/Giovanni (bloqueado por história) ou resto do Kanto
+original (Elite Four, Power Plant, S.S. Anne — placeholders sem construir).
+
+**Precisa de decisão do Gabriel?** Não.
+
+---
+
 ## v0.3.0 — Tier 3: Rota 5 → Rota 6 → Vermilion City (Lt. Surge) (2026-08-31, continuação)
 
 **Pedido do Gabriel:** deixar mecânica de locomoção por último; ordem definida: **mapa →

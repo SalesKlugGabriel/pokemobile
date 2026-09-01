@@ -92,7 +92,7 @@ func _teste_geral() -> void:
 				if w.target_map.contains("MtMoon"):
 					vai_pro_mtmoon = true
 				elif w.target_map != "" and not w.target_map.contains("PokemonCenter") \
-				and not w.target_map.contains("RockTunnel"):
+				and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone"):
 					alvos_indevidos += 1
 		_assert(vai_pro_mtmoon, "existe um warp pra dentro do Mt Moon (caverna — exceção permitida)")
 		_assert(alvos_indevidos == 0,
