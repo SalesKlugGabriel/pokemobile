@@ -1821,12 +1821,12 @@
       "name": "Pokémon Mansion",
       "region": "kanto",
       "tile_rect": {
-        "x": 37,
-        "y": 283,
-        "w": 20,
-        "h": 14
+        "x": 14,
+        "y": 22,
+        "w": 13,
+        "h": 7
       },
-      "bgm": "rock_tunnel",
+      "bgm": "cinnabar_island",
       "wild_pokemon": [
         {
           "id": 58,
@@ -1864,7 +1864,9 @@
           "weight": 10
         }
       ],
-      "npcs": []
+      "npcs": [],
+      "map_id": "cinnabar_island",
+      "notes": "Fachada dentro de Cinnabar Island (Tier 11, 01/09) — coordenada LOCAL da própria cena (CinnabarIsland.tscn), não do world_map. Sem interior/warp (mesma regra de Silph Co. — não é caverna/subterrâneo). Interior + andares ficam pra Fase 2 'Pokémon e estruturas'."
     },
     {
       "id": "rocket_hideout",
@@ -1924,14 +1926,15 @@
       "name": "Silph Co.",
       "region": "kanto",
       "tile_rect": {
-        "x": 205,
-        "y": 138,
-        "w": 12,
-        "h": 12
+        "x": 810,
+        "y": 4,
+        "w": 9,
+        "h": 11
       },
       "bgm": "saffron_city",
       "wild_pokemon": [],
-      "npcs": []
+      "npcs": [],
+      "notes": "Fachada da torre em Saffron (Tier 6, 20/08) — coordenada global do world_map. Sem interior/warp (regra do Gabriel: warp só pra caverna/subterrâneo/submarino/troca de continente — Silph Co. não é nenhum desses). Interior + 'Operação Saffron' (ROCKET-05) ficam pra Fase 2 'Pokémon e estruturas'."
     }
   ]
 }
