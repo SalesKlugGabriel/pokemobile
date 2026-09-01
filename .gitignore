@@ -3,3 +3,6 @@
 
 # Build exportada — gerada a partir do código-fonte, não precisa ir pro Git
 builds/
+
+# Worktrees de sessões-filha (Claude Code) — metadado de ferramenta, não do jogo
+.claude/
