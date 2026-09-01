@@ -27,6 +27,9 @@ size = Vector2(48, 64)
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_cerulean"]
 size = Vector2(48, 16)
 
+[sub_resource type="RectangleShape2D" id="Shape_pokecenter_vermilion"]
+size = Vector2(48, 16)
+
 [node name="WorldMap" type="Node2D"]
 script = ExtResource("1_basemap")
 map_id = "world_map"
@@ -51,7 +54,7 @@ drag_horizontal_enabled = true
 drag_vertical_enabled = true
 limit_left = 0
 limit_top = 0
-limit_right = 4480
+limit_right = 7360
 limit_bottom = 3072
 zoom = Vector2(3.0, 3.0)
 
@@ -157,6 +160,21 @@ npc_name = "Moradora"
 dialog_id = "cerulean_local"
 is_patrolling = false
 
+[node name="LtSurge" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(6664, 168)
+npc_name = "Lt. Surge"
+dialog_id = "surge_gym"
+starts_quest_id = "GYM-03"
+is_trainer = true
+trainer_team = Array[Dictionary]([{"species_id": 100, "level": 20}, {"species_id": 26, "level": 24}])
+is_patrolling = false
+
+[node name="VermilionLocal" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(6888, 360)
+npc_name = "Marinheiro"
+dialog_id = "vermilion_local"
+is_patrolling = false
+
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("4_zm")
 
@@ -208,6 +226,15 @@ is_pokemon_center_entrance = true
 
 [node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Cerulean"]
 shape = SubResource("Shape_pokecenter_cerulean")
+
+[node name="WarpPokeCenter_Vermilion" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(7064, 232)
+target_map = "res://scenes/world/maps/PokemonCenter.tscn"
+spawn_tile = Vector2i(7, 11)
+is_pokemon_center_entrance = true
+
+[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Vermilion"]
+shape = SubResource("Shape_pokecenter_vermilion")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 

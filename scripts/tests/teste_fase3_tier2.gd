@@ -30,7 +30,10 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] == 280, "world_map agora tem 280 de largura (Rota3+MtMoon+Rota4+Cerulean a leste de Pewter)")
+	# A largura total cresce a cada tier novo (Tier 3 já somou mais 180) — o
+	# que ESTE tier garante é que Rota3+MtMoon+Rota4+Cerulean (180 colunas)
+	# couberam antes de qualquer coisa nova começar.
+	_assert(layout["width"] >= 280, "world_map tem pelo menos 280 de largura (Rota3+MtMoon+Rota4+Cerulean cabem)")
 
 	# ---- 1. Caminho principal leste-oeste é contínuo, sem quebra, de Pewter
 	# até a boca do Mt Moon (a única quebra de verdade É o Mt Moon — caverna,

@@ -108,10 +108,10 @@
       "name": "Vermilion City",
       "region": "kanto",
       "tile_rect": {
-        "x": 160,
-        "y": 183,
-        "w": 30,
-        "h": 26
+        "x": 400,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
       "bgm": "vermilion_city",
       "wild_pokemon": [],
@@ -372,40 +372,54 @@
       "name": "Route 5",
       "region": "kanto",
       "tile_rect": {
-        "x": 200,
-        "y": 100,
-        "w": 10,
-        "h": 40
+        "x": 280,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
       "bgm": "route_5",
       "wild_pokemon": [
         {
-          "id": 35,
-          "name": "Clefairy",
-          "level_min": 14,
-          "level_max": 17,
-          "weight": 20
-        },
-        {
           "id": 52,
           "name": "Meowth",
-          "level_min": 14,
-          "level_max": 17,
+          "level_min": 10,
+          "level_max": 14,
           "weight": 25
         },
         {
-          "id": 100,
-          "name": "Voltorb",
-          "level_min": 14,
-          "level_max": 17,
-          "weight": 25
+          "id": 39,
+          "name": "Jigglypuff",
+          "level_min": 10,
+          "level_max": 13,
+          "weight": 20
         },
         {
           "id": 43,
           "name": "Oddish",
-          "level_min": 14,
-          "level_max": 16,
-          "weight": 30
+          "level_min": 10,
+          "level_max": 14,
+          "weight": 25
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 10,
+          "level_max": 14,
+          "weight": 20
+        },
+        {
+          "id": 32,
+          "name": "Nidoran-M",
+          "level_min": 10,
+          "level_max": 13,
+          "weight": 5
+        },
+        {
+          "id": 29,
+          "name": "Nidoran-F",
+          "level_min": 10,
+          "level_max": 13,
+          "weight": 5
         }
       ],
       "npcs": []
@@ -415,33 +429,47 @@
       "name": "Route 6",
       "region": "kanto",
       "tile_rect": {
-        "x": 200,
-        "y": 145,
-        "w": 10,
-        "h": 50
+        "x": 340,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
-      "bgm": "route_5",
+      "bgm": "route_6",
       "wild_pokemon": [
         {
           "id": 52,
           "name": "Meowth",
-          "level_min": 15,
-          "level_max": 18,
-          "weight": 30
+          "level_min": 12,
+          "level_max": 16,
+          "weight": 22
         },
         {
-          "id": 43,
-          "name": "Oddish",
-          "level_min": 15,
-          "level_max": 18,
-          "weight": 30
+          "id": 39,
+          "name": "Jigglypuff",
+          "level_min": 12,
+          "level_max": 15,
+          "weight": 18
         },
         {
-          "id": 60,
-          "name": "Poliwag",
-          "level_min": 15,
-          "level_max": 17,
-          "weight": 40
+          "id": 88,
+          "name": "Grimer",
+          "level_min": 12,
+          "level_max": 16,
+          "weight": 20
+        },
+        {
+          "id": 27,
+          "name": "Sandshrew",
+          "level_min": 12,
+          "level_max": 16,
+          "weight": 15
+        },
+        {
+          "id": 100,
+          "name": "Voltorb",
+          "level_min": 14,
+          "level_max": 18,
+          "weight": 25
         }
       ],
       "npcs": []

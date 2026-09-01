@@ -50,7 +50,13 @@ const W_ANTIGO : int = 100
 const ROUTE3_COLS    : int = 60
 const ROUTE4_COLS    : int = 60
 const CERULEAN_COLS  : int = 60
-const W_TOTAL : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS  # 280
+# Tier 3 (Gabriel, 31/08 — "terminar mapa" antes de mecânica/sprite): Rota 5 →
+# Rota 6 → Vermilion City (Lt. Surge), continuando a leste de Cerulean.
+const ROUTE5_COLS    : int = 60
+const ROUTE6_COLS    : int = 60
+const VERMILION_COLS : int = 60
+const W_TOTAL : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS \
+	+ ROUTE5_COLS + ROUTE6_COLS + VERMILION_COLS  # 460
 
 static func _gen_world_map() -> Array:
 	var W := W_TOTAL
@@ -180,6 +186,60 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 
 	# ── Rio/lago decorativo (Cerulean é a "Cidade Azulada") ──
 	if (cc + r * 3) % 19 == 6 and r >= 22 and r <= 34 and cc >= 2 and cc <= 55:
+		return "~"
+
+	# ── Cerulean só vai até CERULEAN_COLS; dali pra leste é Tier 3 ──────────
+	if cc < CERULEAN_COLS:
+		return "."
+
+	# ── Rota 5 (Tier 3) ── local cc CERULEAN_COLS .. +ROUTE5_COLS-1
+	var cr := cc - CERULEAN_COLS
+	if cr < ROUTE5_COLS:
+		if no_caminho:
+			return "P"
+		if (cr + r * 2) % 9 == 2:
+			return "T"
+		if (cr * 2 + r) % 13 == 6:
+			return "F"
+		return "."
+
+	# ── Rota 6 ── local cr ROUTE5_COLS .. +ROUTE6_COLS-1
+	if cr < ROUTE5_COLS + ROUTE6_COLS:
+		if no_caminho:
+			return "P"
+		if (cr + r * 3) % 9 == 3:
+			return "T"
+		if (cr + r * 2) % 13 == 7:
+			return "F"
+		return "."
+
+	# ── Vermilion City ── local vc a partir de ROUTE5_COLS+ROUTE6_COLS
+	var vc := cr - ROUTE5_COLS - ROUTE6_COLS
+
+	# ── Ginásio de Vermilion (Lt. Surge) ── cols 10-22, rows 6-14
+	if vc >= 10 and vc <= 22 and r >= 6 and r <= 14:
+		if vc == 10 or vc == 22: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if vc >= 15 and vc <= 17: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and vc >= 15 and vc <= 17:
+		return "P"
+
+	# ── Centro Pokémon de Vermilion ── cols 35-47, rows 6-14
+	if vc >= 35 and vc <= 47 and r >= 6 and r <= 14:
+		if vc == 35 or vc == 47: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if vc >= 40 and vc <= 42: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and vc >= 40 and vc <= 42:
+		return "P"
+
+	# ── Doca/porto (Vermilion é cidade portuária) ──
+	if (vc + r * 2) % 15 == 3 and r >= 22 and r <= 34 and vc >= 2 and vc <= 55:
 		return "~"
 
 	return "."

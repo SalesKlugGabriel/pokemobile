@@ -9,6 +9,37 @@
 
 ---
 
+## v0.3.0 — Tier 3: Rota 5 → Rota 6 → Vermilion City (Lt. Surge) (2026-08-31, continuação)
+
+**Pedido do Gabriel:** deixar mecânica de locomoção por último; ordem definida: **mapa →
+Pokémon e estruturas → mecânicas → sprites**. Continuar terminando o mapa.
+
+**Construído:** Rota 5 → Rota 6 → Vermilion City, a leste de Cerulean (mundo aberto contínuo,
+sem warp — mapa cresceu de 280 pra **460 de largura**). Vermilion ganhou Ginásio (Lt. Surge,
+time real: Voltorb Nv.20 + Raichu Nv.24) e Centro Pokémon. Diferente do Tier 2, essa junção
+não teve o "bug de emenda" (a função da cidade anterior — Cerulean — não tinha nenhum corte de
+borda leste pra colidir, então a Rota 5 encaixou direto sem precisar de correção no meio).
+
+**Spawn selvagem real do Gen 1**: Rota 5 (Meowth/Jigglypuff/Oddish/Bellsprout/Nidoran♂♀), Rota
+6 (Meowth/Jigglypuff/Grimer/Sandshrew). **Um ajuste editorial**: a GYM-03 pede derrotar 8
+Voltorb — no jogo original ele mora na Power Plant (área que ainda não existe aqui) — colocado
+na Rota 6 por enquanto, pra a missão continuar completável; quando a Power Plant for
+construída dá pra mover o Voltorb pra lá e ficar 100% fiel.
+
+**Testado:** `scripts/tests/teste_fase3_tier3.gd` (12 conferências) — caminho contínuo,
+Ginásio/Centro Pokémon de Vermilion existem, Lt. Surge com time real iniciando GYM-03, Voltorb
+alcançável. 1 teste do Tier 2 precisou de ajuste (a largura total do mapa mudou de novo — mesma
+classe de achado de teste de sempre, não de jogo). **6 arquivos de teste juntos: 130
+conferências, 0 falhas.** Publicado, testado ao vivo sem erro no console.
+
+**Próximo passo:** continuar o mapa (Tier 4 — provavelmente Celadon City, GYM-04/Erika, ou o
+desvio de Rota 24/25 + Bill's House que ainda falta perto de Cerulean).
+
+**Precisa de decisão do Gabriel?** Não — ordem combinada (mapa → Pokémon/estruturas →
+mecânica → sprite) sendo seguida à risca.
+
+---
+
 ## v0.2.9 — Tier 2: Rota 3 → Mt Moon → Rota 4 → Cerulean City (Misty) (2026-08-31, continuação)
 
 **Pedido do Gabriel:** mandou o mapa real de Kanto (imagem) e pediu pra construir tudo —
