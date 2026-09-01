@@ -58,9 +58,12 @@ const VERMILION_COLS : int = 60
 # Tier 4 (continuação, 31/08): Rota 7 → Celadon City (Erika).
 const ROUTE7_COLS    : int = 60
 const CELADON_COLS   : int = 60
+# Tier 5 (continuação, 31/08): Rota 8 → Fuchsia City (Koga, GYM-05).
+const ROUTE8_COLS    : int = 60
+const FUCHSIA_COLS   : int = 60
 const W_TOTAL : int = W_ANTIGO + ROUTE3_COLS + ROUTE4_COLS + CERULEAN_COLS \
 	+ ROUTE5_COLS + ROUTE6_COLS + VERMILION_COLS \
-	+ ROUTE7_COLS + CELADON_COLS  # 580
+	+ ROUTE7_COLS + CELADON_COLS + ROUTE8_COLS + FUCHSIA_COLS  # 700
 
 static func _gen_world_map() -> Array:
 	var W := W_TOTAL
@@ -300,6 +303,52 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 	# ── Jardins de Celadon (o verde que dá nome à cidade) ──
 	if (ce + r * 3) % 11 == 4 and r >= 20 and r <= 34 and ce >= 2 and ce <= 55:
 		return "F"
+
+	# ── Celadon só vai até CELADON_COLS; dali pra leste é Tier 5 ───────────
+	if ce < CELADON_COLS:
+		return "."
+
+	# ── Rota 8 (Tier 5) ── local r8 0 .. ROUTE8_COLS-1
+	var r8 := ce - CELADON_COLS
+	if r8 < ROUTE8_COLS:
+		if no_caminho:
+			return "P"
+		if (r8 + r * 2) % 9 == 5:
+			return "T"
+		if (r8 * 2 + r) % 13 == 9:
+			return "F"
+		return "."
+
+	# ── Fuchsia City ── local fc a partir de ROUTE8_COLS
+	var fc := r8 - ROUTE8_COLS
+
+	# ── Ginásio de Fuchsia (Koga) ── cols 10-22, rows 6-14
+	if fc >= 10 and fc <= 22 and r >= 6 and r <= 14:
+		if fc == 10 or fc == 22: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if fc >= 15 and fc <= 17: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and fc >= 15 and fc <= 17:
+		return "P"
+
+	# ── Centro Pokémon de Fuchsia ── cols 35-47, rows 6-14
+	if fc >= 35 and fc <= 47 and r >= 6 and r <= 14:
+		if fc == 35 or fc == 47: return "W"
+		if r == 6: return "H"
+		if r == 14:
+			if fc >= 40 and fc <= 42: return "P"
+			return "W"
+		return "I"
+	if r >= 14 and r <= 16 and fc >= 40 and fc <= 42:
+		return "P"
+
+	# ── Safari Zone (entrada só decorativa por enquanto — cerca ao redor) ──
+	if fc >= 50 and fc <= 58 and r >= 20 and r <= 32:
+		if fc == 50 or fc == 58 or r == 20 or r == 32:
+			return "E"
+		return "G"
 
 	return "."
 

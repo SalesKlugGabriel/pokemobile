@@ -568,9 +568,10 @@
     },
     "objectives": [
       {
-        "type": "defeat",
-        "target": "alpha_arbok",
-        "zone": "south_lake"
+        "type": "defeat_count",
+        "target": "ekans",
+        "count": 5,
+        "zone": "route_8"
       },
       {
         "type": "defeat",

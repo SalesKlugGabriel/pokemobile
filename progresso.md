@@ -34,6 +34,36 @@ Bill's House perto de Cerulean, que ainda falta).
 
 ---
 
+## v0.3.2 — Tier 5: Rota 8 → Fuchsia City (Koga) (2026-08-31, continuação)
+
+**Pedido:** "continue com o mapa". Rota 8 → Fuchsia City, a leste de Celadon (mapa cresceu de
+580 pra **700 de largura**). Fuchsia ganhou Ginásio (Koga, time real: Koffing Nv.37 + Weezing
+Nv.43, badge Soul), Centro Pokémon e um recinto cercado só decorativo pra Zona Safari (sem
+sistema ligado ainda — fica pra "estruturas").
+
+**Achado antes de construir**: `quests.json` já tinha a GYM-05 inteira escrita desde o plano
+mestre original, mas com objetivo `alpha_arbok`/`south_lake` — mecânica "alpha" que não existe
+no motor (mesma classe do `alpha_tentacruel` da GYM-02, corrigido no Tier 2). Trocado por
+`defeat_count ekans ×5 zona route_8` — Ekans é o Pokémon de Veneno real da Rota 8 no Gen 1,
+tematicamente combina com o Koga, e é alcançável de verdade.
+
+**Testado:** `teste_fase3_tier5.gd` (12 conferências) — caminho contínuo, Ginásio/Centro Pokémon
+de Fuchsia existem, Koga com time real iniciando GYM-05, Ekans alcançável, GYM-05 sem mecânica
+inexistente. 1 teste do Tier 4 ajustado (largura mudou de novo). **8 arquivos de teste juntos:
+155 conferências, 0 falhas.** Publicado, `curl` confirma 200.
+
+**Mapa hoje**: Pallet→Viridian→Pewter→(Mt Moon)→Cerulean→Vermilion→Celadon→Fuchsia — **5 badges
+reais** (Brock/Misty/Lt.Surge/Erika/Koga) funcionando de ponta a ponta.
+
+**Próximo passo:** Tier 6 — próximo gym real em ordem de badge é Sabrina (Saffron, Marsh Badge).
+`quests.json` já tem GYM-07 escrita pra ela, com um objetivo `defeat_count rocket_agent` que
+também vai precisar de ajuste editorial (mecânica de "agente Rocket" ainda não existe fora das
+MAIN quests).
+
+**Precisa de decisão do Gabriel?** Não — seguindo a ordem combinada.
+
+---
+
 ## v0.3.0 — Tier 3: Rota 5 → Rota 6 → Vermilion City (Lt. Surge) (2026-08-31, continuação)
 
 **Pedido do Gabriel:** deixar mecânica de locomoção por último; ordem definida: **mapa →

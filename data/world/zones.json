@@ -150,13 +150,21 @@
       "name": "Fuchsia City",
       "region": "kanto",
       "tile_rect": {
-        "x": 160,
-        "y": 235,
-        "w": 30,
-        "h": 30
+        "x": 640,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
       "bgm": "fuchsia_city",
-      "wild_pokemon": [],
+      "wild_pokemon": [
+        {
+          "id": 23,
+          "name": "Ekans",
+          "level_min": 22,
+          "level_max": 27,
+          "weight": 40
+        }
+      ],
       "npcs": []
     },
     {
@@ -522,40 +530,40 @@
       "name": "Route 8",
       "region": "kanto",
       "tile_rect": {
-        "x": 210,
-        "y": 92,
-        "w": 40,
-        "h": 8
+        "x": 580,
+        "y": 1,
+        "w": 60,
+        "h": 36
       },
-      "bgm": "route_5",
+      "bgm": "route_8",
       "wild_pokemon": [
         {
-          "id": 52,
-          "name": "Meowth",
-          "level_min": 20,
-          "level_max": 25,
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 21,
+          "level_max": 26,
           "weight": 30
         },
         {
-          "id": 64,
-          "name": "Kadabra",
-          "level_min": 20,
-          "level_max": 24,
-          "weight": 20
+          "id": 20,
+          "name": "Raticate",
+          "level_min": 24,
+          "level_max": 28,
+          "weight": 15
         },
         {
-          "id": 43,
-          "name": "Oddish",
-          "level_min": 20,
-          "level_max": 24,
+          "id": 23,
+          "name": "Ekans",
+          "level_min": 21,
+          "level_max": 26,
           "weight": 30
         },
         {
-          "id": 100,
-          "name": "Voltorb",
-          "level_min": 20,
-          "level_max": 24,
-          "weight": 20
+          "id": 27,
+          "name": "Sandshrew",
+          "level_min": 21,
+          "level_max": 26,
+          "weight": 25
         }
       ],
       "npcs": []

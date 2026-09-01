@@ -33,6 +33,9 @@ size = Vector2(48, 16)
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_celadon"]
 size = Vector2(48, 16)
 
+[sub_resource type="RectangleShape2D" id="Shape_pokecenter_fuchsia"]
+size = Vector2(48, 16)
+
 [node name="WorldMap" type="Node2D"]
 script = ExtResource("1_basemap")
 map_id = "world_map"
@@ -57,7 +60,7 @@ drag_horizontal_enabled = true
 drag_vertical_enabled = true
 limit_left = 0
 limit_top = 0
-limit_right = 9280
+limit_right = 11200
 limit_bottom = 3072
 zoom = Vector2(3.0, 3.0)
 
@@ -193,6 +196,21 @@ npc_name = "Vendedora"
 dialog_id = "celadon_local"
 is_patrolling = false
 
+[node name="Koga" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(10504, 168)
+npc_name = "Koga"
+dialog_id = "koga_gym"
+starts_quest_id = "GYM-05"
+is_trainer = true
+trainer_team = Array[Dictionary]([{"species_id": 109, "level": 37}, {"species_id": 110, "level": 43}])
+is_patrolling = false
+
+[node name="FuchsiaLocal" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(11112, 328)
+npc_name = "Morador"
+dialog_id = "fuchsia_local"
+is_patrolling = false
+
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("4_zm")
 
@@ -262,6 +280,15 @@ is_pokemon_center_entrance = true
 
 [node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Celadon"]
 shape = SubResource("Shape_pokecenter_celadon")
+
+[node name="WarpPokeCenter_Fuchsia" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(10904, 232)
+target_map = "res://scenes/world/maps/PokemonCenter.tscn"
+spawn_tile = Vector2i(7, 11)
+is_pokemon_center_entrance = true
+
+[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Fuchsia"]
+shape = SubResource("Shape_pokecenter_fuchsia")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 
