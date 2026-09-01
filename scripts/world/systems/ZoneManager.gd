@@ -1,5 +1,8 @@
 ## ZoneManager.gd — Detecta zona atual do player baseado em posição no tilemap.
 ## Carrega data/world/zones.json. Emite EventBus.zone_changed ao mudar de zona.
+## Instanciado uma vez POR CENA (filho direto de cada BaseMap, não é autoload) —
+## por isso precisa saber em qual mapa está (ver DEFAULT_MAP_ID abaixo), já que
+## zones.json é compartilhado por todas as cenas.
 extends Node
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -8,13 +11,21 @@ extends Node
 var _zones          : Array      = []       # lista de dicionários de zonas
 var _current_zone   : Dictionary = {}       # zona atual do player
 var _zones_by_id    : Dictionary = {}       # índice rápido id → dados
+var _map_id         : String     = DEFAULT_MAP_ID  # mapa/cena a que ESTA instância pertence
 
 const ZONES_JSON_PATH : String = "res://data/world/zones.json"
+
+## Mapa/cena padrão: o mundo aberto compartilhado (WorldMap.tscn, BaseMap.map_id
+## = "world_map"). Zonas sem "map_id" próprio em zones.json pertencem a ele.
+const DEFAULT_MAP_ID : String = "world_map"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Ciclo de vida
 # ──────────────────────────────────────────────────────────────────────────────
 func _ready() -> void:
+	var base_map := get_parent()
+	if base_map and "map_id" in base_map:
+		_map_id = base_map.map_id
 	_load_zones()
 	EventBus.player_tile_entered.connect(_on_player_tile_entered)
 
@@ -33,12 +44,10 @@ func get_zone_by_id(zone_id: String) -> Dictionary:
 func get_all_zones() -> Array:
 	return _zones
 
-## Retorna o ID da zona para uma posição em tile, ou "" se fora de todas as zonas.
+## Retorna o ID da zona para uma posição em tile (dentro do mapa/cena desta
+## instância), ou "" se fora de todas as zonas.
 func get_zone_id_at(tile_pos: Vector2i) -> String:
-	for zone in _zones:
-		if _tile_in_zone(tile_pos, zone):
-			return zone["id"]
-	return ""
+	return find_zone_id(tile_pos, _zones, _map_id)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Lógica interna
@@ -85,8 +94,24 @@ func _on_player_tile_entered(tile: Vector2i) -> void:
 	if new_zone_id != prev_id:
 		EventBus.zone_changed.emit(new_zone_id)
 
-## Verifica se tile_pos está dentro do rect de uma zona.
-func _tile_in_zone(tile_pos: Vector2i, zone: Dictionary) -> bool:
+## Acha o ID da zona pra uma posição em tile, restrito às zonas do map_id dado
+## (zona sem "map_id" próprio pertence ao DEFAULT_MAP_ID). Estático de propósito
+## (sem depender de instância) pra ser testável direto por script headless.
+## Corrige o risco sistêmico registrado em 01/09: cenas próprias (Mt Moon, Rock
+## Tunnel, Safari Zone, Rocket Hideout, Cinnabar Island) têm tile_rect que se
+## sobrepõem entre si em números brutos porque todas começam perto de (0,0) na
+## própria cena — sem o filtro por map_id, a primeira zona da lista que batesse
+## a coordenada bruta "vencia" (era sempre Mt Moon, por vir primeiro no JSON).
+static func find_zone_id(tile_pos: Vector2i, zones: Array, map_id: String) -> String:
+	for zone in zones:
+		var zone_map_id : String = zone.get("map_id", DEFAULT_MAP_ID)
+		if zone_map_id != map_id:
+			continue
+		if _zone_contains(tile_pos, zone):
+			return zone["id"]
+	return ""
+
+static func _zone_contains(tile_pos: Vector2i, zone: Dictionary) -> bool:
 	var r = zone.get("tile_rect", {})
 	if r.is_empty():
 		return false

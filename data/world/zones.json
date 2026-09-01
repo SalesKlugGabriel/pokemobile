@@ -322,6 +322,7 @@
     },
     {
       "id": "cinnabar_island",
+      "map_id": "cinnabar_island",
       "name": "Cinnabar Island",
       "region": "kanto",
       "notes": "Cena própria (CinnabarIsland.tscn), só alcançável de barco (Capitão de Vermilion, exige UTIL-02 completa) — coordenada local 0-based, 40x40, ilha com contorno orgânico (mesma técnica de sin()/distância do litoral de Vermilion).",
@@ -1401,6 +1402,7 @@
     },
     {
       "id": "mt_moon",
+      "map_id": "mt_moon",
       "name": "Mt. Moon",
       "region": "kanto",
       "tile_rect": {
@@ -1444,6 +1446,7 @@
     },
     {
       "id": "rock_tunnel",
+      "map_id": "rock_tunnel",
       "name": "Rock Tunnel",
       "region": "kanto",
       "notes": "Cena própria (RockTunnel.tscn), coordenada local 0-based, igual ao Mt Moon. Interior gerado por caminhada aleatória com seed fixa (MapLayouts._gen_rocktunnel) — não-linear de propósito (regra de tematização de caverna, 01/09), diferente do Mt Moon (retângulo + rochas espalhadas, construído antes dessa regra existir).",
@@ -1481,6 +1484,7 @@
     },
     {
       "id": "safari_zone",
+      "map_id": "safari_zone",
       "name": "Safari Zone",
       "region": "kanto",
       "notes": "Cena própria (SafariZone.tscn), entrada por warp (portão em Fuchsia) mesmo não sendo caverna/subterrâneo — pedido explícito do Gabriel (01/09), mesma lógica de 'espaço fechado só acessível por um ponto'. Captura especial (Bola Safari) ainda não existe — usa o sistema de captura normal por enquanto, fica pra quando 'mecânicas' virar foco.",
@@ -1855,6 +1859,7 @@
     },
     {
       "id": "rocket_hideout",
+      "map_id": "rocket_hideout",
       "name": "Rocket Hideout",
       "region": "kanto",
       "tile_rect": {

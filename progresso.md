@@ -9,6 +9,104 @@
 
 ---
 
+## v0.3.13 — ZoneManager corrigido: zona por map_id, não mais por coordenada crua (2026-09-01)
+
+**Pedido:** "siga com o pokemobile" (retomada de sessão) — antes de seguir com mapa/estruturas
+novas, resolvido o achado sistêmico registrado como pendência no Tier 15 (ver acima), porque
+achei a correção JÁ COMEÇADA e sem terminar no diretório (código quebrado sem commit: `zones.json`
+com `map_id` novo em 5 zonas, `ZoneManager.gd` chamando uma função `find_zone_id` que ainda não
+existia em lugar nenhum — o jogo quebraria se rodasse assim).
+
+**O problema:** `ZoneManager.get_zone_id_at()` varria TODAS as zonas de `zones.json` só pela
+coordenada de tile, sem saber em qual cena/mapa o jogador está. Como Mt Moon (20×30), Rock
+Tunnel (36×36), Safari Zone (44×44), Rocket Hideout (18×14) e Cinnabar Island (40×40) são cenas
+próprias e todas têm `tile_rect` começando perto de (0,0) na própria cena, a mesma coordenada
+bruta batia em várias zonas ao mesmo tempo — e como a função devolvia a PRIMEIRA da lista que
+batesse, Mt Moon (a primeira no JSON) sempre vencia. Rock Tunnel e Safari Zone estavam,
+possivelmente desde os Tiers 10/12, puxando a tabela de spawn selvagem de Mt Moon por engano.
+
+**Corrigido:** cada zona de cena própria ganhou `"map_id"` em `zones.json` (bate com o `@export
+var map_id` que a cena (`BaseMap.gd`) já declarava desde sempre — conferido nos 5 arquivos
+`.tscn`, os valores já batiam). `ZoneManager` agora lê o `map_id` do seu próprio pai (a cena onde
+foi instanciado) e só considera zonas com o MESMO `map_id` (zona sem `map_id` próprio pertence ao
+mundo aberto, `"world_map"`, o padrão). Lógica de busca virou função estática
+(`find_zone_id`/`_zone_contains`), testável isolada sem precisar montar a cena inteira.
+
+**Testado:** teste novo `scripts/tests/teste_zone_manager.gd` (8 conferências) — prova
+explicitamente que a MESMA coordenada (5,5) resolve pra zonas DIFERENTES dependendo só do
+`map_id` (as 5 cenas próprias, uma a uma), que o mundo aberto não cai em nenhuma delas, e que uma
+coordenada fora de qualquer rect devolve vazio. Suíte inteira: **19 arquivos, 322 conferências, 0
+falhas** (nenhum teste antigo tocado).
+
+**Também mesclada nesta versão:** a branch `fase2-safari-quests` (Zona Safari com regra clássica
+do Gen 1 — Bola Safari 30/visita, Isca/Pedra — e o motor `reach_floor`/`traverse_floors` no
+`QuestManager.gd`, que destrava MAIN-05/MAIN-10/UTIL-05), que rodou em paralelo ao Tier 15 numa
+worktree isolada e ficou pendente de mesclar. Sem conflito de código (arquivos diferentes dos que
+o Tier 15 tocou); só `progresso.md` pediu resolução manual (as duas frentes editaram a partir do
+mesmo ponto de partida).
+
+**Próximo passo:** voltar pra "resto do Kanto" (S.S. Anne, Silph Co., Nugget Bridge, Pokémon
+Mansion) ou seguir pra "Pokémon e estruturas" agora que a Zona Safari já tem mecânica própria.
+
+---
+
+## v0.3.12 — Tier 15: Rocket Hideout — entrada/porão em Celadon (2026-09-01)
+
+**Pedido:** "siga em frente" — continuando "resto do Kanto", rodado EM PARALELO com uma outra
+sessão-filha isolada numa worktree própria, trabalhando na Fase 2 (Zona Safari + motor de
+quests `reach_floor`) numa branch separada (`fase2-safari-quests`), ainda não mesclada.
+
+**Construído:** prédio novo em Celadon (cols locais 24-31, rows 21-30 — abaixo do corredor
+leste-oeste, não colide com Ginásio/Centro/Mart já existentes nem com os Jardins), com porta de
+verdade. Diferente de Silph Co./Torre Pokémon (só fachada, sem warp — interior é Fase 2),
+Rocket Hideout ganhou **warp de verdade** porque é "subterrâneo" — mesma exceção já usada em Mt
+Moon/Rock Tunnel/Safari Zone (regra do Gabriel de 31/08: warp só pra caverna/subterrâneo/
+submarino/troca de continente). Cena própria nova (`RocketHideout.tscn`), sala de entrada
+18×14, vazia — sem Team Rocket, sem grunts, sem mecânica de infiltração ainda (isso é "Pokémon
+e estruturas", Fase 2, que a outra sessão-filha está começando a atacar em paralelo, mas ainda
+não chegou nesta zona).
+
+**Achado no caminho:** `zones.json` já tinha `rocket_hideout` pré-cadastrado (Zubat/Grimer/
+Raticate) desde o plano mestre original, com um `tile_rect` genérico que não batia com nada —
+corrigido pra `{x:0,y:0,w:18,h:14}` (coordenada local da cena própria, mesmo padrão de Mt Moon/
+Rock Tunnel/Safari Zone), e documentada a exceção de warp nas `notes`.
+
+**Achado à parte, NÃO corrigido (fora do escopo deste Tier, registrado pra decisão futura):**
+o casamento de "zona atual do jogador" (`ZoneManager._tile_in_zone`) é só por coordenada de
+tile, sem levar em conta QUAL cena/mapa o jogador está — e várias zonas de cena própria
+(`mt_moon` 0,0,20,30 / `rock_tunnel` 0,0,36,36 / `safari_zone` 0,0,44,44 / agora `rocket_hideout`
+0,0,18,14) têm `tile_rect` que se sobrepõem entre si em números brutos, porque todas começam
+perto de (0,0) na sua própria cena. Como `get_zone_id_at` varre a lista inteira e devolve o
+PRIMEIRO que bater (`mt_moon` vem primeiro no `zones.json`), é bem possível que Rock Tunnel e
+Safari Zone estejam, desde os Tiers 10/12, puxando a tabela de spawn selvagem de Mt Moon por
+engano em vez da própria (não percebido até agora porque as espécies se parecem — Zubat aparece
+nas três). Rocket Hideout herda o mesmo risco. **Não é um bug introduzido por este Tier** — é
+sistêmico, existe desde o Tier 10 — e corrigi-lo (fazer o `ZoneManager` saber em qual cena está)
+é maior que "resto do Kanto"; fica registrado aqui pra quando o Gabriel quiser investigar/
+corrigir, ou quando eu voltar com foco em Mecânicas/motor.
+
+**Testado:** `teste_fase3_tier15.gd` novo (25 conferências: prédio/porta/telhado/interior da
+cena/zones.json/warp de entrada de verdade/warp de saída de verdade, ida e volta). 7 arquivos
+antigos (`teste_fase3_mapa`, tiers 2-7) ganharam a exceção nova `RocketHideout` na lista de
+"warps indevidos" — mesma lição do Tier 10. **Suíte inteira: 19 arquivos, 314 conferências, 0
+falhas.**
+
+**Publicado:** export Web, imagem Docker reconstruída, `docker service update --force
+pokemobile_pokemobile_app`, `curl` confirma 200 em https://poke.workprog.pro (primeiro `curl`
+voltou 404 — janela normal de propagação do Traefik, 200 alguns segundos depois).
+
+**Próximo passo:** dentro de "resto do Kanto" ainda faltam: S.S. Anne (fachada no cais de
+Vermilion), Silph Co. (entrada em Saffron — prédio já existe), Nugget Bridge, Pokémon Mansion
+(interior — fachada já existe em Cinnabar), e os itens sem posição geográfica decidida ainda
+(Victory Road/Elite Four/Indigo Plateau, Diglett's Cave/Route 11, Power Plant). Viridian Gym/
+Giovanni segue bloqueado por história. Quando a Fase 2 (rodando em paralelo) terminar, juntar as
+duas branches, testar tudo junto e fazer um deploy final combinado.
+
+**Precisa de decisão do Gabriel?** Não pro Tier em si — mas o achado do `ZoneManager` (acima)
+é uma decisão dele quando quiser: investigar/corrigir agora, ou deixar registrado pra mais tarde.
+
+---
+
 ## v0.3.11 — Tier 14: Seafoam Islands (2026-09-01)
 
 **Pedido:** "siga com o plano de ação do PokéMobile" — sem pedido específico novo, seguindo a
