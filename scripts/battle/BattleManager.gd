@@ -1121,6 +1121,12 @@ func _is_full_blackout() -> bool:
 			return false
 	return true
 
+## SUPERADA pela Fase 7 do motor de combate em tempo real (02/09) —
+## NpcEntity._start_trainer_battle() é quem dispara batalha de treinador
+## agora (sequência de WildPokemon reais no mapa, sem tela). Esta função não
+## tem mais nenhum chamador; deixada aqui (não apagada) porque BattleManager
+## continua vivo pra Zona Safari, e mexer neste arquivo grande só pra apagar
+## uma função morta não valia o risco nesta sessão.
 ## Inicia batalha contra treinador (NpcEntity com is_trainer=true).
 func start_trainer_battle(npc: Node) -> void:
 	if phase != BattlePhase.IDLE:

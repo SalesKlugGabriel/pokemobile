@@ -11,6 +11,86 @@ extends CanvasLayer
 
 var _zone_names : Dictionary = {}
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Skills visíveis + tocáveis no HUD (Fase 9 do motor de combate em tempo
+# real, 02/09) — pedido do Gabriel: "skills visiveis ou atreladas a botões
+# de ação". Cada slot é um Button de verdade (funciona em tela sensível ao
+# toque, não só teclado — o atalho de tecla continua funcionando igual,
+# rebindável agora via KeybindManager, ver skill_1-4 em REBINDABLE_ACTIONS)
+# com o nome do golpe, e uma barrinha fina de cooldown embaixo.
+# EventBus.follower_skill_cooldown_updated já era emitido desde a Fase 0.5,
+# só nunca tinha ninguém escutando. Construído em código (não editando o
+# .tscn) pra reduzir risco de mexer numa cena que já tem vários nós à mão.
+# ──────────────────────────────────────────────────────────────────────────────
+const SKILL_BTN_SIZE : Vector2 = Vector2(52, 30)
+const SKILL_BAR_SIZE : Vector2 = Vector2(52, 5)
+var _skill_bars    : Array[ProgressBar] = []
+var _skill_buttons : Array[Button]      = []
+
+func _build_skill_cooldown_bars() -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	add_child(row)
+
+	for i in 4:
+		var col := VBoxContainer.new()
+		col.add_theme_constant_override("separation", 2)
+		row.add_child(col)
+
+		var btn := Button.new()
+		btn.custom_minimum_size = SKILL_BTN_SIZE
+		btn.text = "—"
+		btn.disabled = true
+		btn.add_theme_font_size_override("font_size", 10)
+		btn.pressed.connect(_on_skill_button_pressed.bind(i))
+		col.add_child(btn)
+		_skill_buttons.append(btn)
+
+		var bar := ProgressBar.new()
+		bar.custom_minimum_size = SKILL_BAR_SIZE
+		bar.max_value = 1.0
+		bar.value = 1.0
+		bar.show_percentage = false
+		bar.modulate = Color(0.4, 0.8, 1.0)
+		col.add_child(bar)
+		_skill_bars.append(bar)
+
+	# Ancora e centraliza SÓ DEPOIS de todos os filhos existirem — chamar
+	# set_anchors_preset() antes (com o row ainda vazio, tamanho 0x0) calcula
+	# o offset errado e os botões nascem fora da tela (achado ao testar no
+	# navegador: nada aparecia). PRESET_MODE_KEEP_SIZE preserva o tamanho já
+	# calculado pelo HBoxContainer em vez de zerar de novo.
+	row.set_anchors_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_KEEP_SIZE)
+	# PRESET_CENTER_BOTTOM deixa a BORDA DE CIMA do row exatamente na borda
+	# inferior da tela (todo o row fica pra fora, corte confirmado ao testar
+	# no navegador) — sobe a altura inteira do row + uma margem, não só um
+	# empurrãozinho.
+	row.position -= Vector2(0, SKILL_BTN_SIZE.y + SKILL_BAR_SIZE.y + 2.0 + 20.0)
+
+## Toque/clique no botão dispara a skill igual apertar a tecla — mesmo
+## caminho (FollowerPokemon.use_skill), então cooldown/alvo/área funcionam
+## idêntico às duas formas de acionar.
+func _on_skill_button_pressed(slot: int) -> void:
+	var follower := get_tree().get_first_node_in_group("follower_pokemon")
+	if follower and follower.has_method("use_skill"):
+		follower.use_skill(slot)
+
+## Atualiza nome/estado dos 4 botões quando o Follower muda (troca de líder,
+## captura nova, etc.) — pokemon_data.moves já vem pronto de
+## FollowerPokemon._build_pokemon_data(), não precisa reconsultar nada.
+func _on_follower_changed(pokemon_data: Dictionary) -> void:
+	var moves : Array = pokemon_data.get("moves", [])
+	for i in _skill_buttons.size():
+		var move_id : String = str(moves[i]) if i < moves.size() else ""
+		if move_id.is_empty():
+			_skill_buttons[i].text = "—"
+			_skill_buttons[i].disabled = true
+		else:
+			var move_data : Dictionary = GameData.get_move(move_id)
+			var nome : String = str(move_data.get("name", move_id))
+			_skill_buttons[i].text = nome.substr(0, 9)
+			_skill_buttons[i].disabled = false
+
 ## Textos e cor por marcha — sprite do jogador ainda não muda de aparência
 ## por marcha (pendente, ver docs/customizacao-personagem.md), então isso é
 ## o feedback visual real por enquanto. "walk" fica sem indicador (é o
@@ -51,9 +131,22 @@ func _ready() -> void:
 	EventBus.battle_ended.connect(_on_battle_ended)
 	EventBus.zone_changed.connect(_on_zone_changed)
 	EventBus.movement_mode_changed.connect(_on_movement_mode_changed)
+	EventBus.follower_skill_cooldown_updated.connect(_on_skill_cooldown_updated)
+	EventBus.follower_changed.connect(_on_follower_changed)
 	btn_fly.pressed.connect(_on_btn_fly_pressed)
 	mode_panel.hide()
+	_build_skill_cooldown_bars()
 	_refresh()
+
+## progress: 0.0 (acabou de usar) → 1.0 (pronta de novo). Emitido só enquanto
+## a skill está recarregando (FollowerPokemon._tick_cooldowns()) — por isso a
+## barra já nasce cheia (pronta) e só "esvazia e enche" quando usada.
+func _on_skill_cooldown_updated(slot: int, progress: float) -> void:
+	if slot < 0 or slot >= _skill_bars.size():
+		return
+	var bar := _skill_bars[slot]
+	bar.value = progress
+	bar.modulate = Color(0.4, 0.8, 1.0) if progress >= 1.0 else Color(1.0, 0.6, 0.2)
 
 func _refresh() -> void:
 	if not SaveManager.has_save():

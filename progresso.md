@@ -9,6 +9,36 @@
 
 ---
 
+## Motor de combate em tempo real — Fase 9 (2026-09-02, sessão seguinte)
+
+**A peça visual do print original do Gabriel, mais 2 pedidos que ele fez na sequência ao ver o
+progresso: (1) skill visível/tocável no HUD, não só atalho de teclado escondido; (2) atalho
+configurável.** Skill de golpe agora aparece flutuando sobre o alvo (nome + dano, cor por tipo de
+efeito — laranja pra área, amarelo pra golpe único, verde pra Mega Drain curando, roxo pro
+"Reflexo!" do Counter Helix) — `FloatingText.gd` novo, mesmo padrão de nó-temporário-com-Tween que
+`CaptureSystem.throw_pokeball()` já usava. HUD ganhou 4 botões de verdade (não só indicador) com o
+nome do golpe de cada slot — **tocáveis** (funciona em touch, não só teclado) e com barra de
+cooldown fina embaixo.
+
+**Achado que resolveu o 2º pedido de graça**: `KeybindManager.gd` já tinha sistema de rebind
+COMPLETO (reatribuir tecla, salvar em disco, detectar conflito) — só que `skill_1-4`/`pokebola`
+ficavam de fora da lista de reatribuíveis por um motivo que o próprio código documentava:
+"nunca foram ligadas a nenhuma função no jogo". Agora que são (Fases 0.5-6), bastou tirar essas 5
+ações dessa exclusão — a tela de Controles já é 100% genérica, escreve as linhas sozinha.
+
+**Achado de posicionamento (só neste PC, corrigido antes de publicar)**: os botões nasceram fora
+da tela na primeira tentativa — `set_anchors_preset()` chamado ANTES dos filhos existirem calcula
+a posição com o container ainda 0×0. Corrigido chamando depois de montar os 4 botões.
+
+**Testado**: 22 conferências novas de UI (Fase 9) + 14 de rebind + suíte inteira (43 arquivos, 0
+falhas) + **confirmado ao vivo no navegador**: botões "Tackle"/"Growl" (moveset real do Bulbasaur
+Lv.5) aparecendo certos, tocáveis, na posição certa. Publicado.
+
+**Próximo passo**: só falta a Fase 10 (densidade de Pokémon selvagem por profundidade na
+floresta — "luta de sobrevivência", o pedido original do Gabriel) pra fechar o plano inteiro.
+
+---
+
 ## Motor de combate em tempo real — Fase 7 (2026-09-02, sessão seguinte)
 
 **A fase mais arriscada de todo o plano: tela de batalha por turno desligada de vez, pra selvagem

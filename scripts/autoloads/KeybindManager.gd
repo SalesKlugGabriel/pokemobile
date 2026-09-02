@@ -8,12 +8,15 @@ extends Node
 const SAVE_PATH := "user://keybinds.cfg"
 
 ## Só essas ações aparecem na tela de Controles. As demais definidas no
-## project.godot (skill_1-4, pokeball, fullscreen, menu_map) nunca foram
-## ligadas a nenhuma função no jogo — expor elas pra reatribuir confundiria
-## o jogador com um atalho que não faz nada.
+## project.godot (fullscreen, menu_map) nunca foram ligadas a nenhuma função
+## no jogo — expor elas pra reatribuir confundiria o jogador com um atalho
+## que não faz nada. skill_1-4/pokeball SAÍRAM dessa lista de exclusão no
+## motor de combate em tempo real (Fase 9, 02/09) — agora comandam de
+## verdade o Follower/a captura, e o Gabriel pediu shortcut configurável.
 const REBINDABLE_ACTIONS : Array[String] = [
 	"move_up", "move_down", "move_left", "move_right",
 	"run", "interact", "pause", "menu_bag", "menu_team", "open_pokedex",
+	"skill_1", "skill_2", "skill_3", "skill_4", "pokeball",
 ]
 
 const ACTION_LABELS := {
@@ -27,6 +30,11 @@ const ACTION_LABELS := {
 	"menu_bag":     "Abrir Mochila",
 	"menu_team":    "Abrir Time",
 	"open_pokedex": "Abrir Pokédex",
+	"skill_1":      "Skill 1 do Pokémon",
+	"skill_2":      "Skill 2 do Pokémon",
+	"skill_3":      "Skill 3 do Pokémon",
+	"skill_4":      "Skill 4 do Pokémon",
+	"pokeball":     "Jogar Pokébola",
 }
 
 func _ready() -> void:

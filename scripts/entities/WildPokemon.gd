@@ -270,6 +270,7 @@ func _fire_passive_drain() -> void:
 	if _recent_attackers.is_empty():
 		return
 	var move_data      : Dictionary = GameData.get_move(_passive_data.get("move_id", ""))
+	var nome : String = move_data.get("name", "")
 	var attacker_stats := _attacker_stats()
 	var total_dealt := 0
 	for a in _recent_attackers:
@@ -278,9 +279,11 @@ func _fire_passive_drain() -> void:
 			var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
 			a.take_damage(dmg, self)
 			total_dealt += dmg
+			FloatingText.show_text(get_tree().current_scene, a.global_position + Vector2(0, -46), "%s -%d" % [nome, dmg], Color(0.6, 1.0, 0.4))
 	if total_dealt > 0:
 		current_hp = mini(max_hp, current_hp + total_dealt)
 		_update_health_bar()
+		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -46), "+%d" % total_dealt, Color(0.4, 1.0, 0.4))
 
 func _fire_passive_reflect() -> void:
 	if _recent_attackers.is_empty() or _passive_dmg_since <= 0:
@@ -288,6 +291,7 @@ func _fire_passive_reflect() -> void:
 	var alvo = _recent_attackers[_recent_attackers.size() - 1]  # atacante mais recente
 	if is_instance_valid(alvo) and alvo.has_method("take_damage"):
 		alvo.take_damage(_passive_dmg_since, self)
+		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -46), "Reflexo! -%d" % _passive_dmg_since, Color(0.8, 0.6, 1.0))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Loop principal
@@ -411,6 +415,7 @@ func _perform_attack() -> void:
 			defender_stats = target.get_combat_stats()
 		var damage := DamageCalculator.calculate_damage(default_move, attacker_stats, defender_stats)
 		target.take_damage(damage, self)
+		FloatingText.show_text(get_tree().current_scene, target.global_position + Vector2(0, -46), "%s -%d" % [default_move.get("name", ""), damage], Color(1.0, 0.4, 0.4))
 
 ## Mesmo formato de attacker_stats usado no ataque direto, na área e na
 ## passiva — centralizado aqui pra não divergir.
@@ -427,12 +432,14 @@ func _apply_damage_area(move_data: Dictionary) -> void:
 	var radius : float = move_data.get("radius", 0.0)
 	var alvos  : Array  = AreaTargeting.find_targets_in_radius(global_position, radius, ["follower_pokemon", "player"])
 	var attacker_stats := _attacker_stats()
+	var nome : String = move_data.get("name", "")
 	for alvo in alvos:
 		if not alvo.has_method("take_damage"):
 			continue
 		var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
 		var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
 		alvo.take_damage(dmg, self)
+		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -46), "%s -%d" % [nome, dmg], Color(1.0, 0.4, 0.4))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Receber dano
