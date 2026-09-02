@@ -149,7 +149,7 @@ func _fire_passive_drain() -> void:
 	if _recent_attackers.is_empty():
 		return
 	var move_data      : Dictionary = GameData.get_move(_passive_data.get("move_id", ""))
-	var attacker_stats := { "atk": atk_stat, "ability": species_data.get("ability", ""), "hp_ratio": float(current_hp) / float(max_hp) if max_hp > 0 else 1.0 }
+	var attacker_stats := _attacker_stats()
 	var total_dealt := 0
 	for a in _recent_attackers:
 		if is_instance_valid(a) and a.has_method("take_damage"):
@@ -219,11 +219,17 @@ func use_skill(slot: int) -> void:
 		return
 	if _cooldowns[slot] > 0.0:
 		return
-	if not current_target:
-		return
 
 	var move_data : Dictionary = GameData.get_move(move_slots[slot])
 	if move_data.is_empty():
+		return
+
+	# Golpe de área não depende de alvo selecionado (bate em quem estiver no
+	# raio); golpe de mira única/corpo-a-corpo exige um alvo escolhido por
+	# clique/toque (WildPokemon._on_hurtbox_input_event) — sem isso, nem o
+	# ataque melee funciona (regra confirmada com o Gabriel, 02/09).
+	var is_area : bool = move_data.get("target_type", "single") == "area"
+	if not is_area and not current_target:
 		return
 
 	# Aplica redução de cooldown pela velocidade
@@ -235,6 +241,9 @@ func use_skill(slot: int) -> void:
 	_execute_move(move_data)
 
 func _execute_move(move_data: Dictionary) -> void:
+	if move_data.get("target_type", "single") == "area":
+		_apply_damage_area(move_data)
+		return
 	if not current_target:
 		return
 	# Projétil ou dano direto dependendo do alcance do move
@@ -244,14 +253,33 @@ func _execute_move(move_data: Dictionary) -> void:
 	else:
 		_apply_damage_direct(move_data)
 
-func _apply_damage_direct(move_data: Dictionary) -> void:
-	if not current_target.has_method("take_damage"):
-		return
-	var attacker_stats := {
+## Mesmo formato de attacker_stats usado em 3 lugares deste arquivo (dano
+## direto, área e a passiva) — centralizado aqui pra não divergir os 3.
+func _attacker_stats() -> Dictionary:
+	return {
 		"atk": atk_stat, "level": pokemon_level,
 		"ability": species_data.get("ability", ""),
 		"hp_ratio": float(current_hp) / float(max_hp) if max_hp > 0 else 1.0,
 	}
+
+## Golpe de área: bate em todo `wild_pokemon` no raio, nunca no próprio time
+## (sem fogo amigo, decisão confirmada com o Gabriel) — não depende de
+## current_target, mira a partir da própria posição do Follower.
+func _apply_damage_area(move_data: Dictionary) -> void:
+	var radius : float = move_data.get("radius", 0.0)
+	var alvos : Array = AreaTargeting.find_targets_in_radius(global_position, radius, "wild_pokemon")
+	var attacker_stats := _attacker_stats()
+	for alvo in alvos:
+		if not alvo.has_method("take_damage"):
+			continue
+		var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
+		var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
+		alvo.take_damage(dmg, self)
+
+func _apply_damage_direct(move_data: Dictionary) -> void:
+	if not current_target.has_method("take_damage"):
+		return
+	var attacker_stats := _attacker_stats()
 	var defender_stats : Dictionary = {}
 	if current_target.has_method("get_combat_stats"):
 		defender_stats = current_target.get_combat_stats()

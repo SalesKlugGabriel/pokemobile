@@ -9,6 +9,41 @@
 
 ---
 
+## Motor de combate em tempo real — Fase 3 e Fase 4 (2026-09-02, sessão seguinte)
+
+**Fase 3 — `moves.json` ganhou cooldown/target_type/radius de verdade.** Antes disso, todo golpe
+em tempo real caía num valor fixo cravado no código (2s, sempre corpo-a-corpo, sempre mira única)
+porque esses campos nunca existiam no JSON. Script de migração (`scripts/tools/
+migrate_moves_realtime.py`, guardado no repositório) preencheu os 158 golpes: cooldown
+proporcional à força do golpe (mais forte = recarrega mais devagar, evita spam de graça),
+6 golpes canonicamente de área no Pokémon de verdade (Terremoto, Surf, Nevasca, Deslizamento de
+Rochas, Autodestruição, Explosão) marcados `target_type:"area"` com um raio, resto continua
+`"single"`. **Achado ao editar**: usei `json.dump` sem cuidado uma vez e ele reformatou o arquivo
+inteiro (o `species.json` é escrito num estilo compacto, uma linha por Pokémon, à mão) — desfeito
+e reaplicado como edição cirúrgica só nas 2 linhas certas.
+
+**Fase 4 — função de dano em área, não existia nenhuma antes.** `AreaTargeting.gd` novo busca
+alvos num raio reaproveitando os mesmos grupos (`wild_pokemon`/`follower_pokemon`/`player`) que
+o resto do combate já usa. Ligado em `FollowerPokemon`/`WildPokemon`: golpe de área bate em todo
+mundo do lado oposto dentro do raio, **nunca no próprio time** (decisão confirmada com o Gabriel —
+sem fogo amigo). Também resolvido o pedido do Gabriel sobre seleção de alvo: golpe de área
+funciona SEM precisar de alvo selecionado (mira a partir da própria posição), golpe de mira única
+continua travado sem seleção — regra completa agora.
+
+**Achado de infraestrutura pro projeto (vale lembrar em sessões futuras)**: criar um script `.gd`
+novo com `class_name` (caso do `AreaTargeting.gd`) não é reconhecido de imediato pelos testes
+headless — nem `godot4 --headless --import` resolve. Precisa rodar
+`godot4 --headless --editor --quit-after 3` uma vez pra registrar de verdade no cache de classes
+globais antes de qualquer teste que use a classe nova.
+
+**Testado**: 38 conferências novas headless (30 na Fase 3, 8 na Fase 4) + suíte inteira (38
+arquivos, 0 falhas) + navegador real sem erros novos no console. Publicado.
+
+**Próximo passo**: Fase 5 (unificar fim-de-combate — XP/level-up/loot/quest — pra qualquer batalha
+em tempo real) e Fase 6 (reviver o sistema de captura em tempo real que já existe no código, órfão).
+
+---
+
 ## Motor de combate em tempo real — Fase 1 e Fase 2 (2026-09-02, sessão seguinte)
 
 **Fase 1 — Ligar `ability` (Overgrow/Blaze/Torrent/Guts) fora do turno.** Já existia por espécie

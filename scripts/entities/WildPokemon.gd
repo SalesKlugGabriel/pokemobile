@@ -256,7 +256,7 @@ func _fire_passive_drain() -> void:
 	if _recent_attackers.is_empty():
 		return
 	var move_data      : Dictionary = GameData.get_move(_passive_data.get("move_id", ""))
-	var attacker_stats := { "atk": atk_stat, "ability": species_data.get("ability", ""), "hp_ratio": get_hp_ratio() }
+	var attacker_stats := _attacker_stats()
 	var total_dealt := 0
 	for a in _recent_attackers:
 		if is_instance_valid(a) and a.has_method("take_damage"):
@@ -386,16 +386,39 @@ func _perform_attack() -> void:
 	var spd_reduc : float = speed_stat / 500.0
 	_attack_cd = max(0.3, base_cd * (1.0 - spd_reduc))
 
+	if default_move.get("target_type", "single") == "area":
+		_apply_damage_area(default_move)
+		return
+
 	if target and target.has_method("take_damage"):
-		var attacker_stats := {
-			"atk": atk_stat, "level": wild_level,
-			"ability": species_data.get("ability", ""), "hp_ratio": get_hp_ratio(),
-		}
+		var attacker_stats := _attacker_stats()
 		var defender_stats : Dictionary = {}
 		if target.has_method("get_combat_stats"):
 			defender_stats = target.get_combat_stats()
 		var damage := DamageCalculator.calculate_damage(default_move, attacker_stats, defender_stats)
 		target.take_damage(damage, self)
+
+## Mesmo formato de attacker_stats usado no ataque direto, na área e na
+## passiva — centralizado aqui pra não divergir.
+func _attacker_stats() -> Dictionary:
+	return {
+		"atk": atk_stat, "level": wild_level,
+		"ability": species_data.get("ability", ""), "hp_ratio": get_hp_ratio(),
+	}
+
+## Golpe de área: bate em Follower + Treinador (os únicos alvos válidos de um
+## selvagem) dentro do raio, a partir da própria posição — não depende de
+## `target` travado, diferente do ataque single-target.
+func _apply_damage_area(move_data: Dictionary) -> void:
+	var radius : float = move_data.get("radius", 0.0)
+	var alvos  : Array  = AreaTargeting.find_targets_in_radius(global_position, radius, ["follower_pokemon", "player"])
+	var attacker_stats := _attacker_stats()
+	for alvo in alvos:
+		if not alvo.has_method("take_damage"):
+			continue
+		var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
+		var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
+		alvo.take_damage(dmg, self)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Receber dano

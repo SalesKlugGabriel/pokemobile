@@ -9,7 +9,9 @@
     "pp": 35,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 2.0,
+    "target_type": "single"
   },
   "karate_chop": {
     "id": "karate_chop",
@@ -21,7 +23,9 @@
     "pp": 25,
     "priority": 0,
     "contact": true,
-    "effect": "high_crit"
+    "effect": "high_crit",
+    "cooldown": 2.5,
+    "target_type": "single"
   },
   "double_slap": {
     "id": "double_slap",
@@ -33,7 +37,9 @@
     "pp": 10,
     "priority": 0,
     "contact": true,
-    "effect": "multi_hit_2_5"
+    "effect": "multi_hit_2_5",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "comet_punch": {
     "id": "comet_punch",
@@ -45,7 +51,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "multi_hit_2_5"
+    "effect": "multi_hit_2_5",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "mega_punch": {
     "id": "mega_punch",
@@ -57,7 +65,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 4.0,
+    "target_type": "single"
   },
   "pay_day": {
     "id": "pay_day",
@@ -69,7 +79,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "scatter_coins"
+    "effect": "scatter_coins",
+    "cooldown": 2.0,
+    "target_type": "single"
   },
   "fire_punch": {
     "id": "fire_punch",
@@ -81,7 +93,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "burn_10"
+    "effect": "burn_10",
+    "cooldown": 3.8,
+    "target_type": "single"
   },
   "ice_punch": {
     "id": "ice_punch",
@@ -93,7 +107,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "freeze_10"
+    "effect": "freeze_10",
+    "cooldown": 3.8,
+    "target_type": "single"
   },
   "thunder_punch": {
     "id": "thunder_punch",
@@ -105,7 +121,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "paralysis_10"
+    "effect": "paralysis_10",
+    "cooldown": 3.8,
+    "target_type": "single"
   },
   "scratch": {
     "id": "scratch",
@@ -117,7 +135,9 @@
     "pp": 35,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 2.0,
+    "target_type": "single"
   },
   "vice_grip": {
     "id": "vice_grip",
@@ -129,7 +149,9 @@
     "pp": 30,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 2.8,
+    "target_type": "single"
   },
   "guillotine": {
     "id": "guillotine",
@@ -141,7 +163,9 @@
     "pp": 5,
     "priority": 0,
     "contact": true,
-    "effect": "ohko"
+    "effect": "ohko",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "razor_wind": {
     "id": "razor_wind",
@@ -153,7 +177,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "charge_turn"
+    "effect": "charge_turn",
+    "cooldown": 4.0,
+    "target_type": "single"
   },
   "swords_dance": {
     "id": "swords_dance",
@@ -165,7 +191,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "atk_plus2"
+    "effect": "atk_plus2",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "cut": {
     "id": "cut",
@@ -177,7 +205,9 @@
     "pp": 30,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 2.5,
+    "target_type": "single"
   },
   "gust": {
     "id": "gust",
@@ -189,7 +219,9 @@
     "pp": 35,
     "priority": 0,
     "contact": false,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 2.0,
+    "target_type": "single"
   },
   "wing_attack": {
     "id": "wing_attack",
@@ -201,7 +233,9 @@
     "pp": 35,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 3.0,
+    "target_type": "single"
   },
   "whirlwind": {
     "id": "whirlwind",
@@ -213,7 +247,9 @@
     "pp": 20,
     "priority": -6,
     "contact": false,
-    "effect": "force_switch"
+    "effect": "force_switch",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "fly": {
     "id": "fly",
@@ -225,7 +261,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "two_turn_fly"
+    "effect": "two_turn_fly",
+    "cooldown": 4.5,
+    "target_type": "single"
   },
   "bind": {
     "id": "bind",
@@ -237,7 +275,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "trap_4_5"
+    "effect": "trap_4_5",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "slam": {
     "id": "slam",
@@ -249,7 +289,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 4.0,
+    "target_type": "single"
   },
   "vine_whip": {
     "id": "vine_whip",
@@ -261,7 +303,9 @@
     "pp": 25,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 2.2,
+    "target_type": "single"
   },
   "stomp": {
     "id": "stomp",
@@ -273,7 +317,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "flinch_30"
+    "effect": "flinch_30",
+    "cooldown": 3.2,
+    "target_type": "single"
   },
   "double_kick": {
     "id": "double_kick",
@@ -285,7 +331,9 @@
     "pp": 30,
     "priority": 0,
     "contact": true,
-    "effect": "hit_twice"
+    "effect": "hit_twice",
+    "cooldown": 1.5,
+    "target_type": "single"
   },
   "mega_kick": {
     "id": "mega_kick",
@@ -297,7 +345,9 @@
     "pp": 5,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 6.0,
+    "target_type": "single"
   },
   "jump_kick": {
     "id": "jump_kick",
@@ -309,7 +359,9 @@
     "pp": 10,
     "priority": 0,
     "contact": true,
-    "effect": "crash_on_miss"
+    "effect": "crash_on_miss",
+    "cooldown": 5.0,
+    "target_type": "single"
   },
   "rolling_kick": {
     "id": "rolling_kick",
@@ -321,7 +373,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "flinch_30"
+    "effect": "flinch_30",
+    "cooldown": 3.0,
+    "target_type": "single"
   },
   "sand_attack": {
     "id": "sand_attack",
@@ -333,7 +387,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "acc_minus1"
+    "effect": "acc_minus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "headbutt": {
     "id": "headbutt",
@@ -345,7 +401,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "flinch_30"
+    "effect": "flinch_30",
+    "cooldown": 3.5,
+    "target_type": "single"
   },
   "horn_attack": {
     "id": "horn_attack",
@@ -357,7 +415,9 @@
     "pp": 25,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 3.2,
+    "target_type": "single"
   },
   "fury_attack": {
     "id": "fury_attack",
@@ -369,7 +429,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "multi_hit_2_5"
+    "effect": "multi_hit_2_5",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "horn_drill": {
     "id": "horn_drill",
@@ -381,7 +443,9 @@
     "pp": 5,
     "priority": 0,
     "contact": true,
-    "effect": "ohko"
+    "effect": "ohko",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "tackle": {
     "id": "tackle",
@@ -393,7 +457,9 @@
     "pp": 35,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 2.0,
+    "target_type": "single"
   },
   "body_slam": {
     "id": "body_slam",
@@ -405,7 +471,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "paralysis_30"
+    "effect": "paralysis_30",
+    "cooldown": 4.2,
+    "target_type": "single"
   },
   "wrap": {
     "id": "wrap",
@@ -417,7 +485,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "trap_4_5"
+    "effect": "trap_4_5",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "take_down": {
     "id": "take_down",
@@ -429,7 +499,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "recoil_25"
+    "effect": "recoil_25",
+    "cooldown": 4.5,
+    "target_type": "single"
   },
   "thrash": {
     "id": "thrash",
@@ -441,7 +513,9 @@
     "pp": 10,
     "priority": 0,
     "contact": true,
-    "effect": "locked_2_3_then_confused"
+    "effect": "locked_2_3_then_confused",
+    "cooldown": 6.0,
+    "target_type": "single"
   },
   "double_edge": {
     "id": "double_edge",
@@ -453,7 +527,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "recoil_33"
+    "effect": "recoil_33",
+    "cooldown": 6.0,
+    "target_type": "single"
   },
   "tail_whip": {
     "id": "tail_whip",
@@ -465,7 +541,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "def_minus1"
+    "effect": "def_minus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "poison_sting": {
     "id": "poison_sting",
@@ -477,7 +555,9 @@
     "pp": 35,
     "priority": 0,
     "contact": false,
-    "effect": "poison_30"
+    "effect": "poison_30",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "twineedle": {
     "id": "twineedle",
@@ -489,7 +569,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "hit_twice_poison_20"
+    "effect": "hit_twice_poison_20",
+    "cooldown": 1.2,
+    "target_type": "single"
   },
   "pin_missile": {
     "id": "pin_missile",
@@ -501,7 +583,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "multi_hit_2_5"
+    "effect": "multi_hit_2_5",
+    "cooldown": 1.2,
+    "target_type": "single"
   },
   "leer": {
     "id": "leer",
@@ -513,7 +597,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "def_minus1"
+    "effect": "def_minus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "bite": {
     "id": "bite",
@@ -525,7 +611,9 @@
     "pp": 25,
     "priority": 0,
     "contact": true,
-    "effect": "flinch_30"
+    "effect": "flinch_30",
+    "cooldown": 3.0,
+    "target_type": "single"
   },
   "growl": {
     "id": "growl",
@@ -537,7 +625,9 @@
     "pp": 40,
     "priority": 0,
     "contact": false,
-    "effect": "atk_minus1"
+    "effect": "atk_minus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "roar": {
     "id": "roar",
@@ -549,7 +639,9 @@
     "pp": 20,
     "priority": -6,
     "contact": false,
-    "effect": "force_switch"
+    "effect": "force_switch",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "sing": {
     "id": "sing",
@@ -561,7 +653,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "sleep"
+    "effect": "sleep",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "supersonic": {
     "id": "supersonic",
@@ -573,7 +667,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "confuse"
+    "effect": "confuse",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "sonicboom": {
     "id": "sonicboom",
@@ -585,7 +681,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "fixed_damage_20"
+    "effect": "fixed_damage_20",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "disable": {
     "id": "disable",
@@ -597,7 +695,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "disable_last_move"
+    "effect": "disable_last_move",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "acid": {
     "id": "acid",
@@ -609,7 +709,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "sp_def_minus1_10"
+    "effect": "sp_def_minus1_10",
+    "cooldown": 2.0,
+    "target_type": "single"
   },
   "ember": {
     "id": "ember",
@@ -621,7 +723,9 @@
     "pp": 25,
     "priority": 0,
     "contact": false,
-    "effect": "burn_10"
+    "effect": "burn_10",
+    "cooldown": 2.0,
+    "target_type": "single"
   },
   "flamethrower": {
     "id": "flamethrower",
@@ -633,7 +737,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "burn_10"
+    "effect": "burn_10",
+    "cooldown": 4.5,
+    "target_type": "single"
   },
   "mist": {
     "id": "mist",
@@ -645,7 +751,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "protect_stats"
+    "effect": "protect_stats",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "water_gun": {
     "id": "water_gun",
@@ -657,7 +765,9 @@
     "pp": 25,
     "priority": 0,
     "contact": false,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 2.0,
+    "target_type": "single"
   },
   "hydro_pump": {
     "id": "hydro_pump",
@@ -669,7 +779,9 @@
     "pp": 5,
     "priority": 0,
     "contact": false,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 5.5,
+    "target_type": "single"
   },
   "surf": {
     "id": "surf",
@@ -681,7 +793,10 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 4.5,
+    "target_type": "area",
+    "radius": 160.0
   },
   "ice_beam": {
     "id": "ice_beam",
@@ -693,7 +808,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "freeze_10"
+    "effect": "freeze_10",
+    "cooldown": 4.5,
+    "target_type": "single"
   },
   "blizzard": {
     "id": "blizzard",
@@ -705,7 +822,10 @@
     "pp": 5,
     "priority": 0,
     "contact": false,
-    "effect": "freeze_10"
+    "effect": "freeze_10",
+    "cooldown": 5.5,
+    "target_type": "area",
+    "radius": 160.0
   },
   "psybeam": {
     "id": "psybeam",
@@ -717,7 +837,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "confuse_10"
+    "effect": "confuse_10",
+    "cooldown": 3.2,
+    "target_type": "single"
   },
   "bubblebeam": {
     "id": "bubblebeam",
@@ -729,7 +851,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "spd_minus1_10"
+    "effect": "spd_minus1_10",
+    "cooldown": 3.2,
+    "target_type": "single"
   },
   "aurora_beam": {
     "id": "aurora_beam",
@@ -741,7 +865,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "atk_minus1_10"
+    "effect": "atk_minus1_10",
+    "cooldown": 3.2,
+    "target_type": "single"
   },
   "hyper_beam": {
     "id": "hyper_beam",
@@ -753,7 +879,9 @@
     "pp": 5,
     "priority": 0,
     "contact": false,
-    "effect": "recharge"
+    "effect": "recharge",
+    "cooldown": 6.0,
+    "target_type": "single"
   },
   "peck": {
     "id": "peck",
@@ -765,7 +893,9 @@
     "pp": 35,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 1.8,
+    "target_type": "single"
   },
   "drill_peck": {
     "id": "drill_peck",
@@ -777,7 +907,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 4.0,
+    "target_type": "single"
   },
   "submission": {
     "id": "submission",
@@ -789,7 +921,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "recoil_25"
+    "effect": "recoil_25",
+    "cooldown": 4.0,
+    "target_type": "single"
   },
   "low_kick": {
     "id": "low_kick",
@@ -801,7 +935,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "weight_damage"
+    "effect": "weight_damage",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "counter": {
     "id": "counter",
@@ -813,7 +949,9 @@
     "pp": 20,
     "priority": -5,
     "contact": true,
-    "effect": "counter_physical"
+    "effect": "counter_physical",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "seismic_toss": {
     "id": "seismic_toss",
@@ -825,7 +963,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "level_damage"
+    "effect": "level_damage",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "strength": {
     "id": "strength",
@@ -837,7 +977,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 4.0,
+    "target_type": "single"
   },
   "absorb": {
     "id": "absorb",
@@ -849,7 +991,9 @@
     "pp": 25,
     "priority": 0,
     "contact": false,
-    "effect": "drain_50"
+    "effect": "drain_50",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "mega_drain": {
     "id": "mega_drain",
@@ -861,7 +1005,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "drain_50"
+    "effect": "drain_50",
+    "cooldown": 2.0,
+    "target_type": "single"
   },
   "leech_seed": {
     "id": "leech_seed",
@@ -873,7 +1019,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "leech_seed"
+    "effect": "leech_seed",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "growth": {
     "id": "growth",
@@ -885,7 +1033,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "sp_atk_plus1"
+    "effect": "sp_atk_plus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "razor_leaf": {
     "id": "razor_leaf",
@@ -897,7 +1047,9 @@
     "pp": 25,
     "priority": 0,
     "contact": false,
-    "effect": "high_crit"
+    "effect": "high_crit",
+    "cooldown": 2.8,
+    "target_type": "single"
   },
   "solar_beam": {
     "id": "solar_beam",
@@ -909,7 +1061,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "charge_turn"
+    "effect": "charge_turn",
+    "cooldown": 6.0,
+    "target_type": "single"
   },
   "poison_powder": {
     "id": "poison_powder",
@@ -921,7 +1075,9 @@
     "pp": 35,
     "priority": 0,
     "contact": false,
-    "effect": "poison"
+    "effect": "poison",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "stun_spore": {
     "id": "stun_spore",
@@ -933,7 +1089,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "paralysis"
+    "effect": "paralysis",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "sleep_powder": {
     "id": "sleep_powder",
@@ -945,7 +1103,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "sleep"
+    "effect": "sleep",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "petal_dance": {
     "id": "petal_dance",
@@ -957,7 +1117,9 @@
     "pp": 10,
     "priority": 0,
     "contact": true,
-    "effect": "locked_2_3_then_confused"
+    "effect": "locked_2_3_then_confused",
+    "cooldown": 6.0,
+    "target_type": "single"
   },
   "string_shot": {
     "id": "string_shot",
@@ -969,7 +1131,9 @@
     "pp": 40,
     "priority": 0,
     "contact": false,
-    "effect": "spd_minus1"
+    "effect": "spd_minus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "dragon_rage": {
     "id": "dragon_rage",
@@ -981,7 +1145,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "fixed_damage_40"
+    "effect": "fixed_damage_40",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "fire_spin": {
     "id": "fire_spin",
@@ -993,7 +1159,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "trap_4_5"
+    "effect": "trap_4_5",
+    "cooldown": 1.8,
+    "target_type": "single"
   },
   "thundershock": {
     "id": "thundershock",
@@ -1005,7 +1173,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "paralysis_10"
+    "effect": "paralysis_10",
+    "cooldown": 2.0,
+    "target_type": "single"
   },
   "thunderbolt": {
     "id": "thunderbolt",
@@ -1017,7 +1187,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "paralysis_10"
+    "effect": "paralysis_10",
+    "cooldown": 4.5,
+    "target_type": "single"
   },
   "thunder_wave": {
     "id": "thunder_wave",
@@ -1029,7 +1201,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "paralysis"
+    "effect": "paralysis",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "thunder": {
     "id": "thunder",
@@ -1041,7 +1215,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "paralysis_30"
+    "effect": "paralysis_30",
+    "cooldown": 5.5,
+    "target_type": "single"
   },
   "rock_throw": {
     "id": "rock_throw",
@@ -1053,7 +1229,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 2.5,
+    "target_type": "single"
   },
   "earthquake": {
     "id": "earthquake",
@@ -1065,7 +1243,10 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 5.0,
+    "target_type": "area",
+    "radius": 160.0
   },
   "fissure": {
     "id": "fissure",
@@ -1077,7 +1258,9 @@
     "pp": 5,
     "priority": 0,
     "contact": false,
-    "effect": "ohko"
+    "effect": "ohko",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "dig": {
     "id": "dig",
@@ -1089,7 +1272,9 @@
     "pp": 10,
     "priority": 0,
     "contact": true,
-    "effect": "two_turn_dig"
+    "effect": "two_turn_dig",
+    "cooldown": 4.0,
+    "target_type": "single"
   },
   "toxic": {
     "id": "toxic",
@@ -1101,7 +1286,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "bad_poison"
+    "effect": "bad_poison",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "confusion": {
     "id": "confusion",
@@ -1113,7 +1300,9 @@
     "pp": 25,
     "priority": 0,
     "contact": false,
-    "effect": "confuse_10"
+    "effect": "confuse_10",
+    "cooldown": 2.5,
+    "target_type": "single"
   },
   "psychic": {
     "id": "psychic",
@@ -1125,7 +1314,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "sp_def_minus1_10"
+    "effect": "sp_def_minus1_10",
+    "cooldown": 4.5,
+    "target_type": "single"
   },
   "hypnosis": {
     "id": "hypnosis",
@@ -1137,7 +1328,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "sleep"
+    "effect": "sleep",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "meditate": {
     "id": "meditate",
@@ -1149,7 +1342,9 @@
     "pp": 40,
     "priority": 0,
     "contact": false,
-    "effect": "atk_plus1"
+    "effect": "atk_plus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "agility": {
     "id": "agility",
@@ -1161,7 +1356,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "spd_plus2"
+    "effect": "spd_plus2",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "quick_attack": {
     "id": "quick_attack",
@@ -1173,7 +1370,9 @@
     "pp": 30,
     "priority": 1,
     "contact": true,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 2.0,
+    "target_type": "single"
   },
   "rage": {
     "id": "rage",
@@ -1185,7 +1384,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "rage_build_atk"
+    "effect": "rage_build_atk",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "teleport": {
     "id": "teleport",
@@ -1197,7 +1398,9 @@
     "pp": 20,
     "priority": -6,
     "contact": false,
-    "effect": "escape"
+    "effect": "escape",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "night_shade": {
     "id": "night_shade",
@@ -1209,7 +1412,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "level_damage"
+    "effect": "level_damage",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "mimic": {
     "id": "mimic",
@@ -1221,7 +1426,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "copy_last_move"
+    "effect": "copy_last_move",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "screech": {
     "id": "screech",
@@ -1233,7 +1440,9 @@
     "pp": 40,
     "priority": 0,
     "contact": false,
-    "effect": "def_minus2"
+    "effect": "def_minus2",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "double_team": {
     "id": "double_team",
@@ -1245,7 +1454,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "evasion_plus1"
+    "effect": "evasion_plus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "recover": {
     "id": "recover",
@@ -1257,7 +1468,9 @@
     "pp": 5,
     "priority": 0,
     "contact": false,
-    "effect": "heal_50"
+    "effect": "heal_50",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "harden": {
     "id": "harden",
@@ -1269,7 +1482,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "def_plus1"
+    "effect": "def_plus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "minimize": {
     "id": "minimize",
@@ -1281,7 +1496,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "evasion_plus2"
+    "effect": "evasion_plus2",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "smokescreen": {
     "id": "smokescreen",
@@ -1293,7 +1510,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "acc_minus1"
+    "effect": "acc_minus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "confuse_ray": {
     "id": "confuse_ray",
@@ -1305,7 +1524,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "confuse"
+    "effect": "confuse",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "withdraw": {
     "id": "withdraw",
@@ -1317,7 +1538,9 @@
     "pp": 40,
     "priority": 0,
     "contact": false,
-    "effect": "def_plus1"
+    "effect": "def_plus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "defense_curl": {
     "id": "defense_curl",
@@ -1329,7 +1552,9 @@
     "pp": 40,
     "priority": 0,
     "contact": false,
-    "effect": "def_plus1"
+    "effect": "def_plus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "barrier": {
     "id": "barrier",
@@ -1341,7 +1566,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "def_plus2"
+    "effect": "def_plus2",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "light_screen": {
     "id": "light_screen",
@@ -1353,7 +1580,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "sp_def_wall_5turns"
+    "effect": "sp_def_wall_5turns",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "haze": {
     "id": "haze",
@@ -1365,7 +1594,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "reset_all_stats"
+    "effect": "reset_all_stats",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "reflect": {
     "id": "reflect",
@@ -1377,7 +1608,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "def_wall_5turns"
+    "effect": "def_wall_5turns",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "focus_energy": {
     "id": "focus_energy",
@@ -1389,7 +1622,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "crit_rate_up"
+    "effect": "crit_rate_up",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "bide": {
     "id": "bide",
@@ -1401,7 +1636,9 @@
     "pp": 10,
     "priority": 1,
     "contact": true,
-    "effect": "bide_2_3_then_double"
+    "effect": "bide_2_3_then_double",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "metronome": {
     "id": "metronome",
@@ -1413,7 +1650,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "random_move"
+    "effect": "random_move",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "mirror_move": {
     "id": "mirror_move",
@@ -1425,7 +1664,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "copy_last_foe_move"
+    "effect": "copy_last_foe_move",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "self_destruct": {
     "id": "self_destruct",
@@ -1437,7 +1678,10 @@
     "pp": 5,
     "priority": 0,
     "contact": false,
-    "effect": "user_faints"
+    "effect": "user_faints",
+    "cooldown": 6.0,
+    "target_type": "area",
+    "radius": 200.0
   },
   "egg_bomb": {
     "id": "egg_bomb",
@@ -1449,7 +1693,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 5.0,
+    "target_type": "single"
   },
   "lick": {
     "id": "lick",
@@ -1461,7 +1707,9 @@
     "pp": 30,
     "priority": 0,
     "contact": true,
-    "effect": "paralysis_30"
+    "effect": "paralysis_30",
+    "cooldown": 1.5,
+    "target_type": "single"
   },
   "smog": {
     "id": "smog",
@@ -1473,7 +1721,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "poison_40"
+    "effect": "poison_40",
+    "cooldown": 1.5,
+    "target_type": "single"
   },
   "sludge": {
     "id": "sludge",
@@ -1485,7 +1735,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "poison_30"
+    "effect": "poison_30",
+    "cooldown": 3.2,
+    "target_type": "single"
   },
   "bone_club": {
     "id": "bone_club",
@@ -1497,7 +1749,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "flinch_10"
+    "effect": "flinch_10",
+    "cooldown": 3.2,
+    "target_type": "single"
   },
   "fire_blast": {
     "id": "fire_blast",
@@ -1509,7 +1763,9 @@
     "pp": 5,
     "priority": 0,
     "contact": false,
-    "effect": "burn_10"
+    "effect": "burn_10",
+    "cooldown": 5.5,
+    "target_type": "single"
   },
   "waterfall": {
     "id": "waterfall",
@@ -1521,7 +1777,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "flinch_20"
+    "effect": "flinch_20",
+    "cooldown": 4.0,
+    "target_type": "single"
   },
   "clamp": {
     "id": "clamp",
@@ -1533,7 +1791,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "trap_4_5"
+    "effect": "trap_4_5",
+    "cooldown": 1.8,
+    "target_type": "single"
   },
   "swift": {
     "id": "swift",
@@ -1545,7 +1805,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "never_miss"
+    "effect": "never_miss",
+    "cooldown": 3.0,
+    "target_type": "single"
   },
   "skull_bash": {
     "id": "skull_bash",
@@ -1557,7 +1819,9 @@
     "pp": 10,
     "priority": 0,
     "contact": true,
-    "effect": "charge_def_plus1"
+    "effect": "charge_def_plus1",
+    "cooldown": 6.0,
+    "target_type": "single"
   },
   "spike_cannon": {
     "id": "spike_cannon",
@@ -1569,7 +1833,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "multi_hit_2_5"
+    "effect": "multi_hit_2_5",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "constrict": {
     "id": "constrict",
@@ -1581,7 +1847,9 @@
     "pp": 35,
     "priority": 0,
     "contact": true,
-    "effect": "spd_minus1_10"
+    "effect": "spd_minus1_10",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "amnesia": {
     "id": "amnesia",
@@ -1593,7 +1861,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "sp_atk_plus2"
+    "effect": "sp_atk_plus2",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "kinesis": {
     "id": "kinesis",
@@ -1605,7 +1875,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "acc_minus1"
+    "effect": "acc_minus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "softboiled": {
     "id": "softboiled",
@@ -1617,7 +1889,9 @@
     "pp": 5,
     "priority": 0,
     "contact": false,
-    "effect": "heal_50"
+    "effect": "heal_50",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "hi_jump_kick": {
     "id": "hi_jump_kick",
@@ -1629,7 +1903,9 @@
     "pp": 10,
     "priority": 0,
     "contact": true,
-    "effect": "crash_on_miss"
+    "effect": "crash_on_miss",
+    "cooldown": 6.0,
+    "target_type": "single"
   },
   "glare": {
     "id": "glare",
@@ -1641,7 +1917,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "paralysis"
+    "effect": "paralysis",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "dream_eater": {
     "id": "dream_eater",
@@ -1653,7 +1931,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "drain_50_sleeping_only"
+    "effect": "drain_50_sleeping_only",
+    "cooldown": 5.0,
+    "target_type": "single"
   },
   "poison_gas": {
     "id": "poison_gas",
@@ -1665,7 +1945,9 @@
     "pp": 40,
     "priority": 0,
     "contact": false,
-    "effect": "poison"
+    "effect": "poison",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "spore": {
     "id": "spore",
@@ -1677,7 +1959,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "sleep"
+    "effect": "sleep",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "flash": {
     "id": "flash",
@@ -1689,7 +1973,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "acc_minus1"
+    "effect": "acc_minus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "psywave": {
     "id": "psywave",
@@ -1701,7 +1987,9 @@
     "pp": 15,
     "priority": 0,
     "contact": false,
-    "effect": "random_damage_0_5_to_1_5_level"
+    "effect": "random_damage_0_5_to_1_5_level",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "splash": {
     "id": "splash",
@@ -1713,7 +2001,9 @@
     "pp": 40,
     "priority": 0,
     "contact": false,
-    "effect": "none"
+    "effect": "none",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "acid_armor": {
     "id": "acid_armor",
@@ -1725,7 +2015,9 @@
     "pp": 20,
     "priority": 0,
     "contact": false,
-    "effect": "def_plus2"
+    "effect": "def_plus2",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "crabhammer": {
     "id": "crabhammer",
@@ -1737,7 +2029,9 @@
     "pp": 10,
     "priority": 0,
     "contact": true,
-    "effect": "high_crit"
+    "effect": "high_crit",
+    "cooldown": 5.0,
+    "target_type": "single"
   },
   "explosion": {
     "id": "explosion",
@@ -1749,7 +2043,10 @@
     "pp": 5,
     "priority": 0,
     "contact": false,
-    "effect": "user_faints"
+    "effect": "user_faints",
+    "cooldown": 6.0,
+    "target_type": "area",
+    "radius": 220.0
   },
   "fury_swipes": {
     "id": "fury_swipes",
@@ -1761,7 +2058,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "multi_hit_2_5"
+    "effect": "multi_hit_2_5",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "bonemerang": {
     "id": "bonemerang",
@@ -1773,7 +2072,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "hit_twice"
+    "effect": "hit_twice",
+    "cooldown": 2.5,
+    "target_type": "single"
   },
   "rest": {
     "id": "rest",
@@ -1785,7 +2086,9 @@
     "pp": 5,
     "priority": 0,
     "contact": false,
-    "effect": "heal_full_and_sleep_2"
+    "effect": "heal_full_and_sleep_2",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "rock_slide": {
     "id": "rock_slide",
@@ -1797,7 +2100,10 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "flinch_30"
+    "effect": "flinch_30",
+    "cooldown": 3.8,
+    "target_type": "area",
+    "radius": 140.0
   },
   "hyper_fang": {
     "id": "hyper_fang",
@@ -1809,7 +2115,9 @@
     "pp": 15,
     "priority": 0,
     "contact": true,
-    "effect": "flinch_10"
+    "effect": "flinch_10",
+    "cooldown": 4.0,
+    "target_type": "single"
   },
   "sharpen": {
     "id": "sharpen",
@@ -1821,7 +2129,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "atk_plus1"
+    "effect": "atk_plus1",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "conversion": {
     "id": "conversion",
@@ -1833,7 +2143,9 @@
     "pp": 30,
     "priority": 0,
     "contact": false,
-    "effect": "change_type_to_move"
+    "effect": "change_type_to_move",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "tri_attack": {
     "id": "tri_attack",
@@ -1845,7 +2157,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "random_status_20"
+    "effect": "random_status_20",
+    "cooldown": 4.0,
+    "target_type": "single"
   },
   "super_fang": {
     "id": "super_fang",
@@ -1857,7 +2171,9 @@
     "pp": 10,
     "priority": 0,
     "contact": true,
-    "effect": "halve_hp"
+    "effect": "halve_hp",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "slash": {
     "id": "slash",
@@ -1869,7 +2185,9 @@
     "pp": 20,
     "priority": 0,
     "contact": true,
-    "effect": "high_crit"
+    "effect": "high_crit",
+    "cooldown": 3.5,
+    "target_type": "single"
   },
   "substitute": {
     "id": "substitute",
@@ -1881,7 +2199,9 @@
     "pp": 10,
     "priority": 0,
     "contact": false,
-    "effect": "create_sub_25hp"
+    "effect": "create_sub_25hp",
+    "cooldown": 1.0,
+    "target_type": "single"
   },
   "struggle": {
     "id": "struggle",
@@ -1893,6 +2213,8 @@
     "pp": 1,
     "priority": 0,
     "contact": true,
-    "effect": "recoil_25_typeless"
+    "effect": "recoil_25_typeless",
+    "cooldown": 2.5,
+    "target_type": "single"
   }
 }
