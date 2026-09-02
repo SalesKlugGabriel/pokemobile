@@ -445,26 +445,16 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 func _die() -> void:
 	_set_state(State.DEAD)
 	velocity = Vector2.ZERO
-	var loot := _roll_loot()
-	EventBus.wild_pokemon_died.emit(self, loot)
+	# Fase 5 do motor de combate em tempo real (02/09): XP/level-up/loot/
+	# Pokédex/sinal de quest agora vêm de BattleResolver — mesma fórmula que
+	# o combate por turno já usava (BattleManager._end_battle()), não mais a
+	# fórmula própria de _roll_loot() (aposentada: usava species_data.drops,
+	# uma tabela paralela e desconectada da de LootTable, que já dava bônus
+	# de sorte do Treinador).
+	BattleResolver.resolve_wild_defeat(species_id, wild_level, species_data.get("name", ""))
+	EventBus.wild_pokemon_died.emit(self, [])
 	EventBus.wild_pokemon_fainted.emit(self)
 	queue_free()
-
-func _roll_loot() -> Array:
-	var luck_pts : int = 0
-	# Tenta obter sorte do Treinador se disponível
-	var players := get_tree().get_nodes_in_group("player")
-	if not players.is_empty() and players[0].has_method("get_luck_points"):
-		luck_pts = players[0].get_luck_points()
-
-	var chance_drop : float = min(0.15 + (wild_level / 200.0) + (luck_pts * 0.02), 0.85)
-	if not RNGManager.chance(chance_drop):
-		return []
-
-	var item_pool : Array = species_data.get("drops", [])
-	if item_pool.is_empty():
-		return []
-	return [RNGManager.pick(item_pool)]
 
 # ──────────────────────────────────────────────────────────────────────────────
 # API pública

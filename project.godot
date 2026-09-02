@@ -30,6 +30,7 @@ SceneTransition="*res://scripts/autoloads/SceneTransition.gd"
 AudioManager="*res://scripts/autoloads/AudioManager.gd"
 KeybindManager="*res://scripts/autoloads/KeybindManager.gd"
 QuestManager="*res://scripts/systems/QuestManager.gd"
+BattleResolver="*res://scripts/combat/BattleResolver.gd"
 GlobalUI="*res://scenes/ui/GlobalUI.tscn"
 
 [application]

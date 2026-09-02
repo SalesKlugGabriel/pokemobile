@@ -9,6 +9,27 @@
 
 ---
 
+## Motor de combate em tempo real — Fase 5 (2026-09-02, sessão seguinte)
+
+**Fim-de-combate (XP/level-up/loot/Pokédex/quest) unificado pra qualquer batalha em tempo real.**
+Antes, `WildPokemon._die()` só tinha sua própria versão simplificada (`_roll_loot()` — item por
+espécie, sem XP, sem level-up, sem contar na Pokédex). `BattleResolver.gd` novo (autoload) porta a
+mesma fórmula que o combate por turno já usava (`BattleManager._end_battle()`, reaproveitando até
+a função estática de EXP base de lá, sem duplicar) e emite `EventBus.battle_ended` no MESMO
+formato que o `QuestManager` já espera — quest de "derrote 5 Rattata" funciona sem tocar
+`QuestManager.gd`. `_roll_loot()` aposentada (usava uma tabela de item por espécie desconectada da
+`LootTable` oficial, que já dá bônus de sorte do Treinador).
+
+**Testado**: 12 conferências novas headless (XP somando, level-up de verdade, Pokédex, sinal de
+quest no formato certo, sem duplicar XP em derrotas repetidas) + suíte inteira (39 arquivos, 0
+falhas) + navegador real sem erros. Publicado.
+
+**Próximo passo**: Fase 6 (reviver o sistema de captura em tempo real que já existe no código,
+órfão desde sempre — corrigindo o bug real dele: hoje grava o Pokémon capturado numa lista própria,
+não no save de verdade).
+
+---
+
 ## Motor de combate em tempo real — Fase 3 e Fase 4 (2026-09-02, sessão seguinte)
 
 **Fase 3 — `moves.json` ganhou cooldown/target_type/radius de verdade.** Antes disso, todo golpe
