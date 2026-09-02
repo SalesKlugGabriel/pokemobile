@@ -9,6 +9,56 @@
 
 ---
 
+## 🔖 Cronograma reorganizado — 3 pedidos novos do Gabriel (2026-09-02, sessão seguinte)
+
+Gabriel mandou um print de outro jogo (habilidade "Poison Bomb"/"Acid" aparecendo flutuando em
+cima do Pokémon, direto no mapa, sem trocar de tela) e pediu 3 coisas. Triei pelo critério que ele
+mesmo deu: **simples e de baixo impacto → fica pra depois; difícil de mudar depois → fazer um
+plano e começar agora.** Investigação de código pedida a um agente **falhou por limite de uso da
+sessão** (não é erro do projeto, é cota da própria ferramenta) — retomando depois do intervalo que
+o Gabriel pediu (30 min). Nada foi construído ainda, isto é só o trieamento.
+
+**Item 1 — Bug: depois da batalha, o jogador volta pro ponto INICIAL do jogo, não pro lugar onde
+a batalha começou.** Provavelmente simples e isolado (a cena do mundo deve estar recarregando do
+zero com a posição padrão, em vez de restaurar a posição salva de antes da batalha) — **fica pra
+corrigir assim que a investigação confirmar a causa**, não deve depender do Item 2.
+
+**Item 2 — Batalha devia acontecer NO MAPA, em tempo real (sem tela separada, sem turno), com
+skill de cooldown aparecendo flutuando como no print.** Achado importante, já confirmado por mim
+mesmo lendo `WildPokemon.gd` nesta mesma sessão (antes do agente falhar): **o jogo já tem esse
+sistema construído** — `FollowerPokemon.gd`/`WildPokemon.gd` já lutam em tempo real, com cooldown
+por skill (`_cooldowns`, `use_skill(slot)`), hitbox/hurtbox e HP, exatamente como o Gabriel
+descreveu. O problema é que, quando o encontro "esquenta" (Pokémon selvagem entra em estado
+ATTACK), o jogo dispara `EventBus.wild_encounter_started` que aciona um SEGUNDO sistema, por
+turnos, numa tela separada (`BattleManager`/`scenes/battle/BattleScene.tscn`) — é esse segundo
+sistema que assume a "batalha de verdade" (captura, XP, prêmio de ginásio). **Isto se encaixa no
+critério "fica mais difícil de mudar depois"**: quanto mais mecânica (Zona Safari com isca/pedra,
+recompensa de ginásio, progresso de quest) for encostando no sistema por turnos, mais caro fica
+tirar ele depois. **Por isso vira plano agora, não fica pra depois** — mas só depois de entender
+exatamente tudo que hoje depende do `BattleManager` (investigação que falhou, será refeita).
+
+**Item 3 — Mapa geral reorganizado: menos "tabuleiro de blocos de cor", mais continentes/ilhas
+orgânicas ligadas por terra/túnel de pedra/mar, cada cidade com tema visual do próprio ginásio**
+(Pewter=rochoso, Cerulean=aquático azul/ciano, Saffron=amarelo/rosa luxuoso+psíquico,
+Lavender=roxo/preto veneno+fantasma, Fuchsia=verde/marrom planta+veneno, Cinnabar=vulcânico
+vermelho/lava, Vermilion=amarelo/vermelho elétrico, Celadon=comercial+marítimo; Pallet como já
+está). **Também se encaixa em "fica mais difícil de mudar depois"**: os mapas hoje são desenhados
+à mão como texto (uma "arte ASCII" por mapa, em `MapLayouts.gd`) e NPCs/portas/pontos de spawn são
+coordenadas fixas amarradas a esse desenho (foi exatamente o que tornou a migração do tile 16→32,
+mais cedo hoje, uma mudança de ~160 posições em 40+ arquivos) — quanto mais conteúdo for
+construído em cima da geografia de hoje, mais caro fica redesenhar depois. **Vira plano também**,
+mas em segundo lugar depois do Item 2 (mudar o motor de batalha primeiro evita ter que mexer duas
+vezes no mesmo mapa). Tem uma dependência direta com o trabalho de arte que já começou hoje
+(v0.6.6/v0.6.7): se cada cidade vai ganhar um visual próprio, o tileset novo não pode ser só 1
+genérico — precisa nascer pensando nas variações por bioma, pra não ter que gerar tudo de novo.
+
+**Ordem de execução decidida**: 1) corrigir o bug de posição (rápido, isolado) → 2) investigar e
+planejar o motor de batalha em tempo real no mapa (arquitetura, o mais arriscado de deixar pra
+depois) → 3) planejar a reorganização do mapa geral + variações de bioma no tileset (depende da
+decisão do Item 2 estar tomada). Nenhum código foi alterado ainda.
+
+---
+
 ## v0.6.7 — Primeira arte nova de verdade do tileset do mapa (2026-09-02, sessão seguinte)
 
 **Continuação direta da v0.6.6** (mapa dobrado pra 32px), mesma sessão. Gerada a primeira arte de
