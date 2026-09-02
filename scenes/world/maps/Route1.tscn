@@ -13,10 +13,10 @@
 [ext_resource type="Script" path="res://scripts/world/WarpZone.gd" id="10_warpzone"]
 
 [sub_resource type="RectangleShape2D" id="Shape_south"]
-size = Vector2(48, 16)
+size = Vector2(96, 32)
 
 [sub_resource type="RectangleShape2D" id="Shape_north"]
-size = Vector2(48, 16)
+size = Vector2(96, 32)
 
 [node name="Route1" type="Node2D"]
 script = ExtResource("1_basemap")
@@ -29,7 +29,7 @@ format = 2
 [node name="Entities" type="Node2D" parent="."]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(152, 880)
+position = Vector2(304, 1760)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
@@ -38,24 +38,24 @@ drag_horizontal_enabled = true
 drag_vertical_enabled = true
 limit_left = 0
 limit_top = 0
-limit_right = 320
-limit_bottom = 960
-zoom = Vector2(3.0, 3.0)
+limit_right = 640
+limit_bottom = 1920
+zoom = Vector2(1.5, 1.5)
 
 [node name="Trainer1" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(152, 400)
+position = Vector2(304, 800)
 npc_name = "Treinador"
 dialog_id = "route_1_trainer_1"
 is_patrolling = false
 
 [node name="Camper" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(152, 256)
+position = Vector2(304, 512)
 npc_name = "Campista"
 dialog_id = "route_1_camper"
 is_patrolling = false
 
 [node name="PokemonSpawner" type="Node2D" parent="."]
-position = Vector2(160, 480)
+position = Vector2(320, 960)
 script = ExtResource("4_spawner")
 biome_id = "route_1"
 max_spawns = 8
@@ -64,7 +64,7 @@ spawn_radius = 8
 [node name="WarpZones" type="Node2D" parent="."]
 
 [node name="WarpSouth" type="Area2D" parent="WarpZones"]
-position = Vector2(152, 936)
+position = Vector2(304, 1872)
 collision_mask = 2
 script = ExtResource("10_warpzone")
 target_map = "res://scenes/world/maps/PalletTown.tscn"
@@ -74,7 +74,7 @@ spawn_tile = Vector2i(11, 4)
 shape = SubResource("Shape_south")
 
 [node name="WarpNorth" type="Area2D" parent="WarpZones"]
-position = Vector2(152, 24)
+position = Vector2(304, 48)
 collision_mask = 2
 script = ExtResource("10_warpzone")
 target_map = "res://scenes/world/maps/ViridianCity.tscn"

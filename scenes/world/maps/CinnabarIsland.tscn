@@ -13,13 +13,13 @@
 [ext_resource type="PackedScene" path="res://scenes/world/WarpZone.tscn" id="11_warpzone"]
 
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter"]
-size = Vector2(48, 16)
+size = Vector2(96, 32)
 
 [sub_resource type="RectangleShape2D" id="Shape_barco"]
-size = Vector2(48, 32)
+size = Vector2(96, 64)
 
 [sub_resource type="RectangleShape2D" id="Shape_mansion"]
-size = Vector2(48, 16)
+size = Vector2(96, 32)
 
 [node name="CinnabarIsland" type="Node2D"]
 script = ExtResource("1_basemap")
@@ -34,19 +34,19 @@ format = 2
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(312, 552)
+position = Vector2(624, 1104)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
-limit_right = 640
-limit_bottom = 640
-zoom = Vector2(3.0, 3.0)
+limit_right = 1280
+limit_bottom = 1280
+zoom = Vector2(1.5, 1.5)
 
 [node name="Blaine" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(264, 232)
+position = Vector2(528, 464)
 npc_name = "Blaine"
 dialog_id = "blaine_gym"
 starts_quest_id = "GYM-06"
@@ -55,7 +55,7 @@ trainer_team = Array[Dictionary]([{"species_id": 58, "level": 42}, {"species_id"
 is_patrolling = false
 
 [node name="CinnabarLocal" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(392, 328)
+position = Vector2(784, 656)
 npc_name = "Morador"
 dialog_id = "cinnabar_local"
 is_patrolling = false
@@ -69,7 +69,7 @@ script = ExtResource("5_sm")
 [node name="WarpZones" type="Node2D" parent="."]
 
 [node name="WarpPokeCenter" parent="WarpZones" instance=ExtResource("11_warpzone")]
-position = Vector2(456, 296)
+position = Vector2(912, 592)
 target_map = "res://scenes/world/maps/PokemonCenter.tscn"
 spawn_tile = Vector2i(7, 11)
 is_pokemon_center_entrance = true
@@ -78,7 +78,7 @@ is_pokemon_center_entrance = true
 shape = SubResource("Shape_pokecenter")
 
 [node name="WarpBarcoVolta" parent="WarpZones" instance=ExtResource("11_warpzone")]
-position = Vector2(312, 600)
+position = Vector2(624, 1200)
 target_map = "res://scenes/world/maps/WorldMap.tscn"
 spawn_tile = Vector2i(445, 27)
 
@@ -86,7 +86,7 @@ spawn_tile = Vector2i(445, 27)
 shape = SubResource("Shape_barco")
 
 [node name="WarpPokemonMansion" parent="WarpZones" instance=ExtResource("11_warpzone")]
-position = Vector2(328, 456)
+position = Vector2(656, 912)
 target_map = "res://scenes/world/maps/PokemonMansion_F1.tscn"
 spawn_tile = Vector2i(8, 11)
 

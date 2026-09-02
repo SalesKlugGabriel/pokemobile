@@ -13,10 +13,10 @@
 [ext_resource type="PackedScene" path="res://scenes/world/WarpZone.tscn" id="10_warpzone"]
 
 [sub_resource type="RectangleShape2D" id="Shape_south"]
-size = Vector2(32, 16)
+size = Vector2(64, 32)
 
 [sub_resource type="RectangleShape2D" id="Shape_north"]
-size = Vector2(32, 16)
+size = Vector2(64, 32)
 
 [node name="MtMoon" type="Node2D"]
 script = ExtResource("1_basemap")
@@ -31,7 +31,7 @@ format = 2
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 
 [node name="AgenteSombra1" parent="Entities" instance=ExtResource("11_npc")]
-position = Vector2(152, 248)
+position = Vector2(304, 496)
 npc_name = "Agente Sombra 1"
 dialog_id = "agente_sombra_1_encontro"
 is_trainer = true
@@ -39,16 +39,16 @@ trainer_team = Array[Dictionary]([{"species_id": 41, "level": 12}, {"species_id"
 is_patrolling = false
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(152, 440)
+position = Vector2(304, 880)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
-limit_right = 320
-limit_bottom = 480
-zoom = Vector2(3.0, 3.0)
+limit_right = 640
+limit_bottom = 960
+zoom = Vector2(1.5, 1.5)
 
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("3_zm")
@@ -59,7 +59,7 @@ script = ExtResource("4_sm")
 [node name="WarpZones" type="Node2D" parent="."]
 
 [node name="WarpSouth" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(152, 472)
+position = Vector2(304, 944)
 target_map = "res://scenes/world/maps/WorldMap.tscn"
 spawn_tile = Vector2i(159, 19)
 
@@ -67,7 +67,7 @@ spawn_tile = Vector2i(159, 19)
 shape = SubResource("Shape_south")
 
 [node name="WarpNorth" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(152, 8)
+position = Vector2(304, 16)
 target_map = "res://scenes/world/maps/WorldMap.tscn"
 spawn_tile = Vector2i(165, 18)
 

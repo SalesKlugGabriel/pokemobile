@@ -14,7 +14,7 @@ const MAX_WILD_INSTANCES    : int   = 60
 const SPAWN_RADIUS_TILES    : int   = 20
 const DESPAWN_RADIUS_TILES  : int   = 35
 const SPAWN_INTERVAL_SEC    : float = 3.0   # tempo entre tentativas de spawn
-const TILE_SIZE             : int   = 16    # pixels por tile
+const TILE_SIZE             : int   = 32    # pixels por tile
 
 const WILD_POKEMON_SCENE : String = "res://scenes/entities/pokemon/WildPokemon.tscn"
 

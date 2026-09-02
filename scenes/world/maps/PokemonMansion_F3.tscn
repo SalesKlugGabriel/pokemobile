@@ -12,7 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/world/WarpZone.tscn" id="10_warpzone"]
 
 [sub_resource type="RectangleShape2D" id="Shape_down"]
-size = Vector2(32, 16)
+size = Vector2(64, 32)
 
 
 [node name="PokemonMansion_F3" type="Node2D"]
@@ -30,16 +30,16 @@ format = 2
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(136, 176)
+position = Vector2(272, 352)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
-limit_right = 288
-limit_bottom = 224
-zoom = Vector2(3.0, 3.0)
+limit_right = 576
+limit_bottom = 448
+zoom = Vector2(1.5, 1.5)
 
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("3_zm")
@@ -50,7 +50,7 @@ script = ExtResource("4_sm")
 [node name="WarpZones" type="Node2D" parent="."]
 
 [node name="WarpDown" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(136, 192)
+position = Vector2(272, 384)
 target_map = "res://scenes/world/maps/PokemonMansion_F2.tscn"
 spawn_tile = Vector2i(8, 11)
 

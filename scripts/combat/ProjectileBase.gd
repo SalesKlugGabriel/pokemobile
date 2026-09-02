@@ -8,7 +8,7 @@ extends Area2D
 # Exports
 # ──────────────────────────────────────────────────────────────────────────────
 
-@export var speed     : float  = 200.0
+@export var speed     : float  = 400.0
 @export var damage    : int    = 10
 @export var move_type : String = "Normal"
 

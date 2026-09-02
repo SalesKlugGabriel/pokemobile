@@ -6,3 +6,6 @@ builds/
 
 # Worktrees de sessões-filha (Claude Code) — metadado de ferramenta, não do jogo
 .claude/
+
+# Ferramentas de teste locais (Playwright etc.) — nunca versionar
+node_modules/

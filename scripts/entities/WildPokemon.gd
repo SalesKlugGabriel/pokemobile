@@ -25,8 +25,8 @@ var level : int:
 # Constantes do spec
 # ──────────────────────────────────────────────────────────────────────────────
 
-const WILD_DETECT_RADIUS : float = 120.0
-const WILD_ATTACK_RADIUS : float = 48.0
+const WILD_DETECT_RADIUS : float = 240.0
+const WILD_ATTACK_RADIUS : float = 96.0
 const ALPHA_HP_MULT      : float = 5.0
 const ALPHA_ATK_MULT     : float = 3.0
 const ALPHA_DEF_MULT     : float = 2.5
@@ -34,7 +34,7 @@ const ALPHA_SPD_MULT     : float = 1.5
 
 const PATROL_INTERVAL_MIN : float = 2.0
 const PATROL_INTERVAL_MAX : float = 4.0
-const BASE_MOVE_SPEED     : float = 80.0
+const BASE_MOVE_SPEED     : float = 160.0
 
 # ──────────────────────────────────────────────────────────────────────────────
 # FSM
@@ -116,7 +116,7 @@ func _load_sprite() -> void:
 	if sprite and not sprite.sprite_frames:
 		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(species_id)
 		sprite.play("idle")
-		sprite.scale = Vector2(2.0, 2.0)
+		sprite.scale = Vector2(4.0, 4.0)
 
 func _load_species() -> void:
 	species_data = GameData.get_species(species_id)
@@ -223,7 +223,7 @@ func _tick_chase() -> void:
 		return
 
 	var dist : float = global_position.distance_to(target.global_position)
-	if dist > WILD_DETECT_RADIUS + 20.0:
+	if dist > WILD_DETECT_RADIUS + 40.0:
 		_set_state(State.PATROL)
 		return
 	if dist <= WILD_ATTACK_RADIUS:
@@ -246,7 +246,7 @@ func _tick_attack() -> void:
 		return
 
 	var dist : float = global_position.distance_to(target.global_position)
-	if dist > WILD_ATTACK_RADIUS + 8.0:
+	if dist > WILD_ATTACK_RADIUS + 16.0:
 		_set_state(State.CHASE)
 		return
 

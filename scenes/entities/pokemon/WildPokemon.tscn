@@ -3,17 +3,17 @@
 [ext_resource type="Script" path="res://scripts/entities/WildPokemon.gd" id="1_wp"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_body"]
-radius = 6.0
-height = 10.0
+radius = 12
+height = 20
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
-radius = 8.0
+radius = 16
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hitbox"]
-radius = 16.0
+radius = 32
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_detect"]
-radius = 120.0
+radius = 240
 
 [node name="WildPokemon" type="CharacterBody2D"]
 collision_layer = 4
@@ -21,10 +21,10 @@ collision_mask = 5
 script = ExtResource("1_wp")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, -4)
+position = Vector2(0, -8)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 2)
+position = Vector2(0, 4)
 shape = SubResource("CapsuleShape2D_body")
 
 [node name="HurtBox" type="Area2D" parent="."]

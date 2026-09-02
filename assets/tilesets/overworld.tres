@@ -4,7 +4,7 @@
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_001"]
 texture = ExtResource("1_tex")
-texture_region_size = Vector2i(16, 16)
+texture_region_size = Vector2i(32, 32)
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -31,7 +31,7 @@ texture_region_size = Vector2i(16, 16)
 7:1/0/custom_data_0 = true
 
 [resource]
-tile_size = Vector2i(16, 16)
+tile_size = Vector2i(32, 32)
 custom_data_layer_0/name = "blocked"
 custom_data_layer_0/type = 1
 sources/0 = SubResource("TileSetAtlasSource_001")

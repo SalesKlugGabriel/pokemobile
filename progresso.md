@@ -9,6 +9,57 @@
 
 ---
 
+## v0.6.6 — Mapa dobrado de 16px pra 32px por tile, base pra arte nova (2026-09-02, sessão seguinte)
+
+**Sessão anterior fechou abruptamente de novo**, bem no meio de preparar a geração da primeira
+arte nova (mapa). Retomada com `git status` (limpo, nada perdido).
+
+**Pedido do Gabriel**: começar a melhoria gráfica do jogo pelo mapa. Antes de gerar qualquer
+arte, achei uma decisão de arquitetura real: o tile do mundo é 16×16px hoje, e a mesma descoberta
+já feita com a sprite da Bicicleta ("16×16 vira ruído ilegível pra IA") ia valer pro mapa também.
+**Gabriel escolheu dobrar o mapa pra 32×32** (opção recomendada) — mesmo isso tocando câmera,
+colisão e distância de aparição de Pokémon selvagem em código.
+
+**Levantamento completo antes de mexer** (pedido a um agente, sem tocar em nada): achou 6
+constantes `TILE_SIZE` independentes (não uma só) espalhadas em 6 arquivos `.gd`, zoom de câmera
+fixo em 33 cenas, colisão (`CapsuleShape2D`/`CircleShape2D`/`RectangleShape2D`) hardcoded em
+pixel absoluto em 43 cenas, e o achado mais importante: **163 posições de spawn de jogador/NPC/
+treinador** em todo mapa também em pixel absoluto — nada disso calculado a partir de uma
+constante central, tudo manual. `zones.json` e o resto dos dados em JSON já usavam índice de
+tile (não pixel), então ficaram de fora, seguros.
+
+**Migração feita com um script Python auditável** (`scripts/tools/migrate_tile32.py`, mantido no
+repositório) que dobra automaticamente posição/raio/altura/tamanho de colisão/limite de câmera em
+`scenes/world`, `scenes/entities` e `scenes/combat` (nunca em `scenes/ui` nem `scenes/battle`,
+que são tela/menu, não mundo) — e ajusta o zoom da câmera pra metade (3,0 → 1,5) pra manter a
+mesma área visível de antes, já que o mundo dobrou fisicamente de tamanho. **Achado no meio do
+caminho, corrigido antes de aplicar**: o próprio script quase dobrou `spawn_radius` (Pokémon
+selvagem, em TILES) por engano, só porque o nome contém a palavra "radius" — o raio de colisão de
+verdade (pixels) tem esse nome sem prefixo. Corrigido com uma exceção no regex, e os 3 valores
+afetados (Pallet Town/Rota 1/Viridian) revertidos à mão antes de seguir.
+
+**Overworld.png ampliado 2x sem perda** (ImageMagick, `-filter point`, upscale "quadrado a
+quadrado" sem borrar) — os mesmos 16 tiles de sempre, só maiores; a arte nova de verdade (mais
+detalhada, parecida com a referência que o Gabriel mandou) fica pro próximo passo, feito à parte
+pra isolar risco de arte do risco de mecânica. Sprites antigas de personagem/Pokémon (ainda em
+16px — `player.png`, `npc_*.png`, `mon_*.png`) ganharam `scale` dobrado (Treinador/NPC: 1→2;
+Pokémon selvagem/seguidor: 2→4) só pra continuar do tamanho certo dentro do tile novo, até
+ganharem arte nativa em 32px de verdade.
+
+**Testado**: suíte inteira rodada de novo (32 arquivos, 0 falhas reais — 2 testes que faziam
+conversão manual pixel→tile com `/16` cravado no código foram corrigidos pra `/32`). **Confirmado
+em navegador de verdade** (Playwright/Chromium): partida nova, andei nas 4 direções — Pokémon
+seguidor sempre no quadro certo, sem sobrepor; câmera enquadrando bem; colisão bloqueando cerca
+corretamente; voltei andando e a câmera acompanhou certo, revelando um prédio novo fora da tela
+anterior. Publicado.
+
+**Próximo passo**: gerar a arte nova de verdade do tileset (grade de tiles no estilo da segunda
+referência que o Gabriel mandou, 02/09 — sombra/textura de verdade), depois seguir pros sprites
+individuais (jogador + cada Pokémon nas 4 posições + shiny), gerando aos poucos por causa da cota
+diária da ferramenta de imagem (decisão já tomada pelo Gabriel: dia a dia).
+
+---
+
 ## v0.6.5 — Pokémon seguidor nunca mais sobrepõe o Treinador (2026-09-02, sessão seguinte)
 
 **Sessão anterior fechou abruptamente de novo**, no meio da verificação em navegador desta mesma

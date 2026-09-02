@@ -8,9 +8,9 @@ extends Resource
 # Constantes
 # ──────────────────────────────────────────────────────────────────────────────
 
-const BASE_SPEED        : float = 180.0
+const BASE_SPEED        : float = 360.0
 const BASE_MAX_HP       : int   = 100
-const SPEED_PER_PT      : float = 8.0    # px/s por ponto de agilidade
+const SPEED_PER_PT      : float = 16.0   # px/s por ponto de agilidade
 const HP_PER_PT         : int   = 15     # HP máximo por ponto de sobrevivencia
 const DMG_BONUS_PER_PT  : float = 0.02   # +2% dano do Pokémon por ponto de afinidade
 const CD_REDUC_PER_PT   : float = 0.01   # -1% cooldown por ponto de afinidade

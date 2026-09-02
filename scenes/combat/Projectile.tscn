@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/combat/ProjectileBase.gd" id="1_projbase"]
 
 [sub_resource type="CircleShape2D" id="1"]
-radius = 4.0
+radius = 8
 
 [sub_resource type="SpriteFrames" id="2"]
 animations = [{

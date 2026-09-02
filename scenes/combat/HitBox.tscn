@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/combat/HitBox.gd" id="1_hitbox"]
 
 [sub_resource type="CircleShape2D" id="1"]
-radius = 8.0
+radius = 16
 
 [node name="HitBox" type="Area2D"]
 collision_layer = 2

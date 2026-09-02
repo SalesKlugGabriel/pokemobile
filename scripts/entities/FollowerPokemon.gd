@@ -16,9 +16,9 @@ extends CharacterBody2D
 # Constantes
 # ──────────────────────────────────────────────────────────────────────────────
 
-const FOLLOW_DISTANCE   : float = 32.0   # px — distância de repouso atrás do Treinador (2 tiles de 16px, pra não sobrepor o sprite)
-const BODYGUARD_OFFSET  : float = 20.0   # px — distância do Treinador em direção ao inimigo
-const MOVE_SPEED_BASE   : float = 120.0
+const FOLLOW_DISTANCE   : float = 64.0   # px — distância de repouso atrás do Treinador (2 tiles de 32px, pra não sobrepor o sprite)
+const BODYGUARD_OFFSET  : float = 40.0   # px — distância do Treinador em direção ao inimigo
+const MOVE_SPEED_BASE   : float = 240.0
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Referências de cena
@@ -72,7 +72,7 @@ func _load_sprite() -> void:
 		# vazios dentro desse quadro — sem isto, o Pokémon fica praticamente
 		# invisível do lado do Treinador (achado: "sprite" existe e é desenhado,
 		# só é minúsculo demais pra notar a olho nu).
-		sprite.scale = Vector2(2.0, 2.0)
+		sprite.scale = Vector2(4.0, 4.0)
 
 func _load_species_data() -> void:
 	species_data = GameData.get_species(pokemon_species_id)
@@ -193,7 +193,7 @@ func _update_position(delta: float) -> void:
 	var diff       := target_pos - global_position
 	var move_speed : float = MOVE_SPEED_BASE + (speed_stat * 0.8)
 
-	if diff.length() > 2.0:
+	if diff.length() > 4.0:
 		velocity = diff.normalized() * min(diff.length() / delta, move_speed)
 		_play_anim("walk")
 	else:

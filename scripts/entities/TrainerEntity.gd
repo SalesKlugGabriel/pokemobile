@@ -82,8 +82,8 @@ func _on_ready() -> void:
 ## previa isso), por isso sprite.position.y compensa na troca (ver
 ## _apply_sprite_mode) senão o personagem "afunda" visualmente no chão.
 const BIKE_TEXTURE_PATH : String = "res://assets/sprites/player/player_bike.png"
-const NORMAL_SPRITE_Y : float = -4.0
-const BIKE_SPRITE_Y   : float = -12.0
+const NORMAL_SPRITE_Y : float = -8.0
+const BIKE_SPRITE_Y   : float = -24.0
 
 var _frames_normal : SpriteFrames
 var _frames_bike    : SpriteFrames
@@ -97,6 +97,11 @@ func _load_sprites() -> void:
 		if ResourceLoader.exists(BIKE_TEXTURE_PATH):
 			_frames_bike = SpriteBuilder.build_entity_frames(BIKE_TEXTURE_PATH, 32)
 		sprite.sprite_frames = _frames_normal
+		# Arte atual (player.png/player_bike.png) ainda é a antiga, desenhada
+		# pro tile de 16px — sem isto o personagem ficaria do tamanho de meio
+		# tile novo (32px). Escala 2x deixa do tamanho certo até a arte nova
+		# (nativa em 32px) substituir, quando este scale volta pra 1.
+		sprite.scale = Vector2(2.0, 2.0)
 		sprite.play("idle_down")
 
 ## Troca a folha de sprites quando a marcha muda pra uma que tem arte

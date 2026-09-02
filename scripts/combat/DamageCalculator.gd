@@ -157,7 +157,7 @@ static func is_critical() -> bool:
 
 ## Velocidade de movimento em px/s baseada no speed_stat.
 static func move_speed_from_stat(speed_stat: int) -> float:
-	return 80.0 + (speed_stat * 0.8)
+	return 160.0 + (speed_stat * 1.6)
 
 ## Redução de cooldown baseada no speed_stat (0.0 a 1.0).
 static func cooldown_reduction_from_stat(speed_stat: int) -> float:

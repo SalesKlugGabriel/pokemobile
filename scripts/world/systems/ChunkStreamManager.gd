@@ -137,9 +137,9 @@ func _is_valid_chunk(coord: Vector2i) -> bool:
 func _chebyshev_distance(a: Vector2i, b: Vector2i) -> int:
 	return max(abs(a.x - b.x), abs(a.y - b.y))
 
-## Converte posição global (pixels) para posição em tile (assumindo tile 16×16).
+## Converte posição global (pixels) para posição em tile (assumindo tile 32×32).
 func _world_to_tile(world_pos: Vector2) -> Vector2i:
-	return Vector2i(int(world_pos.x) / 16, int(world_pos.y) / 16)
+	return Vector2i(int(world_pos.x) / 32, int(world_pos.y) / 32)
 
 ## Tenta encontrar o player na cena via WorldManager ou grupo.
 func _find_player() -> Node2D:

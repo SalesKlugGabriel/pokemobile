@@ -1843,7 +1843,7 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 static func get_pixel_bounds(map_id: String) -> Rect2i:
 	var layout := get_layout(map_id)
 	if layout.is_empty():
-		return Rect2i(0, 0, 1280, 720)
+		return Rect2i(0, 0, 2560, 1440)
 	var x0 := 0
 	var y0 := 0
 	var extra_w := 0
@@ -1853,4 +1853,4 @@ static func get_pixel_bounds(map_id: String) -> Rect2i:
 		extra_w = OESTE_OFFSET
 		y0 = -NORTE_OFFSET
 		extra_h = NORTE_OFFSET
-	return Rect2i(x0 * 16, y0 * 16, (layout["width"] + extra_w) * 16, (layout["height"] + extra_h) * 16)
+	return Rect2i(x0 * 32, y0 * 32, (layout["width"] + extra_w) * 32, (layout["height"] + extra_h) * 32)

@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://scripts/entities/NpcEntity.gd" id="1_npc"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
-radius = 6.0
-height = 10.0
+radius = 12
+height = 20
 
 [node name="NpcEntity" type="CharacterBody2D"]
 collision_layer = 4
@@ -12,8 +12,8 @@ collision_mask = 5
 script = ExtResource("1_npc")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, -4)
+position = Vector2(0, -8)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 2)
+position = Vector2(0, 4)
 shape = SubResource("CapsuleShape2D_1")
