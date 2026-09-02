@@ -89,9 +89,10 @@ func _open_menu() -> void:
 	# Sincroniza sliders com volume atual
 	slider_bgm.value = AudioManager.get_bgm_volume()
 	slider_sfx.value = AudioManager.get_sfx_volume()
-	# "Voar" só aparece pra quem já tem um Pokémon com o golpe (MO02, prêmio
-	# de GYM-07/Sabrina) — antes disso nem faz sentido mostrar o botão.
-	btn_fly.visible = SaveManager.team_knows_move("fly")
+	# "Voar" só aparece pra quem tem um Pokémon de tipo Voador que já sabe o
+	# golpe (MO02, prêmio de GYM-07/Sabrina) — pedido do Gabriel (02/09): não
+	# vale ensinar Voar num Pikachu e destravar o botão.
+	btn_fly.visible = SaveManager.team_has_move_of_type("fly", "Flying")
 	panel.show()
 	get_tree().paused = true
 

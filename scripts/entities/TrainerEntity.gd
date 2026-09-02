@@ -24,13 +24,42 @@ var _trail          : Array[Dictionary] = []
 const TRAIL_MAX     : int = 120   # ~2s a 60fps de buffer
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Surfar (Mecânicas de movimentação, 02/09) — true quando o jogador está EM
-# CIMA de um tile de água. Puramente derivado (recalculado a cada tile que
-# entra, em vez de um botão liga/desliga): sobe na água sozinho ao entrar
-# nela (se puder) e desce sozinho ao pisar em terra de novo, igual ao Surfar
-# clássico. Exportado (não "_") pra outros sistemas (ex: sprite) poderem ler.
+# Mecânicas de movimentação (02/09) — 4 marchas, da mais lenta pra mais
+# rápida: Andar (MOVE_DURATION/Surfar) < Bicicleta (RUN_DURATION, herdada de
+# BaseEntity) < Montaria (MOUNT_DURATION) < Voar (FLY_DURATION, a mais
+# rápida do jogo, pedido explícito do Gabriel). Nenhuma delas empilha —
+# _get_move_duration() escolhe só a marcha mais rápida disponível no momento.
+#
+# is_surfing/is_flying são DERIVADOS do tile onde o jogador está (não um
+# liga/desliga manual): sobe sozinho ao entrar na água (se puder) e desce
+# sozinho ao voltar pra terra. Quando o time dá pra Surfar E Voar ao mesmo
+# tempo, Voar ganha (mais rápido) — ver _on_tile_entered.
+# is_mounted é o análogo em TERRA: ativa junto com "run" se o time tiver um
+# dos Pokémon de montaria (Tauros/Dodrio/Rhyhorn/etc.), mais rápido que a
+# Bicicleta — não pode as duas ligadas juntas.
 # ──────────────────────────────────────────────────────────────────────────────
 var is_surfing : bool = false
+var is_flying  : bool = false
+var is_mounted : bool = false
+
+const MOUNT_DURATION : float = 0.07   # Montaria — mais rápida que a Bicicleta (0.09)
+const FLY_DURATION   : float = 0.05   # Voar — a marcha mais rápida do jogo
+
+## Pokémon de montaria (Gabriel, 02/09: "tauros, dodrio, rhyhorn, arcanine,
+## ponyta, rapidash, etc") — não é golpe, é só ter o bicho no time. Sem tipo
+## em comum entre eles (Normal/Voador/Terra-Pedra/Fogo), por isso é uma
+## lista de espécie mesmo, não uma checagem de tipo como Surfar/Voar.
+## Rhydon (112) incluído por simetria: se a pré-evolução Rhyhorn monta, a
+## evolução também monta.
+const MOUNT_SPECIES : Array[int] = [
+	128,  # Tauros
+	85,   # Dodrio
+	111,  # Rhyhorn
+	112,  # Rhydon
+	59,   # Arcanine
+	77,   # Ponyta
+	78,   # Rapidash
+]
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Inicialização
@@ -85,8 +114,12 @@ func _process(_delta: float) -> void:
 		# Corrida só existe pra quem já ganhou a Bicicleta (UTIL-03) — antes
 		# disso a ação "run" (Shift/BtnB) já existia ligada no input map, mas
 		# sem checar posse do item, dava +100% de velocidade de graça pra
-		# qualquer um, sem precisar da quest. Nunca surfa pedalando.
-		is_running = Input.is_action_pressed("run") and SaveManager.has_item("bicycle", 1) and not is_surfing
+		# qualquer um, sem precisar da quest. Nunca pedala/monta na água —
+		# lá quem manda é Surfar/Voar (is_surfing/is_flying), calculado à
+		# parte em _on_tile_entered().
+		var segurando_corrida := Input.is_action_pressed("run") and not is_surfing and not is_flying
+		is_mounted = segurando_corrida and SaveManager.team_has_any_species(MOUNT_SPECIES)
+		is_running = segurando_corrida and not is_mounted and SaveManager.has_item("bicycle", 1)
 		try_move(dir)
 
 	if Input.is_action_just_pressed("interact"):
@@ -104,20 +137,39 @@ func _read_direction() -> int:
 
 ## Só o jogador entra na água — sobrescreve a checagem herdada de BaseEntity
 ## (que bloqueia água pra todo mundo, NPC incluso, de propósito). Permite o
-## tile só se algum Pokémon do time já sabe Surfar (ensinado via MT11) — quem
-## não tem esbarra na água igual numa parede, sem mensagem extra (mesmo
-## padrão silencioso já usado pra árvore/rocha no resto do jogo).
+## tile se o time tiver Surfar (Pokémon de tipo Água) OU Voar (Pokémon de
+## tipo Voador) — quem não tem nenhum dos dois esbarra na água igual numa
+## parede, sem mensagem extra (mesmo padrão silencioso já usado pra árvore/
+## rocha no resto do jogo).
 func _is_tile_walkable(tile: Vector2i) -> bool:
 	if WorldManager.is_water_tile(tile):
-		return SaveManager.team_knows_move("surf")
+		return _pode_voar() or _pode_surfar()
 	return super._is_tile_walkable(tile)
 
 func _on_tile_entered(tile: Vector2i) -> void:
-	# is_surfing é derivado do tile atual (não um botão liga/desliga): sobe
-	# na água sozinho ao entrar (só chega até aqui se _is_tile_walkable já
-	# deixou), desce sozinho ao voltar pra terra — igual ao Surfar clássico.
-	is_surfing = WorldManager.is_water_tile(tile)
+	# is_surfing/is_flying são derivados do tile atual (não um botão liga/
+	# desliga): sobem na água sozinhos ao entrar (só chega até aqui se
+	# _is_tile_walkable já deixou), descem sozinhos ao voltar pra terra —
+	# igual ao Surfar/Voar clássicos. Se o time dá pros dois ao mesmo tempo,
+	# Voar ganha (é a marcha mais rápida do jogo).
+	var na_agua := WorldManager.is_water_tile(tile)
+	is_flying  = na_agua and _pode_voar()
+	is_surfing = na_agua and not is_flying and _pode_surfar()
 	EventBus.player_tile_entered.emit(tile)
+
+func _pode_surfar() -> bool:
+	return SaveManager.team_has_move_of_type("surf", "Water")
+
+func _pode_voar() -> bool:
+	return SaveManager.team_has_move_of_type("fly", "Flying")
+
+## Escolhe a marcha mais rápida disponível no momento — sobrescreve o hook
+## de BaseEntity (que só tem Andar/Correr). Nenhuma marcha empilha com outra.
+func _get_move_duration() -> float:
+	if is_flying:  return FLY_DURATION
+	if is_mounted: return MOUNT_DURATION
+	if is_running: return RUN_DURATION   # Bicicleta
+	return MOVE_DURATION                 # Andar (e Surfar, mesma velocidade)
 
 ## Usado pelo FollowerPokemon como direção de repouso quando ainda não há rastro.
 func get_facing_vector() -> Vector2:
@@ -182,8 +234,11 @@ func _update_follower() -> void:
 	# Pega a posição a FollowerPokemon.FOLLOW_DISTANCE px atrás no histórico — mesma constante
 	# usada pelo follower pra manter repouso, senão os dois número dessincronizam e a
 	# distância real de caminhada volta a ficar menor que o repouso.
-	# Velocidade efetiva do tween de tile: TILE_SIZE px em MOVE_DURATION (ou RUN_DURATION) s.
-	var duration : float = RUN_DURATION if is_running else MOVE_DURATION
+	# Velocidade efetiva do tween de tile: TILE_SIZE px na marcha atual (_get_move_duration,
+	# a mesma que try_move usa de verdade) — antes de Montaria/Voar existirem, só tinha
+	# Andar/Bicicleta; agora precisa da mesma escolha de marcha, senão o seguidor
+	# dessincroniza (fica pra trás ou colado demais) nas marchas novas.
+	var duration : float = _get_move_duration()
 	var speed_px_s : float = TILE_SIZE / duration
 	var follow_frames : int = int(FollowerPokemon.FOLLOW_DISTANCE / (speed_px_s / 60.0))
 	follow_frames = clampi(follow_frames, 1, _trail.size())

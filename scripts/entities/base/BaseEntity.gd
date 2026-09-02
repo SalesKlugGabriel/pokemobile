@@ -64,11 +64,18 @@ func try_move(dir: Direction) -> bool:
 	_play_anim("walk")
 
 	var target_world := _grid_to_world(grid_pos)
-	var duration     := RUN_DURATION if is_running else MOVE_DURATION
+	var duration     := _get_move_duration()
 	var tween        := create_tween()
 	tween.tween_property(self, "position", target_world, duration)
 	tween.tween_callback(_on_move_complete)
 	return true
+
+## Hook de velocidade — TrainerEntity sobrescreve pra ter mais de 2 marchas
+## (Bicicleta/Montaria/Voar, cada uma mais rápida que a anterior). NPC e
+## Pokémon selvagem continuam só com andar/correr (is_running), sem mudar
+## nada pra eles.
+func _get_move_duration() -> float:
+	return RUN_DURATION if is_running else MOVE_DURATION
 
 func _on_move_complete() -> void:
 	is_moving = false

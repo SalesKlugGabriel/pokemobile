@@ -93,23 +93,48 @@ class _NpcStub:
 	var dialog_id : String = ""
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 3. SaveManager.team_knows_move — base de Surfar/Voar (o time saber ou não
-#    o golpe certo, ensinado via MT/MO na Mochila).
+# 3. SaveManager.team_has_move_of_type — Surfar exige tipo Água, Voar exige
+#    tipo Voador (correção pedida pelo Gabriel, 02/09: não vale ensinar a
+#    MT/MO num Pokémon qualquer). team_has_any_species — base da Montaria.
 # ──────────────────────────────────────────────────────────────────────────────
 func _teste_team_knows_move() -> void:
+	# Pikachu (Elétrico) sabendo Surfar NÃO conta — precisa ser tipo Água.
 	SaveManager.save_data["team"] = [
-		{
-			"species_id": 7, "level": 10, "moves": [
-				{"id": "tackle", "pp_current": 35, "pp_max": 35}
-			]
-		}
+		{"species_id": 25, "level": 10, "moves": [{"id": "surf", "pp_current": 15, "pp_max": 15}]}
 	]
-	_assert(not SaveManager.team_knows_move("surf"), "time sem Surfar: team_knows_move('surf') é false")
-	_assert(not SaveManager.team_knows_move("fly"),  "time sem Voar: team_knows_move('fly') é false")
+	_assert(not SaveManager.team_has_move_of_type("surf", "Water"),
+		"Pikachu sabendo Surfar NÃO conta — não é do tipo Água")
 
-	SaveManager.learn_move(0, "surf", -1)
-	_assert(SaveManager.team_knows_move("surf"), "depois de aprender, team_knows_move('surf') é true")
-	_assert(not SaveManager.team_knows_move("fly"), "aprender Surfar não faz o time saber Voar também")
+	# Squirtle (Água) sabendo Surfar conta.
+	SaveManager.save_data["team"] = [
+		{"species_id": 7, "level": 10, "moves": [{"id": "surf", "pp_current": 15, "pp_max": 15}]}
+	]
+	_assert(SaveManager.team_has_move_of_type("surf", "Water"),
+		"Squirtle (tipo Água) sabendo Surfar conta")
+	_assert(not SaveManager.team_has_move_of_type("fly", "Flying"),
+		"saber Surfar não faz o time saber Voar também")
+
+	# Pikachu sabendo Voar NÃO conta — precisa ser tipo Voador.
+	SaveManager.save_data["team"] = [
+		{"species_id": 25, "level": 10, "moves": [{"id": "fly", "pp_current": 15, "pp_max": 15}]}
+	]
+	_assert(not SaveManager.team_has_move_of_type("fly", "Flying"),
+		"Pikachu sabendo Voar NÃO conta — não é do tipo Voador")
+
+	# Pidgeot (Normal/Voador) sabendo Voar conta.
+	SaveManager.save_data["team"] = [
+		{"species_id": 18, "level": 20, "moves": [{"id": "fly", "pp_current": 15, "pp_max": 15}]}
+	]
+	_assert(SaveManager.team_has_move_of_type("fly", "Flying"),
+		"Pidgeot (tipo Voador) sabendo Voar conta")
+
+	# Montaria — só precisa TER o Pokémon no time, nenhum golpe envolvido.
+	SaveManager.save_data["team"] = [{"species_id": 25, "level": 10, "moves": []}]
+	_assert(not SaveManager.team_has_any_species(TrainerEntity.MOUNT_SPECIES),
+		"Pikachu não é Pokémon de montaria")
+	SaveManager.save_data["team"] = [{"species_id": 128, "level": 30, "moves": []}]  # Tauros
+	_assert(SaveManager.team_has_any_species(TrainerEntity.MOUNT_SPECIES),
+		"Tauros no time habilita a Montaria")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 4. Cidades visitadas (base do Voar) — grava ao entrar na zona, sem duplicar.

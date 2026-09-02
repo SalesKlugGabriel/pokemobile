@@ -155,15 +155,34 @@ func get_pokemon_at(index: int) -> Dictionary:
 func get_visited_maps() -> Array:
 	return save_data["world"]["visited_maps"]
 
-## True se algum Pokémon do time já sabe o golpe (TM/MO ensinado via Mochila
-## — PauseMenu._teach_and_finish já grava em team[i].moves). Reaproveitado
-## por Surfar (motion) e Voar (fast travel): nenhum dos dois precisa desse
-## Pokémon estar líder, só estar no time.
-func team_knows_move(move_id: String) -> bool:
+## True se algum Pokémon do time já sabe o golpe E é do tipo exigido — pedido
+## do Gabriel (02/09): Surfar exige um Pokémon de tipo Água que saiba "surf"
+## (não vale ensinar a MT11 num Pikachu e sair nadando), Voar exige um de
+## tipo Voador que saiba "fly". O golpe é ensinado via MT/MO na Mochila
+## (PauseMenu._teach_and_finish grava em team[i].moves); nenhum dos dois
+## precisa desse Pokémon estar líder do time, só fazer parte dele.
+func team_has_move_of_type(move_id: String, required_type: String) -> bool:
 	for poke in save_data["team"]:
+		var sabe_o_golpe := false
 		for move in poke.get("moves", []):
 			if move.get("id", "") == move_id:
+				sabe_o_golpe = true
+				break
+		if not sabe_o_golpe:
+			continue
+		var types : Array = GameData.get_species(int(poke.get("species_id", 0))).get("types", [])
+		for t in types:
+			if String(t).capitalize() == required_type.capitalize():
 				return true
+	return false
+
+## True se o time tem algum Pokémon cujo species_id está na lista dada —
+## base da Montaria (Tauros/Dodrio/Rhyhorn/etc., 02/09): não é golpe
+## nenhum, é só ter o bicho no time, igual o próprio Gabriel descreveu.
+func team_has_any_species(species_ids: Array) -> bool:
+	for poke in save_data["team"]:
+		if int(poke.get("species_id", 0)) in species_ids:
+			return true
 	return false
 
 func get_starter_species() -> int:
