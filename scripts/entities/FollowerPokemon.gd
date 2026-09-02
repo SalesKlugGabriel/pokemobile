@@ -187,7 +187,11 @@ func _execute_move(move_data: Dictionary) -> void:
 func _apply_damage_direct(move_data: Dictionary) -> void:
 	if not current_target.has_method("take_damage"):
 		return
-	var attacker_stats := { "atk": atk_stat, "level": pokemon_level }
+	var attacker_stats := {
+		"atk": atk_stat, "level": pokemon_level,
+		"ability": species_data.get("ability", ""),
+		"hp_ratio": float(current_hp) / float(max_hp) if max_hp > 0 else 1.0,
+	}
 	var defender_stats : Dictionary = {}
 	if current_target.has_method("get_combat_stats"):
 		defender_stats = current_target.get_combat_stats()

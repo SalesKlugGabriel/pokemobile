@@ -99,9 +99,11 @@ static func calculate_hp(base_hp: int, level: int) -> int:
 # ──────────────────────────────────────────────────────────────────────────────
 
 ## Calcula o dano final aplicado a um defensor.
-## attacker_stats: { "atk": int, "level": int }
+## attacker_stats: { "atk": int, "level": int, "ability": String (opcional),
+##                    "hp_ratio": float (opcional, 0.0-1.0) }
 ## defender_stats: { "def": int, "types": Array[String] }
-## move_data:      { "power": int, "type": String, "damage_bonus": float (opcional) }
+## move_data:      { "power": int, "type": String, "category": String (opcional),
+##                    "damage_bonus": float (opcional) }
 static func calculate_damage(
 	move_data      : Dictionary,
 	attacker_stats : Dictionary,
@@ -122,7 +124,42 @@ static func calculate_damage(
 	var dano_efet    : float = float(power) * (float(atk) / 50.0) * reducao * tipo_mult * crit_mult
 	dano_efet *= (1.0 + ext_bonus)
 
+	# Ability (Overgrow/Blaze/Torrent/Guts) — motor de combate em tempo real
+	# (02/09). Só entra em jogo se attacker_stats trouxer "ability" (o combate
+	# por turno já tem a própria versão disto em BattleManager, que usa
+	# BattlePokemon; esta é a cópia decoupled pra quem só tem primitivos).
+	var ability : String = attacker_stats.get("ability", "")
+	if ability != "":
+		var is_special : bool = move_data.get("category", "physical") == "special"
+		var hp_ratio   : float = attacker_stats.get("hp_ratio", 1.0)
+		var status     : String = attacker_stats.get("status", "none")
+		dano_efet *= ability_damage_multiplier(ability, mv_type, is_special, hp_ratio, status)
+
 	return max(1, int(floor(dano_efet)))
+
+## Mesma regra de BattleManager._ability_damage_multiplier(), só que recebendo
+## primitivos em vez de um BattlePokemon — pra funcionar tanto no combate por
+## turno quanto no combate em tempo real sem os dois dependerem um do outro.
+## status: "none"/"burn"/"paralysis"/etc — Guts só ativa com algum status
+## diferente de "none". Combate em tempo real ainda não tem status
+## persistente (WildPokemon/FollowerPokemon não guardam isso), então Guts
+## nunca ativa por ali até essa peça existir — não é bug, é lacuna conhecida.
+static func ability_damage_multiplier(ability: String, move_type: String, is_special: bool, hp_ratio: float, status: String = "none") -> float:
+	var low_hp := hp_ratio <= (1.0 / 3.0)
+	match ability:
+		"Overgrow":
+			if move_type == "Grass" and low_hp:
+				return 1.5
+		"Blaze":
+			if move_type == "Fire" and low_hp:
+				return 1.5
+		"Torrent":
+			if move_type == "Water" and low_hp:
+				return 1.5
+		"Guts":
+			if status != "none" and not is_special:
+				return 1.5
+	return 1.0
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Efetividade de tipos

@@ -324,7 +324,10 @@ func _perform_attack() -> void:
 	_attack_cd = max(0.3, base_cd * (1.0 - spd_reduc))
 
 	if target and target.has_method("take_damage"):
-		var attacker_stats := { "atk": atk_stat, "level": wild_level }
+		var attacker_stats := {
+			"atk": atk_stat, "level": wild_level,
+			"ability": species_data.get("ability", ""), "hp_ratio": get_hp_ratio(),
+		}
 		var defender_stats : Dictionary = {}
 		if target.has_method("get_combat_stats"):
 			defender_stats = target.get_combat_stats()
