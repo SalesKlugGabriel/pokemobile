@@ -5,8 +5,25 @@ extends CanvasLayer
 @onready var label_lead  : Label = $HBox/LabelLead
 @onready var bar_hp      : ProgressBar = $HBox/BarHP
 @onready var label_zone  : Label = $ZoneLabel
+@onready var label_mode  : Label = $ModePanel/LabelMode
+@onready var mode_panel  : PanelContainer = $ModePanel
+@onready var btn_fly     : Button = $BtnFly
 
 var _zone_names : Dictionary = {}
+
+## Textos e cor por marcha — sprite do jogador ainda não muda de aparência
+## por marcha (pendente, ver docs/customizacao-personagem.md), então isso é
+## o feedback visual real por enquanto. "walk" fica sem indicador (é o
+## padrão, não precisa avisar).
+## Sem emoji de propósito — a fonte padrão do projeto não tem cobertura
+## garantida pra esses glyphs (achado ao revisar: só ₽ era usado até aqui,
+## que é BMP; emoji de bike/cavalo/onda são fora do BMP, risco de "tofu").
+const MODE_INFO := {
+	"bike":  {"text": "BICICLETA", "color": Color(0.55, 0.85, 1.0)},
+	"mount": {"text": "MONTARIA",  "color": Color(0.95, 0.75, 0.3)},
+	"surf":  {"text": "SURFANDO",  "color": Color(0.3, 0.7, 1.0)},
+	"fly":   {"text": "VOANDO",    "color": Color(0.85, 0.85, 1.0)},
+}
 
 func _load_zone_names() -> void:
 	var path := "res://data/world/zones.json"
@@ -33,6 +50,9 @@ func _ready() -> void:
 	EventBus.game_saved.connect(_refresh)
 	EventBus.battle_ended.connect(_on_battle_ended)
 	EventBus.zone_changed.connect(_on_zone_changed)
+	EventBus.movement_mode_changed.connect(_on_movement_mode_changed)
+	btn_fly.pressed.connect(_on_btn_fly_pressed)
+	mode_panel.hide()
 	_refresh()
 
 func _refresh() -> void:
@@ -41,6 +61,7 @@ func _refresh() -> void:
 		return
 	show()
 	label_money.text = "₽%d" % SaveManager.get_money()
+	btn_fly.visible = SaveManager.team_has_move_of_type("fly", "Flying")
 	var lead := SaveManager.get_pokemon_at(0)
 	if lead.is_empty():
 		label_lead.text = ""
@@ -65,6 +86,28 @@ func _refresh() -> void:
 
 func _on_battle_ended(_result) -> void:
 	_refresh()
+
+## Feedback de qual marcha está ativa (Bicicleta/Montaria/Surfando/Voando) —
+## sprite do jogador ainda não muda de aparência por marcha, isso cobre o
+## "o jogador precisa perceber que mudou" por enquanto. "walk" (a pé) some
+## o indicador, é o padrão e não precisa avisar.
+func _on_movement_mode_changed(mode: String) -> void:
+	if not MODE_INFO.has(mode):
+		mode_panel.hide()
+		return
+	var info : Dictionary = MODE_INFO[mode]
+	label_mode.text = info["text"]
+	label_mode.modulate = info["color"]
+	mode_panel.show()
+
+## Botão "Voar" da HUD — abre o seletor de destino direto, sem passar pelo
+## menu de pausa inteiro (pedido do Gabriel: acesso às funções sem pausar
+## pra navegar menu). PauseMenu.gd é quem sabe as cidades/warp de verdade —
+## reaproveitado via grupo, não duplicado aqui.
+func _on_btn_fly_pressed() -> void:
+	var pause_menu := get_tree().get_first_node_in_group("pause_menu")
+	if pause_menu and pause_menu.has_method("open_fly_picker_direct"):
+		pause_menu.open_fly_picker_direct()
 
 func _on_zone_changed(zone_name: String) -> void:
 	if not label_zone:

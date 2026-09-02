@@ -50,6 +50,10 @@ var _picker        : Control = null
 var _pending_item_id : String = ""
 var _pending_action  : String = ""   # "evolve" ou "teach"
 var _pending_target  : int    = -1
+## True = Cancelar no seletor de Voar volta pro painel de pausa (aberto por
+## dentro do menu, _on_fly). False = Cancelar só fecha e despausa (aberto
+## direto pela HUD via quick_fly(), o painel de pausa nunca chegou a abrir).
+var _fly_return_to_panel : bool = true
 
 func _ready() -> void:
 	# Achado: abrir a pausa (get_tree().paused = true) travava a própria pausa —
@@ -109,6 +113,21 @@ func _on_team() -> void:
 
 func _on_fly() -> void:
 	AudioManager.play_sfx("confirm")
+	_fly_return_to_panel = true
+	_open_fly_picker()
+
+## Atalho pra HUD (botão "Voar" sem passar pelo menu de pausa inteiro) —
+## pedido do Gabriel (02/09): acesso às funções de locomoção sem pausar o
+## jogo pra navegar um menu que não tem nada a ver. "Pausar" aqui é só o
+## necessário pro seletor de destino (o jogador não pode andar enquanto
+## escolhe pra onde vai) — o painel de pausa completo nunca chega a abrir.
+func open_fly_picker_direct() -> void:
+	if not SaveManager.team_has_move_of_type("fly", "Flying"):
+		return
+	AudioManager.play_sfx("confirm")
+	_fly_return_to_panel = false
+	_open = true
+	get_tree().paused = true
 	_open_fly_picker()
 
 ## Lista as cidades já visitadas (SaveManager.get_visited_maps(), gravado
@@ -161,7 +180,11 @@ func _open_fly_picker() -> void:
 	cancel.text = "Cancelar"
 	cancel.pressed.connect(func():
 		_free_picker()
-		panel.show()
+		if _fly_return_to_panel:
+			panel.show()
+		else:
+			_open = false
+			get_tree().paused = false
 	)
 	vbox.add_child(cancel)
 

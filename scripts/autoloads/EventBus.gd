@@ -8,6 +8,11 @@ signal trainer_level_up(new_level: int)
 signal trainer_exp_gained(amount: int)
 signal trainer_died()
 signal trainer_skill_tree_updated()
+## Marcha de locomoção mudou (02/09) — "walk"/"bike"/"mount"/"surf"/"fly".
+## Emitido só quando muda de verdade (TrainerEntity._emit_mode_if_changed),
+## não a cada frame. HUD usa pra mostrar um indicador (sprite ainda não muda
+## de aparência por marcha, isso cobre o feedback visual por ora).
+signal movement_mode_changed(mode: String)
 
 # --- POKÉMON FOLLOWER ---
 signal follower_changed(pokemon_data: Dictionary)

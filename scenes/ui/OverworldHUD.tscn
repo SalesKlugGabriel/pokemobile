@@ -61,6 +61,39 @@ offset_right = 68.0
 offset_bottom = -8.0
 script = ExtResource("2")
 
+[node name="ModePanel" type="PanelContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -220
+offset_top = 50
+offset_right = -8
+offset_bottom = 76
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+
+[node name="LabelMode" type="Label" parent="ModePanel"]
+layout_mode = 2
+horizontal_alignment = 2
+text = "BICICLETA"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.55, 0.85, 1.0, 1)
+
+[node name="BtnFly" type="Button" parent="."]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 68.0
+offset_bottom = 44.0
+theme_override_font_sizes/font_size = 12
+text = "Voar"
+visible = false
+
 [node name="ZoneLabel" type="Label" parent="."]
 anchor_left = 0.5
 anchor_top = 0.0

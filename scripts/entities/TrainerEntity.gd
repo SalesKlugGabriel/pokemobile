@@ -42,6 +42,8 @@ var is_surfing : bool = false
 var is_flying  : bool = false
 var is_mounted : bool = false
 
+var _last_mode : String = "walk"
+
 const MOUNT_DURATION : float = 0.07   # Montaria — mais rápida que a Bicicleta (0.09)
 const FLY_DURATION   : float = 0.05   # Voar — a marcha mais rápida do jogo
 
@@ -125,6 +127,22 @@ func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("interact"):
 		if not interact():
 			_try_fish()
+
+	_emit_mode_if_changed()
+
+## Mesma prioridade de _get_move_duration() (a marcha mais rápida disponível
+## vence) — só que aqui é só pra AVISAR a HUD, não decide velocidade nenhuma.
+## Emite só quando muda de verdade (não a cada frame), senão o EventBus
+## dispararia 60x/segundo à toa.
+func _emit_mode_if_changed() -> void:
+	var mode := "walk"
+	if is_flying:        mode = "fly"
+	elif is_surfing:      mode = "surf"
+	elif is_mounted:      mode = "mount"
+	elif is_running:      mode = "bike"
+	if mode != _last_mode:
+		_last_mode = mode
+		EventBus.movement_mode_changed.emit(mode)
 
 ## Prioridade fixa quando mais de uma tecla está pressionada (sem diagonal —
 ## o grid e os sprites do jogo são só 4 direções, igual Poketibia clássico).
