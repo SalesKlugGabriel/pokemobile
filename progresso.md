@@ -9,6 +9,57 @@
 
 ---
 
+## Motor de combate em tempo real — Fase 10, PLANO INTEIRO COMPLETO (2026-09-02, sessão seguinte)
+
+**Última fase do plano: densidade de Pokémon selvagem por profundidade na floresta — "vira uma
+luta de sobrevivência", pedido original do Gabriel.** Espécie por área continua exatamente igual
+(a tabela de `zones.json` não foi tocada) — só a VELOCIDADE de spawn aumenta quanto mais fundo o
+jogador entra. "Fundo" = distância até a borda mais próxima do `tile_rect` que a zona já tinha em
+`zones.json` (achado: não precisou de nenhum campo novo no JSON, o dado já existia). Só zonas com
+"forest" no id (hoje só a Floresta de Viridian) — decisão nossa, a pesquisa de Tibia/PokeXGames não
+confirmou nenhuma fonte real pra "mais fundo = mais inimigos", é design seguindo a descrição do
+Gabriel. `MAX_WILD_INSTANCES` continua sendo o teto de segurança absoluto (nunca mais Pokémon no
+mapa inteiro do que isso, protege performance).
+
+**Testado**: 6 conferências novas headless (intervalo normal fora de floresta, intervalo no teto
+mínimo no centro, decrescente conforme mais fundo, nunca abaixo do teto, espécie por zona
+intocada) + suíte inteira (44 arquivos, 0 falhas) + navegador real sem erros. Publicado.
+
+---
+
+## 🏁 Plano do motor de combate em tempo real — TODAS AS 10+ FASES COMPLETAS
+
+Do pedido original do Gabriel ("estude o modo de batalha de tibia... desenhe as skills conforme
+outros poketibias... vamos focar em fazer um poketibia melhorado") até aqui, numa sessão só:
+
+- **Fase 0** — HP/dano/desmaio do Treinador
+- **Fase 0.5** — seleção de alvo por clique/toque + barra de vida/nível
+- **Fase 1** — habilidades (Blaze/Overgrow/Torrent/Guts) ligadas fora do turno
+- **Fase 2** — habilidades passivas NOVAS (Mega Drain do Vileplume, Counter Helix do Scyther)
+- **Fase 3** — `moves.json` com cooldown/alcance/área de verdade
+- **Fase 4** — dano em área funcionando (sem fogo amigo)
+- **Fase 5** — XP/level-up/loot/Pokédex/quest unificados fora do turno
+- **Fase 6** — sistema de captura em tempo real revivido e corrigido
+- **Fase 7** — tela de batalha por turno desligada de vez (selvagem + treinador/ginásio)
+- **Fase 8** — checklist (bug de posição pós-batalha resolvido por estrutura)
+- **Fase 9** — skill flutuando + botão de skill tocável no HUD + atalho configurável
+- **Fase 10** — densidade de spawn por profundidade na floresta
+
+**Zona Safari continua no sistema por turno de propósito** (isca/pedra/bolas limitadas não eram o
+pedido, arriscar quebrar sem necessidade não valia a pena — fica pra quando o Gabriel pedir).
+
+Ao todo: ~190 conferências automáticas novas, suíte inteira sempre revalidada a cada fase (chegou
+a 44 arquivos), cada fase confirmada em navegador real antes de publicar. Plano completo em
+`/root/.claude/plans/adaptive-tickling-reddy.md`.
+
+**Pendências registradas pelo próprio Gabriel, deixadas pra depois por ele mesmo**:
+- Jeito do Pokémon seguidor andar mais "orgânico" (tipo coleira solta, não sempre exatamente atrás
+  na direção cardeal oposta) — "isso é coisa simples, deixe pra depois".
+- Reorganização geral do mapa em continentes/ilhas + tema visual por cidade (ver entrada de
+  02/09 mais acima, "Cronograma reorganizado") — planejada, não iniciada.
+
+---
+
 ## Motor de combate em tempo real — Fase 9 (2026-09-02, sessão seguinte)
 
 **A peça visual do print original do Gabriel, mais 2 pedidos que ele fez na sequência ao ver o

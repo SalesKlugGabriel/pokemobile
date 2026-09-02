@@ -49,9 +49,51 @@ func _process(delta: float) -> void:
 	_despawn_distant()
 
 	_spawn_timer += delta
-	if _spawn_timer >= SPAWN_INTERVAL_SEC:
+	if _spawn_timer >= _current_spawn_interval():
 		_spawn_timer = 0.0
 		_try_spawn()
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Densidade por profundidade na floresta (Fase 10 do motor de combate em
+# tempo real, 02/09) — pedido do Gabriel: espécie por área continua fixa
+# (tabela de zones.json não muda em nada), só a VELOCIDADE de spawn aumenta
+# quanto mais fundo o jogador entra — "vira uma luta de sobrevivência".
+# "Fundo" = mais longe de qualquer borda do tile_rect que a zona já tem em
+# zones.json (não precisou campo novo). Só zonas com "forest" no id — não é
+# convenção de nenhum jogo pesquisado, é design nosso, seguindo a descrição
+# do próprio Gabriel. MAX_WILD_INSTANCES continua sendo o teto de segurança
+# absoluto (nunca mais que isso no mapa inteiro, protege performance).
+# ──────────────────────────────────────────────────────────────────────────────
+const FOREST_MAX_DEPTH_TILES  : float = 20.0   # a partir daqui já conta como "o mais fundo"
+const FOREST_MIN_INTERVAL_SEC : float = 0.6    # intervalo no fundo da floresta (teto de intensidade)
+
+func _current_spawn_interval() -> float:
+	var zone_manager := _get_zone_manager()
+	if not zone_manager:
+		return SPAWN_INTERVAL_SEC
+	var zone : Dictionary = zone_manager.get_current_zone()
+	if zone.is_empty():
+		return SPAWN_INTERVAL_SEC
+	var zone_id : String = str(zone.get("id", "")).to_lower()
+	if not zone_id.contains("forest"):
+		return SPAWN_INTERVAL_SEC
+	var ratio : float = clampf(_forest_depth_tiles(zone) / FOREST_MAX_DEPTH_TILES, 0.0, 1.0)
+	return lerpf(SPAWN_INTERVAL_SEC, FOREST_MIN_INTERVAL_SEC, ratio)
+
+## Distância (em tiles) até a borda mais próxima do tile_rect da zona —
+## 0 = na borda/fora, cresce conforme o jogador entra mais no meio dela.
+func _forest_depth_tiles(zone: Dictionary) -> float:
+	var rect : Dictionary = zone.get("tile_rect", {})
+	if rect.is_empty() or not _player:
+		return 0.0
+	var px : float = _player.global_position.x / float(TILE_SIZE)
+	var py : float = _player.global_position.y / float(TILE_SIZE)
+	var x0 : float = rect.get("x", 0)
+	var y0 : float = rect.get("y", 0)
+	var w  : float = rect.get("w", 0)
+	var h  : float = rect.get("h", 0)
+	var dist_to_edge : float = min(min(px - x0, (x0 + w) - px), min(py - y0, (y0 + h) - py))
+	return max(0.0, dist_to_edge)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # API pública
