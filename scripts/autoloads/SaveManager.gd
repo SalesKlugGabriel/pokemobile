@@ -59,8 +59,8 @@ func _on_battle_ended(_result: Dictionary) -> void:
 ## era escrito nem lido em lugar nenhum — preparado, nunca ligado (mesma
 ## classe de achado já vista em QuestManager/reach_floor antes de existir
 ## handler). Usado agora pra saber a quais cidades o jogador já foi, base
-## pro Voar (Mecânicas, 02/09): entra na lista assim que o jogador PISA na
-## zona (não precisa curar no Centro), igual ao Jogo original.
+## pro Teleporte (Mecânicas, 02/09): entra na lista assim que o jogador PISA
+## na zona (não precisa curar no Centro), igual ao Jogo original.
 func _on_zone_changed(zone_name: String) -> void:
 	var visited: Array = save_data["world"]["visited_maps"]
 	if zone_name not in visited:

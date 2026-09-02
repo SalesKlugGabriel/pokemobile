@@ -127,6 +127,19 @@ func _teste_team_knows_move() -> void:
 	]
 	_assert(SaveManager.team_has_move_of_type("fly", "Flying"),
 		"Pidgeot (tipo Voador) sabendo Voar conta")
+	_assert(not SaveManager.team_has_move_of_type("teleport", "Psychic"),
+		"Pidgeot sabendo Voar NÃO destrava Teleporte — são mecânicas diferentes (correção 02/09)")
+
+	# Abra (Psíquico) sabendo Teleporte conta — é o golpe que destrava o botão
+	# "Teleporte" da HUD/pausa, correção pedida pelo Gabriel: Voar (montar num
+	# Pokémon Voador) é movimento, Teleporte (golpe Psíquico) é o teletransporte.
+	SaveManager.save_data["team"] = [
+		{"species_id": 63, "level": 10, "moves": [{"id": "teleport", "pp_current": 20, "pp_max": 20}]}
+	]
+	_assert(SaveManager.team_has_move_of_type("teleport", "Psychic"),
+		"Abra (tipo Psíquico) sabendo Teleporte conta")
+	_assert(not SaveManager.team_has_move_of_type("fly", "Flying"),
+		"saber Teleporte não faz o time saber Voar também")
 
 	# Montaria — só precisa TER o Pokémon no time, nenhum golpe envolvido.
 	SaveManager.save_data["team"] = [{"species_id": 25, "level": 10, "moves": []}]

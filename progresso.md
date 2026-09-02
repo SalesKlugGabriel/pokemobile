@@ -9,6 +9,30 @@
 
 ---
 
+## v0.6.4 — botão "Voar" da HUD/pausa virou "Teleporte" (2026-09-02, sessão seguinte)
+
+**Sessão anterior (a que criou v0.6.1-v0.6.3) fechou abruptamente de novo**, bem no meio de eu
+resumir o que tinha ficado pronto. Retomada com `git status` (limpo — nada perdido, tudo já
+commitado) e lendo o fim da conversa anterior pra achar o que ficou sem resposta.
+
+**O que aconteceu**: no resumo que fechou a sessão passada, o botão "Voar" da HUD tinha ficado
+descrito como "abre a lista de cidades direto" — um teletransporte. O Gabriel corrigiu: Voar
+**não é teleporte**, é uma mecânica de movimento (montar num Pokémon Voador pra atravessar a água
+mais rápido) — que, aliás, já tinha sido construída certa desde o v0.6.1 (TrainerEntity.gd,
+`is_flying`/`_pode_voar`). O erro foi só o botão extra que eu tinha adicionado no HUD/menu de
+pausa, chamado "Voar", fazendo uma coisa completamente diferente (viajar pra outra cidade).
+
+**Pergunta feita ao Gabriel**: o que fazer com esse botão de teletransporte — remover, ou manter
+como outra coisa? **Resposta**: reaproveitar pra Pokémon do tipo **Psíquico que sabem o golpe
+Teleporte** (efeito clássico dos jogos — Abra e evoluções já aprendem Teleporte no nível 1, sem
+precisar de MT/MO nova). Corrigido: botão renomeado "Teleporte" (HUD e menu de pausa), trava
+trocada de `team_has_move_of_type("fly","Flying")` pra `team_has_move_of_type("teleport",
+"Psychic")`, textos do seletor de destino atualizados. Voar (a mecânica de movimento) não mudou
+nada — já estava certa. 2 testes novos (Pidgeot com Voar NÃO destrava Teleporte; Abra com
+Teleporte destrava) — suíte inteira reconferida (34 arquivos, 0 falhas). Publicado.
+
+---
+
 ## v0.6.1 a v0.6.3 — correções de Surf/Voar/Montaria + HUD + sprite da Bicicleta (2026-09-02, sessão seguinte)
 
 **Sessão anterior fechou abruptamente com trabalho pronto mas sem commit** — retomada

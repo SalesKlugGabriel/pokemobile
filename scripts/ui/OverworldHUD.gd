@@ -61,7 +61,10 @@ func _refresh() -> void:
 		return
 	show()
 	label_money.text = "₽%d" % SaveManager.get_money()
-	btn_fly.visible = SaveManager.team_has_move_of_type("fly", "Flying")
+	# "Teleporte" (golpe, tipo Psíquico) — corrigido 02/09 (sessão seguinte):
+	# era Voador/"fly" até aqui, mas isso é a mecânica de movimento (Voar,
+	# ver TrainerEntity.gd), não teleporte.
+	btn_fly.visible = SaveManager.team_has_move_of_type("teleport", "Psychic")
 	var lead := SaveManager.get_pokemon_at(0)
 	if lead.is_empty():
 		label_lead.text = ""
@@ -100,10 +103,10 @@ func _on_movement_mode_changed(mode: String) -> void:
 	label_mode.modulate = info["color"]
 	mode_panel.show()
 
-## Botão "Voar" da HUD — abre o seletor de destino direto, sem passar pelo
-## menu de pausa inteiro (pedido do Gabriel: acesso às funções sem pausar
-## pra navegar menu). PauseMenu.gd é quem sabe as cidades/warp de verdade —
-## reaproveitado via grupo, não duplicado aqui.
+## Botão "Teleporte" da HUD — abre o seletor de destino direto, sem passar
+## pelo menu de pausa inteiro (pedido do Gabriel: acesso às funções sem
+## pausar pra navegar menu). PauseMenu.gd é quem sabe as cidades/warp de
+## verdade — reaproveitado via grupo, não duplicado aqui.
 func _on_btn_fly_pressed() -> void:
 	var pause_menu := get_tree().get_first_node_in_group("pause_menu")
 	if pause_menu and pause_menu.has_method("open_fly_picker_direct"):

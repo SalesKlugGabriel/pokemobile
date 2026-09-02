@@ -10,12 +10,19 @@ const SHOP_SCENE      : PackedScene = preload("res://scenes/ui/ShopScene.tscn")
 const HELP_SCENE      : PackedScene = preload("res://scenes/ui/HelpScene.tscn")
 const CONTROLS_SCENE  : PackedScene = preload("res://scenes/ui/ControlsScene.tscn")
 
-## Voar (Mecânicas de movimentação, 02/09) — teleporta o jogador pra dentro
-## do próprio WorldMap.tscn (mesmo padrão já usado por PortalManager.gd),
-## 2 tiles ao sul da porta de cada Centro Pokémon (posição real das
-## WarpZones em WorldMap.tscn, conferida tile a tile com MapLayouts antes de
-## usar — nenhuma é chute). Indigo Plateau fica de fora de propósito: no
-## jogo original também não dá pra Voar até lá, só chegando por Victory Road.
+## Teleporte (Mecânicas de movimentação, 02/09; corrigido 02/09 sessão
+## seguinte — ver git log "voar não é teleporte") — teleporta o jogador pra
+## dentro do próprio WorldMap.tscn (mesmo padrão já usado por
+## PortalManager.gd), 2 tiles ao sul da porta de cada Centro Pokémon
+## (posição real das WarpZones em WorldMap.tscn, conferida tile a tile com
+## MapLayouts antes de usar — nenhuma é chute). Indigo Plateau fica de fora
+## de propósito: no jogo original também não dá pra teleportar até lá, só
+## chegando por Victory Road.
+## Correção do Gabriel: isto NÃO é a mecânica de Voar (que é movimento — ver
+## TrainerEntity.gd is_flying/_pode_voar, montar num Pokémon Voador pra
+## atravessar a água mais rápido). É o golpe Teleporte, de tipo Psíquico —
+## reaproveita a mesma trava de "Pokémon do tipo certo sabendo o golpe certo"
+## (SaveManager.team_has_move_of_type), só que com outro golpe/tipo.
 const WORLD_MAP_SCENE := "res://scenes/world/maps/WorldMap.tscn"
 const FLY_DESTINATIONS := {
 	"pallet_town":    {"label": "Pallet Town",    "tile": Vector2i(75, 164)},
@@ -50,9 +57,10 @@ var _picker        : Control = null
 var _pending_item_id : String = ""
 var _pending_action  : String = ""   # "evolve" ou "teach"
 var _pending_target  : int    = -1
-## True = Cancelar no seletor de Voar volta pro painel de pausa (aberto por
-## dentro do menu, _on_fly). False = Cancelar só fecha e despausa (aberto
-## direto pela HUD via quick_fly(), o painel de pausa nunca chegou a abrir).
+## True = Cancelar no seletor de Teleporte volta pro painel de pausa (aberto
+## por dentro do menu, _on_fly). False = Cancelar só fecha e despausa
+## (aberto direto pela HUD via open_fly_picker_direct(), o painel de pausa
+## nunca chegou a abrir).
 var _fly_return_to_panel : bool = true
 
 func _ready() -> void:
@@ -93,10 +101,10 @@ func _open_menu() -> void:
 	# Sincroniza sliders com volume atual
 	slider_bgm.value = AudioManager.get_bgm_volume()
 	slider_sfx.value = AudioManager.get_sfx_volume()
-	# "Voar" só aparece pra quem tem um Pokémon de tipo Voador que já sabe o
-	# golpe (MO02, prêmio de GYM-07/Sabrina) — pedido do Gabriel (02/09): não
-	# vale ensinar Voar num Pikachu e destravar o botão.
-	btn_fly.visible = SaveManager.team_has_move_of_type("fly", "Flying")
+	# "Teleporte" só aparece pra quem tem um Pokémon de tipo Psíquico que já
+	# sabe o golpe — corrigido 02/09 (sessão seguinte): era Voador/"fly" até
+	# aqui, mas isso é a mecânica de movimento (Voar), não teleporte.
+	btn_fly.visible = SaveManager.team_has_move_of_type("teleport", "Psychic")
 	panel.show()
 	get_tree().paused = true
 
@@ -116,13 +124,13 @@ func _on_fly() -> void:
 	_fly_return_to_panel = true
 	_open_fly_picker()
 
-## Atalho pra HUD (botão "Voar" sem passar pelo menu de pausa inteiro) —
-## pedido do Gabriel (02/09): acesso às funções de locomoção sem pausar o
-## jogo pra navegar um menu que não tem nada a ver. "Pausar" aqui é só o
-## necessário pro seletor de destino (o jogador não pode andar enquanto
-## escolhe pra onde vai) — o painel de pausa completo nunca chega a abrir.
+## Atalho pra HUD (botão "Teleporte" sem passar pelo menu de pausa inteiro) —
+## pedido do Gabriel (02/09): acesso às funções sem pausar o jogo pra navegar
+## um menu que não tem nada a ver. "Pausar" aqui é só o necessário pro
+## seletor de destino (o jogador não pode andar enquanto escolhe pra onde
+## vai) — o painel de pausa completo nunca chega a abrir.
 func open_fly_picker_direct() -> void:
-	if not SaveManager.team_has_move_of_type("fly", "Flying"):
+	if not SaveManager.team_has_move_of_type("teleport", "Psychic"):
 		return
 	AudioManager.play_sfx("confirm")
 	_fly_return_to_panel = false
@@ -131,9 +139,10 @@ func open_fly_picker_direct() -> void:
 	_open_fly_picker()
 
 ## Lista as cidades já visitadas (SaveManager.get_visited_maps(), gravado
-## via EventBus.zone_changed) que também têm destino de Voar cadastrado —
-## mesmo painel construído em código usado por _open_pokemon_picker (motivo:
-## ver o comentário lá, o bug do menu de golpes que travou a batalha antes).
+## via EventBus.zone_changed) que também têm destino de teleporte cadastrado
+## — mesmo painel construído em código usado por _open_pokemon_picker
+## (motivo: ver o comentário lá, o bug do menu de golpes que travou a
+## batalha antes).
 func _open_fly_picker() -> void:
 	_free_picker()
 	panel.hide()
@@ -152,7 +161,7 @@ func _open_fly_picker() -> void:
 	pc.add_child(vbox)
 
 	var title_lbl := Label.new()
-	title_lbl.text = "Voar pra onde?"
+	title_lbl.text = "Teleportar pra onde?"
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_lbl.add_theme_font_size_override("font_size", 15)
 	vbox.add_child(title_lbl)
@@ -172,7 +181,7 @@ func _open_fly_picker() -> void:
 
 	if not any_destination:
 		var lbl := Label.new()
-		lbl.text = "Ainda não visitou nenhuma cidade pra onde possa voar."
+		lbl.text = "Ainda não visitou nenhuma cidade pra onde possa teleportar."
 		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		vbox.add_child(lbl)
 
