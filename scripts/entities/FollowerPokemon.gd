@@ -9,8 +9,12 @@ extends CharacterBody2D
 # Exports
 # ──────────────────────────────────────────────────────────────────────────────
 
-@export var pokemon_species_id : int = 4
-@export var pokemon_level      : int = 5
+@export var pokemon_species_id : int  = 4
+@export var pokemon_level      : int  = 5
+## Vem do save (poke.is_shiny) — não é sorteado aqui, o Follower só EXIBE o
+## resultado que já foi decidido quando o Pokémon nasceu selvagem/foi
+## capturado (ver WildPokemon._load_species() e CaptureSystem).
+@export var pokemon_is_shiny   : bool = false
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Constantes
@@ -84,7 +88,7 @@ func _on_wild_pokemon_fainted(pokemon: Node) -> void:
 
 func _load_sprite() -> void:
 	if sprite and not sprite.sprite_frames:
-		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(pokemon_species_id)
+		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(pokemon_species_id, pokemon_is_shiny)
 		sprite.play("idle")
 		# Sprites de Pokémon usam a mesma região 16×16 do jogador, mas ficam quase
 		# vazios dentro desse quadro — sem isto, o Pokémon fica praticamente

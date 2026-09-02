@@ -56,21 +56,44 @@ static func build_entity_frames(texture_path: String, tile: int = TILE) -> Sprit
 
 	return sf
 
-## Cria SpriteFrames para Pokémon (spritesheet 32×16, 2 frames lado a lado).
-## species_id: número da espécie (1–151) ou 0 para placeholder.
-static func build_pokemon_frames(species_id: int) -> SpriteFrames:
-	var path : String
-	if species_id >= 1 and species_id <= 151:
-		path = "res://assets/sprites/pokemon/mon_%03d.png" % species_id
-	else:
-		path = "res://assets/sprites/pokemon/placeholder.png"
+## Caminho do sprite de uma espécie, com fallback em 3 níveis: shiny
+## dedicado → normal dedicado → placeholder. Nunca quebra por espécie sem
+## arte ainda (a maioria das 151, enquanto a arte nova vai sendo gerada aos
+## poucos — pedido do Gabriel, 02/09, "primeira temporada, 151 Pokémons,
+## mesmo conceito" do player/tileset).
+static func pokemon_sprite_path(species_id: int, shiny: bool = false) -> String:
+	var normal_path : String = (
+		"res://assets/sprites/pokemon/mon_%03d.png" % species_id
+		if species_id >= 1 and species_id <= 151
+		else "res://assets/sprites/pokemon/placeholder.png"
+	)
+	if shiny:
+		var shiny_path := normal_path.replace(".png", "_shiny.png")
+		if ResourceLoader.exists(shiny_path):
+			return shiny_path
+	return normal_path
 
+## Cria SpriteFrames para Pokémon. Detecta sozinho o formato do arquivo:
+## - Formato NOVO (48×64, 4 direções reais — mesmo layout do Treinador/NPC,
+##   ver build_entity_frames() acima): gerado aos poucos, espécie por
+##   espécie, a partir de 02/09. Já suporta virar de lado/costas de verdade.
+## - Formato ANTIGO (32×16, 2 frames, sem direção real — todas as 151
+##   espécies até 02/09): mesmo frame único repetido nas 4 direções, como
+##   sempre funcionou. Nenhuma espécie quebra enquanto espera a arte nova.
+## species_id: número da espécie (1–151) ou 0 para placeholder.
+## shiny: usa a variante shiny se já existir (mon_XXX_shiny.png), senão cai
+## pro normal — nunca fica sem sprite nenhum por falta da variante shiny.
+static func build_pokemon_frames(species_id: int, shiny: bool = false) -> SpriteFrames:
+	var path : String = pokemon_sprite_path(species_id, shiny)
 	var tex : Texture2D = load(path)
 	if not tex:
 		tex = load("res://assets/sprites/pokemon/placeholder.png")
 	if not tex:
 		push_warning("SpriteBuilder: sprite de pokémon não encontrado para id=%d" % species_id)
 		return null
+
+	if tex.get_width() >= 48 and tex.get_height() >= 64:
+		return build_entity_frames(path, 16)
 
 	var sf := SpriteFrames.new()
 	sf.remove_animation("default")

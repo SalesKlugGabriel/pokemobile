@@ -104,6 +104,33 @@ func _load_sprites() -> void:
 		# (nativa em 32px) substituir, quando este scale volta pra 1.
 		sprite.scale = Vector2(2.0, 2.0)
 		sprite.play("idle_down")
+		_add_visibility_shadow()
+
+## Melhoria de visibilidade (02/09, pedido do Gabriel) — o Treinador não
+## tinha NENHUM contraste com o chão embaixo dele; num mapa com grama/
+## caminho/água de cores parecidas, o personagem se perdia visualmente.
+## Sombra oval simples, sem precisar de arte nova (só um degradê radial
+## construído em código) — resolve a visibilidade sem depender da cota da
+## ferramenta de imagem, que hoje está travada.
+func _add_visibility_shadow() -> void:
+	var grad := Gradient.new()
+	grad.set_color(0, Color(0, 0, 0, 0.65))
+	grad.add_point(0.7, Color(0, 0, 0, 0.45))
+	grad.set_color(grad.get_point_count() - 1, Color(0, 0, 0, 0.0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 40
+	tex.height = 20
+
+	var shadow := Sprite2D.new()
+	shadow.texture = tex
+	shadow.position = Vector2(0, 7)
+	shadow.z_index = -1
+	add_child(shadow)
+	move_child(shadow, 0)
 
 ## Troca a folha de sprites quando a marcha muda pra uma que tem arte
 ## própria (só "bike" por ora) e volta pro normal nas outras. Reaplica a
@@ -139,6 +166,7 @@ func _spawn_follower() -> void:
 	var f : Node2D = FOLLOWER_SCENE.instantiate()
 	f.pokemon_species_id = int(lead.get("species_id", 1))
 	f.pokemon_level      = int(lead.get("level", 5))
+	f.pokemon_is_shiny   = bool(lead.get("is_shiny", false))
 	get_parent().add_child(f)
 	f.global_position = global_position
 	f.set_trainer(self)

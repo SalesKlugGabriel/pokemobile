@@ -9,6 +9,49 @@
 
 ---
 
+## Preparação pras sprites (4 direções + shiny) e sombra de visibilidade (2026-09-02, sessão seguinte)
+
+**Pedido do Gabriel: seguir com as sprites dos 151 Pokémon (4 direções + shiny, mesmo conceito do
+player/tileset) e melhorar visibilidade/personalização do Treinador.** Tentei gerar a primeira
+sprite (Bulbasaur) — **cota diária da ferramenta de imagem ainda travada** (mesmo dia de hoje,
+confirmado por erro 429 de novo). Sem poder gerar arte agora, adiantei tudo que dava pra fazer
+sem depender de imagem nova:
+
+**`SpriteBuilder.build_pokemon_frames()` já aceita o formato novo de verdade.** Detecta sozinho
+se o arquivo é o formato antigo (32×16, sem direção real, as 151 espécies até hoje) ou o novo
+(48×64, 4 direções reais — mesmo layout já usado pro Treinador/NPC) só pelo tamanho da imagem.
+Nenhuma espécie quebra enquanto espera a arte — no dia em que a cota liberar, gerar a sprite e
+salvar no lugar certo já é suficiente, não precisa mexer em código de novo.
+
+**Sistema de shiny implementado de ponta a ponta — achado importante: nunca tinha sido sorteado em
+lugar nenhum do jogo.** O campo `is_shiny` já existia no save desde muito antes (usado pelo
+combate por turno), mas nada nunca definia ele como `true` — a conquista "Shiny Hunter" do master
+doc (1/4096) nunca podia acontecer de verdade. Agora: `WildPokemon` sorteia 1/4096 ao nascer no
+mapa, `CaptureSystem` persiste esse resultado no Pokémon capturado, `FollowerPokemon` exibe o
+shiny de quem já foi salvo. Sem a arte shiny ainda gerada, tudo cai pro sprite normal (mesma
+convenção de fallback já usada no resto do projeto) — mecânica pronta, só falta a arte.
+
+**Sombra de visibilidade no Treinador** — ele não tinha nenhum contraste com o chão, se perdia
+visualmente em terrenos parecidos. Sombra oval construída em código (degradê radial, sem precisar
+de arte nova) — resolve o pedido sem depender da cota travada.
+
+**Testado**: 10 conferências novas headless (fallback de path em 3 níveis, formato antigo
+continua funcionando, taxa de shiny confirmada estatisticamente em 20 mil tentativas, persistência
+na captura) + suíte inteira (46 arquivos, 0 falhas) + navegador real confirmando a sombra visível
+nos pés do personagem. Publicado.
+
+**Pendente, precisa da cota liberar (amanhã)**: gerar de fato a primeira leva de sprites 4
+direções + shiny, espécie por espécie, "aos poucos" como já combinado.
+
+**Pendente, precisa de conversa com o Gabriel antes de começar**: personalização/skins do
+Treinador — já existe uma especificação completa e grande (`docs/customizacao-personagem.md`,
+sistema "Paper Doll" de camadas, ~57 peças) guardada desde 31/08 pra quando ele pedisse pra
+começar. É um projeto grande por si só (UI de criação de personagem, formato de dado por peça,
+compor camadas em tempo real) — vale alinhar o escopo antes de começar a construir, pra não
+gastar a cota de imagem construindo a coisa errada.
+
+---
+
 ## Times de ginásio completos e temáticos (2026-09-02, sessão seguinte)
 
 **Pedido do Gabriel, depois do motor de combate pronto: cada líder de ginásio ganhar o time

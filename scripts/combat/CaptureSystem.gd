@@ -139,6 +139,10 @@ func attempt_capture(target: WildPokemon, pokeball_type: String) -> bool:
 func _build_pokemon_data(target: WildPokemon) -> Dictionary:
 	var bp := BattlePokemon.create(target.species_id, target.wild_level, false)
 	bp.hp = mini(target.current_hp, bp.max_hp)
+	# O sorteio de shiny já aconteceu quando o selvagem nasceu no mapa
+	# (WildPokemon._load_species(), 1/4096) — aqui só persiste o resultado
+	# de verdade no Pokémon capturado, senão a captura "esquecia" o shiny.
+	bp.is_shiny = target.is_shiny
 	return SaveManager.make_caught_data(bp)
 
 func _get_throw_origin() -> Vector2:

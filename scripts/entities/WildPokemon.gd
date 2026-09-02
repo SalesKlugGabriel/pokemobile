@@ -132,7 +132,7 @@ func initialize(new_species_id: int, new_level: int, new_behavior: String = "agg
 ## do spritesheet é só 16×16, quase invisível do lado do jogador.
 func _load_sprite() -> void:
 	if sprite and not sprite.sprite_frames:
-		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(species_id)
+		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(species_id, is_shiny)
 		sprite.play("idle")
 		sprite.scale = Vector2(4.0, 4.0)
 
@@ -197,11 +197,20 @@ func _on_wild_pokemon_selected(pokemon: Node) -> void:
 		return
 	sprite.modulate = Color(1.5, 1.5, 0.7) if pokemon == self else Color(1, 1, 1)
 
+## 1/4096, taxa clássica de shiny — achado ao mexer nisso: o jogo já tinha o
+## CAMPO "is_shiny" no save (BattlePokemon.gd) desde antes, mas nunca em
+## lugar nenhum ele era de fato sorteado — a conquista "Shiny Hunter" do
+## master doc nunca tinha como acontecer. Sorteado aqui (nascimento do
+## selvagem) porque é o único lugar onde um Pokémon novo "aparece no mundo".
+const SHINY_CHANCE : float = 1.0 / 4096.0
+var is_shiny : bool = false
+
 func _load_species() -> void:
 	species_data = GameData.get_species(species_id)
 	if species_data.is_empty():
 		push_warning("[WildPokemon] Espécie %d não encontrada." % species_id)
 		return
+	is_shiny = RNGManager.chance(SHINY_CHANCE)
 
 	var base : Dictionary = species_data.get("base_stats", {})
 	types      = species_data.get("types", ["Normal"])
