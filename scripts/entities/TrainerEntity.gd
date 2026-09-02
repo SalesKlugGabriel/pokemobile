@@ -72,6 +72,7 @@ func _on_ready() -> void:
 	EventBus.battle_started.connect(_on_battle_started)
 	EventBus.battle_ended.connect(_on_battle_ended)
 	_load_sprites()
+	_init_hp()
 	call_deferred("_spawn_follower")
 
 ## Sprite muda de aparência por marcha (02/09, pedido do Gabriel) — só a
@@ -277,6 +278,48 @@ func _try_fish() -> void:
 func _show_system_message(dialog_id: String) -> void:
 	EventBus.dialog_started.emit(null)
 	EventBus.npc_dialog_requested.emit(null, dialog_id)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# HP / combate em tempo real (motor novo, 02/09) — o Treinador só é alvo de
+# ataque quando não tem Pokémon ativo: WildPokemon._find_target() já prioriza
+# o Follower e só mira o Treinador se ele estiver ausente/desmaiado, e
+# WildPokemon._perform_attack() já guarda com has_method("take_damage") antes
+# de bater — os dois já existiam, só nunca faziam nada porque o Treinador não
+# tinha esse método. Vira funcional só de existir aqui, sem tocar WildPokemon.
+# ──────────────────────────────────────────────────────────────────────────────
+var current_hp : int = 0
+var max_hp      : int = 0
+
+func _init_hp() -> void:
+	max_hp     = SaveManager.get_trainer_stats().get_max_hp()
+	current_hp = max_hp
+	EventBus.trainer_hp_changed.emit(current_hp, max_hp)
+
+## Mesmo formato que WildPokemon/FollowerPokemon já esperam de um alvo
+## (get_combat_stats() opcional, checado com has_method antes de chamar).
+## Treinador não tem tipo elemental nem defesa própria de Pokémon — usa um
+## valor fixo neutro (mesmo default já usado como fallback em
+## DamageCalculator.calculate_damage(), "def": 50) até existir uma fórmula
+## própria de defesa do Treinador.
+func get_combat_stats() -> Dictionary:
+	return { "def": 50, "types": [] }
+
+func take_damage(amount: int, _attacker: Node = null) -> void:
+	if current_hp <= 0:
+		return
+	current_hp = max(0, current_hp - amount)
+	EventBus.trainer_hp_changed.emit(current_hp, max_hp)
+	EventBus.damage_dealt.emit(self, amount, false)
+	if current_hp <= 0:
+		_faint()
+
+## Convenção clássica de Pokémon: desmaia, cura o time, volta pro último
+## Centro Pokémon visitado (WorldManager já rastreia isso pra outro fluxo —
+## warp_to_remembered_return() — sem perda permanente de item/progresso.
+func _faint() -> void:
+	EventBus.trainer_died.emit()
+	SaveManager.heal_team()
+	WorldManager.warp_to_remembered_return()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Follower management
