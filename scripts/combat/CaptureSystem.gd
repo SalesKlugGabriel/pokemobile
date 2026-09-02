@@ -1,7 +1,8 @@
-## CaptureSystem.gd — Sistema de captura de Pokémon selvagem.
-## Singleton/Autoload. Gerencia lançamento em arco, cálculo de chance e resultado.
-## Após captura: adiciona ao time (≤6) ou ao PC; emite EventBus.capture_success.
-class_name CaptureSystem
+## CaptureSystem.gd — Sistema de captura de Pokémon selvagem (Autoload).
+## Gerencia lançamento em arco, cálculo de chance e resultado. Sem class_name
+## de propósito — o nome "CaptureSystem" já é o do autoload; declarar
+## class_name igual colide ("hides an autoload singleton").
+## Após captura: vai pro SaveManager de verdade; emite EventBus.capture_success.
 extends Node
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -25,11 +26,6 @@ const POKEBALL_MULT : Dictionary = {
 # ──────────────────────────────────────────────────────────────────────────────
 # Estado
 # ──────────────────────────────────────────────────────────────────────────────
-
-## Time ativo do Treinador (máximo 6)
-var team   : Array[Dictionary] = []
-## PC — depósito ilimitado
-var pc_box : Array[Dictionary] = []
 
 ## Referência ao nó de Treinador Stats (injetada externamente ou buscada no grupo)
 var trainer_stats : TrainerStats = null
@@ -107,8 +103,11 @@ func calculate_catch_chance(
 	return min((catch_base + hp_bonus + master_bns) * ball_mult, 0.97)
 
 ## Tenta capturar o Pokémon. Retorna true se a captura for bem-sucedida.
+## Pokémon de treinador nunca pode ser capturado.
 func attempt_capture(target: WildPokemon, pokeball_type: String) -> bool:
 	if not is_instance_valid(target):
+		return false
+	if target.is_trainer_owned:
 		return false
 
 	_find_trainer_stats()
@@ -118,41 +117,29 @@ func attempt_capture(target: WildPokemon, pokeball_type: String) -> bool:
 
 	if RNGManager.chance(chance):
 		var pokemon_data := _build_pokemon_data(target)
-		_add_to_team_or_pc(pokemon_data)
+		SaveManager.add_pokemon(pokemon_data)
+		SaveManager.mark_caught(target.species_id)
 		EventBus.capture_success.emit(pokemon_data)
-		EventBus.pokemon_caught.emit(pokemon_data) if EventBus.has_signal("pokemon_caught") else null
 		return true
 
 	return false
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Gestão de time / PC
-# ──────────────────────────────────────────────────────────────────────────────
-
-## Adiciona ao time se há vaga (≤6); senão envia ao PC.
-func _add_to_team_or_pc(pokemon_data: Dictionary) -> void:
-	if team.size() < 6:
-		team.append(pokemon_data)
-		EventBus.follower_changed.emit(pokemon_data)
-	else:
-		pc_box.append(pokemon_data)
-		push_print("[CaptureSystem] PC: %s enviado ao PC (time cheio)." % pokemon_data.get("name", "?"))
-
-# ──────────────────────────────────────────────────────────────────────────────
 # Utilitários internos
 # ──────────────────────────────────────────────────────────────────────────────
 
+## Achado ao ligar isto (Fase 6, 02/09): a versão antiga gravava o Pokémon
+## capturado em `team`/`pc_box` LOCAIS deste próprio autoload, nunca no save
+## de verdade — a captura "funcionava" visualmente mas o Pokémon sumia ao
+## recarregar. Corrigido reaproveitando o MESMO caminho que o combate por
+## turno já usa: BattlePokemon.create() gera IVs/nature/moveset novos de
+## verdade (WildPokemon não rola isso, é uma aproximação simplificada do
+## motor em tempo real), e SaveManager.make_caught_data() já sabe montar o
+## formato de save completo a partir disso.
 func _build_pokemon_data(target: WildPokemon) -> Dictionary:
-	var species_data : Dictionary = GameData.get_species(target.species_id)
-	return {
-		"species_id": target.species_id,
-		"name":       species_data.get("name", "???"),
-		"level":      target.wild_level,
-		"hp":         target.current_hp,
-		"max_hp":     target.max_hp,
-		"is_alpha":   target.is_alpha,
-		"types":      species_data.get("types", ["Normal"]),
-	}
+	var bp := BattlePokemon.create(target.species_id, target.wild_level, false)
+	bp.hp = mini(target.current_hp, bp.max_hp)
+	return SaveManager.make_caught_data(bp)
 
 func _get_throw_origin() -> Vector2:
 	var players := get_tree().get_nodes_in_group("player")

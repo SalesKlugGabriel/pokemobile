@@ -31,6 +31,7 @@ AudioManager="*res://scripts/autoloads/AudioManager.gd"
 KeybindManager="*res://scripts/autoloads/KeybindManager.gd"
 QuestManager="*res://scripts/systems/QuestManager.gd"
 BattleResolver="*res://scripts/combat/BattleResolver.gd"
+CaptureSystem="*res://scripts/combat/CaptureSystem.gd"
 GlobalUI="*res://scenes/ui/GlobalUI.tscn"
 
 [application]

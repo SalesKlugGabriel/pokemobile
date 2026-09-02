@@ -104,6 +104,12 @@
   "fishing_no_bite": [
     "Nada mordeu a isca dessa vez..."
   ],
+  "no_pokeball": [
+    "Você não tem nenhuma Pokébola pra tentar capturar."
+  ],
+  "no_wild_nearby": [
+    "Não tem nenhum Pokémon selvagem por perto pra capturar."
+  ],
   "route2_bugcatcher": [
     "Ninguém passa pela Rota 2 sem enfrentar minha coleção!",
     "Vamos ver do que você é feito."

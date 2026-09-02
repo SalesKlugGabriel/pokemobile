@@ -16,6 +16,11 @@ extends CharacterBody2D
 ## Usado pelo BattleManager pra saber se é uma batalha de Zona Safari
 ## ("" pros spawns sem zona conhecida, ex: pesca via spawn_specific).
 @export var zone_id    : String = ""
+## Pokémon de treinador nunca pode ser capturado (ver CaptureSystem.
+## attempt_capture()) — hoje todo WildPokemon é selvagem por definição, mas
+## o campo já existe pronto pra quando a Fase 7 trouxer combatente de
+## treinador usando esta mesma classe.
+@export var is_trainer_owned : bool = false
 
 ## Alias para compatibilidade com BattleManager (espera .level)
 var level : int:

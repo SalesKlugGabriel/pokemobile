@@ -9,6 +9,38 @@
 
 ---
 
+## Motor de combate em tempo real — Fase 6 (2026-09-02, sessão seguinte)
+
+**Sistema de captura em tempo real revivido, corrigido.** `CaptureSystem.gd` já existia pronto
+desde muito antes (arremesso em arco, fórmula de chance) mas nunca tinha sido ligado a nada —
+órfão, sem autoload, sem tecla. **Achado o bug real dele**: gravava o Pokémon capturado numa
+lista local (`team`/`pc_box`) do próprio script, nunca no save de verdade — a captura "funcionava"
+visualmente mas o Pokémon sumia ao recarregar o jogo. Corrigido reaproveitando o MESMO caminho que
+o combate por turno já usa (`BattlePokemon.create()` gera IVs/nature/moveset novos de verdade,
+`SaveManager.make_caught_data()` já sabe montar o formato de save completo, `SaveManager.
+add_pokemon()` grava pra valer). Tecla "pokebola" (Espaço) **já existia no mapa de input, nunca
+usada** — mais uma peça pronta esperando ligação. Pokémon de treinador ganhou um campo
+`is_trainer_owned` (hoje sempre false — todo `WildPokemon` é selvagem — mas pronto pra Fase 7)
+que trava a captura.
+
+**Achado de infraestrutura (2ª vez na mesma sessão)**: `CaptureSystem.gd` tinha um `class_name
+CaptureSystem` cravado do código órfão original, que colidiu com o autoload de mesmo nome que
+acabei de registrar ("hides an autoload singleton") — removido; o nome já é o do autoload, não
+precisa de `class_name`. E de novo o cache global de classes ficou desatualizado até rodar
+`godot4 --headless --editor --quit-after 3`.
+
+**Testado**: 8 conferências novas headless (captura vai pro save de verdade, moveset/IVs/nature
+completos, Pokémon de treinador nunca capturável) + suíte inteira (40 arquivos, 0 falhas) +
+navegador real confirmando a tecla funcionando de ponta a ponta (mensagem "não tem selvagem por
+perto" aparecendo certo). Publicado.
+
+**Fases 0 a 6 do plano — TODAS entregues.** Só falta a mais arriscada (Fase 7: desligar de vez a
+tela de batalha por turno, migrar treinador/ginásio pro mesmo motor) e o polimento (Fase 8
+checklist, Fase 9 UI de skill flutuando, Fase 10 densidade de spawn por profundidade). Plano
+completo em `/root/.claude/plans/adaptive-tickling-reddy.md`.
+
+---
+
 ## Motor de combate em tempo real — Fase 5 (2026-09-02, sessão seguinte)
 
 **Fim-de-combate (XP/level-up/loot/Pokédex/quest) unificado pra qualquer batalha em tempo real.**

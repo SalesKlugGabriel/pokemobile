@@ -168,6 +168,9 @@ func _process(_delta: float) -> void:
 		if not interact():
 			_try_fish()
 
+	if Input.is_action_just_pressed("pokeball"):
+		_try_throw_pokeball()
+
 	_emit_mode_if_changed()
 
 ## Mesma prioridade de _get_move_duration() (a marcha mais rápida disponível
@@ -278,6 +281,47 @@ func _try_fish() -> void:
 func _show_system_message(dialog_id: String) -> void:
 	EventBus.dialog_started.emit(null)
 	EventBus.npc_dialog_requested.emit(null, dialog_id)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Captura em tempo real (Fase 6 do motor de combate, 02/09) — CaptureSystem.gd
+# já existia pronto (arremesso em arco, cálculo de chance), só nunca tinha
+# sido ligado a uma tecla. A ação "pokeball" (Espaço) já existia no mapa de
+# input, também nunca usada até agora.
+# ──────────────────────────────────────────────────────────────────────────────
+const BALL_PRIORITY := ["masterball", "ultraball", "superball", "pokeball"]  # melhor bola primeiro
+
+func _try_throw_pokeball() -> void:
+	var ball_id := ""
+	for candidate in BALL_PRIORITY:
+		if SaveManager.has_item(candidate, 1):
+			ball_id = candidate
+			break
+	if ball_id.is_empty():
+		_show_system_message("no_pokeball")
+		return
+
+	var alvo := _find_nearest_wild_pokemon()
+	if not alvo:
+		_show_system_message("no_wild_nearby")
+		return
+
+	SaveManager.remove_item(ball_id, 1)
+	CaptureSystem.throw_pokeball(alvo, ball_id)
+
+## Só permite arremesso dentro de alcance curto (2 tiles) — evita capturar
+## um selvagem do outro lado da tela sem nem chegar perto dele.
+func _find_nearest_wild_pokemon() -> Node2D:
+	var candidatos := get_tree().get_nodes_in_group("wild_pokemon")
+	var melhor      : Node2D = null
+	var melhor_dist : float  = INF
+	for c in candidatos:
+		var d : float = global_position.distance_to(c.global_position)
+		if d < melhor_dist:
+			melhor_dist = d
+			melhor = c
+	if melhor and melhor_dist <= TILE_SIZE * 2.0:
+		return melhor
+	return null
 
 # ──────────────────────────────────────────────────────────────────────────────
 # HP / combate em tempo real (motor novo, 02/09) — o Treinador só é alvo de
