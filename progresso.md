@@ -9,6 +9,67 @@
 
 ---
 
+## As 151 sprites reais (4 direções + shiny) — arte de verdade, sem depender de IA (2026-09-02, sessão seguinte 2)
+
+**Pedido do Gabriel, depois de eu ficar travado de novo pela cota diária da ferramenta de imagem:
+"Você não consegue pegar as imagens disponíveis e simplesmente usar e animar (...) em vez de gerar
+com IA?"** Resposta: sim — e ele confirmou o uso ("o projeto é só meu, sempre sonhei em ter um
+game onde eu poderia fazer do meu jeito, então siga com as imagens prontas"). Isso destrava de vez
+o bloqueio de cota que vinha limitando a sessão anterior.
+
+**Fonte:** repositório público e gratuito `PokeAPI/sprites` no GitHub, que hospeda as sprites
+originais da Geração 1 (Red/Blue) de cada Pokémon — sem chave de API, sem cota, sem depender de
+geração por IA. É arte da Nintendo/Game Freak; usar num projeto pessoal, sem venda nem
+distribuição, é prática comum em fã-jogos e o próprio Gabriel confirmou que é assim que quer.
+
+**Script novo `scripts/tools/build_pokemon_sprites.py`** baixa `front_default` (de frente) e
+`back_default` (de costas) de cada uma das 151 espécies, remove o fundo branco sólido (chroma-key,
+sem alpha na fonte), centraliza numa moldura 32×32 (as sprites baixadas variam de 32 a 40px), e
+monta a mesma folha 96×128 (3 colunas × 4 linhas) já usada pro Treinador/NPC — down=frente,
+up=costas, left=frente (sem sprite de perfil real disponível, é a melhor aproximação), right=frente
+espelhada. Roda pra todos os 151 de uma vez: **151 processadas, 0 falharam.**
+
+**Shiny: aproximação nossa, não existe "shiny" oficial pra Red/Blue** (o conceito só existe a
+partir da Geração 2) — gerado por rotação de matiz (HSV +100°) em cima do sprite normal,
+preservando o alpha. Criados os 151 `mon_XXX_shiny.png` que faltavam desde a sessão anterior (o
+sistema de sorteio 1/4096 já existia, só não tinha arte própria pra mostrar ainda).
+
+**Achado logo depois de rodar o script, corrigido antes de testar**: `SpriteBuilder.
+build_pokemon_frames()` ainda tinha a detecção de formato da sessão anterior, pensada pra uma
+hipótese de "48×64/tile 16" que nunca chegou a ser usada — a arte real saiu maior (96×128/tile 32,
+igual ao Treinador). Sem a correção, cada sprite seria fatiada com o tamanho errado e toda imagem
+sairia corrompida. Corrigido pra checar `>=96×128` e fatiar com tile 32.
+
+**Escala ajustada nos 3 lugares que desenham Pokémon** (`WildPokemon.gd`, `FollowerPokemon.gd`,
+`PokemonEntity.gd`): a arte nova já nasce 2× maior que o placeholder antigo, então a escala no
+código caiu pela metade (4.0→2.0 nos dois primeiros, 2.0→1.0 no terceiro) pra manter o mesmo
+tamanho em tela — sem isso, todo Pokémon apareceria com o dobro do tamanho certo.
+
+**1 teste antigo ficou desatualizado e foi corrigido** (`teste_fase5_shiny_e_sprite4dir.gd`):
+esperava que a espécie 1 (Bulbasaur) ainda caísse no fallback "sem variante shiny gerada" — agora
+ela tem a própria. Também trocado o teste de "formato antigo" pra usar o `placeholder.png` (que
+continua 32×16 de verdade) em vez da espécie 1 (que agora já é o formato novo).
+
+**Testado:** suíte inteira (48 arquivos, incluindo os 2 ajustes acima) — **0 falhas**. Depois,
+export Web + nginx + Playwright (Chromium headless) jogando de verdade: Novo Jogo → Bulbasaur
+inicial → andar até a Rota 1 → Bulbasaur (Follower) e 2 Pokémon selvagens diferentes na tela, todos
+com a arte real (não mais placeholder), em escala proporcional ao Treinador e ao cenário, sem erro
+de console relacionado a sprite. (O vulto humanoide de cabelo castanho visto num dos prints era um
+NPC comum da Rota 1, não relacionado a este trabalho.)
+
+**Não incluído, de propósito**: sprite de perfil verdadeiro (esquerda/direita hoje reaproveitam a
+sprite de frente, só espelhada — não existe arte oficial de perfil pra Red/Blue), quadro de
+caminhada (a arte de batalha é parada — Pokémon fica sem animação de "andar" por ora, mesmo
+trade-off que outras partes do jogo já aceitaram). Fica pra o Gabriel decidir se quer desenhar/
+gerar essas partes depois.
+
+**Pendente, sem urgência** (não pedido nesta leva, mas mencionado antes): follower com movimento
+mais orgânico tipo "corda" em vez do lag reto atual (o Gabriel pediu pra deixar pra depois);
+customização/skins completas do Treinador (precisa de conversa própria de escopo antes de
+começar).
+
+---
+
 ## Preparação pras sprites (4 direções + shiny) e sombra de visibilidade (2026-09-02, sessão seguinte)
 
 **Pedido do Gabriel: seguir com as sprites dos 151 Pokémon (4 direções + shiny, mesmo conceito do

@@ -94,7 +94,7 @@ func _load_sprite() -> void:
 		# vazios dentro desse quadro — sem isto, o Pokémon fica praticamente
 		# invisível do lado do Treinador (achado: "sprite" existe e é desenhado,
 		# só é minúsculo demais pra notar a olho nu).
-		sprite.scale = Vector2(4.0, 4.0)
+		sprite.scale = Vector2(2.0, 2.0)
 
 func _load_species_data() -> void:
 	species_data = GameData.get_species(pokemon_species_id)

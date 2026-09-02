@@ -134,7 +134,7 @@ func _load_sprite() -> void:
 	if sprite and not sprite.sprite_frames:
 		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(species_id, is_shiny)
 		sprite.play("idle")
-		sprite.scale = Vector2(4.0, 4.0)
+		sprite.scale = Vector2(2.0, 2.0)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Seleção de alvo + HP/nível visível (motor de combate em tempo real, 02/09)

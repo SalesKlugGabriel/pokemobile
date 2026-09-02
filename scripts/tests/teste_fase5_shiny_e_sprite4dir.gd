@@ -1,10 +1,11 @@
-## teste_fase5_shiny_e_sprite4dir.gd — Confere 2 melhorias preparadas
-## enquanto a cota da ferramenta de imagem está travada (02/09): (1) suporte
-## a sprite de Pokémon em 4 direções de verdade, com fallback total pro
-## formato antigo enquanto a arte não existe; (2) sistema de shiny (1/4096)
-## que nunca tinha sido sorteado em lugar nenhum do jogo, agora funcionando
-## de ponta a ponta (nasce selvagem → captura → persiste no save → Follower
-## exibe). Roda com:
+## teste_fase5_shiny_e_sprite4dir.gd — Confere 2 melhorias: (1) suporte a
+## sprite de Pokémon em 4 direções de verdade (arte real das 151 espécies,
+## baixada via PokeAPI em 02/09 — ver scripts/tools/build_pokemon_sprites.py),
+## com fallback pro formato antigo (placeholder) pra espécie fora do range;
+## (2) sistema de shiny (1/4096) que nunca tinha sido sorteado em lugar
+## nenhum do jogo, agora funcionando de ponta a ponta (nasce selvagem →
+## captura → persiste no save → Follower exibe, com arte shiny própria).
+## Roda com:
 ## godot4 --headless --script res://scripts/tests/teste_fase5_shiny_e_sprite4dir.gd
 extends SceneTree
 
@@ -28,16 +29,22 @@ func _process(_delta: float) -> bool:
 	# ---- pokemon_sprite_path(): fallback em 3 níveis ----
 	_assert(SpriteBuilder.pokemon_sprite_path(1, false) == "res://assets/sprites/pokemon/mon_001.png",
 		"path normal de espécie válida")
-	_assert(SpriteBuilder.pokemon_sprite_path(1, true) == "res://assets/sprites/pokemon/mon_001.png",
-		"sem variante shiny gerada ainda, cai pro normal (nunca quebra)")
+	_assert(SpriteBuilder.pokemon_sprite_path(1, true) == "res://assets/sprites/pokemon/mon_001_shiny.png",
+		"com a arte real (02/09), espécie 1 já tem variante shiny própria")
 	_assert(SpriteBuilder.pokemon_sprite_path(9999, false) == "res://assets/sprites/pokemon/placeholder.png",
 		"espécie fora do intervalo 1-151 cai pro placeholder")
 
-	# ---- formato antigo (32×16) continua funcionando igual a sempre ----
-	var frames_antigo := SpriteBuilder.build_pokemon_frames(1)
+	# ---- espécie 1 já usa a arte real nova (96×128, 4 direções de verdade) ----
+	var frames_novo := SpriteBuilder.build_pokemon_frames(1)
+	_assert(frames_novo != null, "build_pokemon_frames() funciona com a arte real nova")
+	_assert(frames_novo.has_animation("idle_down") and frames_novo.has_animation("walk_left"),
+		"arte nova gera as 4 direções de verdade (down/up/left/right)")
+
+	# ---- formato antigo (32×16, placeholder) continua funcionando igual a sempre ----
+	var frames_antigo := SpriteBuilder.build_pokemon_frames(9999)
 	_assert(frames_antigo != null, "build_pokemon_frames() não quebra pro formato antigo (regressão)")
 	_assert(frames_antigo.has_animation("idle_down") and frames_antigo.has_animation("walk_left"),
-		"formato antigo continua gerando as 4 direções (mesmo frame único, como sempre)")
+		"formato antigo (placeholder) continua gerando as 4 direções (mesmo frame único, como sempre)")
 
 	# ---- shiny: sorteado ao nascer, taxa clássica 1/4096 ----
 	_assert(is_equal_approx(WildPokemon.SHINY_CHANCE, 1.0 / 4096.0), "taxa de shiny é a clássica (1/4096)")
@@ -85,7 +92,7 @@ func _process(_delta: float) -> bool:
 	follower.pokemon_species_id = 25
 	follower.pokemon_is_shiny   = true
 	root.add_child(follower)
-	_assert(follower.sprite.sprite_frames != null, "Follower shiny carrega sprite sem quebrar (cai pro normal, sem arte shiny ainda)")
+	_assert(follower.sprite.sprite_frames != null, "Follower shiny carrega sprite sem quebrar (usa a arte shiny real, 02/09)")
 
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	return true

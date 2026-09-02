@@ -48,7 +48,7 @@ func _load_sprites() -> void:
 	if sprite and not sprite.sprite_frames:
 		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(species_id)
 		sprite.play("idle")
-		sprite.scale = Vector2(2.0, 2.0)
+		sprite.scale = Vector2(1.0, 1.0)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Loop principal

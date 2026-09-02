@@ -74,12 +74,14 @@ static func pokemon_sprite_path(species_id: int, shiny: bool = false) -> String:
 	return normal_path
 
 ## Cria SpriteFrames para Pokémon. Detecta sozinho o formato do arquivo:
-## - Formato NOVO (48×64, 4 direções reais — mesmo layout do Treinador/NPC,
-##   ver build_entity_frames() acima): gerado aos poucos, espécie por
-##   espécie, a partir de 02/09. Já suporta virar de lado/costas de verdade.
-## - Formato ANTIGO (32×16, 2 frames, sem direção real — todas as 151
-##   espécies até 02/09): mesmo frame único repetido nas 4 direções, como
-##   sempre funcionou. Nenhuma espécie quebra enquanto espera a arte nova.
+## - Formato NOVO (96×128, 4 direções reais — mesmo layout do Treinador/NPC
+##   (build_entity_frames), só que tile 32 em vez de 16: a arte de verdade
+##   (baixada da Red/Blue via PokeAPI, 02/09 — pedido do Gabriel de usar
+##   sprite pronta em vez de gerar por IA) já vem grande demais pra caber
+##   em 16px sem virar ruído, mesmo achado já visto na sprite da Bicicleta.
+##   Todas as 151 espécies já estão neste formato desde 02/09.
+## - Formato ANTIGO (32×16, 2 frames, sem direção real): só sobra em
+##   `placeholder.png` agora — nunca quebra se algum id vier sem arte.
 ## species_id: número da espécie (1–151) ou 0 para placeholder.
 ## shiny: usa a variante shiny se já existir (mon_XXX_shiny.png), senão cai
 ## pro normal — nunca fica sem sprite nenhum por falta da variante shiny.
@@ -92,8 +94,8 @@ static func build_pokemon_frames(species_id: int, shiny: bool = false) -> Sprite
 		push_warning("SpriteBuilder: sprite de pokémon não encontrado para id=%d" % species_id)
 		return null
 
-	if tex.get_width() >= 48 and tex.get_height() >= 64:
-		return build_entity_frames(path, 16)
+	if tex.get_width() >= 96 and tex.get_height() >= 128:
+		return build_entity_frames(path, 32)
 
 	var sf := SpriteFrames.new()
 	sf.remove_animation("default")
