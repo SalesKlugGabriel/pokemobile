@@ -9,6 +9,55 @@
 
 ---
 
+## v0.6.1 a v0.6.3 — correções de Surf/Voar/Montaria + HUD + sprite da Bicicleta (2026-09-02, sessão seguinte)
+
+**Sessão anterior fechou abruptamente com trabalho pronto mas sem commit** — retomada
+conferindo `git status` primeiro (achado: 5 arquivos modificados, tudo testado, só não publicado).
+Commitado, suíte reconferida (570 conferências, 0 falhas) e publicado como v0.6.1 antes de seguir.
+
+**v0.6.1 — correções pedidas pelo Gabriel:** Surfar agora exige que o Pokémon que sabe o golpe
+seja do tipo Água (antes valia qualquer um sabendo o golpe); mesma regra pro Voar exigindo tipo
+Voador. **Montaria nova**: Tauros/Dodrio/Rhyhorn/Rhydon/Arcanine/Ponyta/Rapidash no time dá uma
+marcha mais rápida que a Bicicleta, mais lenta que Voar — 4 marchas agora, prioridade fixa
+Voar > Surfar > Montaria > Bicicleta > Andar.
+
+**v0.6.2 — HUD personalizado, sem pausar o jogo.** Pedido do Gabriel: acesso às funções de
+locomoção sem abrir menu. Indicador de marcha (texto colorido, some quando "a pé") cobre o
+feedback visual enquanto o sprite não muda por marcha ainda. Botão "Voar" na HUD abre o seletor
+de destino direto (`PauseMenu.open_fly_picker_direct`, reaproveita a mesma lista/warp do Menu de
+Pausa, não duplicada) — só pausa o necessário pra escolher a cidade, painel de pausa inteiro nunca
+abre. `EventBus.movement_mode_changed` novo, emitido só quando a marcha muda de verdade.
+
+**v0.6.3 — primeiro lote de "sprites melhoradas": Bicicleta.** Gabriel escolheu "IA gera os
+desenhos agora" entre 3 opções que dei (as outras eram indicador simples ou esperar arte dele).
+Achado que definiu a técnica: pedir um grid 2x2 com as 4 direções (down/up/left/right) NUMA
+imagem só funciona bem e sai bem mais barato que gerar direção por direção — usado pras próximas
+também. Processado com ImageMagick (recortar quadrantes, tirar fundo branco, centralizar,
+montar spritesheet 96×128). **32×32, não 16×16** (o resto do jogo) — testei os dois, 16×16 virava
+ruído ilegível; a decisão já estava prevista em `docs/customizacao-personagem.md` ("sprite maior,
+footprint de colisão continua pequeno"). `SpriteBuilder` ganhou parâmetro `tile` (default 16,
+compatível com o resto do jogo); `TrainerEntity` compensa a posição Y na troca de sprite.
+
+**Bloqueio real, não escolha:** só a Bicicleta ganhou arte nova — gerar Montaria/Surf/Voar bateu
+na cota diária GRÁTIS da ferramenta de imagem (ElevenLabs) depois de 2 gerações bem-sucedidas +
+1 tentativa (Montaria, "pessoa montada num Tauros") bloqueada pelo filtro de conteúdo da própria
+ferramenta (parece falso positivo — vou reformular o prompt na próxima tentativa). A lógica de
+marcha das 3 já funciona normal, só não mudam a cara do personagem ainda.
+
+**Testado:** suíte inteira (32 arquivos, 570 conferências, 0 falhas — nenhuma nova, mudanças de
+HUD/sprite não tocam lógica de jogo) + headless import limpo, nas 3 versões. **Não confirmado em
+navegador real desta vez** — o container Playwright usado em sessões anteriores deu um erro de
+ambiente (`npm error Tracker "idealTree"`) que não consegui contornar a tempo; validado por
+import sem erro de script + revisão de código + build/deploy real com `curl` confirmando 200.
+
+**Próximo passo:** gerar Montaria/Surf/Voar assim que a cota da ferramenta de imagem renovar
+(pedir com o prompt reformulado pra Montaria). Grid original da Bicicleta salvo em
+`docs/referencias/sprite-bike-gerado-ia.png` pra não perder o material.
+
+**Precisa de decisão do Gabriel?** Não por enquanto — só esperar a cota renovar.
+
+---
+
 ## v0.6.0 — Mecânicas de movimentação: Bicicleta, Surfar e Voar (2026-09-02)
 
 **Pedido do Gabriel: seguir com as mecânicas de movimentação, com autonomia total.** As 3
