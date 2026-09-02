@@ -76,12 +76,50 @@ func _on_ready() -> void:
 	_load_sprites()
 	call_deferred("_spawn_follower")
 
+## Sprite muda de aparência por marcha (02/09, pedido do Gabriel) — só a
+## Bicicleta tem arte pronta por ora (Montaria/Surf/Voar ficam pro próximo
+## lote de imagens, a lógica de marcha já funciona igual, só não muda a
+## cara ainda). Bike é 32×32 (o dobro do normal, 16×16) — sprite maior com
+## a MESMA caixa de colisão pequena (docs/customizacao-personagem.md já
+## previa isso), por isso sprite.position.y compensa na troca (ver
+## _apply_sprite_mode) senão o personagem "afunda" visualmente no chão.
+const BIKE_TEXTURE_PATH : String = "res://assets/sprites/player/player_bike.png"
+const NORMAL_SPRITE_Y : float = -4.0
+const BIKE_SPRITE_Y   : float = -12.0
+
+var _frames_normal : SpriteFrames
+var _frames_bike    : SpriteFrames
+var _sprite_mode    : String = "normal"
+
 func _load_sprites() -> void:
 	if sprite and not sprite.sprite_frames:
-		sprite.sprite_frames = SpriteBuilder.build_entity_frames(
+		_frames_normal = SpriteBuilder.build_entity_frames(
 			"res://assets/sprites/player/player.png"
 		)
+		if ResourceLoader.exists(BIKE_TEXTURE_PATH):
+			_frames_bike = SpriteBuilder.build_entity_frames(BIKE_TEXTURE_PATH, 32)
+		sprite.sprite_frames = _frames_normal
 		sprite.play("idle_down")
+
+## Troca a folha de sprites quando a marcha muda pra uma que tem arte
+## própria (só "bike" por ora) e volta pro normal nas outras. Reaplica a
+## animação atual (mesmo nome em toda folha — idle_<dir>/walk_<dir>) pra
+## não perder o frame/direção que já estava tocando.
+func _apply_sprite_mode(mode: String) -> void:
+	var want_bike := mode == "bike" and _frames_bike != null
+	var new_mode := "bike" if want_bike else "normal"
+	if new_mode == _sprite_mode:
+		return
+	_sprite_mode = new_mode
+	if new_mode == "bike":
+		sprite.sprite_frames = _frames_bike
+		sprite.position.y = BIKE_SPRITE_Y
+	else:
+		sprite.sprite_frames = _frames_normal
+		sprite.position.y = NORMAL_SPRITE_Y
+	var anim := sprite.animation
+	if sprite.sprite_frames.has_animation(anim):
+		sprite.play(anim)
 
 ## Coloca o Pokémon líder da equipe pra andar atrás do jogador no mapa.
 ## Não aparece se a equipe está vazia ou se o líder desmaiou (hp_current <= 0).
@@ -142,6 +180,7 @@ func _emit_mode_if_changed() -> void:
 	elif is_running:      mode = "bike"
 	if mode != _last_mode:
 		_last_mode = mode
+		_apply_sprite_mode(mode)
 		EventBus.movement_mode_changed.emit(mode)
 
 ## Prioridade fixa quando mais de uma tecla está pressionada (sem diagonal —
