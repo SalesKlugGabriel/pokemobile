@@ -45,6 +45,7 @@ func _ready() -> void:
 	_save_exists = FileAccess.file_exists(SAVE_PATH)
 	EventBus.map_changed.connect(_on_map_changed)
 	EventBus.battle_ended.connect(_on_battle_ended)
+	EventBus.zone_changed.connect(_on_zone_changed)
 
 func _on_map_changed(_from: String, _to: String) -> void:
 	if has_save():
@@ -53,6 +54,17 @@ func _on_map_changed(_from: String, _to: String) -> void:
 func _on_battle_ended(_result: Dictionary) -> void:
 	if has_save():
 		save_game()
+
+## "world.visited_maps" já existia no schema do save desde sempre, mas nunca
+## era escrito nem lido em lugar nenhum — preparado, nunca ligado (mesma
+## classe de achado já vista em QuestManager/reach_floor antes de existir
+## handler). Usado agora pra saber a quais cidades o jogador já foi, base
+## pro Voar (Mecânicas, 02/09): entra na lista assim que o jogador PISA na
+## zona (não precisa curar no Centro), igual ao Jogo original.
+func _on_zone_changed(zone_name: String) -> void:
+	var visited: Array = save_data["world"]["visited_maps"]
+	if zone_name not in visited:
+		visited.append(zone_name)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # SAVE / LOAD / DELETE
@@ -139,6 +151,20 @@ func get_pokemon_at(index: int) -> Dictionary:
 	if index < 0 or index >= team.size():
 		return {}
 	return team[index]
+
+func get_visited_maps() -> Array:
+	return save_data["world"]["visited_maps"]
+
+## True se algum Pokémon do time já sabe o golpe (TM/MO ensinado via Mochila
+## — PauseMenu._teach_and_finish já grava em team[i].moves). Reaproveitado
+## por Surfar (motion) e Voar (fast travel): nenhum dos dois precisa desse
+## Pokémon estar líder, só estar no time.
+func team_knows_move(move_id: String) -> bool:
+	for poke in save_data["team"]:
+		for move in poke.get("moves", []):
+			if move.get("id", "") == move_id:
+				return true
+	return false
 
 func get_starter_species() -> int:
 	var team: Array = save_data["team"]

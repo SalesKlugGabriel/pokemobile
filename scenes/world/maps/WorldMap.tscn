@@ -209,6 +209,13 @@ npc_name = "Moradora"
 dialog_id = "cerulean_local"
 is_patrolling = false
 
+[node name="BikeShopCerulean" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(3928, 312)
+npc_name = "Vendedor"
+dialog_id = "loja_cerulean"
+starts_quest_id = "UTIL-03"
+is_patrolling = false
+
 [node name="LtSurge" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(3784, 2296)
 npc_name = "Lt. Surge"

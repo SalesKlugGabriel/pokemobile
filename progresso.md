@@ -9,6 +9,68 @@
 
 ---
 
+## v0.6.0 — Mecânicas de movimentação: Bicicleta, Surfar e Voar (2026-09-02)
+
+**Pedido do Gabriel: seguir com as mecânicas de movimentação, com autonomia total.** As 3
+mecânicas planejadas desde 31/08 (Bicicleta/Surfar/Voar; Moto e montaria ficaram de fora — não
+citadas de novo desde o plano original, sem prioridade clara) — todas construídas, ligadas de
+ponta a ponta e publicadas na mesma sessão.
+
+**Achado que virou a primeira correção: a "corrida" já existia solta, de graça, sem a Bicicleta.**
+`TrainerEntity.gd` já lia `Input.is_action_pressed("run")` (Shift no teclado, botão B no toque) e
+dobrava a velocidade — desde antes de qualquer uma dessas mecânicas existir, sem checar posse de
+item nenhum. Corrigido: corrida agora exige `SaveManager.has_item("bicycle")`.
+
+**Bicicleta (UTIL-03) destravada de ponta a ponta** — a quest já existia no `quests.json` desde o
+plano original, mas nunca tinha NPC nem objetivo que funcionasse:
+- NPC novo "Loja de Bicicletas" em Cerulean (referência real do Kanto original), `starts_quest_id
+  = UTIL-03`. Posição conferida tile a tile contra o `MapLayouts` de verdade antes de usar
+  (`location_tile` original do plano, (265,48), nunca bateu com a Cerulean construída — trocado
+  por (245,19), chão aberto confirmado por teste).
+- Objetivo original era `"type": "deliver"` (item/destino) — tipo sem handler no motor, mesma
+  classe de ajuste já feita 6+ vezes na sessão anterior (história principal). Trocado por `"talk"`
+  com o Marinheiro de Vermilion (NPC `vermilion_local`, já existia, só flavor).
+
+**Surfar** — `TrainerEntity._is_tile_walkable()` agora permite o jogador (só o jogador — NPC
+continua barrado de água, de propósito) entrar num tile de água SE algum Pokémon do time já sabe
+o golpe "surf" (ensinado via MT11, já era 100% funcional — `PauseMenu._teach_and_finish` — só
+precisava de alguém ensinando isso na prática). `is_surfing` é derivado (recalculado a cada tile
+que o jogador entra), sobe/desce sozinho na água igual ao clássico. MT11 agora é recompensa do
+GYM-05 (Koga/Fuchsia) — o `POKEMOBILE_MASTER.md` já previa "Badge 5 = Surf", só nunca tinha
+entrado no reward de verdade.
+
+**🔴 Achado no caminho, corrigido: GYM-02 (Misty) tinha `"hms": ["surf"]` — lista de texto solto**
+(não de objetos `{id:...}`), formato que `QuestManager._give_rewards()` não sabe ler —
+**derrubava o jogo com SCRIPT ERROR pra qualquer jogador de verdade que completasse o Ginásio da
+Cerulean**, não só no teste. Removido (o Surfar de verdade já mora no GYM-05 com o id certo).
+
+**Voar** — botão novo "Voar" no Menu de Pausa, só visível pra quem já tem o golpe "fly" no time
+(recompensa nova do GYM-07/Sabrina — `POKEMOBILE_MASTER.md` também já prometia isso). Lista as
+cidades que o jogador JÁ VISITOU (não precisa ter curado lá, só ter pisado — igual ao jogo
+original) e teleporta pra 2 tiles ao sul da porta do Centro Pokémon de cada uma (posição real das
+`WarpZone`s do `WorldMap.tscn`, também conferida tile a tile, não chutada — longe o suficiente pra
+não cair dentro da área de gatilho do warp e entrar sozinho no Centro). **Achado: o save já tinha
+um campo `world.visited_maps` preparado desde sempre, nunca escrito nem lido em lugar nenhum**
+(mesma classe do achado de `reach_floor` antes de ganhar handler) — só precisou ligar no
+`EventBus.zone_changed`. Indigo Plateau fica de fora de propósito (no jogo original também não dá
+pra Voar até lá, só chegando por Victory Road).
+
+**Testado**: suíte inteira headless (33 arquivos, 585 conferências, 0 falhas — 18 novas num
+arquivo dedicado, `teste_fase4_mecanicas_movimento.gd`) + navegador real (Chromium via Playwright
+num container Docker à parte): novo jogo, andar, abrir o Menu de Pausa — confirma que "Voar" fica
+escondido certinho (sem quebrar o layout dos outros botões) até o jogador ter o golpe. **Não
+testado ao vivo**: chegar de fato em Cerulean/Fuchsia/Saffron andando (são muito longe do spawn
+pra um script de teclado navegar às cegas, mesma limitação já registrada em sessões anteriores
+com a Pesca) — a lógica foi conferida pelo motor de testes, direto contra os mesmos dados e mapa
+reais do jogo, não simulada à parte. Publicado (`docker service update --force`), `curl` confirma
+200. Tag `v0.6.0`.
+
+**Pendente, se o Gabriel quiser continuar depois**: Moto/montaria em Tauros-Dodrio (item do plano
+original de 31/08, sem prioridade clara desde então); indicador visual de "surfando" (hoje o
+sprite do jogador não muda ao entrar na água, só a lógica de movimento muda).
+
+---
+
 ## v0.5.0 — A história principal está destravada (2026-09-02)
 
 **Pedido do Gabriel: finalizar "Pokémon e estruturas" e destravar a história principal (MAIN-01

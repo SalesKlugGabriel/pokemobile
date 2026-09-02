@@ -72,6 +72,12 @@ layout_mode = 2
 text = "Pokédex"
 theme_override_font_sizes/font_size = 14
 
+[node name="BtnFly" type="Button" parent="Panel/VBox"]
+visible = false
+layout_mode = 2
+text = "Voar"
+theme_override_font_sizes/font_size = 14
+
 [node name="BtnHelp" type="Button" parent="Panel/VBox"]
 layout_mode = 2
 text = "Ajuda"

@@ -10,11 +10,31 @@ const SHOP_SCENE      : PackedScene = preload("res://scenes/ui/ShopScene.tscn")
 const HELP_SCENE      : PackedScene = preload("res://scenes/ui/HelpScene.tscn")
 const CONTROLS_SCENE  : PackedScene = preload("res://scenes/ui/ControlsScene.tscn")
 
+## Voar (Mecânicas de movimentação, 02/09) — teleporta o jogador pra dentro
+## do próprio WorldMap.tscn (mesmo padrão já usado por PortalManager.gd),
+## 2 tiles ao sul da porta de cada Centro Pokémon (posição real das
+## WarpZones em WorldMap.tscn, conferida tile a tile com MapLayouts antes de
+## usar — nenhuma é chute). Indigo Plateau fica de fora de propósito: no
+## jogo original também não dá pra Voar até lá, só chegando por Victory Road.
+const WORLD_MAP_SCENE := "res://scenes/world/maps/WorldMap.tscn"
+const FLY_DESTINATIONS := {
+	"pallet_town":    {"label": "Pallet Town",    "tile": Vector2i(75, 164)},
+	"viridian_city":  {"label": "Viridian City",  "tile": Vector2i(75, 88)},
+	"pewter_city":    {"label": "Pewter City",    "tile": Vector2i(76, 16)},
+	"cerulean_city":  {"label": "Cerulean City",  "tile": Vector2i(261, 16)},
+	"saffron_city":   {"label": "Saffron City",   "tile": Vector2i(261, 83)},
+	"vermilion_city": {"label": "Vermilion City", "tile": Vector2i(261, 149)},
+	"celadon_city":   {"label": "Celadon City",   "tile": Vector2i(161, 83)},
+	"lavender_town":  {"label": "Lavender Town",  "tile": Vector2i(441, 83)},
+	"fuchsia_city":   {"label": "Fuchsia City",   "tile": Vector2i(441, 149)},
+}
+
 @onready var panel       : PanelContainer = $Panel
 @onready var btn_team    : Button         = $Panel/VBox/BtnTeam
 @onready var btn_bag     : Button         = $Panel/VBox/BtnBag
 @onready var btn_shop    : Button         = $Panel/VBox/BtnShop
 @onready var btn_pokedex : Button         = $Panel/VBox/BtnPokedex
+@onready var btn_fly     : Button         = $Panel/VBox/BtnFly
 @onready var btn_help     : Button        = $Panel/VBox/BtnHelp
 @onready var btn_controls : Button        = $Panel/VBox/BtnControls
 @onready var btn_save    : Button         = $Panel/VBox/BtnSave
@@ -42,6 +62,7 @@ func _ready() -> void:
 	btn_bag.pressed.connect(_on_bag)
 	btn_shop.pressed.connect(_on_shop)
 	btn_pokedex.pressed.connect(_on_pokedex)
+	btn_fly.pressed.connect(_on_fly)
 	btn_help.pressed.connect(_on_help)
 	btn_controls.pressed.connect(_on_controls)
 	btn_save.pressed.connect(_on_save)
@@ -68,6 +89,9 @@ func _open_menu() -> void:
 	# Sincroniza sliders com volume atual
 	slider_bgm.value = AudioManager.get_bgm_volume()
 	slider_sfx.value = AudioManager.get_sfx_volume()
+	# "Voar" só aparece pra quem já tem um Pokémon com o golpe (MO02, prêmio
+	# de GYM-07/Sabrina) — antes disso nem faz sentido mostrar o botão.
+	btn_fly.visible = SaveManager.team_knows_move("fly")
 	panel.show()
 	get_tree().paused = true
 
@@ -81,6 +105,70 @@ func _on_team() -> void:
 	AudioManager.play_sfx("confirm")
 	_on_resume()
 	EventBus.party_opened.emit()
+
+func _on_fly() -> void:
+	AudioManager.play_sfx("confirm")
+	_open_fly_picker()
+
+## Lista as cidades já visitadas (SaveManager.get_visited_maps(), gravado
+## via EventBus.zone_changed) que também têm destino de Voar cadastrado —
+## mesmo painel construído em código usado por _open_pokemon_picker (motivo:
+## ver o comentário lá, o bug do menu de golpes que travou a batalha antes).
+func _open_fly_picker() -> void:
+	_free_picker()
+	panel.hide()
+
+	var pc := PanelContainer.new()
+	pc.process_mode  = Node.PROCESS_MODE_ALWAYS
+	pc.anchor_left   = 0.28
+	pc.anchor_top    = 0.15
+	pc.anchor_right  = 0.72
+	pc.anchor_bottom = 0.85
+	add_child(pc)
+	_picker = pc
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	pc.add_child(vbox)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "Voar pra onde?"
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_font_size_override("font_size", 15)
+	vbox.add_child(title_lbl)
+
+	var visited : Array = SaveManager.get_visited_maps()
+	var any_destination := false
+	for zone_id in FLY_DESTINATIONS.keys():
+		if zone_id not in visited:
+			continue
+		any_destination = true
+		var dest : Dictionary = FLY_DESTINATIONS[zone_id]
+		var tile : Vector2i   = dest["tile"]
+		var btn := Button.new()
+		btn.text = dest["label"]
+		btn.pressed.connect(func(): _fly_to(tile))
+		vbox.add_child(btn)
+
+	if not any_destination:
+		var lbl := Label.new()
+		lbl.text = "Ainda não visitou nenhuma cidade pra onde possa voar."
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox.add_child(lbl)
+
+	var cancel := Button.new()
+	cancel.text = "Cancelar"
+	cancel.pressed.connect(func():
+		_free_picker()
+		panel.show()
+	)
+	vbox.add_child(cancel)
+
+func _fly_to(tile: Vector2i) -> void:
+	_free_picker()
+	_open = false
+	get_tree().paused = false
+	WorldManager.warp_to(WORLD_MAP_SCENE, tile)
 
 func _on_bag() -> void:
 	AudioManager.play_sfx("confirm")

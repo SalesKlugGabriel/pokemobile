@@ -24,6 +24,15 @@ var _trail          : Array[Dictionary] = []
 const TRAIL_MAX     : int = 120   # ~2s a 60fps de buffer
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Surfar (Mecânicas de movimentação, 02/09) — true quando o jogador está EM
+# CIMA de um tile de água. Puramente derivado (recalculado a cada tile que
+# entra, em vez de um botão liga/desliga): sobe na água sozinho ao entrar
+# nela (se puder) e desce sozinho ao pisar em terra de novo, igual ao Surfar
+# clássico. Exportado (não "_") pra outros sistemas (ex: sprite) poderem ler.
+# ──────────────────────────────────────────────────────────────────────────────
+var is_surfing : bool = false
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Inicialização
 # ──────────────────────────────────────────────────────────────────────────────
 func _on_ready() -> void:
@@ -73,7 +82,11 @@ func _process(_delta: float) -> void:
 
 	var dir := _read_direction()
 	if dir != -1:
-		is_running = Input.is_action_pressed("run")
+		# Corrida só existe pra quem já ganhou a Bicicleta (UTIL-03) — antes
+		# disso a ação "run" (Shift/BtnB) já existia ligada no input map, mas
+		# sem checar posse do item, dava +100% de velocidade de graça pra
+		# qualquer um, sem precisar da quest. Nunca surfa pedalando.
+		is_running = Input.is_action_pressed("run") and SaveManager.has_item("bicycle", 1) and not is_surfing
 		try_move(dir)
 
 	if Input.is_action_just_pressed("interact"):
@@ -89,7 +102,21 @@ func _read_direction() -> int:
 	if Input.is_action_pressed("move_right"): return Direction.RIGHT
 	return -1
 
+## Só o jogador entra na água — sobrescreve a checagem herdada de BaseEntity
+## (que bloqueia água pra todo mundo, NPC incluso, de propósito). Permite o
+## tile só se algum Pokémon do time já sabe Surfar (ensinado via MT11) — quem
+## não tem esbarra na água igual numa parede, sem mensagem extra (mesmo
+## padrão silencioso já usado pra árvore/rocha no resto do jogo).
+func _is_tile_walkable(tile: Vector2i) -> bool:
+	if WorldManager.is_water_tile(tile):
+		return SaveManager.team_knows_move("surf")
+	return super._is_tile_walkable(tile)
+
 func _on_tile_entered(tile: Vector2i) -> void:
+	# is_surfing é derivado do tile atual (não um botão liga/desliga): sobe
+	# na água sozinho ao entrar (só chega até aqui se _is_tile_walkable já
+	# deixou), desce sozinho ao voltar pra terra — igual ao Surfar clássico.
+	is_surfing = WorldManager.is_water_tile(tile)
 	EventBus.player_tile_entered.emit(tile)
 
 ## Usado pelo FollowerPokemon como direção de repouso quando ainda não há rastro.

@@ -466,15 +466,13 @@
       "exp_trainer": 800,
       "badges": [
         "cascade_badge"
-      ],
-      "hms": [
-        "surf"
       ]
     },
     "requires": [
       "GYM-01"
     ],
-    "unlocks": []
+    "unlocks": [],
+    "_ajuste_editorial": "removido 'hms: [\"surf\"]' (02/09) -- formato quebrado (lista de texto solto, QuestManager._give_rewards espera {id:...}) que derrubava o jogo com SCRIPT ERROR pra qualquer jogador que completasse o Ginásio da Misty; achado rodando o teste novo de Mecânicas de movimentação. O Surfar de verdade agora é recompensa do GYM-05 (Koga), com o id real (tm11) -- ver ajuste lá."
   },
   "GYM-03": {
     "id": "GYM-03",
@@ -583,12 +581,18 @@
           "id": "tm_toxic",
           "tier": "rare"
         }
+      ],
+      "hms": [
+        {
+          "id": "tm11"
+        }
       ]
     },
     "requires": [
       "GYM-04"
     ],
-    "unlocks": []
+    "unlocks": [],
+    "_ajuste_editorial": "hms/tm11 (Surfar) adicionado 02/09 -- POKEMOBILE_MASTER.md já previa 'Badge 5 = Koga = Surf', mas nunca tinha entrado no reward de verdade. O item que ensina Surfar de fato neste jogo é 'tm11' (items.json), não o hm03 que o texto do master doc menciona (aqui hm03 ensina Força) -- usado o id real."
   },
   "GYM-06": {
     "id": "GYM-06",
@@ -659,6 +663,11 @@
           "id": "tm_psychic",
           "tier": "epic"
         }
+      ],
+      "hms": [
+        {
+          "id": "hm02"
+        }
       ]
     },
     "requires": [
@@ -666,7 +675,8 @@
     ],
     "unlocks": [
       "ROCKET-05"
-    ]
+    ],
+    "_ajuste_editorial": "hms/hm02 (Voar) adicionado 02/09 -- POKEMOBILE_MASTER.md já previa isso (linha 'Saffron | Sabrina | Psychic | Marsh Badge | HM02'), mas nunca tinha entrado no reward de verdade."
   },
   "GYM-08": {
     "id": "GYM-08",
@@ -973,14 +983,13 @@
     "category": "util",
     "npc_id": "loja_cerulean",
     "location_tile": {
-      "x": 265,
-      "y": 48
+      "x": 245,
+      "y": 19
     },
     "objectives": [
       {
-        "type": "deliver",
-        "item": "encomenda",
-        "destination": "vermilion"
+        "type": "talk",
+        "target": "vermilion_local"
       }
     ],
     "rewards": {
@@ -994,7 +1003,8 @@
       ]
     },
     "requires": [],
-    "unlocks": []
+    "unlocks": [],
+    "_ajuste_editorial": "objetivo original era 'deliver' (item/destination), tipo sem handler no motor -- trocado por 'talk' num NPC já existente em Vermilion (mesma classe de ajuste já feita 6+ vezes em MAIN-01..09, 02/09). location_tile também corrigido: (265,48) era placeholder do plano original, nunca batia com a Cerulean de verdade -- (245,19) é uma tile confirmada aberta na praça entre o Ginásio e o Centro Pokémon (Mecânicas de movimentação, 02/09)."
   },
   "UTIL-04": {
     "id": "UTIL-04",
