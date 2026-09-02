@@ -9,6 +9,35 @@
 
 ---
 
+## v0.6.7 — Primeira arte nova de verdade do tileset do mapa (2026-09-02, sessão seguinte)
+
+**Continuação direta da v0.6.6** (mapa dobrado pra 32px), mesma sessão. Gerada a primeira arte de
+verdade dos 16 tiles do mapa (grama, caminho, flor, areia, água, árvore, rocha, parede, porta,
+telhado, cerca, sebe, piso, tapete, grama clara, caminho escuro), no estilo da referência Stardew
+Valley que o Gabriel mandou em 02/09 — sombra/textura de verdade, não bloco de cor lisa.
+
+**Técnica**: 1 geração só (modelo `gpt-image-2`, bom pra grade/múltiplos painéis numa imagem só),
+pedindo os 16 tiles numa grade 8×2 igual à ordem que o jogo já usa (`CHAR_MAP` em
+`MapLayouts.gd`) — assim a arte nova entra nos MESMOS 16 lugares de sempre, sem mexer em nenhum
+mapa nem no código de desenho. Cota diária bateu de novo depois de 3 das 4 variações pedidas —
+as 3 que saíram foram comparadas, a mais limpa escolhida, recortada (16 quadrados, cada um
+centralizado dentro da célula) e reduzida pra 32×32 com filtro que não borra pixel art. As outras
+2 variações guardadas em `docs/referencias/tileset-gerado-ia-opcao-A/B.png` pra comparação futura.
+
+**Achado, ainda não corrigido**: os tiles de Caminho e Piso mostram uma "costura" visível quando
+repetidos lado a lado (a textura não fecha 100% nas bordas) — dá pra ver de longe no mapa. Os
+outros 14 tiles (grama, água, flor, árvore, rocha, cerca, porta, telhado, sebe, tapete...) ladrilham
+bem. Fica pra um próximo lote, regerando só esses 2.
+
+**Testado**: suíte inteira de novo (32 arquivos, 0 falhas — troca de imagem não mexe em lógica) +
+navegador de verdade (Chromium/Playwright): partida nova, andei, câmera e seguidor continuam
+corretos com a arte nova. Publicado.
+
+**Próximo passo**: corrigir a costura de Caminho/Piso quando a cota liberar, depois seguir pra
+sprites individuais (jogador + cada Pokémon nas 4 posições + shiny), um lote por dia.
+
+---
+
 ## v0.6.6 — Mapa dobrado de 16px pra 32px por tile, base pra arte nova (2026-09-02, sessão seguinte)
 
 **Sessão anterior fechou abruptamente de novo**, bem no meio de preparar a geração da primeira
