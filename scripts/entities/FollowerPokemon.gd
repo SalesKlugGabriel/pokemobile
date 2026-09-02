@@ -108,6 +108,65 @@ func _load_species_data() -> void:
 	speed_stat  = DamageCalculator.calculate_stat(base.get("speed", 45),  pokemon_level)
 	current_hp  = max_hp
 	EventBus.follower_hp_changed.emit(current_hp, max_hp)
+	_passive_data = species_data.get("passive", {})
+	if not _passive_data.is_empty():
+		_reroll_passive_timer()
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Habilidade passiva — mesma mecânica de WildPokemon.gd (Fase 2, ver comentário
+# lá pro contexto completo). Duplicada aqui de propósito, não por descuido: os
+# dois lados (selvagem e Follower) precisam da mesma passiva, mas cada um já
+# tem seu próprio estado (species_data/current_hp/atk_stat próprios) — dividir
+# isso numa classe à parte custaria mais que as ~40 linhas repetidas.
+# ──────────────────────────────────────────────────────────────────────────────
+var _passive_data      : Dictionary = {}
+var _passive_timer     : float      = 0.0
+var _recent_attackers  : Array      = []
+var _passive_dmg_since : int        = 0
+
+func _reroll_passive_timer() -> void:
+	var n  : int   = maxi(1, _recent_attackers.size())
+	var lo : float = _passive_data.get("interval_min", 8.0)
+	var hi : float = _passive_data.get("interval_max", 16.0)
+	_passive_timer = RNGManager.randf_range(lo, hi) / float(n)
+	_recent_attackers.clear()
+	_passive_dmg_since = 0
+
+func _tick_passive(delta: float) -> void:
+	if _passive_data.is_empty():
+		return
+	_passive_timer -= delta
+	if _passive_timer <= 0.0:
+		_fire_passive()
+
+func _fire_passive() -> void:
+	match _passive_data.get("effect", ""):
+		"drain":   _fire_passive_drain()
+		"reflect": _fire_passive_reflect()
+	_reroll_passive_timer()
+
+func _fire_passive_drain() -> void:
+	if _recent_attackers.is_empty():
+		return
+	var move_data      : Dictionary = GameData.get_move(_passive_data.get("move_id", ""))
+	var attacker_stats := { "atk": atk_stat, "ability": species_data.get("ability", ""), "hp_ratio": float(current_hp) / float(max_hp) if max_hp > 0 else 1.0 }
+	var total_dealt := 0
+	for a in _recent_attackers:
+		if is_instance_valid(a) and a.has_method("take_damage"):
+			var defender_stats : Dictionary = a.get_combat_stats() if a.has_method("get_combat_stats") else {}
+			var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
+			a.take_damage(dmg, self)
+			total_dealt += dmg
+	if total_dealt > 0:
+		current_hp = mini(max_hp, current_hp + total_dealt)
+		EventBus.follower_hp_changed.emit(current_hp, max_hp)
+
+func _fire_passive_reflect() -> void:
+	if _recent_attackers.is_empty() or _passive_dmg_since <= 0:
+		return
+	var alvo = _recent_attackers[_recent_attackers.size() - 1]
+	if is_instance_valid(alvo) and alvo.has_method("take_damage"):
+		alvo.take_damage(_passive_dmg_since, self)
 
 func _load_move_slots() -> void:
 	var learnable : Array = GameData.get_learnable_moves(pokemon_species_id, pokemon_level)
@@ -131,6 +190,7 @@ func _physics_process(delta: float) -> void:
 	if _is_fainted:
 		return
 	_update_position(delta)
+	_tick_passive(delta)
 
 func _tick_cooldowns(delta: float) -> void:
 	for i in 4:
@@ -267,6 +327,9 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 	current_hp = max(0, current_hp - amount)
 	EventBus.follower_hp_changed.emit(current_hp, max_hp)
 	EventBus.damage_dealt.emit(self, amount, false)
+	if attacker and not _recent_attackers.has(attacker):
+		_recent_attackers.append(attacker)
+	_passive_dmg_since += amount
 
 	if current_hp <= 0:
 		_faint()

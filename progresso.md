@@ -9,6 +9,31 @@
 
 ---
 
+## Motor de combate em tempo real — Fase 1 e Fase 2 (2026-09-02, sessão seguinte)
+
+**Fase 1 — Ligar `ability` (Overgrow/Blaze/Torrent/Guts) fora do turno.** Já existia por espécie
+e já era testada dentro de `BattleManager`, só nunca era lida por `WildPokemon`/`FollowerPokemon`.
+Copiado (não movido, pra não arriscar o teste do turno já existente) pra `DamageCalculator.gd`
+como função separada, recebendo primitivos em vez de um `BattlePokemon`. Guts fica sem efeito no
+tempo real por ora — falta status persistente (queimadura/paralisia), lacuna conhecida, não bug.
+
+**Fase 2 — Habilidade passiva NOVA, disparando sozinha (pedido do Gabriel com 2 exemplos
+concretos).** Mega Drain do Vileplume: a cada tanto tempo (aleatório), bate em quem estiver
+atacando ele e cura a mesma soma causada. Counter Helix do Scyther: devolve pro atacante mais
+recente o dano total recebido desde o último disparo. O timer fica MAIS CURTO quanto mais
+atacantes distintos bateram desde a última vez — "mais frequente quando cercado", como o próprio
+Gabriel descreveu (não é convenção de nenhum jogo pesquisado, é design nosso). Guardado como
+campo novo `"passive"` por espécie em `species.json` — só Vileplume e Scyther por ora, os únicos
+2 exemplos pedidos; extensível pra qualquer espécie depois.
+
+**Testado**: 21 conferências novas headless (10 na Fase 1, 11 na Fase 2) + suíte inteira (36
+arquivos, 0 falhas) + navegador real sem erros novos no console. Publicado.
+
+**Próximo passo**: Fase 3 (estender `moves.json` com cooldown/alcance/área — hoje nenhum golpe
+tem isso, cai sempre no padrão fixo) e Fase 4 (função de dano em área, ainda não existe nenhuma).
+
+---
+
 ## Motor de combate em tempo real — Fase 0 e Fase 0.5 (2026-09-02, sessão seguinte)
 
 Plano completo (10+ fases) desenhado com o Gabriel e aprovado — ver

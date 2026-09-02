@@ -213,6 +213,68 @@ func _load_species() -> void:
 	if not learnable.is_empty():
 		default_move = GameData.get_move(learnable[0].get("move", ""))
 
+	_passive_data = species_data.get("passive", {})
+	if not _passive_data.is_empty():
+		_reroll_passive_timer()
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Habilidade passiva (Fase 2 do motor de combate em tempo real, 02/09) — pedido
+# do Gabriel com 2 exemplos concretos: Mega Drain do Vileplume (bate nos que
+# estão atacando e cura a mesma soma) e Counter Helix do Scyther (devolve o
+# dano recebido pro atacante mais recente). Dispara sozinha, num timer
+# aleatório que fica MAIS FREQUENTE quanto mais atacantes distintos bateram
+# desde o último disparo (Gabriel: "mais frequente quando cercado") — não é
+# convenção de nenhum jogo real pesquisado (Tibia/PokeXGames), é design nosso.
+# ──────────────────────────────────────────────────────────────────────────────
+var _passive_data      : Dictionary = {}
+var _passive_timer     : float      = 0.0
+var _recent_attackers  : Array      = []
+var _passive_dmg_since : int        = 0
+
+func _reroll_passive_timer() -> void:
+	var n  : int   = maxi(1, _recent_attackers.size())
+	var lo : float = _passive_data.get("interval_min", 8.0)
+	var hi : float = _passive_data.get("interval_max", 16.0)
+	_passive_timer = RNGManager.randf_range(lo, hi) / float(n)
+	_recent_attackers.clear()
+	_passive_dmg_since = 0
+
+func _tick_passive(delta: float) -> void:
+	if _passive_data.is_empty():
+		return
+	_passive_timer -= delta
+	if _passive_timer <= 0.0:
+		_fire_passive()
+
+func _fire_passive() -> void:
+	match _passive_data.get("effect", ""):
+		"drain":   _fire_passive_drain()
+		"reflect": _fire_passive_reflect()
+	_reroll_passive_timer()
+
+func _fire_passive_drain() -> void:
+	if _recent_attackers.is_empty():
+		return
+	var move_data      : Dictionary = GameData.get_move(_passive_data.get("move_id", ""))
+	var attacker_stats := { "atk": atk_stat, "ability": species_data.get("ability", ""), "hp_ratio": get_hp_ratio() }
+	var total_dealt := 0
+	for a in _recent_attackers:
+		if is_instance_valid(a) and a.has_method("take_damage"):
+			var defender_stats : Dictionary = a.get_combat_stats() if a.has_method("get_combat_stats") else {}
+			var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
+			a.take_damage(dmg, self)
+			total_dealt += dmg
+	if total_dealt > 0:
+		current_hp = mini(max_hp, current_hp + total_dealt)
+		_update_health_bar()
+
+func _fire_passive_reflect() -> void:
+	if _recent_attackers.is_empty() or _passive_dmg_since <= 0:
+		return
+	var alvo = _recent_attackers[_recent_attackers.size() - 1]  # atacante mais recente
+	if is_instance_valid(alvo) and alvo.has_method("take_damage"):
+		alvo.take_damage(_passive_dmg_since, self)
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Loop principal
 # ──────────────────────────────────────────────────────────────────────────────
@@ -223,6 +285,7 @@ func _physics_process(delta: float) -> void:
 
 	_find_target()
 	_attack_cd = max(0.0, _attack_cd - delta)
+	_tick_passive(delta)
 
 	match state:
 		State.PATROL: _tick_patrol(delta)
@@ -344,6 +407,9 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 	current_hp = max(0, current_hp - amount)
 	EventBus.damage_dealt.emit(self, amount, false)
 	EventBus.wild_pokemon_hp_changed.emit(self, current_hp, max_hp)
+	if attacker and not _recent_attackers.has(attacker):
+		_recent_attackers.append(attacker)
+	_passive_dmg_since += amount
 	_update_health_bar()
 
 	# "neutral" entra em combate quando atacado
