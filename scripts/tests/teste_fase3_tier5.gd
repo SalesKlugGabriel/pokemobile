@@ -58,9 +58,9 @@ func _teste_geral() -> void:
 		var koga := inst.get_node_or_null("Entities/Koga")
 		_assert(koga != null, "Koga existe no WorldMap")
 		if koga:
-			_assert(koga.trainer_team.size() == 2 and koga.trainer_team[0]["species_id"] == 109
-				and koga.trainer_team[1]["species_id"] == 110,
-				"Koga tem o time real (Koffing + Weezing)")
+			_assert(koga.trainer_team.size() == 6 and koga.trainer_team[0]["species_id"] == 43
+				and koga.trainer_team[1]["species_id"] == 44,
+				"Koga tem o time completo de 6 Pokémon tipo Planta+Veneno (Fase 5, 02/09 — pedido do Gabriel, muda do Koffing/Weezing canônico)")
 			_assert(koga.starts_quest_id == "GYM-05", "Koga inicia a GYM-05")
 
 		var warp_zones := inst.get_node_or_null("WarpZones")

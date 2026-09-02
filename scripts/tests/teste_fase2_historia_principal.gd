@@ -81,7 +81,7 @@ func _teste_conteudo_novo() -> void:
 	var world := (load("res://scenes/world/maps/WorldMap.tscn") as PackedScene).instantiate()
 	var giovanni := world.get_node_or_null("Entities/Giovanni")
 	var oak := world.get_node_or_null("Entities/ProfCarvalho")
-	_assert(giovanni != null and giovanni.trainer_team.size() == 5, "Giovanni existe com time de 5 Pokémon")
+	_assert(giovanni != null and giovanni.trainer_team.size() == 6, "Giovanni existe com time completo de 6 Pokémon tipo Terra (Fase 5, 02/09)")
 	_assert(oak != null and oak.starts_quest_id == "MAIN-01", "Prof. Carvalho inicia a MAIN-01")
 	world.free()
 

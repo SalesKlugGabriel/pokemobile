@@ -57,9 +57,9 @@ func _teste_geral() -> void:
 		var erika := inst.get_node_or_null("Entities/Erika")
 		_assert(erika != null, "Erika existe no WorldMap")
 		if erika:
-			_assert(erika.trainer_team.size() == 2 and erika.trainer_team[0]["species_id"] == 45
-				and erika.trainer_team[1]["species_id"] == 71,
-				"Erika tem o time real (Vileplume + Victreebel)")
+			_assert(erika.trainer_team.size() == 6 and erika.trainer_team[0]["species_id"] == 102
+				and erika.trainer_team[1]["species_id"] == 47,
+				"Erika tem o time completo de 6 Pokémon tipo Planta (Fase 5, 02/09)")
 			_assert(erika.starts_quest_id == "GYM-04", "Erika inicia a GYM-04")
 
 		var warp_zones := inst.get_node_or_null("WarpZones")

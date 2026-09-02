@@ -51,7 +51,7 @@ npc_name = "Blaine"
 dialog_id = "blaine_gym"
 starts_quest_id = "GYM-06"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 58, "level": 42}, {"species_id": 59, "level": 47}])
+trainer_team = Array[Dictionary]([{"species_id": 58, "level": 40}, {"species_id": 77, "level": 41}, {"species_id": 78, "level": 43}, {"species_id": 126, "level": 45}, {"species_id": 59, "level": 47}])
 is_patrolling = false
 
 [node name="CinnabarLocal" parent="Entities" instance=ExtResource("3_npc")]

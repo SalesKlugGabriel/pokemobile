@@ -104,6 +104,11 @@
   "fishing_no_bite": [
     "Nada mordeu a isca dessa vez..."
   ],
+  "morty_gym": [
+    "Bem-vindo à Torre Pokémon... sente o frio? Eu sou Morty, especialista em Pokémon Fantasma.",
+    "Lavender guarda os que já se foram — e meus Pokémon vivem entre eles.",
+    "Vamos ver se você consegue enxergar no escuro!"
+  ],
   "no_pokeball": [
     "Você não tem nenhuma Pokébola pra tentar capturar."
   ],

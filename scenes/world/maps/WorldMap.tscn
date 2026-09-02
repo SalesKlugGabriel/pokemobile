@@ -148,7 +148,7 @@ npc_name = "Giovanni"
 dialog_id = "giovanni_gym"
 starts_quest_id = "GYM-08"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 111, "level": 45}, {"species_id": 51, "level": 48}, {"species_id": 31, "level": 45}, {"species_id": 34, "level": 48}, {"species_id": 112, "level": 50}])
+trainer_team = Array[Dictionary]([{"species_id": 111, "level": 44}, {"species_id": 31, "level": 45}, {"species_id": 34, "level": 46}, {"species_id": 51, "level": 47}, {"species_id": 28, "level": 48}, {"species_id": 112, "level": 50}])
 is_patrolling = false
 
 [node name="Vendedor" parent="Entities" instance=ExtResource("3_npc")]
@@ -185,7 +185,7 @@ npc_name = "Brock"
 dialog_id = "brock_gym"
 starts_quest_id = "GYM-01"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 74, "level": 12}, {"species_id": 95, "level": 14}])
+trainer_team = Array[Dictionary]([{"species_id": 74, "level": 10}, {"species_id": 140, "level": 11}, {"species_id": 138, "level": 11}, {"species_id": 111, "level": 12}, {"species_id": 75, "level": 13}, {"species_id": 95, "level": 14}])
 is_patrolling = false
 
 [node name="PewterLocal" parent="Entities" instance=ExtResource("3_npc")]
@@ -200,7 +200,7 @@ npc_name = "Misty"
 dialog_id = "misty_gym"
 starts_quest_id = "GYM-02"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 120, "level": 18}, {"species_id": 121, "level": 21}])
+trainer_team = Array[Dictionary]([{"species_id": 54, "level": 16}, {"species_id": 60, "level": 17}, {"species_id": 61, "level": 18}, {"species_id": 120, "level": 19}, {"species_id": 121, "level": 21}])
 is_patrolling = false
 
 [node name="CeruleanLocal" parent="Entities" instance=ExtResource("3_npc")]
@@ -222,7 +222,7 @@ npc_name = "Lt. Surge"
 dialog_id = "surge_gym"
 starts_quest_id = "GYM-03"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 100, "level": 20}, {"species_id": 26, "level": 24}])
+trainer_team = Array[Dictionary]([{"species_id": 25, "level": 19}, {"species_id": 81, "level": 20}, {"species_id": 100, "level": 21}, {"species_id": 82, "level": 22}, {"species_id": 125, "level": 23}, {"species_id": 26, "level": 24}])
 is_patrolling = false
 
 [node name="VermilionLocal" parent="Entities" instance=ExtResource("3_npc")]
@@ -237,7 +237,7 @@ npc_name = "Erika"
 dialog_id = "erika_gym"
 starts_quest_id = "GYM-04"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 45, "level": 29}, {"species_id": 71, "level": 30}])
+trainer_team = Array[Dictionary]([{"species_id": 102, "level": 27}, {"species_id": 47, "level": 28}, {"species_id": 45, "level": 29}, {"species_id": 71, "level": 30}, {"species_id": 114, "level": 31}, {"species_id": 103, "level": 32}])
 is_patrolling = false
 
 [node name="CeladonLocal" parent="Entities" instance=ExtResource("3_npc")]
@@ -259,7 +259,7 @@ npc_name = "Koga"
 dialog_id = "koga_gym"
 starts_quest_id = "GYM-05"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 109, "level": 37}, {"species_id": 110, "level": 43}])
+trainer_team = Array[Dictionary]([{"species_id": 43, "level": 36}, {"species_id": 44, "level": 37}, {"species_id": 69, "level": 38}, {"species_id": 70, "level": 39}, {"species_id": 2, "level": 41}, {"species_id": 3, "level": 43}])
 is_patrolling = false
 
 [node name="FuchsiaLocal" parent="Entities" instance=ExtResource("3_npc")]
@@ -274,7 +274,7 @@ npc_name = "Sabrina"
 dialog_id = "sabrina_gym"
 starts_quest_id = "GYM-07"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 64, "level": 38}, {"species_id": 65, "level": 43}])
+trainer_team = Array[Dictionary]([{"species_id": 63, "level": 36}, {"species_id": 96, "level": 37}, {"species_id": 64, "level": 38}, {"species_id": 122, "level": 39}, {"species_id": 97, "level": 41}, {"species_id": 65, "level": 43}])
 is_patrolling = false
 
 [node name="SaffronLocal" parent="Entities" instance=ExtResource("3_npc")]
@@ -294,6 +294,14 @@ is_patrolling = false
 position = Vector2(14544, 2800)
 npc_name = "Morador"
 dialog_id = "lavender_local"
+is_patrolling = false
+
+[node name="Morty" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(13328, 2960)
+npc_name = "Morty"
+dialog_id = "morty_gym"
+is_trainer = true
+trainer_team = Array[Dictionary]([{"species_id": 92, "level": 38}, {"species_id": 104, "level": 39}, {"species_id": 93, "level": 40}, {"species_id": 105, "level": 41}, {"species_id": 94, "level": 43}])
 is_patrolling = false
 
 [node name="Bill" parent="Entities" instance=ExtResource("3_npc")]

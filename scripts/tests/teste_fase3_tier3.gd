@@ -60,9 +60,9 @@ func _teste_geral() -> void:
 		var surge := inst.get_node_or_null("Entities/LtSurge")
 		_assert(surge != null, "Lt. Surge existe no WorldMap")
 		if surge:
-			_assert(surge.trainer_team.size() == 2 and surge.trainer_team[0]["species_id"] == 100
-				and surge.trainer_team[1]["species_id"] == 26,
-				"Lt. Surge tem o time real (Voltorb + Raichu)")
+			_assert(surge.trainer_team.size() == 6 and surge.trainer_team[0]["species_id"] == 25
+				and surge.trainer_team[1]["species_id"] == 81,
+				"Lt. Surge tem o time completo de 6 Pokémon tipo Elétrico (Fase 5, 02/09)")
 			_assert(surge.starts_quest_id == "GYM-03", "Lt. Surge inicia a GYM-03")
 
 		var warp_zones := inst.get_node_or_null("WarpZones")

@@ -9,6 +9,48 @@
 
 ---
 
+## Times de ginásio completos e temáticos (2026-09-02, sessão seguinte)
+
+**Pedido do Gabriel, depois do motor de combate pronto: cada líder de ginásio ganhar o time
+completo (6 Pokémon, com 2 exceções) do tipo do próprio ginásio.** Antes, todo líder tinha só 2
+Pokémon cravados (placeholder desde antes desta sessão). Times novos, level ascendente, mantendo
+o "ás" (Pokémon mais forte) igual ao que já existia quando possível:
+
+- **Brock** (Pedra, 6): Geodude, Kabuto, Omanyte, Rhyhorn, Graveler, Onix
+- **Misty** (Água, 5): Psyduck, Poliwag, Poliwhirl, Staryu, Starmie
+- **Lt. Surge** (Elétrico, 6): Pikachu, Magnemite, Voltorb, Magneton, Electabuzz, Raichu
+- **Erika** (Planta, 6): Exeggcute, Parasect, Vileplume, Victreebel, Tangela, Exeggutor
+- **Koga** (Planta+Veneno, 6): Oddish, Gloom, Bellsprout, Weepinbell, Ivysaur, Venusaur —
+  **substituído por completo** (era Koffing/Weezing, veneno puro — pedido explícito do Gabriel
+  de mudar pro tema Planta+Veneno, diferente do Koga canônico dos jogos originais)
+- **Sabrina** (Psíquico, 6): Abra, Drowzee, Kadabra, Mr. Mime, Hypno, Alakazam
+- **Giovanni** (Terra, 6): Rhyhorn, Nidoqueen, Nidoking, Dugtrio, Sandslash, Rhydon
+- **Blaine** (Fogo, 5): Growlithe, Ponyta, Rapidash, Magmar, Arcanine
+
+**Líder novo criado em Lavender, a pedido do Gabriel** ("Lavender tem um líder de Pokémon
+fantasma", não existe no jogo original): **Morty** (nome emprestado do líder Fantasma de Johto,
+já que Kanto/Gen 1 nunca teve um) — posicionado perto do Sr. Fuji, diálogo próprio
+(`morty_gym`). **Achado que limita o time dele a 5, não 6**: a Geração 1 só tem 3 Pokémon do tipo
+Fantasma no total (Gastly/Haunter/Gengar) — completado com Cubone/Marowak (o par mais associado a
+Lavender/Torre Pokémon na lore, mesmo sendo tipo Terra). **Escopo definido, mais simples que um
+ginásio completo**: só o combate (NPC treinador com time temático) foi ligado — não criei quest
+`GYM-09`, insígnia nem prédio de ginásio próprio (o sistema de quests hoje é fechado em 8 ginásios
+canônicos); se o Gabriel quiser o pacote completo depois, é um pedido à parte.
+
+**Achado ao testar**: 8 testes antigos travavam o time EXATO de 2 Pokémon de antes (regressão
+esperada de um dado que mudou de propósito, não bug) — atualizados pra conferir o time novo
+completo, mesmo padrão já visto várias vezes nesta sessão (dado muda por pedido do Gabriel, teste
+que travava o valor antigo precisa acompanhar).
+
+**Testado**: 111 conferências novas headless (tipo de cada Pokémon bate com o tema do ginásio,
+quantidade certa, nenhuma espécie repetida no mesmo time) + os 8 testes antigos corrigidos + suíte
+inteira (45 arquivos, 0 falhas) + navegador real sem erros (edição direta em `WorldMap.tscn`, mais
+arriscada que os outros arquivos — testado com cuidado extra). **Não testado ao vivo em batalha
+real** — os ginásios ficam longe do spawn (mesma limitação de alcance já registrada na Fase 7).
+Publicado.
+
+---
+
 ## Motor de combate em tempo real — Fase 10, PLANO INTEIRO COMPLETO (2026-09-02, sessão seguinte)
 
 **Última fase do plano: densidade de Pokémon selvagem por profundidade na floresta — "vira uma

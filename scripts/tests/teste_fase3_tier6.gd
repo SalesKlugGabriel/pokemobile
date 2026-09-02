@@ -56,9 +56,9 @@ func _teste_geral() -> void:
 		var sabrina := inst.get_node_or_null("Entities/Sabrina")
 		_assert(sabrina != null, "Sabrina existe no WorldMap")
 		if sabrina:
-			_assert(sabrina.trainer_team.size() == 2 and sabrina.trainer_team[0]["species_id"] == 64
-				and sabrina.trainer_team[1]["species_id"] == 65,
-				"Sabrina tem o time real (Kadabra + Alakazam)")
+			_assert(sabrina.trainer_team.size() == 6 and sabrina.trainer_team[0]["species_id"] == 63
+				and sabrina.trainer_team[1]["species_id"] == 96,
+				"Sabrina tem o time completo de 6 Pokémon tipo Psíquico (Fase 5, 02/09)")
 			_assert(sabrina.starts_quest_id == "GYM-07", "Sabrina inicia a GYM-07")
 
 		var warp_zones := inst.get_node_or_null("WarpZones")

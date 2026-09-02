@@ -85,8 +85,8 @@ func _teste_geral() -> void:
 		var brock := inst.get_node_or_null("Entities/Brock")
 		_assert(brock != null, "Brock existe dentro do WorldMap único (não é mais cena separada)")
 		if brock:
-			_assert(brock.trainer_team.size() == 2 and brock.trainer_team[0]["species_id"] == 74,
-				"Brock continua com o time real (Geodude + Onix)")
+			_assert(brock.trainer_team.size() == 6 and brock.trainer_team[0]["species_id"] == 74,
+				"Brock tem o time completo de 6 Pokémon tipo Pedra (Fase 5, 02/09)")
 			_assert(brock.starts_quest_id == "GYM-01", "Brock continua iniciando a GYM-01")
 		var colecionador := inst.get_node_or_null("Entities/Colecionador")
 		_assert(colecionador != null and not colecionador.trainer_team.is_empty(),

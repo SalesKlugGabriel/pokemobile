@@ -57,9 +57,9 @@ func _teste_geral() -> void:
 		var blaine := inst.get_node_or_null("Entities/Blaine")
 		_assert(blaine != null, "Blaine existe em Cinnabar")
 		if blaine:
-			_assert(blaine.trainer_team.size() == 2 and blaine.trainer_team[0]["species_id"] == 58
-				and blaine.trainer_team[1]["species_id"] == 59,
-				"Blaine tem o time real (Growlithe + Arcanine)")
+			_assert(blaine.trainer_team.size() == 5 and blaine.trainer_team[0]["species_id"] == 58
+				and blaine.trainer_team[1]["species_id"] == 77,
+				"Blaine tem o time completo de 5 Pokémon tipo Fogo (Fase 5, 02/09)")
 			_assert(blaine.starts_quest_id == "GYM-06", "Blaine inicia a GYM-06")
 		var warps := inst.get_node_or_null("WarpZones")
 		var achou_volta := false

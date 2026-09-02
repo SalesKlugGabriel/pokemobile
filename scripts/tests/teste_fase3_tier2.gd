@@ -79,9 +79,9 @@ func _teste_geral() -> void:
 		var misty := inst.get_node_or_null("Entities/Misty")
 		_assert(misty != null, "Misty existe no WorldMap")
 		if misty:
-			_assert(misty.trainer_team.size() == 2 and misty.trainer_team[0]["species_id"] == 120
-				and misty.trainer_team[1]["species_id"] == 121,
-				"Misty tem o time real (Staryu + Starmie)")
+			_assert(misty.trainer_team.size() == 5 and misty.trainer_team[0]["species_id"] == 54
+				and misty.trainer_team[1]["species_id"] == 60,
+				"Misty tem o time completo de 5 Pokémon tipo Água (Fase 5, 02/09)")
 			_assert(misty.starts_quest_id == "GYM-02", "Misty inicia a GYM-02")
 
 		var warp_zones := inst.get_node_or_null("WarpZones")
