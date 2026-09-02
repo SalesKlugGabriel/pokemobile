@@ -25,7 +25,13 @@ signal follower_skill_cooldown_updated(slot: int, progress: float)
 signal wild_pokemon_spawned(pokemon: Node)
 signal wild_pokemon_died(pokemon: Node, loot: Array)
 signal wild_pokemon_fainted(pokemon: Node)
-signal wild_encounter_started(pokemon: Node)   # overworld: pokémon alcança jogador
+signal wild_encounter_started(pokemon: Node)   # SÓ Zona Safari a partir da Fase 7 (02/09) — todo
+                                                 # outro encontro vira combate em tempo real direto,
+                                                 # sem passar pelo BattleManager/BattleScene.
+## Cosmético (câmera/SFX) pra QUALQUER encontro selvagem "esquentar" (ATTACK),
+## Safari ou não — separado de wild_encounter_started pra não acoplar o
+## visual ao sistema por turno que só a Zona Safari ainda usa.
+signal wild_pokemon_engaged(pokemon: Node)
 ## Jogador tocou/clicou num Pokémon selvagem no mapa — vira o alvo dos golpes
 ## de mira única do Follower (motor de combate em tempo real, 02/09).
 signal wild_pokemon_selected(pokemon: Node)

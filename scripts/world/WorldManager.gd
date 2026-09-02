@@ -26,7 +26,7 @@ const WATER_ATLAS_COORDS    : Vector2i = Vector2i(1, 1)
 # Inicialização
 # ──────────────────────────────────────────────────────────────────────────────
 func _ready() -> void:
-	EventBus.wild_encounter_started.connect(_on_wild_encounter_started)
+	EventBus.wild_pokemon_engaged.connect(_on_wild_encounter_started)
 	EventBus.zone_changed.connect(_on_zone_changed)
 
 func _on_zone_changed(zone_id: String) -> void:

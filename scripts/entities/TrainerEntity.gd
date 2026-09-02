@@ -272,8 +272,13 @@ func _try_fish() -> void:
 	var wild_instance : Node = spawn_mgr.spawn_specific(
 		catch_data["species_id"], catch_data["level"], caught_pos
 	)
-	if wild_instance:
-		EventBus.wild_encounter_started.emit(wild_instance)
+	# Motor de combate em tempo real (Fase 7, 02/09): antes emitia
+	# wild_encounter_started direto pra forçar a batalha por turno assim que
+	# fisgava — agora só força o Pokémon a já nascer "hostil" (ATTACK), o
+	# resto (hitbox/hurtbox/HP) já é o mesmo combate em tempo real de sempre.
+	if wild_instance and wild_instance.has_method("_set_state"):
+		wild_instance.behavior = "aggressive"
+		wild_instance._set_state(WildPokemon.State.ATTACK)
 
 ## Mensagem de sistema sem NPC (ex: "nada mordeu") — usa o mesmo DialogBox
 ## (com npc=null, ver DialogBox.gd) e trava/destrava input igual um diálogo

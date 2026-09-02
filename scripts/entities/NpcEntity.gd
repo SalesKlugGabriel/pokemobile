@@ -47,6 +47,13 @@ extends BaseEntity
 ## Se true, já foi derrotado (não ataca de novo)
 var trainer_defeated       : bool = false
 
+## Índice do próximo Pokémon do time a entrar em combate (Fase 7 do motor de
+## combate em tempo real, 02/09) — batalha de treinador agora é uma
+## SEQUÊNCIA de WildPokemon reais no mapa (is_trainer_owned=true), um de
+## cada vez, igual jogo clássico, em vez de abrir BattleManager/BattleScene.
+var _trainer_team_idx      : int  = 0
+const TRAINER_POKEMON_SCENE : PackedScene = preload("res://scenes/entities/pokemon/WildPokemon.tscn")
+
 ## Lista de tiles de waypoint para patrulha.
 ## Vazio = NPC fica parado no spawn.
 @export var patrol_route   : Array[Vector2i] = []
@@ -208,14 +215,54 @@ func _on_dialog_ended() -> void:
 		return
 	# Inicia batalha de treinador após o diálogo (se não foi derrotado ainda)
 	if is_trainer and not trainer_defeated and not trainer_team.is_empty():
-		BattleManager.start_trainer_battle(self)
+		_start_trainer_battle()
 		_interacted_by = null
-		return  # permanece em estado DIALOG até a batalha terminar
+		return  # permanece em estado DIALOG até o time inteiro ser derrotado
 	_interacted_by = null
 	if patrol_route.is_empty() or not is_patrolling:
 		_set_state(State.IDLE)
 	else:
 		_set_state(State.PATROL_MOVE)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Batalha de treinador em tempo real (Fase 7, 02/09)
+# ──────────────────────────────────────────────────────────────────────────────
+func _start_trainer_battle() -> void:
+	_trainer_team_idx = 0
+	_spawn_next_trainer_pokemon()
+
+## Coloca o próximo Pokémon do time do treinador no mapa como um WildPokemon
+## de verdade (is_trainer_owned=true — mesma classe do selvagem comum, reusa
+## toda a infraestrutura de combate/seleção/HP já pronta). Quando acaba o
+## time, marca derrotado e volta a andar normal (mesmo efeito que
+## BattleManager._return_to_world() já fazia pro caminho por turno).
+func _spawn_next_trainer_pokemon() -> void:
+	if _trainer_team_idx >= trainer_team.size():
+		trainer_defeated = true
+		_interacted_by = null
+		if patrol_route.is_empty() or not is_patrolling:
+			_set_state(State.IDLE)
+		else:
+			_set_state(State.PATROL_MOVE)
+		return
+
+	var entry : Dictionary = trainer_team[_trainer_team_idx]
+	_trainer_team_idx += 1
+
+	var poke : Node = TRAINER_POKEMON_SCENE.instantiate()
+	poke.species_id       = int(entry.get("species_id", 16))
+	poke.wild_level       = int(entry.get("level", 5))
+	poke.is_trainer_owned = true
+	poke.trainer_npc      = self
+	# "neutral" (padrão de WildPokemon) só reage se atacado primeiro — um
+	# treinador não pode ficar esperando o jogador tomar a iniciativa.
+	poke.behavior         = "aggressive"
+	get_parent().add_child(poke)
+	poke.global_position = global_position + Vector2(0, -TILE_SIZE)
+
+## Chamado por WildPokemon._die() quando o Pokémon atual deste treinador morre.
+func _on_trainer_pokemon_defeated() -> void:
+	_spawn_next_trainer_pokemon()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Utilitários internos

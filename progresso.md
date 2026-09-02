@@ -9,6 +9,59 @@
 
 ---
 
+## Motor de combate em tempo real — Fase 7 (2026-09-02, sessão seguinte)
+
+**A fase mais arriscada de todo o plano: tela de batalha por turno desligada de vez, pra selvagem
+comum E pra treinador/ginásio.** Confirmado ao vivo no navegador: Pokémon selvagem aparece com
+barra de vida + nível flutuando DIRETO NO MAPA, do lado do jogador — nenhuma tela abre.
+
+**Como foi feito, sem reescrever o `BattleManager`:** `WildPokemon._set_state()` parou de emitir
+`wild_encounter_started` (o gatilho que troca de tela) pra qualquer encontro comum — só continua
+emitindo pra Zona Safari (`zone_id == "safari_zone"`), que **fica de propósito no sistema por
+turno por enquanto** (isca/pedra/bolas limitadas são uma mecânica só dela, ainda não portada — não
+era o pedido do Gabriel, e arriscar quebrar algo que já funciona sem necessidade não valia a pena).
+Um sinal novo, `wild_pokemon_engaged`, mantém o efeito cosmético (câmera balançando, som) pra
+QUALQUER encontro, Safari ou não, sem acoplar ao sistema por turno.
+
+**Batalha de treinador/ginásio agora é uma SEQUÊNCIA de Pokémon reais no mapa** (mesma classe
+`WildPokemon`, com `is_trainer_owned=true`, nasce direto agressivo) — vence um, o próximo "sai da
+bola" automaticamente, igual jogo clássico, sem abrir tela nenhuma. `NpcEntity.gd` ganhou esse
+sequenciamento; `BattleResolver.gd` ganhou uma versão de fim-de-combate pra Pokémon de treinador
+(mesma fórmula de XP, sem loot/Pokédex — não é selvagem —, com o nome do treinador certo no sinal
+de quest).
+
+**2 achados de regressão pegos ANTES de publicar** (não pelo teste automático, por leitura
+cuidadosa do código): (1) a pesca (`_try_fish()`) ainda emitia o sinal antigo direto pra forçar
+batalha assim que fisgava — corrigido pra só marcar o peixe como "hostil" (ATTACK), o resto já é o
+mesmo combate em tempo real; (2) `SaveManager.mark_seen()` (marca "visto" na Pokédex) só
+acontecia quando o encontro esquentava no sistema antigo — sem essa emissão, pararia de marcar
+qualquer coisa. Corrigido marcando "visto" assim que o Pokémon nasce no mapa (mais correto até,
+cobre selvagem e Pokémon de treinador igual).
+
+**Achado de infraestrutura (3ª vez na sessão)**: `class_name CaptureSystem` cravado colidiu com o
+autoload — resolvido na Fase 6, mencionado aqui porque o padrão se repetiu: sempre que um autoload
+novo é registrado, checar se o script não tem `class_name` do mesmo nome.
+
+**Fora do escopo desta fase, achado mas não tocado**: existe uma classe `PokemonEntity.gd`/
+`PokemonSpawner.gd` mais antiga, com o MESMO tipo de disparo direto pro sistema por turno —
+confirmado que é código morto de verdade (só usado em 3 cenas de cidade avulsas — Route1/
+PalletTown/ViridianCity — que nada no jogo aponta mais, substituídas pelo `WorldMap.tscn`
+unificado). Deixado como está, documentado aqui pra não ser esquecido se um dia for religado.
+
+**Testado**: 17 conferências novas headless (sequência de treinador, sinal correto, Zona Safari
+preservada, Pokédex, cosmético desacoplado) + suíte inteira (41 arquivos, 0 falhas) + **confirmado
+ao vivo em navegador real**: Pokémon selvagem com barra de vida/nível direto no mapa, zero tela de
+batalha. Não testado ao vivo (só headless): a sequência de treinador/ginásio de ponta a ponta —
+os treinadores reais do jogo ficam em dungeons (Rocket Hideout, Silph Co, Torre Pokémon), longe
+demais do spawn pra alcançar num teste de navegador dentro do tempo desta sessão; a lógica está
+validada a fundo pelos 17 casos headless. Publicado.
+
+**Próximo passo**: Fase 8 é só checklist (confirmado — o bug de posição já não existe mais, porque
+nenhuma batalha troca de cena). Fase 9 (skill flutuando + cooldown visual, o pedido original do
+print) e Fase 10 (densidade de spawn por profundidade na floresta) ainda faltam.
+
+---
+
 ## Motor de combate em tempo real — Fase 6 (2026-09-02, sessão seguinte)
 
 **Sistema de captura em tempo real revivido, corrigido.** `CaptureSystem.gd` já existia pronto

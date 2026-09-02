@@ -21,6 +21,9 @@ extends CharacterBody2D
 ## o campo já existe pronto pra quando a Fase 7 trouxer combatente de
 ## treinador usando esta mesma classe.
 @export var is_trainer_owned : bool = false
+## Setado junto com is_trainer_owned — a quem avisar (spawnar o próximo da
+## equipe / marcar derrotado) quando este morrer (Fase 7, 02/09).
+var trainer_npc : Node = null
 
 ## Alias para compatibilidade com BattleManager (espera .level)
 var level : int:
@@ -97,6 +100,12 @@ func _ready() -> void:
 	add_to_group("wild_pokemon")
 	_spawn_pos = global_position
 	_load_species()
+	# Achado ao fazer a Fase 7: o combate por turno marcava "visto" na Pokédex
+	# só quando o encontro esquentava (BattleManager._on_wild_encounter_started).
+	# Sem essa emissão pra encontro comum, isso pararia de acontecer — marcar
+	# aqui em vez disso (assim que o Pokémon aparece no mapa) é pelo menos tão
+	# correto quanto, e cobre selvagem e Pokémon de treinador igual.
+	SaveManager.mark_seen(species_id)
 	_load_sprite()
 	_pick_patrol_dir()
 	_build_health_bar()
@@ -450,13 +459,17 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 func _die() -> void:
 	_set_state(State.DEAD)
 	velocity = Vector2.ZERO
-	# Fase 5 do motor de combate em tempo real (02/09): XP/level-up/loot/
-	# Pokédex/sinal de quest agora vêm de BattleResolver — mesma fórmula que
-	# o combate por turno já usava (BattleManager._end_battle()), não mais a
-	# fórmula própria de _roll_loot() (aposentada: usava species_data.drops,
-	# uma tabela paralela e desconectada da de LootTable, que já dava bônus
-	# de sorte do Treinador).
-	BattleResolver.resolve_wild_defeat(species_id, wild_level, species_data.get("name", ""))
+	# Fase 5/7 do motor de combate em tempo real (02/09): XP/level-up/loot/
+	# Pokédex/sinal de quest vêm de BattleResolver — mesma fórmula que o
+	# combate por turno já usava. Pokémon de treinador não dá loot nem conta
+	# na Pokédex (não é selvagem) e avisa o NPC dono pra mandar o próximo da
+	# equipe (ou marcar derrotado, se era o último).
+	if is_trainer_owned:
+		BattleResolver.resolve_trainer_pokemon_defeat(species_id, wild_level, species_data.get("name", ""), trainer_npc)
+		if trainer_npc and trainer_npc.has_method("_on_trainer_pokemon_defeated"):
+			trainer_npc._on_trainer_pokemon_defeated()
+	else:
+		BattleResolver.resolve_wild_defeat(species_id, wild_level, species_data.get("name", ""))
 	EventBus.wild_pokemon_died.emit(self, [])
 	EventBus.wild_pokemon_fainted.emit(self)
 	queue_free()
@@ -485,11 +498,17 @@ var _encounter_triggered : bool = false   # evita emissão repetida por encontro
 func _set_state(new_state: State) -> void:
 	var prev := state
 	state = new_state
-	# Quando entra em ATTACK pela primeira vez (vindo de outro estado),
-	# emite wild_encounter_started para acionar o BattleManager (sistema turn-based).
+	# Fase 7 do motor de combate em tempo real (02/09): quando entra em ATTACK
+	# pela primeira vez, o combate já acontece sozinho no mapa (hitbox/hurtbox/
+	# take_damage, sem trocar de tela) — NÃO aciona mais o BattleManager, exceto
+	# na Zona Safari, que continua por turno de propósito (isca/pedra/bolas
+	# limitadas são uma mecânica só dela, ainda não portada pro tempo real).
+	# wild_pokemon_engaged é só cosmético (câmera/SFX), pra QUALQUER encontro.
 	if new_state == State.ATTACK and prev != State.ATTACK and not _encounter_triggered:
 		_encounter_triggered = true
-		EventBus.wild_encounter_started.emit(self)
+		EventBus.wild_pokemon_engaged.emit(self)
+		if zone_id == BattleManager.SAFARI_ZONE_ID:
+			EventBus.wild_encounter_started.emit(self)
 	# Reset do flag quando sai do ATTACK (ex: para PATROL/DEAD)
 	if prev == State.ATTACK and new_state != State.ATTACK:
 		_encounter_triggered = false
