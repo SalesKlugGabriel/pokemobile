@@ -16,12 +16,10 @@ const FOLLOWER_SCENE : PackedScene = preload("res://scenes/entities/FollowerPoke
 # ──────────────────────────────────────────────────────────────────────────────
 var _input_locked   : bool     = false
 
-# Follower Pokémon (FollowerPokemon.gd — continua em pixel, persegue um rastro)
+# Follower Pokémon (FollowerPokemon.gd — continua em pixel; calcula sozinho a
+# própria posição de repouso a partir de trainer.global_position/facing, ver
+# FollowerPokemon._position_behind_trainer()).
 var follower : Node2D = null
-
-# Trail de posições para o follower (pixel + direção)
-var _trail          : Array[Dictionary] = []
-const TRAIL_MAX     : int = 120   # ~2s a 60fps de buffer
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Mecânicas de movimentação (02/09) — 4 marchas, da mais lenta pra mais
@@ -144,8 +142,6 @@ func _spawn_follower() -> void:
 # Movimento (tile-a-tile, herdado de BaseEntity.try_move)
 # ──────────────────────────────────────────────────────────────────────────────
 func _process(_delta: float) -> void:
-	_record_trail()
-
 	if _input_locked:
 		return
 
@@ -228,7 +224,8 @@ func _get_move_duration() -> float:
 	if is_running: return RUN_DURATION   # Bicicleta
 	return MOVE_DURATION                 # Andar (e Surfar, mesma velocidade)
 
-## Usado pelo FollowerPokemon como direção de repouso quando ainda não há rastro.
+## Usado pelo FollowerPokemon pra saber em qual quadro cardeal (nunca diagonal)
+## ficar de repouso — sempre o oposto de pra onde o Treinador está olhando.
 func get_facing_vector() -> Vector2:
 	return _dir_to_vec(facing)
 
@@ -277,37 +274,10 @@ func _show_system_message(dialog_id: String) -> void:
 	EventBus.npc_dialog_requested.emit(null, dialog_id)
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Trail para FollowerPokemon
-# ──────────────────────────────────────────────────────────────────────────────
-func _record_trail() -> void:
-	_trail.append({ "pos": position, "facing": facing })
-	if _trail.size() > TRAIL_MAX:
-		_trail.pop_front()
-	_update_follower()
-
-func _update_follower() -> void:
-	if not follower or not follower.has_method("set_target_position"):
-		return
-	# Pega a posição a FollowerPokemon.FOLLOW_DISTANCE px atrás no histórico — mesma constante
-	# usada pelo follower pra manter repouso, senão os dois número dessincronizam e a
-	# distância real de caminhada volta a ficar menor que o repouso.
-	# Velocidade efetiva do tween de tile: TILE_SIZE px na marcha atual (_get_move_duration,
-	# a mesma que try_move usa de verdade) — antes de Montaria/Voar existirem, só tinha
-	# Andar/Bicicleta; agora precisa da mesma escolha de marcha, senão o seguidor
-	# dessincroniza (fica pra trás ou colado demais) nas marchas novas.
-	var duration : float = _get_move_duration()
-	var speed_px_s : float = TILE_SIZE / duration
-	var follow_frames : int = int(FollowerPokemon.FOLLOW_DISTANCE / (speed_px_s / 60.0))
-	follow_frames = clampi(follow_frames, 1, _trail.size())
-	var entry := _trail[_trail.size() - follow_frames]
-	follower.set_target_position(entry["pos"])
-
-# ──────────────────────────────────────────────────────────────────────────────
 # Follower management
 # ──────────────────────────────────────────────────────────────────────────────
 func set_follower(f: Node2D) -> void:
 	follower = f
-	_trail.clear()
 
 func clear_follower() -> void:
 	follower = null

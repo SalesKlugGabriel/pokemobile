@@ -9,6 +9,48 @@
 
 ---
 
+## v0.6.5 — Pokémon seguidor nunca mais sobrepõe o Treinador (2026-09-02, sessão seguinte)
+
+**Sessão anterior fechou abruptamente de novo**, no meio da verificação em navegador desta mesma
+correção. Retomada com `git status` (achado: os 3 arquivos de código já modificados e corretos,
+nada perdido — só faltava rodar a suíte de novo e confirmar visualmente antes do commit).
+
+**Pedido do Gabriel**: o Pokémon que segue o treinador não pode, em hipótese alguma, sobrepor o
+sprite dele — precisa ficar sempre 1 quadro de distância no sentido oposto a pra onde o treinador
+está olhando (Norte→Sul, Sul→Norte, Leste→Oeste, Oeste→Leste), nunca na diagonal.
+
+**O que havia antes**: o seguidor perseguia um "rastro" de posições passadas do Treinador
+(gravado a cada frame, ~24px atrás) — ficava mais natural em linha reta, mas numa curva podia
+passar um instante fora do eixo cardeal, sobrepondo os dois sprites (o do Pokémon é desenhado 2x
+maior que o padrão do jogo, então a sobreposição ficava bem visível).
+
+**Corrigido**: removido o mecanismo de rastro inteiro (`_trail`/`_record_trail`/
+`_update_follower`/`set_target_position`, em `TrainerEntity.gd` e `FollowerPokemon.gd`) — o
+seguidor agora sempre calcula sozinho `trainer.global_position - facing_vector * FOLLOW_DISTANCE`,
+nunca guarda histórico. Mais simples e sem essa classe de bug ser possível.
+
+**Testado**: 5 conferências novas em `teste_fase4_mecanicas_movimento.gd` (as 4 direções +
+"nunca fica na diagonal") — suíte inteira, 32 arquivos, 0 falhas. **Confirmado em navegador de
+verdade** (Chromium via Playwright, container `mcr.microsoft.com/playwright`, contra o build Web
+servido com os headers `Cross-Origin-*` exigidos pelo Godot Web export — o servidor Python simples
+usado antes não tinha esses headers e travava o jogo no carregamento): joguei uma partida nova
+(Bulbasaur) e andei nas 4 direções — Pokémon sempre 1 quadro atrás, nunca sobreposto, nas 4
+capturas de tela. Publicado.
+
+**Achado à parte, corrigido no mesmo commit**: `docs/referencias/sprite-bike-gerado-ia.png.import`
+estava sem versionar desde o commit da sprite da Bicicleta (02/09, sessão anterior) — mesma
+classe de esquecimento já vista antes neste projeto, adicionado ao Git agora.
+
+**Próximo passo**: melhoria gráfica do jogo (mapa + sprites individuais do jogador e de cada
+Pokémon nas 4 posições — frente/costas/lateral esquerda/lateral direita — e versões shiny) — pedido
+pelo Gabriel na mesma sessão que fechou abruptamente, **ainda não iniciado**. Precisa de uma
+conversa de escopo antes de começar a gerar sprite (é trabalho grande, cota diária da ferramenta
+de imagem é limitada).
+
+**Precisa de decisão do Gabriel?** Sim, sobre o escopo da melhoria gráfica (ver "Próximo passo").
+
+---
+
 ## v0.6.4 — botão "Voar" da HUD/pausa virou "Teleporte" (2026-09-02, sessão seguinte)
 
 **Sessão anterior (a que criou v0.6.1-v0.6.3) fechou abruptamente de novo**, bem no meio de eu

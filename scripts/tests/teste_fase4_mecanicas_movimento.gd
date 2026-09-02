@@ -37,6 +37,7 @@ func _process(_delta: float) -> bool:
 	_teste_team_knows_move()
 	_teste_visited_maps()
 	_teste_recompensas_surf_fly()
+	_teste_posicao_pokemon_seguidor()
 
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	quit(1 if _fail > 0 else 0)
@@ -187,3 +188,57 @@ func _teste_recompensas_surf_fly() -> void:
 	QuestManager.start_quest("GYM-07")  # só exige GYM-05, já completo acima
 	QuestManager.complete_quest("GYM-07")
 	_assert(SaveManager.has_item("hm02", 1), "Ginásio de Saffron (Sabrina) dá MO02 Voar")
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 6. Posição do Pokémon seguidor — correção pedida pelo Gabriel (02/09,
+#    sessão seguinte): sempre no quadro cardeal OPOSTO a pra onde o Treinador
+#    olha (nunca na diagonal), pra nunca sobrepor o sprite. Chama
+#    _position_behind_trainer() direto (sem instanciar a cena/rodar
+#    _process) — mesmo padrão de "camada de dados/lógica" deste arquivo,
+#    movimento ao vivo continua sendo conferido no navegador.
+# ──────────────────────────────────────────────────────────────────────────────
+func _teste_posicao_pokemon_seguidor() -> void:
+	# Achado ao escrever este teste: TrainerEntity.new()/FollowerPokemon.new()
+	# (pelo nome global OU por load() comum) falhava aqui com "Nonexistent
+	# function 'new' in base GDScript" — os dois scripts falham a compilar
+	# na largada do processo (autoloads como EventBus ainda não existem
+	# nesse instante, mesmo erro que aparece no topo de QUALQUER teste desta
+	# suíte) e o Godot deixa esse resultado quebrado em cache pro resto do
+	# processo. CACHE_MODE_IGNORE força recarregar de verdade agora que os
+	# autoloads (SaveManager.new_game() já rodou) existem.
+	var TrainerScript  := ResourceLoader.load("res://scripts/entities/TrainerEntity.gd", "", ResourceLoader.CACHE_MODE_IGNORE)
+	var FollowerScript := ResourceLoader.load("res://scripts/entities/FollowerPokemon.gd", "", ResourceLoader.CACHE_MODE_IGNORE)
+	var trainer  = TrainerScript.new()
+	trainer.global_position = Vector2(100, 100)
+	var follower = FollowerScript.new()
+	follower.trainer = trainer
+
+	trainer.facing = BaseEntity.Direction.UP
+	var pos_up : Vector2 = follower._position_behind_trainer()
+	_assert(pos_up == Vector2(100, 100 + FollowerPokemon.FOLLOW_DISTANCE),
+		"olhando pro Norte, o Pokémon fica exatamente 1 quadro ao Sul (nunca na diagonal)")
+
+	trainer.facing = BaseEntity.Direction.DOWN
+	var pos_down : Vector2 = follower._position_behind_trainer()
+	_assert(pos_down == Vector2(100, 100 - FollowerPokemon.FOLLOW_DISTANCE),
+		"olhando pro Sul, o Pokémon fica exatamente 1 quadro ao Norte")
+
+	trainer.facing = BaseEntity.Direction.LEFT
+	var pos_left : Vector2 = follower._position_behind_trainer()
+	_assert(pos_left == Vector2(100 + FollowerPokemon.FOLLOW_DISTANCE, 100),
+		"olhando pro Oeste, o Pokémon fica exatamente 1 quadro a Leste")
+
+	trainer.facing = BaseEntity.Direction.RIGHT
+	var pos_right : Vector2 = follower._position_behind_trainer()
+	_assert(pos_right == Vector2(100 - FollowerPokemon.FOLLOW_DISTANCE, 100),
+		"olhando pro Leste, o Pokémon fica exatamente 1 quadro a Oeste")
+
+	# Nas 4 direções, nunca diagonal — sempre um eixo zerado (diferença exata
+	# da posição do Treinador no outro).
+	var todas_as_posicoes : Array[Vector2] = [pos_up, pos_down, pos_left, pos_right]
+	for pos in todas_as_posicoes:
+		var diff : Vector2 = pos - trainer.global_position
+		_assert(diff.x == 0.0 or diff.y == 0.0, "nunca fica na diagonal do Treinador")
+
+	trainer.free()
+	follower.free()

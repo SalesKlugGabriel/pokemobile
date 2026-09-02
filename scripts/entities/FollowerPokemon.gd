@@ -51,11 +51,6 @@ var _cooldowns     : Array[float]  = [0.0, 0.0, 0.0, 0.0]
 var trainer        : Node2D = null
 var current_target : Node2D = null
 
-## Posição-alvo de "rastro" enviada pelo TrainerEntity a cada frame (set_target_position).
-## Usada quando não há combate — o Pokémon simplesmente segue o caminho do Treinador.
-var _follow_target_pos : Vector2 = Vector2.ZERO
-var _has_follow_target : bool    = false
-
 var _is_fainted    : bool   = false
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -214,10 +209,8 @@ func _calculate_target_position() -> Vector2:
 		if to_enemy.length() >= 0.1:
 			return trainer.global_position + to_enemy.normalized() * BODYGUARD_OFFSET
 
-	# Fora de combate: segue o rastro de posições do Treinador
-	if _has_follow_target:
-		return _follow_target_pos
-
+	# Fora de combate: sempre 1 quadro atrás do Treinador, no sentido oposto
+	# de pra onde ele está olhando — nunca na diagonal, pra nunca sobrepor.
 	if trainer:
 		return _position_behind_trainer()
 
@@ -229,8 +222,14 @@ func _play_anim(base: String) -> void:
 	if sprite.animation != base and sprite.sprite_frames.has_animation(base):
 		sprite.play(base)
 
+## Sempre no quadro cardeal OPOSTO a pra onde o Treinador está olhando —
+## Norte→fica ao Sul, Oeste→fica a Leste, etc. (correção pedida pelo Gabriel,
+## 02/09: nunca diagonal, nunca sobrepor). Antes disso o Pokémon perseguia um
+## "rastro" de posições passadas do Treinador (removido) — parecia mais
+## natural em linha reta, mas podia ficar temporariamente fora do eixo
+## cardeal numa curva, sobrepondo o sprite (que é desenhado 2x maior, ver
+## _load_sprite, pra não ficar minúsculo do lado do Treinador).
 func _position_behind_trainer() -> Vector2:
-	# Usa a direção oposta ao facing do Treinador (aproximado: abaixo do Treinador)
 	if trainer.has_method("get_facing_vector"):
 		var fv : Vector2 = trainer.get_facing_vector()
 		return trainer.global_position - fv * FOLLOW_DISTANCE
@@ -266,13 +265,6 @@ func set_trainer(t: Node2D) -> void:
 
 func set_target(t: Node2D) -> void:
 	current_target = t
-
-## Chamado pelo TrainerEntity a cada frame com uma posição do próprio rastro
-## (~24px atrás dele) — é assim que o Pokémon segue o caminho andado, não o
-## Treinador em linha reta.
-func set_target_position(pos: Vector2) -> void:
-	_follow_target_pos = pos
-	_has_follow_target = true
 
 func is_fainted() -> bool:
 	return _is_fainted
