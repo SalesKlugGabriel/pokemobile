@@ -63,6 +63,24 @@ func _ready() -> void:
 	_load_move_slots()
 	_load_sprite()
 	EventBus.follower_changed.emit(_build_pokemon_data())
+	# Motor de combate em tempo real (02/09): use_skill() já exigia
+	# current_target pra funcionar, só que nada nunca setava esse valor —
+	# clicar/tocar no Pokémon selvagem (WildPokemon._on_hurtbox_input_event)
+	# agora é como o Gabriel pediu pra escolher em quem atacar.
+	EventBus.wild_pokemon_selected.connect(_on_wild_pokemon_selected)
+	EventBus.wild_pokemon_died.connect(_on_wild_pokemon_died)
+	EventBus.wild_pokemon_fainted.connect(_on_wild_pokemon_fainted)
+
+func _on_wild_pokemon_selected(pokemon: Node) -> void:
+	current_target = pokemon
+
+func _on_wild_pokemon_died(pokemon: Node, _loot: Array) -> void:
+	if current_target == pokemon:
+		current_target = null
+
+func _on_wild_pokemon_fainted(pokemon: Node) -> void:
+	if current_target == pokemon:
+		current_target = null
 
 func _load_sprite() -> void:
 	if sprite and not sprite.sprite_frames:

@@ -26,6 +26,10 @@ signal wild_pokemon_spawned(pokemon: Node)
 signal wild_pokemon_died(pokemon: Node, loot: Array)
 signal wild_pokemon_fainted(pokemon: Node)
 signal wild_encounter_started(pokemon: Node)   # overworld: pokémon alcança jogador
+## Jogador tocou/clicou num Pokémon selvagem no mapa — vira o alvo dos golpes
+## de mira única do Follower (motor de combate em tempo real, 02/09).
+signal wild_pokemon_selected(pokemon: Node)
+signal wild_pokemon_hp_changed(pokemon: Node, current: int, maximum: int)
 
 # --- CAPTURA ---
 signal pokeball_thrown(target: Node)

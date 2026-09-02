@@ -9,6 +9,41 @@
 
 ---
 
+## Motor de combate em tempo real — Fase 0 e Fase 0.5 (2026-09-02, sessão seguinte)
+
+Plano completo (10+ fases) desenhado com o Gabriel e aprovado — ver
+`/root/.claude/plans/adaptive-tickling-reddy.md` — pra transformar toda batalha (selvagem e
+treinador/ginásio) na mesma mecânica em tempo real, direto no mapa, sem tela separada, inspirada
+no Tibia/PokéTibia/PokeXGames que o Gabriel pediu pra estudar. Duas fases já entregues:
+
+**Fase 0 — HP/dano/desmaio do Treinador.** Achado que encolheu o trabalho: `WildPokemon` já
+tentava atacar o jogador quando o Follower estava ausente (regra que o Gabriel pediu), e já
+guardava com `has_method("take_damage")` antes de bater — só nunca fazia nada porque o Treinador
+não tinha esse método. Sinais `trainer_hp_changed`/`trainer_died` já existiam no `EventBus`, nunca
+emitidos. Ao desmaiar: cura o time e volta pro último Centro Pokémon visitado (as duas funções já
+existiam, só nunca eram chamadas nesse fluxo) — sem perda permanente, convenção clássica.
+
+**Fase 0.5 — Seleção de alvo por clique/toque + barra de vida/nível (pedido do Gabriel na
+sequência, percebendo que faltava).** Achado parecido: `FollowerPokemon.use_skill()` já exigia
+`current_target` setado, só que nada nunca setava esse valor — a mira de golpe único nunca
+funcionava. Agora clicar/tocar no Pokémon selvagem seleciona ele (destaque visual), e cada
+selvagem mostra sua própria barra de vida (verde/amarelo/vermelho) + nível acima da cabeça. Sem
+alvo selecionado, nenhum golpe do Follower funciona (regra confirmada com o Gabriel).
+
+**Testado**: 14 conferências headless novas nas duas fases + suíte inteira (34 arquivos, 0
+falhas). Achado à parte, não corrigido (pré-existente, confirmado comparando com o build anterior
+a esta sessão, mesmo roteiro): aviso de física no console ao andar ("Index p_layer_id = 0 is out
+of bounds") — falta camada de colisão configurada em `overworld.tres`. **Fase 0.5 não confirmada
+ao vivo em condição real de jogo ainda** — o Pokémon selvagem hoje ainda troca pra tela de batalha
+por turno antes de dar tempo de clicar nele andando livre; só vai dar pra ver de ponta a ponta
+depois da Fase 7 (quando o turno for desligado de vez). Publicado.
+
+**Próximo passo**: Fase 1 (ligar `ability` — Overgrow/Blaze/Guts — no combate em tempo real, já
+existe e testado, só nunca foi lido fora do turno) e Fase 2 (habilidade passiva nova por timer
+aleatório — Mega Drain/Counter Helix, pedido do Gabriel com exemplos concretos).
+
+---
+
 ## 🔖 Cronograma reorganizado — 3 pedidos novos do Gabriel (2026-09-02, sessão seguinte)
 
 Gabriel mandou um print de outro jogo (habilidade "Poison Bomb"/"Acid" aparecendo flutuando em

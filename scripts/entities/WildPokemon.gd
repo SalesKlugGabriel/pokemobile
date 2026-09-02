@@ -94,6 +94,10 @@ func _ready() -> void:
 	_load_species()
 	_load_sprite()
 	_pick_patrol_dir()
+	_build_health_bar()
+	if hurtbox:
+		hurtbox.input_event.connect(_on_hurtbox_input_event)
+	EventBus.wild_pokemon_selected.connect(_on_wild_pokemon_selected)
 	EventBus.wild_pokemon_spawned.emit(self)
 
 ## Chamado pelo SpawnManager (ANTES de entrar na árvore, então antes do _ready
@@ -117,6 +121,67 @@ func _load_sprite() -> void:
 		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(species_id)
 		sprite.play("idle")
 		sprite.scale = Vector2(4.0, 4.0)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Seleção de alvo + HP/nível visível (motor de combate em tempo real, 02/09)
+# ──────────────────────────────────────────────────────────────────────────────
+# Achado ao construir isto: sem alvo selecionado, os golpes de mira única do
+# Follower nunca tinham quem atacar (current_target nunca era setado por
+# ninguém) — clicar/tocar no Pokémon é como o Gabriel pediu pra escolher.
+var _hp_bar_bg     : ColorRect
+var _hp_bar_fill   : ColorRect
+var _level_label   : Label
+const HP_BAR_WIDTH  : float = 40.0
+const HP_BAR_HEIGHT : float = 5.0
+const HP_BAR_Y      : float = -40.0
+
+func _build_health_bar() -> void:
+	_hp_bar_bg = ColorRect.new()
+	_hp_bar_bg.color = Color(0.1, 0.1, 0.1, 0.8)
+	_hp_bar_bg.size = Vector2(HP_BAR_WIDTH, HP_BAR_HEIGHT)
+	_hp_bar_bg.position = Vector2(-HP_BAR_WIDTH / 2.0, HP_BAR_Y)
+	add_child(_hp_bar_bg)
+
+	_hp_bar_fill = ColorRect.new()
+	_hp_bar_fill.color = Color(0.2, 0.85, 0.2)
+	_hp_bar_fill.size = Vector2(HP_BAR_WIDTH, HP_BAR_HEIGHT)
+	_hp_bar_bg.add_child(_hp_bar_fill)
+
+	_level_label = Label.new()
+	_level_label.text = "Lv.%d" % wild_level
+	_level_label.add_theme_font_size_override("font_size", 10)
+	_level_label.position = Vector2(-HP_BAR_WIDTH / 2.0, HP_BAR_Y - 14.0)
+	add_child(_level_label)
+
+	_update_health_bar()
+
+func _update_health_bar() -> void:
+	if not _hp_bar_fill or max_hp <= 0:
+		return
+	var ratio : float = clampf(float(current_hp) / float(max_hp), 0.0, 1.0)
+	_hp_bar_fill.size.x = HP_BAR_WIDTH * ratio
+	# Verde -> amarelo -> vermelho, igual convenção clássica de barra de vida.
+	if ratio > 0.5:
+		_hp_bar_fill.color = Color(0.2, 0.85, 0.2)
+	elif ratio > 0.2:
+		_hp_bar_fill.color = Color(0.9, 0.8, 0.1)
+	else:
+		_hp_bar_fill.color = Color(0.85, 0.2, 0.2)
+
+func _on_hurtbox_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	if state == State.DEAD:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		EventBus.wild_pokemon_selected.emit(self)
+	elif event is InputEventScreenTouch and event.pressed:
+		EventBus.wild_pokemon_selected.emit(self)
+
+## Todo Pokémon selvagem escuta a própria seleção pra saber se é ELE o
+## escolhido (sem gerente central) — só acende o destaque em si mesmo.
+func _on_wild_pokemon_selected(pokemon: Node) -> void:
+	if not sprite:
+		return
+	sprite.modulate = Color(1.5, 1.5, 0.7) if pokemon == self else Color(1, 1, 1)
 
 func _load_species() -> void:
 	species_data = GameData.get_species(species_id)
@@ -275,6 +340,8 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 		return
 	current_hp = max(0, current_hp - amount)
 	EventBus.damage_dealt.emit(self, amount, false)
+	EventBus.wild_pokemon_hp_changed.emit(self, current_hp, max_hp)
+	_update_health_bar()
 
 	# "neutral" entra em combate quando atacado
 	if behavior == "neutral" and state == State.PATROL:
