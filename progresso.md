@@ -9,6 +9,40 @@
 
 ---
 
+## Câmera com zoom 3x ("tile de 96px") + árvore redesenhada (2026-09-02, sessão seguinte 5)
+
+**Gabriel: "usar tudo no mapa na escala 96x96 como base... achei muito pequeno, se aumentarmos o
+player, mostrar menos do mapa na tela e as árvores em uma proporção que pareça uma árvore e não um
+arbusto."**
+
+**Zoom da câmera, não redesenho da malha do mundo.** Em vez de migrar o grid inteiro de 32px pra
+96px (reescreveria colisão, spawn, todos os 32 mapas — o mesmo tipo de migração grande que já
+rodou uma vez, de 16→32px), usei o zoom do `Camera2D`: cada tile de 32px passa a desenhar como
+96px na tela (exatamente a base "96x96" que o Gabriel pediu), sem tocar em nenhuma coordenada do
+mundo por baixo. **Achado no caminho**: o jogo carrega `WorldMap.tscn` (um mapa contínuo), não
+`PalletTown.tscn` isolado — editar só este por engano não tinha efeito nenhum na tela; corrigido
+editando os 32 arquivos de mapa de uma vez (`zoom = Vector2(1.5,1.5)` → `Vector2(3.0,3.0)`).
+Confirmado por medição de pixel (não só "parece maior"): o padrão de sulcos da plantação na Rota 1
+passou a se repetir a cada 96px, batendo exato com tile(32)×zoom(3). Conferido que nenhum mapa
+(nem o menor, o Centro Pokémon) fica menor que a área agora visível da câmera — sem risco de borda
+preta em lugar nenhum.
+
+**Árvore redesenhada — achado importante:** árvore e arbusto (sebe) já eram tiles DIFERENTES
+(arbusto é uma textura de folhagem preenchendo o tile inteiro tipo parede de sebe; árvore já tinha
+copa redonda + tronco) — não era confusão entre os dois. O problema real: a copa da árvore
+preenchia quase o tile 32×32 inteiro, sem margem de grama nas bordas — lado a lado, as copas se
+tocavam e viravam uma "parede verde contínua", lendo como sebe em vez de árvores individuais.
+Redesenhada por código (não por IA — paleta extraída pixel a pixel do próprio tile antigo, garante
+o mesmo estilo): copa mais estreita com margem de grama visível, tronco bem mais alto. Resultado:
+árvores individuais nitidamente separadas, cada uma com seu próprio tronco visível.
+
+**Testado:** suíte completa (48 arquivos, 0 falhas — mudança é só de câmera/arte, não de lógica),
+navegador real confirmando o novo tamanho (jogador/Pokémon proporcionais, árvores separadas) em
+Rota 1. Pendente (mencionado mas não decidido ainda): expandir a diversidade de tiles (mais
+variedade de piso/arbusto/água, plano em `docs/tileset-referencia-visual.md`).
+
+---
+
 ## Escala Pokémon×árvore corrigida + troca pra Geração 5 (mais detalhe) (2026-09-02, sessão seguinte 4)
 
 **Gabriel jogou, mandou print de referência de um jogo com sprites pintadas/detalhadas, e apontou:

@@ -40,7 +40,7 @@ position = Vector2(1600, 3520)
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
-zoom = Vector2(1.5, 1.5)
+zoom = Vector2(3.0, 3.0)
 
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 

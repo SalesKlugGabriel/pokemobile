@@ -46,7 +46,7 @@ limit_left = 0
 limit_top = 0
 limit_right = 1600
 limit_bottom = 960
-zoom = Vector2(1.5, 1.5)
+zoom = Vector2(3.0, 3.0)
 
 [node name="WarpZones" type="Node2D" parent="."]
 
