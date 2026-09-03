@@ -12,10 +12,10 @@
 [ext_resource type="Script" path="res://scripts/world/WarpZone.gd" id="10_warpzone"]
 
 [sub_resource type="RectangleShape2D" id="Shape_north"]
-size = Vector2(96, 32)
+size = Vector2(384, 128)
 
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter"]
-size = Vector2(32, 32)
+size = Vector2(128, 128)
 
 [node name="PalletTown" type="Node2D"]
 script = ExtResource("1_basemap")
@@ -28,7 +28,7 @@ format = 2
 [node name="Entities" type="Node2D" parent="."]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(352, 704)
+position = Vector2(1408, 2816)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
@@ -37,30 +37,30 @@ drag_horizontal_enabled = true
 drag_vertical_enabled = true
 limit_left = 0
 limit_top = 0
-limit_right = 1600
-limit_bottom = 1280
-zoom = Vector2(3.0, 3.0)
+limit_right = 6400
+limit_bottom = 5120
+zoom = Vector2(1, 1)
 
 [node name="ProfessorOak" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(352, 192)
+position = Vector2(1408, 768)
 npc_name = "Prof. Carvalho"
 dialog_id = "oak_intro"
 is_patrolling = false
 
 [node name="Resident1" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(256, 544)
+position = Vector2(1024, 2176)
 npc_name = "Morador"
 dialog_id = "pallet_resident_1"
 is_patrolling = false
 
 [node name="Resident2" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(640, 544)
+position = Vector2(2560, 2176)
 npc_name = "Moradora"
 dialog_id = "pallet_resident_2"
 is_patrolling = false
 
 [node name="PokemonSpawner" type="Node2D" parent="."]
-position = Vector2(800, 800)
+position = Vector2(3200, 3200)
 script = ExtResource("4_spawner")
 biome_id = "plains"
 max_spawns = 6
@@ -69,7 +69,7 @@ spawn_radius = 15
 [node name="WarpZones" type="Node2D" parent="."]
 
 [node name="WarpNorth" type="Area2D" parent="WarpZones"]
-position = Vector2(352, 16)
+position = Vector2(1408, 64)
 collision_mask = 2
 script = ExtResource("10_warpzone")
 target_map = "res://scenes/world/maps/Route1.tscn"
@@ -79,7 +79,7 @@ spawn_tile = Vector2i(9, 55)
 shape = SubResource("Shape_north")
 
 [node name="WarpPokemonCenter" type="Area2D" parent="WarpZones"]
-position = Vector2(1248, 288)
+position = Vector2(4992, 1152)
 collision_mask = 2
 script = ExtResource("10_warpzone")
 target_map = "res://scenes/world/maps/PokemonCenter.tscn"

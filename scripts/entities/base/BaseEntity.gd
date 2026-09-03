@@ -5,7 +5,7 @@ class_name BaseEntity
 extends CharacterBody2D
 
 # --- Constantes ---
-const TILE_SIZE      : int   = 32     # pixels por tile (dobrado de 16 em 02/09, migração tile32)
+const TILE_SIZE      : int   = 128    # pixels por tile (migração tile128 em 03/09, pedido do Gabriel — 32px não tinha detalhe suficiente mesmo redesenhado)
 const MOVE_DURATION  : float = 0.18   # segundos para cruzar 1 tile (caminhada)
 const RUN_DURATION   : float = 0.09   # segundos para cruzar 1 tile (corrida)
 

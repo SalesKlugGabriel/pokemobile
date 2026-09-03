@@ -100,8 +100,9 @@ func _load_sprites() -> void:
 		_:
 			tex_path = "res://assets/sprites/npc/npc_default.png"
 	sprite.sprite_frames = SpriteBuilder.build_entity_frames(tex_path)
-	# Mesma compensação do TrainerEntity: arte ainda em 16px, tile agora é 32px.
-	sprite.scale = Vector2(2.0, 2.0)
+	# Migração tile128 (03/09): arte reamostrada pra 128px nativos (igual ao
+	# tile), não precisa mais da escala 2x que compensava a arte de 16px.
+	sprite.scale = Vector2(1.0, 1.0)
 	sprite.play("idle_down")
 
 # ──────────────────────────────────────────────────────────────────────────────

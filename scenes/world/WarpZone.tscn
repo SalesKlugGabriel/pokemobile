@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/world/WarpZone.gd" id="1_warpzone"]
 
 [sub_resource type="RectangleShape2D" id="DefaultShape"]
-size = Vector2(64, 32)
+size = Vector2(256, 128)
 
 [node name="WarpZone" type="Area2D"]
 collision_layer = 0

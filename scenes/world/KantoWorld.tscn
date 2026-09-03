@@ -35,12 +35,12 @@ z_index = 5
 [node name="Entities" type="Node2D" parent="."]
 
 [node name="Player" parent="Entities" instance=ExtResource("7_trainer")]
-position = Vector2(1600, 3520)
+position = Vector2(6400, 14080)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
-zoom = Vector2(3.0, 3.0)
+zoom = Vector2(1, 1)
 
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 

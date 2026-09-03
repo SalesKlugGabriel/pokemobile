@@ -7,7 +7,7 @@
 class_name FloatingText
 extends RefCounted
 
-const RISE_DISTANCE : float = 36.0
+const RISE_DISTANCE : float = 144.0  # migração tile128 (03/09): era 36 pro tile de 32px
 const DURATION      : float = 0.9
 
 ## parent: normalmente get_tree().current_scene. world_pos: onde nasce o

@@ -49,8 +49,8 @@ func _teste_geral() -> void:
 			_assert(vendedor.opens_shop_on_dialog_end == true, "abre a loja de verdade ao fim do diálogo")
 			_assert(vendedor.dialog_id == "celadon_shopkeeper", "usa o diálogo próprio da Loja de Celadon")
 			var pos : Vector2 = vendedor.position
-			var tile_c := int(pos.x / 32)
-			var tile_r := int(pos.y / 32)
+			var tile_c := int(pos.x / 128)
+			var tile_r := int(pos.y / 128)
 			_assert(tile_c == ce0 + 54 and tile_r == r0 + 10,
 				"posição bate exatamente com a coordenada real do prédio (%d,%d)" % [tile_c, tile_r])
 		inst.free()

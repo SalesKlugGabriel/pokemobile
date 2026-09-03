@@ -13,10 +13,10 @@
 [ext_resource type="PackedScene" path="res://scenes/entities/NpcEntity.tscn" id="11_npc"]
 
 [sub_resource type="RectangleShape2D" id="Shape_down"]
-size = Vector2(64, 32)
+size = Vector2(256, 128)
 
 [sub_resource type="RectangleShape2D" id="Shape_hq"]
-size = Vector2(32, 32)
+size = Vector2(128, 128)
 
 
 [node name="CeladonGameCorner" type="Node2D"]
@@ -33,19 +33,19 @@ format = 2
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(272, 352)
+position = Vector2(1088, 1408)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
-limit_right = 576
-limit_bottom = 448
-zoom = Vector2(3.0, 3.0)
+limit_right = 2304
+limit_bottom = 1792
+zoom = Vector2(1, 1)
 
 [node name="Bruno" parent="Entities" instance=ExtResource("11_npc")]
-position = Vector2(144, 208)
+position = Vector2(576, 832)
 npc_name = "Bruno"
 dialog_id = "bruno_game_corner"
 is_patrolling = false
@@ -59,7 +59,7 @@ script = ExtResource("4_sm")
 [node name="WarpZones" type="Node2D" parent="."]
 
 [node name="WarpDown" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(272, 384)
+position = Vector2(1088, 1536)
 target_map = "res://scenes/world/maps/WorldMap.tscn"
 spawn_tile = Vector2i(125, 96)
 
@@ -67,7 +67,7 @@ spawn_tile = Vector2i(125, 96)
 shape = SubResource("Shape_down")
 
 [node name="WarpRocketHQ" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(464, 208)
+position = Vector2(1856, 832)
 target_map = "res://scenes/world/maps/RocketHQ_F1.tscn"
 spawn_tile = Vector2i(8, 11)
 

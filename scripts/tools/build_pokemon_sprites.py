@@ -35,12 +35,16 @@ mantida no arquivo só como salvaguarda (roda sempre, mas não deve
 encontrar nada pra apagar nesta fonte).
 
 Formato de saída (mesmo layout 4-direções já usado pro Treinador/NPC,
-SpriteBuilder.build_entity_frames): 96×128 (3 colunas × 32px, 4 linhas ×
-32px) — tile 32, não 16, porque a arte baixada já é grande demais pra
-caber sem virar ruído em 16px (mesmo achado da sprite da Bicicleta), e
-32 é o tamanho do tile do jogo (Treinador/árvore/tudo mais) — Pokémon
-maior que isso voltaria a ficar desproporcional (achado do Gabriel,
-02/09: "os pokemons estão maiores do que as árvores").
+SpriteBuilder.build_entity_frames): 384×512 (3 colunas × 128px, 4 linhas ×
+128px) — migração tile128 (03/09, pedido do Gabriel: 32px "não tinha
+resolução boa mesmo redesenhado"). A fonte (Geração 5, 96×96 nativos) é
+MENOR que o tile novo — `fit_to_tile()` agora faz upscale de verdade com
+reamostragem suave (LANCZOS, não "esticar" com nearest) quando a sprite
+baixada é menor que o tile, em vez de só encolher (o `thumbnail()` do PIL
+nunca aumenta uma imagem, então a versão anterior deste script, herdada
+de quando o tile era 32 e a fonte 96px sempre precisava ENCOLHER, ficaria
+quebrada aqui — teria deixado a sprite pequena dentro de uma moldura maior
+em vez de preencher o tile).
 
 Mapeamento de direção (sem sprite de perfil real disponível — batalha só
 tem frente/costas):
@@ -67,10 +71,10 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = ROOT / "assets" / "sprites" / "pokemon"
 BASE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white"
 
-TILE = 32
+TILE = 128  # migração tile128 (03/09): era 32
 SHEET_W = TILE * 3
 SHEET_H = TILE * 4
-BOB_PX = 1  # deslocamento vertical do "passo" entre as colunas walk_a/walk_b
+BOB_PX = 4  # migração tile128 (03/09): era 1 — mantém a mesma proporção de "passo"
 
 
 def fetch(url: str) -> Image.Image | None:
@@ -130,14 +134,23 @@ def remove_white_bg(im: Image.Image, threshold: int = 245) -> Image.Image:
 def fit_to_tile(im: Image.Image, tile: int = TILE) -> Image.Image:
     """Encaixa a sprite (proporção preservada) num canvas tile×tile
     transparente, alinhada pelo RODAPÉ (não centralizada verticalmente) —
-    assim o "pé" de qualquer pose (as baixadas variam de 32 a 40px de
-    altura) sempre cai na mesma linha do quadro, em vez de flutuar em
-    alturas diferentes dependendo do tamanho de cada sprite."""
+    assim o "pé" de qualquer pose (as baixadas variam de tamanho) sempre
+    cai na mesma linha do quadro, em vez de flutuar em alturas diferentes
+    dependendo do tamanho de cada sprite.
+
+    Migração tile128 (03/09): a fonte (Geração 5, ~96×96) é MENOR que o
+    tile (128), então isto precisa ENCOLHER OU AUMENTAR dependendo do
+    caso — `resize()` com LANCZOS faz as duas coisas com reamostragem
+    suave (`thumbnail()` do PIL só encolhe, nunca aumenta; deixado de usar
+    aqui de propósito)."""
     im = im.copy()
-    im.thumbnail((tile, tile), Image.NEAREST)
+    ratio = min(tile / im.width, tile / im.height)
+    new_w = max(1, round(im.width * ratio))
+    new_h = max(1, round(im.height * ratio))
+    im = im.resize((new_w, new_h), Image.LANCZOS)
     canvas = Image.new("RGBA", (tile, tile), (0, 0, 0, 0))
-    x = (tile - im.width) // 2
-    y = tile - im.height
+    x = (tile - new_w) // 2
+    y = tile - new_h
     canvas.paste(im, (x, y), im)
     return canvas
 

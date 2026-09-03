@@ -78,13 +78,13 @@ func _on_ready() -> void:
 ## Sprite muda de aparência por marcha (02/09, pedido do Gabriel) — só a
 ## Bicicleta tem arte pronta por ora (Montaria/Surf/Voar ficam pro próximo
 ## lote de imagens, a lógica de marcha já funciona igual, só não muda a
-## cara ainda). Bike é 32×32 (o dobro do normal, 16×16) — sprite maior com
-## a MESMA caixa de colisão pequena (docs/customizacao-personagem.md já
+## cara ainda). Bike é 256×256 (o dobro do normal, 128×128) — sprite maior
+## com a MESMA caixa de colisão pequena (docs/customizacao-personagem.md já
 ## previa isso), por isso sprite.position.y compensa na troca (ver
 ## _apply_sprite_mode) senão o personagem "afunda" visualmente no chão.
 const BIKE_TEXTURE_PATH : String = "res://assets/sprites/player/player_bike.png"
-const NORMAL_SPRITE_Y : float = -8.0
-const BIKE_SPRITE_Y   : float = -24.0
+const NORMAL_SPRITE_Y : float = -32.0  # migração tile128 (03/09): era -8
+const BIKE_SPRITE_Y   : float = -96.0  # migração tile128 (03/09): era -24
 
 var _frames_normal : SpriteFrames
 var _frames_bike    : SpriteFrames
@@ -96,13 +96,13 @@ func _load_sprites() -> void:
 			"res://assets/sprites/player/player.png"
 		)
 		if ResourceLoader.exists(BIKE_TEXTURE_PATH):
-			_frames_bike = SpriteBuilder.build_entity_frames(BIKE_TEXTURE_PATH, 32)
+			_frames_bike = SpriteBuilder.build_entity_frames(BIKE_TEXTURE_PATH, 256)
 		sprite.sprite_frames = _frames_normal
-		# Arte atual (player.png/player_bike.png) ainda é a antiga, desenhada
-		# pro tile de 16px — sem isto o personagem ficaria do tamanho de meio
-		# tile novo (32px). Escala 2x deixa do tamanho certo até a arte nova
-		# (nativa em 32px) substituir, quando este scale volta pra 1.
-		sprite.scale = Vector2(2.0, 2.0)
+		# Migração tile128 (03/09): player.png/player_bike.png foram
+		# reamostradas pra 128px/256px nativos (o tamanho final, igual ao
+		# tile) — escala fica em 1.0, sem precisar mais do "2x na marra"
+		# que compensava a arte antiga de 16px.
+		sprite.scale = Vector2(1.0, 1.0)
 		sprite.play("idle_down")
 		_add_visibility_shadow()
 
@@ -122,12 +122,12 @@ func _add_visibility_shadow() -> void:
 	tex.fill = GradientTexture2D.FILL_RADIAL
 	tex.fill_from = Vector2(0.5, 0.5)
 	tex.fill_to = Vector2(1.0, 0.5)
-	tex.width = 40
-	tex.height = 20
+	tex.width = 160   # migração tile128 (03/09): era 40
+	tex.height = 80   # migração tile128 (03/09): era 20
 
 	var shadow := Sprite2D.new()
 	shadow.texture = tex
-	shadow.position = Vector2(0, 7)
+	shadow.position = Vector2(0, 28)  # migração tile128 (03/09): era (0, 7)
 	shadow.z_index = -1
 	add_child(shadow)
 	move_child(shadow, 0)

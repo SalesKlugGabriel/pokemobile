@@ -33,8 +33,8 @@ var level : int:
 # Constantes do spec
 # ──────────────────────────────────────────────────────────────────────────────
 
-const WILD_DETECT_RADIUS : float = 240.0
-const WILD_ATTACK_RADIUS : float = 96.0
+const WILD_DETECT_RADIUS : float = 960.0  # migração tile128 (03/09): era 240 pro tile de 32px
+const WILD_ATTACK_RADIUS : float = 384.0  # migração tile128 (03/09): era 96 pro tile de 32px
 const ALPHA_HP_MULT      : float = 5.0
 const ALPHA_ATK_MULT     : float = 3.0
 const ALPHA_DEF_MULT     : float = 2.5
@@ -42,7 +42,7 @@ const ALPHA_SPD_MULT     : float = 1.5
 
 const PATROL_INTERVAL_MIN : float = 2.0
 const PATROL_INTERVAL_MAX : float = 4.0
-const BASE_MOVE_SPEED     : float = 160.0
+const BASE_MOVE_SPEED     : float = 640.0  # migração tile128 (03/09): era 160 pro tile de 32px
 
 # ──────────────────────────────────────────────────────────────────────────────
 # FSM
@@ -146,9 +146,9 @@ func _load_sprite() -> void:
 var _hp_bar_bg     : ColorRect
 var _hp_bar_fill   : ColorRect
 var _level_label   : Label
-const HP_BAR_WIDTH  : float = 40.0
-const HP_BAR_HEIGHT : float = 5.0
-const HP_BAR_Y      : float = -40.0
+const HP_BAR_WIDTH  : float = 160.0  # migração tile128 (03/09): era 40
+const HP_BAR_HEIGHT : float = 20.0   # migração tile128 (03/09): era 5
+const HP_BAR_Y      : float = -160.0  # migração tile128 (03/09): era -40
 
 func _build_health_bar() -> void:
 	_hp_bar_bg = ColorRect.new()
@@ -165,7 +165,7 @@ func _build_health_bar() -> void:
 	_level_label = Label.new()
 	_level_label.text = "Lv.%d" % wild_level
 	_level_label.add_theme_font_size_override("font_size", 10)
-	_level_label.position = Vector2(-HP_BAR_WIDTH / 2.0, HP_BAR_Y - 14.0)
+	_level_label.position = Vector2(-HP_BAR_WIDTH / 2.0, HP_BAR_Y - 56.0)
 	add_child(_level_label)
 
 	_update_health_bar()
@@ -289,11 +289,11 @@ func _fire_passive_drain() -> void:
 			var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
 			a.take_damage(dmg, self)
 			total_dealt += dmg
-			FloatingText.show_text(get_tree().current_scene, a.global_position + Vector2(0, -46), "%s -%d" % [nome, dmg], Color(0.6, 1.0, 0.4))
+			FloatingText.show_text(get_tree().current_scene, a.global_position + Vector2(0, -184), "%s -%d" % [nome, dmg], Color(0.6, 1.0, 0.4))
 	if total_dealt > 0:
 		current_hp = mini(max_hp, current_hp + total_dealt)
 		_update_health_bar()
-		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -46), "+%d" % total_dealt, Color(0.4, 1.0, 0.4))
+		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184), "+%d" % total_dealt, Color(0.4, 1.0, 0.4))
 
 func _fire_passive_reflect() -> void:
 	if _recent_attackers.is_empty() or _passive_dmg_since <= 0:
@@ -301,7 +301,7 @@ func _fire_passive_reflect() -> void:
 	var alvo = _recent_attackers[_recent_attackers.size() - 1]  # atacante mais recente
 	if is_instance_valid(alvo) and alvo.has_method("take_damage"):
 		alvo.take_damage(_passive_dmg_since, self)
-		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -46), "Reflexo! -%d" % _passive_dmg_since, Color(0.8, 0.6, 1.0))
+		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -184), "Reflexo! -%d" % _passive_dmg_since, Color(0.8, 0.6, 1.0))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Loop principal
@@ -425,7 +425,7 @@ func _perform_attack() -> void:
 			defender_stats = target.get_combat_stats()
 		var damage := DamageCalculator.calculate_damage(default_move, attacker_stats, defender_stats)
 		target.take_damage(damage, self)
-		FloatingText.show_text(get_tree().current_scene, target.global_position + Vector2(0, -46), "%s -%d" % [default_move.get("name", ""), damage], Color(1.0, 0.4, 0.4))
+		FloatingText.show_text(get_tree().current_scene, target.global_position + Vector2(0, -184), "%s -%d" % [default_move.get("name", ""), damage], Color(1.0, 0.4, 0.4))
 
 ## Mesmo formato de attacker_stats usado no ataque direto, na área e na
 ## passiva — centralizado aqui pra não divergir.
@@ -449,7 +449,7 @@ func _apply_damage_area(move_data: Dictionary) -> void:
 		var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
 		var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
 		alvo.take_damage(dmg, self)
-		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -46), "%s -%d" % [nome, dmg], Color(1.0, 0.4, 0.4))
+		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -184), "%s -%d" % [nome, dmg], Color(1.0, 0.4, 0.4))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Receber dano

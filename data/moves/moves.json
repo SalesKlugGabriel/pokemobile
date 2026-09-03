@@ -796,7 +796,7 @@
     "effect": "none",
     "cooldown": 4.5,
     "target_type": "area",
-    "radius": 160.0
+    "radius": 640.0
   },
   "ice_beam": {
     "id": "ice_beam",
@@ -825,7 +825,7 @@
     "effect": "freeze_10",
     "cooldown": 5.5,
     "target_type": "area",
-    "radius": 160.0
+    "radius": 640.0
   },
   "psybeam": {
     "id": "psybeam",
@@ -1246,7 +1246,7 @@
     "effect": "none",
     "cooldown": 5.0,
     "target_type": "area",
-    "radius": 160.0
+    "radius": 640.0
   },
   "fissure": {
     "id": "fissure",
@@ -1681,7 +1681,7 @@
     "effect": "user_faints",
     "cooldown": 6.0,
     "target_type": "area",
-    "radius": 200.0
+    "radius": 800.0
   },
   "egg_bomb": {
     "id": "egg_bomb",
@@ -2046,7 +2046,7 @@
     "effect": "user_faints",
     "cooldown": 6.0,
     "target_type": "area",
-    "radius": 220.0
+    "radius": 880.0
   },
   "fury_swipes": {
     "id": "fury_swipes",
@@ -2103,7 +2103,7 @@
     "effect": "flinch_30",
     "cooldown": 3.8,
     "target_type": "area",
-    "radius": 140.0
+    "radius": 560.0
   },
   "hyper_fang": {
     "id": "hyper_fang",

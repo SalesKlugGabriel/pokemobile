@@ -13,7 +13,7 @@
 [ext_resource type="PackedScene" path="res://scenes/world/WarpZone.tscn" id="11_warpzone"]
 
 [sub_resource type="RectangleShape2D" id="Shape_saida"]
-size = Vector2(128, 32)
+size = Vector2(512, 128)
 
 [node name="SafariZone" type="Node2D"]
 script = ExtResource("1_basemap")
@@ -28,19 +28,19 @@ format = 2
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(688, 1280)
+position = Vector2(2752, 5120)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
-limit_right = 1408
-limit_bottom = 1408
-zoom = Vector2(3.0, 3.0)
+limit_right = 5632
+limit_bottom = 5632
+zoom = Vector2(1, 1)
 
 [node name="GuardaFlorestal" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(688, 1216)
+position = Vector2(2752, 4864)
 npc_name = "Guarda Florestal"
 dialog_id = "guarda_safari"
 is_patrolling = false
@@ -54,7 +54,7 @@ script = ExtResource("5_sm")
 [node name="WarpZones" type="Node2D" parent="."]
 
 [node name="WarpSaida" parent="WarpZones" instance=ExtResource("11_warpzone")]
-position = Vector2(688, 1376)
+position = Vector2(2752, 5504)
 target_map = "res://scenes/world/maps/WorldMap.tscn"
 spawn_tile = Vector2i(454, 166)
 

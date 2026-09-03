@@ -7,7 +7,7 @@ extends Node
 # Constantes
 # ──────────────────────────────────────────────────────────────────────────────
 const DESPAWN_RADIUS_TILES : int    = 280
-const TILE_SIZE            : int    = 32
+const TILE_SIZE            : int    = 128   # pixels por tile (migração tile128, 03/09)
 const CHECK_INTERVAL_SEC   : float  = 2.0   # verifica distância a cada N segundos
 
 const NPC_SCENE : String = "res://scenes/entities/NpcEntity.tscn"

@@ -9,7 +9,7 @@ extends Node
 # Constantes do spec
 # ──────────────────────────────────────────────────────────────────────────────
 
-const POKEBALL_ARC_HEIGHT : float = 60.0
+const POKEBALL_ARC_HEIGHT : float = 240.0  # migração tile128 (03/09): era 60 pro tile de 32px
 
 ## Multiplicadores de chance de captura por tipo de pokébola
 const POKEBALL_MULT : Dictionary = {

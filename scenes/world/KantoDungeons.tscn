@@ -6,10 +6,10 @@
 [ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="4_trainer"]
 
 [sub_resource type="RectangleShape2D" id="Shape_mt_moon_exit"]
-size = Vector2(64, 32)
+size = Vector2(256, 128)
 
 [sub_resource type="RectangleShape2D" id="Shape_pokemon_tower_exit"]
-size = Vector2(64, 32)
+size = Vector2(256, 128)
 
 [node name="KantoDungeons" type="Node2D"]
 script = ExtResource("1_dungeon_map")
@@ -39,7 +39,7 @@ collision_layer = 4
 collision_mask = 2
 monitoring = true
 monitorable = false
-position = Vector2(224, 384)
+position = Vector2(896, 1536)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Exits/MtMoon_Exit"]
 shape = SubResource("Shape_mt_moon_exit")
@@ -53,7 +53,7 @@ collision_layer = 4
 collision_mask = 2
 monitoring = true
 monitorable = false
-position = Vector2(1184, 384)
+position = Vector2(4736, 1536)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Exits/PokemonTower_Exit"]
 shape = SubResource("Shape_pokemon_tower_exit")

@@ -46,19 +46,19 @@ func _process(_delta: float) -> bool:
 
 	# ---- fora de floresta: intervalo nunca muda, não importa a posição ----
 	zone_mgr._current_zone = rota_comum
-	player.global_position = Vector2(50 * 32, 130 * 32)  # bem no meio de route_1
+	player.global_position = Vector2(50 * 128, 130 * 128)  # bem no meio de route_1
 	_assert(spawn_mgr._current_spawn_interval() == SpawnManagerScript.SPAWN_INTERVAL_SEC,
 		"fora de floresta, intervalo de spawn nunca muda (espécie/quantidade fixa por área)")
 
 	# ---- na borda da floresta: praticamente o intervalo normal ----
 	zone_mgr._current_zone = floresta
-	player.global_position = Vector2(35 * 32, 80 * 32)  # x = borda esquerda exata
+	player.global_position = Vector2(35 * 128, 80 * 128)  # x = borda esquerda exata
 	var intervalo_borda : float = spawn_mgr._current_spawn_interval()
 	_assert(is_equal_approx(intervalo_borda, SpawnManagerScript.SPAWN_INTERVAL_SEC),
 		"bem na borda da floresta, intervalo é o normal (ainda não é 'fundo')")
 
 	# ---- no centro da floresta (bem fundo): intervalo bem mais curto ----
-	player.global_position = Vector2(50 * 32, 88 * 32)  # centro aproximado do tile_rect
+	player.global_position = Vector2(50 * 128, 88 * 128)  # centro aproximado do tile_rect
 	var intervalo_centro : float = spawn_mgr._current_spawn_interval()
 	_assert(intervalo_centro < intervalo_borda,
 		"no centro da floresta, spawn é mais rápido que na borda (%.2fs < %.2fs)" % [intervalo_centro, intervalo_borda])
@@ -74,7 +74,7 @@ func _process(_delta: float) -> bool:
 	var anterior : float = SpawnManagerScript.SPAWN_INTERVAL_SEC
 	var sempre_decrescente := true
 	for passo in range(0, 16, 3):
-		player.global_position = Vector2((35 + passo) * 32, 88 * 32)
+		player.global_position = Vector2((35 + passo) * 128, 88 * 128)
 		var atual : float = spawn_mgr._current_spawn_interval()
 		if atual > anterior + 0.001:
 			sempre_decrescente = false

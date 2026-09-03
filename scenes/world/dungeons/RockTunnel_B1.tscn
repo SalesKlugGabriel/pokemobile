@@ -9,10 +9,10 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/PartyScene.tscn" id="7_party"]
 
 [sub_resource type="RectangleShape2D" id="Shape_entry"]
-size = Vector2(64, 32)
+size = Vector2(256, 128)
 
 [sub_resource type="RectangleShape2D" id="Shape_stairs"]
-size = Vector2(64, 64)
+size = Vector2(256, 256)
 
 [node name="RockTunnel_B1" type="Node2D"]
 script = ExtResource("1_floormap")
@@ -35,7 +35,7 @@ z_index = 5
 [node name="NPCs" type="Node2D" parent="Entities"]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(176, 896)
+position = Vector2(704, 3584)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
@@ -44,14 +44,14 @@ drag_horizontal_enabled = true
 drag_vertical_enabled = true
 limit_left = 0
 limit_top = 0
-limit_right = 1600
-limit_bottom = 960
-zoom = Vector2(3.0, 3.0)
+limit_right = 6400
+limit_bottom = 3840
+zoom = Vector2(1, 1)
 
 [node name="WarpZones" type="Node2D" parent="."]
 
 [node name="WarpExit_Route10N" type="Area2D" parent="WarpZones"]
-position = Vector2(176, 928)
+position = Vector2(704, 3712)
 collision_mask = 2
 script = ExtResource("3_warpzone")
 target_map = "res://scenes/world/maps/WorldMap.tscn"
@@ -61,7 +61,7 @@ spawn_tile = Vector2i(220, 60)
 shape = SubResource("Shape_entry")
 
 [node name="WarpStairs_B2" type="Area2D" parent="WarpZones"]
-position = Vector2(800, 192)
+position = Vector2(3200, 768)
 collision_mask = 2
 script = ExtResource("3_warpzone")
 target_map = "res://scenes/world/dungeons/RockTunnel_B2.tscn"

@@ -1,19 +1,19 @@
 ## SpriteBuilder.gd — Cria SpriteFrames em runtime a partir dos spritesheets.
 ## Usado por entidades no _on_ready() para popular o AnimatedSprite2D sem editor.
 ##
-## Spritesheet layout (48×64, tiles 16×16):
+## Spritesheet layout (384×512, tiles 128×128 — migração tile128, 03/09):
 ##   col 0 = idle, col 1 = walk_a, col 2 = walk_b
 ##   row 0 = down, row 1 = up, row 2 = left, row 3 = right
 class_name SpriteBuilder
 extends RefCounted
 
-const TILE : int = 16
+const TILE : int = 128   # migração tile128 (03/09): era 16
 const DIRS : Array = ["down", "up", "left", "right"]
 
-## Cria SpriteFrames para entidade com spritesheet 48×64 (tile 16, padrão).
-## texture_path: caminho res:// para o PNG. tile: tamanho de cada frame em
-## px (02/09: sprites de marcha — Bicicleta/Montaria/Surf/Voar — usam 32,
-## maiores que o resto do jogo de propósito, pro desenho ter espaço pra
+## Cria SpriteFrames para entidade com spritesheet 384×512 (tile 128,
+## padrão desde a migração tile128 de 03/09). texture_path: caminho res://
+## para o PNG. tile: tamanho de cada frame em px (a Bicicleta usa 256,
+## maior que o resto do jogo de propósito, pro desenho ter espaço pra
 ## mostrar o personagem montado; ver docs/customizacao-personagem.md,
 ## "footprint de colisão continua pequeno mesmo com o sprite maior" — quem
 ## usa o sprite ajusta a posição pra compensar, não é decisão daqui).
@@ -80,12 +80,16 @@ static func pokemon_sprite_path(species_id: int, shiny: bool = false) -> String:
 	return normal_path
 
 ## Cria SpriteFrames para Pokémon. Detecta sozinho o formato do arquivo:
-## - Formato NOVO (96×128, 4 direções reais — mesmo layout do Treinador/NPC
-##   (build_entity_frames), só que tile 32 em vez de 16: a arte de verdade
-##   (baixada da Red/Blue via PokeAPI, 02/09 — pedido do Gabriel de usar
-##   sprite pronta em vez de gerar por IA) já vem grande demais pra caber
-##   em 16px sem virar ruído, mesmo achado já visto na sprite da Bicicleta.
-##   Todas as 151 espécies já estão neste formato desde 02/09.
+## - Formato NOVO (4 direções reais — mesmo layout do Treinador/NPC,
+##   build_entity_frames): 3 colunas × 4 linhas, tile = largura/3. Migração
+##   tile128 (03/09) trocou o tile de 32 pra 128 (sheet 384×512) — em vez de
+##   cravar o tamanho no código de novo, o tile agora é CALCULADO a partir
+##   da própria largura da imagem (largura/3), então uma futura troca de
+##   resolução não precisa voltar aqui pra mudar um número mágico. Todas as
+##   151 espécies estão neste formato desde 02/09 (arte real, baixada via
+##   PokeAPI — pedido do Gabriel de usar sprite pronta em vez de gerar por
+##   IA); só precisa ter pelo menos 96px de largura pra não confundir com o
+##   formato antigo abaixo.
 ## - Formato ANTIGO (32×16, 2 frames, sem direção real): só sobra em
 ##   `placeholder.png` agora — nunca quebra se algum id vier sem arte.
 ## species_id: número da espécie (1–151) ou 0 para placeholder.
@@ -106,8 +110,9 @@ static func build_pokemon_frames(species_id: int, shiny: bool = false) -> Sprite
 		push_warning("SpriteBuilder: sprite de pokémon não encontrado para id=%d" % species_id)
 		return null
 
-	if tex.get_width() >= 96 and tex.get_height() >= 128:
-		return build_entity_frames_from_texture(tex, 32)
+	if tex.get_width() >= 96:
+		var detected_tile := tex.get_width() / 3
+		return build_entity_frames_from_texture(tex, detected_tile)
 
 	var sf := SpriteFrames.new()
 	sf.remove_animation("default")

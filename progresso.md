@@ -9,6 +9,61 @@
 
 ---
 
+## Migração tile128 + tileset direto da referência do Gabriel (2026-09-03)
+
+**Pedido do Gabriel: aumentar a "taxa" pra 96, depois 128, "para que a qualidade dos componentes
+melhore consideravelmente... a árvore antiga era muito mais bonita".** Tentei primeiro redesenhar
+tudo em 128px com formas geométricas em código (jeito mais rápido) — o resultado ficou pior, não
+melhor: ele mandou uma imagem de referência (tileset pronto, ~192×205px por tile, estilo pintado)
+e disse claramente **"Quero que a qualidade gráfica seja assim, não no caminho que estávamos
+antes"**. Corrigido na hora: revertido o tileset de formas geométricas antes de qualquer deploy.
+
+**Decisão final do Gabriel, bem mais simples: "Adicione esses componentes e apenas utilize nos
+ambientes conforme combinado."** Em vez de tentar GERAR arte nova "no estilo" da referência (o
+que eu já tinha testado via IA — 3 tiles de teste, ~R$0,55, ficaram bons mas exigiriam ~R$7-8 pros
+41 tiles inteiros e ainda tinham problema de proporção), a referência virou o **asset final**: só
+recortei cada um dos 40 tiles da grade (8×5) da imagem que ele mandou e coloquei no atlas do
+jogo, na posição de cada letra do `CHAR_MAP`. Zero custo, zero ambiguidade de estilo — é
+literalmente a arte que ele escolheu.
+
+**Migração de verdade do tile (32→128px), não só zoom em cima da arte pequena** — a diferença
+importante: só aumentar a RESOLUÇÃO do arquivo sem aumentar o "pitch" do mundo faria o motor
+redimensionar a textura grande pra caber no tile pequeno, perdendo todo o detalhe ganho. Mesma
+técnica já usada uma vez (migração 16→32 de 01/09, fator 2) — replicada aqui com fator 4
+(`migrate_tile128.py`): posição de todo NPC/Treinador/warp/porta em ~40 cenas, todo raio/altura de
+colisão, todo limite de câmera, zoom de todos os mapas voltando pra 1.0 (a arte agora já nasce no
+tamanho final, não precisa mais do "3x na marra" que fizemos em cima da arte de 32px). Também
+achados NOVOS que a migração de 01/09 não tinha (porque esses sistemas nem existiam ainda):
+alcance de detecção/ataque do Pokémon selvagem, distância de Follower, altura da barra de vida,
+raio dos golpes de área (`moves.json`), altura do arco da Pokébola — tudo ×4, um por um, conferido
+contra o código de verdade (não um "multiplica tudo cegamente", que já causou bug uma vez com
+`spawn_radius`).
+
+**2 achados de recorte corrigidos depois de ver em jogo** (não pareciam problema no preview
+isolado, só ficaram óbvios lado a lado no mapa): (1) risco preto entre tiles vizinhos — a "margem"
+de fundo escuro do catálogo de referência NÃO é do mesmo tamanho em toda célula; corrigido
+recortando mais apertado. (2) árvore/cerca/caixa/etc ("objetos soltos" sobre grama) ainda
+sobravam com canto escuro — resolvido isolando o objeto por transparência (flood fill a partir da
+borda da própria célula, mesma técnica já usada nas sprites de Pokémon) e colando por cima de uma
+base de grama/água já limpa, em vez de recortar a célula inteira.
+
+**Sprite de Treinador/NPC/Bicicleta reamostrada pra 128/256px** (eram 16px/32px nativos, únicos
+que não têm referência nova do Gabriel ainda) — upscale por LANCZOS, deixa mais suave que esticar
+cru, mas não é o mesmo nível da referência do mapa; registrado como pendência se ele quiser mandar
+uma referência de personagem também.
+
+**1 tile novo do jogo: "Entrada de Casa"** (letra `o` no CHAR_MAP) — categoria que a referência
+tinha e o jogo ainda não usava; registrado no atlas, pronto pra o Gabriel colocar pelo Editor
+Visual quando quiser.
+
+**Testado:** suíte completa (48 arquivos) — achou e corrigiu 4 testes com conta de pixel
+cravada (divisor `/32` sobrevivendo em arquivos de teste que a migração de cenas não alcança, já
+que só mexe em `.tscn`) — 0 falhas no final. Navegador real confirmando: sem risco preto entre
+tiles, árvores/pinheiro/outono/toco/cerca com fundo de grama limpo, jogador e Pokémon no tamanho
+proporcional novo.
+
+---
+
 ## Editor Visual (poke.workprog.pro/editor) — mapa e sprites, sem precisar de mim (2026-09-02, sessão seguinte 7)
 
 **Pedido do Gabriel: "criasse uma página de editor de mapa (...) arrastar os blocos/árvores/

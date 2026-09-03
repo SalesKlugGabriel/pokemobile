@@ -64,7 +64,7 @@ func _teste_geral() -> void:
 		var treinador := inst.get_node_or_null("Entities/TreinadorRota24")
 		_assert(treinador != null, "TreinadorRota24 continua existindo")
 		if treinador:
-			var tile_r := int((treinador.position.y - 16) / 32)
+			var tile_r := int((treinador.position.y - 64) / 128)
 			_assert(tile_r >= MapLayouts.NUGGET_BRIDGE_FB_INICIO - MapLayouts.NORTE_OFFSET
 				and tile_r <= MapLayouts.NUGGET_BRIDGE_FB_FIM - MapLayouts.NORTE_OFFSET,
 				"TreinadorRota24 fica dentro da faixa da ponte (row %d)" % tile_r)

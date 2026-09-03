@@ -28,8 +28,8 @@
 ##                    c rocha_vulcânica (bloq.)  e trilhos  f piso_pedra
 ##   Linha 5 (categoria "Interior/decoração", todos walkable):
 ##                    g piso_pedra_clara  h pedra_c_musgo  i cogumelos  j folhas_caídas  k junco
-##   Linha 6 (categoria "Estrutura", todos bloqueados):
-##                    l janela  m canto_casa  n caixa
+##   Linha 6 (categoria "Estrutura"):
+##                    l janela  m canto_casa  n caixa (bloqueados)  o entrada_casa (walkable)
 class_name MapLayouts
 extends RefCounted
 
@@ -45,7 +45,7 @@ const CHAR_MAP : Dictionary = {
 	"c": Vector2i(4, 4), "e": Vector2i(5, 4), "f": Vector2i(6, 4),
 	"g": Vector2i(0, 5), "h": Vector2i(1, 5), "i": Vector2i(2, 5), "j": Vector2i(3, 5),
 	"k": Vector2i(4, 5),
-	"l": Vector2i(0, 6), "m": Vector2i(1, 6), "n": Vector2i(2, 6),
+	"l": Vector2i(0, 6), "m": Vector2i(1, 6), "n": Vector2i(2, 6), "o": Vector2i(3, 6),
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -1884,7 +1884,7 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 static func get_pixel_bounds(map_id: String) -> Rect2i:
 	var layout := get_layout(map_id)
 	if layout.is_empty():
-		return Rect2i(0, 0, 2560, 1440)
+		return Rect2i(0, 0, 10240, 5760)
 	var x0 := 0
 	var y0 := 0
 	var extra_w := 0
@@ -1894,4 +1894,4 @@ static func get_pixel_bounds(map_id: String) -> Rect2i:
 		extra_w = OESTE_OFFSET
 		y0 = -NORTE_OFFSET
 		extra_h = NORTE_OFFSET
-	return Rect2i(x0 * 32, y0 * 32, (layout["width"] + extra_w) * 32, (layout["height"] + extra_h) * 32)
+	return Rect2i(x0 * 128, y0 * 128, (layout["width"] + extra_w) * 128, (layout["height"] + extra_h) * 128)

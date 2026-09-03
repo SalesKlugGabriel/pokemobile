@@ -22,12 +22,12 @@ func _process(_delta: float) -> bool:
 	_rodou = true
 
 	# ---- AreaTargeting isolado, com nós dublês ----
-	var perto = Node2D.new(); perto.add_to_group("alvo_teste"); perto.global_position = Vector2(10, 0)
-	var longe = Node2D.new(); longe.add_to_group("alvo_teste"); longe.global_position = Vector2(500, 0)
-	var excluido = Node2D.new(); excluido.add_to_group("alvo_teste"); excluido.global_position = Vector2(5, 0)
+	var perto = Node2D.new(); perto.add_to_group("alvo_teste"); perto.global_position = Vector2(40, 0)
+	var longe = Node2D.new(); longe.add_to_group("alvo_teste"); longe.global_position = Vector2(2000, 0)
+	var excluido = Node2D.new(); excluido.add_to_group("alvo_teste"); excluido.global_position = Vector2(20, 0)
 	root.add_child(perto); root.add_child(longe); root.add_child(excluido)
 
-	var achados : Array = AreaTargeting.find_targets_in_radius(Vector2.ZERO, 50.0, "alvo_teste", [excluido])
+	var achados : Array = AreaTargeting.find_targets_in_radius(Vector2.ZERO, 200.0, "alvo_teste", [excluido])
 	_assert(achados.has(perto), "alvo dentro do raio entra no resultado")
 	_assert(not achados.has(longe), "alvo fora do raio não entra")
 	_assert(not achados.has(excluido), "alvo na lista de exclusão nunca entra, mesmo dentro do raio")
@@ -46,12 +46,12 @@ func _process(_delta: float) -> bool:
 
 	var wild_perto = wild_scene.instantiate()
 	wild_perto.species_id = 19
-	wild_perto.global_position = Vector2(20, 0)
+	wild_perto.global_position = Vector2(80, 0)
 	root.add_child(wild_perto)
 
 	var wild_longe = wild_scene.instantiate()
 	wild_longe.species_id = 19
-	wild_longe.global_position = Vector2(600, 0)
+	wild_longe.global_position = Vector2(2400, 0)
 	root.add_child(wild_longe)
 
 	var hp_perto_antes : int = wild_perto.current_hp

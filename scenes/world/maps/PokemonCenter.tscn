@@ -11,10 +11,10 @@
 [ext_resource type="Script" path="res://scripts/world/WarpZone.gd" id="9_warpzone"]
 
 [sub_resource type="RectangleShape2D" id="Shape_exit"]
-size = Vector2(96, 32)
+size = Vector2(384, 128)
 
 [sub_resource type="RectangleShape2D" id="Shape_placeholder"]
-size = Vector2(1280, 960)
+size = Vector2(5120, 3840)
 
 [node name="PokemonCenter" type="Node2D"]
 script = ExtResource("1_basemap")
@@ -27,19 +27,19 @@ format = 2
 [node name="Entities" type="Node2D" parent="."]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(224, 352)
+position = Vector2(896, 1408)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
-limit_right = 512
-limit_bottom = 448
-zoom = Vector2(3.0, 3.0)
+limit_right = 2048
+limit_bottom = 1792
+zoom = Vector2(1, 1)
 
 [node name="NurseJoy" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(256, 160)
+position = Vector2(1024, 640)
 npc_name = "Enfermeira Joy"
 dialog_id = "nurse_joy"
 heal_on_dialog_end = true
@@ -48,7 +48,7 @@ is_patrolling = false
 [node name="WarpZones" type="Node2D" parent="."]
 
 [node name="WarpExit" type="Area2D" parent="WarpZones"]
-position = Vector2(240, 400)
+position = Vector2(960, 1600)
 collision_mask = 2
 script = ExtResource("9_warpzone")
 target_map = "res://scenes/world/maps/WorldMap.tscn"
