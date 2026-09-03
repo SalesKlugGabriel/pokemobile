@@ -9,6 +9,67 @@
 
 ---
 
+## Fecha a Onda 1 + verificação de jogabilidade ao vivo + conserto do mapa "feio" (2026-09-03, continuação)
+
+**Pedido do Gabriel: "finalize tudo o que está pendente, depois verifique a jogabilidade e então
+corrija os problemas gráficos que o mapa está feio."** Avisei antes de começar que "tudo" (as 6
+Ondas inteiras do roteiro) não cabe numa sessão só — Ondas 2-6 envolvem abrir interiores de
+dungeon inteiros, batalhas de ginásio, Elite Four, Mewtwo, cada um um projeto de vários dias. O
+que dava pra fechar de verdade: os 2 itens que sobravam da Onda 1.
+
+**Item 8 (Montaria) — já estava pronto, só não estava marcado.** Investigando pra construir,
+achei que `is_mounted`/`MOUNT_SPECIES`/`MOUNT_DURATION` já existiam inteiros em
+`TrainerEntity.gd` (Tauros/Dodrio/Rhyhorn/Rhydon/Arcanine/Ponyta/Rapidash habilitam, mais rápido
+que a Bicicleta, nunca empilha com Surfar/Voar), com 2 conferências já cobrindo a elegibilidade
+em `teste_fase4_mecanicas_movimento.gd` — construído num lote anterior (02/09), um dia antes do
+roteiro geral ter sido escrito. A pesquisa que gerou o roteiro simplesmente não achou.
+
+**Item 9 (indicador visual de Surfar) — esse sim faltava, construído.** Achado: entrar na água já
+mudava velocidade/colisão, mas o sprite continuava idêntico ao de terra firme. Como Surf/Montaria/
+Voar ainda não têm arte própria (só a Bicicleta tem — igual documentado no próprio código),
+resolvido sem esperar arte nova: tingimento azul no sprite + uma ondulação (degradê radial em
+código, mesma técnica já usada nas sombras) pulsando sob os pés enquanto `is_surfing`. 10
+conferências novas.
+
+**Verificação de jogabilidade ao vivo (Playwright/Chromium, https://poke.workprog.pro) —
+pedido explícito do Gabriel, e também fechava uma dívida: vários itens dos últimos lotes (status
+persistente, tabela de bolas, MT Ouro) só tinham sido confirmados por teste automatizado, nunca
+jogados de verdade.** Partida nova, andei por Pallet Town e Rota 1, entrei sem querer numa
+entrada de caverna escura (confirma que `dark_cave`/visão reduzida está funcionando). Combate em
+tempo real disparou sozinho e apareceu dano de verdade na tela ("Tackle -31"). **Achado no
+caminho, não corrigido**: um aviso de engine (`get_collision_polygons_count`, índice fora dos
+limites) aparece repetidas vezes ao andar perto de árvores — confirmado como PRÉ-EXISTENTE (já
+acontecia antes de qualquer mudança desta sessão, comparei o log de antes e depois) e inofensivo
+(o jogo não usa as camadas de física nativas do Godot pra colisão — isso é feito por código
+próprio — `overworld.tres` nunca teve camada de física nenhuma configurada, então o aviso é só
+ruído do motor tentando consultar algo que nunca existiu, sem efeito no jogo). Deixado registrado
+aqui em vez de arrumado, por ser sintoma sem causa raiz óbvia e sem sintoma nenhum pro jogador.
+
+**O mapa "feio" — achado real, corrigido.** Vendo a tela de verdade: Pallet Town tem um corredor
+central de terra batida ("Chão Batido") de ~13×35 tiles — mais de 450 tiles idênticos lado a
+lado, o mesмо recorte da referência repetido sem NENHUMA variação. Grama/areia/grama-alta têm o
+mesmo problema em escala menor (mas Rota 1 inteira também é afetada). Não é um recorte ruim da
+referência (conferido pixel a pixel: o crop bate com a textura real da referência) — é a REPETIÇÃO
+sem variação que faz o olho notar o padrão. Corrigido sem precisar de arte nova nem mexer em
+nenhuma coordenada de mapa/warp/colisão: `MapLayouts.paint()` agora espelha horizontal/vertical/os
+dois de forma determinística (hash espacial, sem RNG — mapa continua reproduzível) só nas 4
+texturas "isotrópicas" sem cima/baixo que importe (grama, caminho, areia, grama alta) — parede/
+porta/telhado/água-com-praia ficam de fora de propósito, porque uma porta ou parede espelhada
+ficaria visivelmente errada. Confirmado ao vivo: o padrão de repetição sumiu, dá pra notar a
+diferença lado a lado com o screenshot de antes.
+
+**Testado**: suíte inteira (51 arquivos, 0 falhas). Export Web + rebuild + `docker service update
+--force`, `curl` confirma 200. Verificação visual em navegador real (Playwright/Chromium) antes E
+depois do conserto do mapa, com screenshot comparando.
+
+**Próximo passo**: Onda 2 em diante (interiores de dungeon, Giovanni/Ginásio de Viridian, etc.) —
+cada item ali já é um projeto próprio, não um "resto" de faxina. Recomendo o Gabriel escolher qual
+começar, em vez de eu simplesmente seguir em ordem.
+**Precisa de decisão do Gabriel?** Não pro que foi feito — sim se quiser direcionar qual item da
+Onda 2 atacar primeiro.
+
+---
+
 ## Onda 1, item 7: MT Ouro (uso infinito) vs MT comum (uso único) (2026-09-03, continuação)
 
 **Terceiro item da Onda 1.** Achados 2 bugs reais antes de construir:

@@ -143,6 +143,8 @@ func _add_visibility_shadow() -> void:
 ## animação atual (mesmo nome em toda folha — idle_<dir>/walk_<dir>) pra
 ## não perder o frame/direção que já estava tocando.
 func _apply_sprite_mode(mode: String) -> void:
+	_apply_surf_indicator(mode == "surf")
+
 	var want_bike := mode == "bike" and _frames_bike != null
 	var new_mode := "bike" if want_bike else "normal"
 	if new_mode == _sprite_mode:
@@ -157,6 +159,58 @@ func _apply_sprite_mode(mode: String) -> void:
 	var anim := sprite.animation
 	if sprite.sprite_frames.has_animation(anim):
 		sprite.play(anim)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Indicador visual de "surfando" (Onda 1, item 9, 03/09) — achado ao construir
+# isto: entrar na água já mudava colisão/velocidade (is_surfing), mas o
+# sprite continuava idêntico ao de terra firme, sem nenhum sinal visual.
+# Surf/Montaria/Voar ainda não têm arte própria (só a Bicicleta tem, ver
+# comentário de _load_sprites) — em vez de esperar a arte, um tingimento azul
+# + ondulação sob os pés (mesma técnica de degradê radial em código já usada
+# pra sombra) dá o feedback sem depender de sprite novo.
+# ──────────────────────────────────────────────────────────────────────────────
+const SURF_TINT : Color = Color(0.6, 0.85, 1.35)
+var _surf_ripple : Sprite2D = null
+var _surf_tween  : Tween    = null
+
+func _apply_surf_indicator(surfing: bool) -> void:
+	if surfing:
+		sprite.modulate = SURF_TINT
+		if not _surf_ripple:
+			_build_surf_ripple()
+		_surf_ripple.visible = true
+	else:
+		sprite.modulate = Color(1, 1, 1)
+		if _surf_ripple:
+			_surf_ripple.visible = false
+
+func _build_surf_ripple() -> void:
+	var grad := Gradient.new()
+	grad.set_color(0, Color(0.75, 0.9, 1.0, 0.0))
+	grad.add_point(0.75, Color(0.75, 0.9, 1.0, 0.45))
+	grad.set_color(grad.get_point_count() - 1, Color(0.75, 0.9, 1.0, 0.0))
+	var tex := GradientTexture2D.new()
+	tex.gradient   = grad
+	tex.fill       = GradientTexture2D.FILL_RADIAL
+	tex.fill_from  = Vector2(0.5, 0.5)
+	tex.fill_to    = Vector2(1.0, 0.5)
+	tex.width      = 180
+	tex.height     = 90
+
+	_surf_ripple = Sprite2D.new()
+	_surf_ripple.texture  = tex
+	_surf_ripple.position = Vector2(0, 40)
+	_surf_ripple.z_index  = 0
+	add_child(_surf_ripple)
+	move_child(_surf_ripple, 0)
+
+	# Ondulação sutil e contínua (pulsa escala/transparência) — dá a
+	# sensação de água se mexendo embaixo do jogador, sem sprite animado.
+	_surf_tween = create_tween().set_loops()
+	_surf_tween.tween_property(_surf_ripple, "scale", Vector2(1.25, 1.25), 0.9).set_trans(Tween.TRANS_SINE)
+	_surf_tween.parallel().tween_property(_surf_ripple, "modulate:a", 0.5, 0.9).set_trans(Tween.TRANS_SINE)
+	_surf_tween.tween_property(_surf_ripple, "scale", Vector2(1.0, 1.0), 0.9).set_trans(Tween.TRANS_SINE)
+	_surf_tween.parallel().tween_property(_surf_ripple, "modulate:a", 1.0, 0.9).set_trans(Tween.TRANS_SINE)
 
 ## Coloca o Pokémon líder da equipe pra andar atrás do jogador no mapa.
 ## Não aparece se a equipe está vazia ou se o líder desmaiou (hp_current <= 0).

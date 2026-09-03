@@ -1840,6 +1840,17 @@ static func get_layout(map_id: String) -> Dictionary:
 		_:
 			return {}
 
+## Texturas de terreno "isotrópicas" (sem cima/baixo/direção que importe —
+## grama, caminho, areia, grama alta) — únicas que recebem variação de
+## espelhamento em VARIETY_CHARS abaixo. Acharado ao revisar o mapa em jogo
+## (03/09, "o mapa está feio"): cada uma dessas é 1 recorte só da referência
+## repetido centenas de vezes lado a lado sem NENHUMA variação — o corredor
+## central de Pallet Town sozinho é ~450 tiles idênticos. Paredes/portas/
+## telhados/água-com-praia etc. ficam de FORA de propósito: têm continuidade
+## direcional (uma porta invertida, ou uma parede que não encaixa com a
+## vizinha, ficaria visivelmente errada).
+const VARIETY_CHARS : String = ".PSG"
+
 static func paint(tilemap: TileMap, map_id: String) -> void:
 	var layout := get_layout(map_id)
 	if layout.is_empty():
@@ -1852,7 +1863,8 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 		for col_idx in row.length():
 			var ch := row[col_idx]
 			var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
-			tilemap.set_cell(0, Vector2i(col_idx, row_idx), 0, atlas)
+			var alt  : int = _variety_alt(ch, col_idx, row_idx)
+			tilemap.set_cell(0, Vector2i(col_idx, row_idx), 0, atlas, alt)
 
 	# Ramo da Rota 24/25 (Tier 8) — pintado à PARTE em linhas negativas, sem
 	# mexer no array principal acima (que todo teste dos Tiers 1-7 lê por
@@ -1865,7 +1877,8 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 			for col_idx in row.length():
 				var ch := row[col_idx]
 				var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
-				tilemap.set_cell(0, Vector2i(col_idx, r), 0, atlas)
+				var alt  : int = _variety_alt(ch, col_idx, r)
+				tilemap.set_cell(0, Vector2i(col_idx, r), 0, atlas, alt)
 
 		# Ramo da Rota 22 → Victory Road → Indigo Plateau (Tier 18) —
 		# pintado à PARTE em COLUNAS negativas (primeiro ramo nesse eixo),
@@ -1878,8 +1891,23 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 				var c := -(j + 1)
 				var ch := row[j]
 				var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
-				tilemap.set_cell(0, Vector2i(c, r), 0, atlas)
+				var alt  : int = _variety_alt(ch, c, r)
+				tilemap.set_cell(0, Vector2i(c, r), 0, atlas, alt)
 
+## Espelha horizontal/vertical/os dois de forma determinística (mesmo tile
+## sempre dá a mesma variação — mapa continua reproduzível, sem RNG), só pra
+## texturas isotrópicas (VARIETY_CHARS). Hash espacial clássico (primos
+## grandes) em vez de módulo simples — módulo puro criaria um xadrez visível
+## na própria variação, o oposto do que se quer.
+static func _variety_alt(ch: String, col_idx: int, row_idx: int) -> int:
+	if not VARIETY_CHARS.contains(ch):
+		return 0
+	var h := (col_idx * 73856093) ^ (row_idx * 19349663)
+	match h % 4:
+		1:  return TileSetAtlasSource.TRANSFORM_FLIP_H
+		2:  return TileSetAtlasSource.TRANSFORM_FLIP_V
+		3:  return TileSetAtlasSource.TRANSFORM_FLIP_H | TileSetAtlasSource.TRANSFORM_FLIP_V
+		_:  return 0
 
 static func get_pixel_bounds(map_id: String) -> Rect2i:
 	var layout := get_layout(map_id)
