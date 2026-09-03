@@ -7,12 +7,17 @@ acerta 100%), a referência JÁ É o asset final: só precisa recortar cada um
 dos 40 tiles da grade (8 colunas × 5 linhas) e colocar no atlas do jogo,
 na posição de cada letra do CHAR_MAP (scripts/world/MapLayouts.gd).
 
-Pipeline de recorte (calibrado medindo a imagem pixel a pixel, não
-chutado): cada célula da grade tem 192×204.8px, mas o desenho em si (sem
-o rótulo de texto embaixo) ocupa só uma faixa interna — achado ao medir:
-o rótulo começa por volta de y=170 (relativo à célula), então a margem de
-corte usada aqui (x:18-174, y:12-160) garante nunca pegar texto e nunca
-cortar a ponta do pinheiro (o mais alto de todos os tiles).
+Pipeline de recorte — 2 tentativas anteriores (margem fixa única, depois
+uma margem fixa mais apertada) DEIXARAM RISCO PRETO no jogo mesmo assim:
+o "respiro" de fundo escuro do catálogo de referência não tem o MESMO
+tamanho em toda célula (Grama sangra quase até a borda, Chão Batido tem
+uma faixa de ~20px, e por aí vai) — qualquer margem única sempre vai
+cortar curto demais pra algum tile. Resolvido de vez com detecção
+AUTOMÁTICA por tile: pra cada célula, acha o retângulo real de conteúdo
+(sem fundo) por flood fill a partir das bordas, encolhe mais alguns
+pixels de segurança (`SAFETY`, evita pixel de anti-serrilhado bem na
+borda do conteúdo) e SÓ ENTÃO recorta — cada tile usa a MAIOR área segura
+que ele realmente tem, em vez de uma margem chutada pra todos.
 
 2 tiles do jogo não têm equivalente na referência (Caminho Escuro, Grama
 Clara — variações de tom que o Gabriel não mandou) — derivados por
@@ -30,46 +35,17 @@ OUT = ROOT / "assets" / "tilesets" / "overworld.png"
 
 TILE = 128
 CW, CH = 1536 / 8, 1024 / 5
-# Margens medidas na imagem de referência (ver docstring) — mesmas pras 40 células.
-# Achado (03/09, depois de ver o resultado em jogo): a margem inicial (18/12/174/160)
-# deixava um risco preto entre tiles vizinhos — a arte de cada célula tem um
-# "respiro"/vinheta antes do desenho de verdade começar, e esse respiro NÃO é
-# uniforme entre tiles (Grama sangra quase até a borda, Chão Batido e Água têm uma
-# faixa de fundo escuro de uns 10-15px antes do desenho começar). Margem mais
-# apertada aqui garante que NENHUM tile sobre um pedaço desse respiro escuro —
-# troca aceitável: a ponta do pinheiro perde uns pixels, mas o mapa fica sem
-# risco preto entre tiles, que é o defeito mais grave dos dois.
-MX0, MY0, MX1, MY1 = 30, 26, 162, 150
+LABEL_Y = 163  # exclui a faixa do rótulo de texto embaixo de cada célula
+SAFETY = 4     # encolhe mais um pouco além do conteúdo detectado, por segurança
 
 
-def crop_ref(im: Image.Image, row: int, col: int) -> Image.Image:
-    x0 = round(col * CW) + MX0
-    y0 = round(row * CH) + MY0
-    x1 = round(col * CW) + MX1
-    y1 = round(row * CH) + MY1
-    tile = im.crop((x0, y0, x1, y1)).convert("RGBA")
-    return tile.resize((TILE, TILE), Image.LANCZOS)
-
-
-def extract_object(im: Image.Image, row: int, col: int, thresh: int = 32) -> Image.Image:
-    """Recorta um objeto "solto" (árvore, cerca, caixa...) da célula inteira
-    da referência, removendo o fundo escuro do catálogo por flood fill (a
-    partir das bordas da própria célula) em vez de um recorte de margem
-    fixa. Achado (03/09): o "respiro" de fundo escuro ao redor de cada
-    objeto NÃO tem o mesmo tamanho em toda célula (árvore tem mais espaço
-    vazio em cima que pinheiro, por exemplo) — um recorte de margem única
-    ou perde a ponta do objeto ou sobra fundo escuro nas bordas do tile.
-    Isolar por transparência resolve os dois problemas ao mesmo tempo."""
-    x0 = round(col * CW)
-    y0 = round(row * CH)
-    x1 = round((col + 1) * CW)
-    y1 = round(row * CH + 163)  # exclui a faixa do rótulo de texto embaixo
-    cell = im.crop((x0, y0, x1, y1)).convert("RGBA")
+def _bg_flood_mask(cell: Image.Image, thresh: int = 32) -> bytearray:
+    """bytearray w*h, 1 = pixel de fundo (conectado à borda da célula)."""
     w, h = cell.size
     px = cell.load()
 
     def is_bg(p) -> bool:
-        r, g, b, _a = p
+        r, g, b = p[:3]
         return r < thresh and g < thresh and b < thresh
 
     visited = bytearray(w * h)
@@ -90,29 +66,99 @@ def extract_object(im: Image.Image, row: int, col: int, thresh: int = 32) -> Ima
 
     while dq:
         x, y = dq.popleft()
-        r, g, b, _a = px[x, y]
-        px[x, y] = (r, g, b, 0)
         for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
             if 0 <= nx < w and 0 <= ny < h:
                 idx = ny * w + nx
                 if not visited[idx] and is_bg(px[nx, ny]):
                     visited[idx] = 1
                     dq.append((nx, ny))
-    return cell
+    return visited
+
+
+def _content_bbox(cell: Image.Image) -> tuple[int, int, int, int]:
+    """Retângulo (x0,y0,x1,y1) do conteúdo real da célula (sem fundo),
+    encolhido por SAFETY em cada lado."""
+    w, h = cell.size
+    bg = _bg_flood_mask(cell)
+    minx, miny, maxx, maxy = w, h, 0, 0
+    for y in range(h):
+        row_off = y * w
+        for x in range(w):
+            if not bg[row_off + x]:
+                minx = min(minx, x); maxx = max(maxx, x)
+                miny = min(miny, y); maxy = max(maxy, y)
+    minx = min(minx + SAFETY, w // 2 - 5)
+    miny = min(miny + SAFETY, h // 2 - 5)
+    maxx = max(maxx - SAFETY, w // 2 + 5)
+    maxy = max(maxy - SAFETY, h // 2 + 5)
+    return (minx, miny, maxx, maxy)
+
+
+CENTER_BOX = 96  # lado do quadrado central seguro (ver docstring de crop_ref)
+
+
+def crop_ref(im: Image.Image, row: int, col: int) -> Image.Image:
+    """Tiles de TEXTURA (grama/água/parede/etc.). Achado (03/09, depois de
+    3 tentativas de margem/bbox falharem): o fundo escuro do catálogo tem
+    uma VINHETA — mais forte nos CANTOS da célula do que nas bordas retas
+    — então nenhum retângulo alinhado aos eixos consegue evitar o canto
+    escuro sem também cortar conteúdo de verdade em outro lugar (provado
+    testando pixel a pixel: um recorte "seguro" na borda ainda pegava
+    fundo bem no canto). Resolvido pegando só um QUADRADO PEQUENO bem no
+    CENTRO da célula (longe de qualquer canto) e ampliando — como são
+    texturas repetitivas (grama, água, pedra...), usar uma amostra central
+    ampliada não muda a aparência de forma perceptível, e nunca mais tem
+    canto de vinheta."""
+    cx = round(col * CW) + CW / 2
+    cy = round(row * CH) + LABEL_Y / 2
+    half = CENTER_BOX / 2
+    tile = im.crop((round(cx - half), round(cy - half), round(cx + half), round(cy + half))).convert("RGBA")
+    return tile.resize((TILE, TILE), Image.LANCZOS)
+
+
+def extract_object(im: Image.Image, row: int, col: int, thresh: int = 32) -> Image.Image:
+    """Recorta um objeto "solto" (árvore, cerca, caixa...) já cortado bem
+    rente ao seu retângulo de conteúdo real (via `Image.getbbox()` sobre a
+    transparência) — necessário pra centralizar de verdade depois (achado
+    do Gabriel, 03/09: "as árvores estão descentralizadas" — colar a
+    célula inteira, com o objeto desalinhado dentro dela, carrega esse
+    desalinhamento pro tile final)."""
+    x0 = round(col * CW)
+    y0 = round(row * CH)
+    x1 = round((col + 1) * CW)
+    y1 = round(row * CH + LABEL_Y)
+    cell = im.crop((x0, y0, x1, y1)).convert("RGBA")
+    w, h = cell.size
+    px = cell.load()
+    bg = _bg_flood_mask(cell, thresh)
+    for i in range(w * h):
+        if bg[i]:
+            x, y = i % w, i // w
+            r, g, b, _a = px[x, y]
+            px[x, y] = (r, g, b, 0)
+    bbox = cell.getbbox()
+    return cell.crop(bbox) if bbox else cell
 
 
 def compose_object_on_base(im: Image.Image, row: int, col: int, base: Image.Image) -> Image.Image:
-    """Recorta o objeto (extract_object) e cola alinhado pelo RODAPÉ em cima
-    de um tile base já limpo (grama/água/parede) — garante que a moldura
-    do tile final é sempre a base sem costura, com o objeto flutuando por
-    cima na posição certa."""
+    """Recorta o objeto (extract_object, já rente ao conteúdo real) e cola
+    CENTRALIZADO horizontalmente e alinhado pelo RODAPÉ em cima de um tile
+    base já limpo (grama/água) — garante que a moldura do tile final é
+    sempre a base sem costura, com o objeto na posição certa (nem
+    descentralizado, nem flutuando)."""
     obj = extract_object(im, row, col)
-    scale = TILE / obj.width
+    # object não pode passar de ~92% da largura do tile, senão encosta na
+    # borda e quebra a separação visual entre tiles vizinhos (mesma regra
+    # do redesenho da árvore da sessão anterior).
+    max_w = round(TILE * 0.92)
+    scale = min(max_w / obj.width, TILE * 0.92 / obj.height)
+    new_w = round(obj.width * scale)
     new_h = round(obj.height * scale)
-    obj = obj.resize((TILE, new_h), Image.LANCZOS)
+    obj = obj.resize((new_w, new_h), Image.LANCZOS)
     out = base.copy().convert("RGBA")
+    x = (TILE - new_w) // 2
     y = TILE - new_h
-    out.paste(obj, (0, y), obj)
+    out.paste(obj, (x, y), obj)
     return out
 
 

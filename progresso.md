@@ -9,6 +9,36 @@
 
 ---
 
+## Risco preto entre tiles resolvido de vez + árvore centralizada (2026-09-03, continuação)
+
+**Gabriel jogou de novo e confirmou o que eu tinha visto: "As árvores estão descentralizadas e
+tem a margem preta ainda."** As duas correções anteriores (margem única, depois margem mais
+apertada) tinham reduzido o problema mas não resolvido — só ficou óbvio de verdade testando de
+forma sistemática (grade 3×3 da MESMA imagem lado a lado, fora do jogo) em vez de confiar numa
+única captura de tela.
+
+**Causa raiz de verdade, achada só agora**: o fundo escuro do catálogo de referência tem uma
+**vinheta mais forte nos CANTOS da célula do que nas bordas retas** — nenhuma margem ou retângulo
+alinhado aos eixos consegue evitar o canto escuro sem também cortar conteúdo de verdade em outro
+lugar (provado pixel a pixel: um recorte que parecia seguro na lateral ainda pegava fundo bem no
+canto). Resolvido pra tiles de TEXTURA (grama, água, parede, pedra...) trocando a estratégia:
+em vez de tentar achar o "maior retângulo seguro" de cada célula, uso só um **quadrado pequeno bem
+no CENTRO** (longe de qualquer canto) e amplio — como são texturas repetitivas, a amostra central
+ampliada não muda a aparência de forma perceptível, e nunca mais tem vinheta.
+
+**Árvore/cerca/caixa/etc. (objetos soltos) descentralizados**: a extração por transparência já
+isolava o objeto certo, mas eu colava a célula INTEIRA (com o objeto desalinhado dentro dela) em
+vez do objeto sozinho. Corrigido: agora recorto rente ao contorno real do objeto
+(`Image.getbbox()` depois de apagar o fundo) e colo CENTRALIZADO no tile, não a célula inteira.
+
+**Testado com rigor essa vez** (lição do que passou batido antes): grade 3×3 direta da mesma
+imagem (sem depender do jogo renderizar) pra confirmar ausência de costura antes de gastar tempo
+reexportando/reabrindo o navegador — aí sim suíte completa (48 arquivos, 0 falhas) e navegador
+real na produção, mesma resolução do jogo (1280×720), confirmando: sem risco preto em lugar
+nenhum do mapa, árvore/pinheiro/outono/toco/cerca/caixa centralizados nos próprios tiles.
+
+---
+
 ## Migração tile128 + tileset direto da referência do Gabriel (2026-09-03)
 
 **Pedido do Gabriel: aumentar a "taxa" pra 96, depois 128, "para que a qualidade dos componentes
