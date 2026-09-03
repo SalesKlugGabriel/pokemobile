@@ -9,6 +9,42 @@
 
 ---
 
+## Refinamento das 151 sprites — fecha buracos + sensação de movimento (2026-09-02, sessão seguinte 3)
+
+**Gabriel jogou e pediu: "as sprites ficaram identificáveis, mas (...) fechar os buracos e ajustar
+a posição deles para que pareça realmente que está em movimentação."** Os dois achados confirmaram
+exatamente o que ele viu:
+
+**Buraco de verdade, não impressão**: conferi pixel a pixel o Pikachu antes de mexer em qualquer
+coisa — **281 de 1600 pixels (17,6%) eram "ilhas" transparentes DENTRO do contorno** do Pokémon
+(brilho do corpo, reflexo do olho), não fundo de verdade. Causa: a 1ª versão apagava QUALQUER
+pixel ~branco no arquivo inteiro, onde estivesse — inclusive brilho/reflexo branco que faz parte
+do próprio desenho. Ao reduzir de ~40px pra 32px (tile do jogo), essas ilhas viravam buracos bem
+visíveis (Pikachu saía tipo "suíço"). Corrigido com **flood fill a partir da borda da imagem**: só
+vira transparente o branco CONECTADO ao fundo de verdade (alcançável a partir da moldura externa);
+brilho preso dentro do contorno preto não é tocado. Provado com composição sobre fundo magenta
+(único jeito confiável de enxergar transparência de verdade — um visualizador de PNG comum
+desenha "sem alpha" como branco, que se confunde com o próprio Pokémon sendo claro): antes, o topo
+da folha e o olho do Bulbasaur vazavam magenta (buraco de verdade); depois, ficam brancos sólidos,
+iguais ao desenho original do Game Boy.
+
+**Sensação de movimento**: dois ajustes. (a) a sprite entrava **centralizada verticalmente** no
+quadro de 32×32 — como cada pose baixada tem altura diferente (32 a 40px), o "pé" de cada Pokémon
+caía numa altura diferente dentro do quadro, e trocar de direção fazia parecer que ele pulava de
+lugar. Corrigido alinhando pelo **rodapé** (só sobra espaço em cima), igual o resto do jogo já
+assume pro chão da entidade. (b) as sprites de batalha da Red/Blue são só 1 pose parada — as 3
+colunas do sheet (idle/walk_a/walk_b) eram idênticas, então o Pokémon nunca parecia se mexer
+mesmo andando. Criado um "bob" de 1px pra cima/baixo entre as colunas 2 e 3 (mesmo truque clássico
+dos jogos Pokémon originais pro sprite do companheiro seguindo no mapa) — dá sensação de passo sem
+precisar de arte de perna nova.
+
+**Testado:** as 151 espécies (normal + shiny) regeneradas com o pipeline corrigido, suíte inteira
+(48 arquivos, 0 falhas — nenhuma mudou de formato, só o conteúdo do pixel), e navegador real
+(Playwright/Chromium): Bulbasaur inicial andando na Rota 1, comparação antes/depois sobre fundo
+magenta confirmando que os buracos fecharam de verdade (não só impressão visual).
+
+---
+
 ## As 151 sprites reais (4 direções + shiny) — arte de verdade, sem depender de IA (2026-09-02, sessão seguinte 2)
 
 **Pedido do Gabriel, depois de eu ficar travado de novo pela cota diária da ferramenta de imagem:
