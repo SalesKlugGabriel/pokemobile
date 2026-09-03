@@ -1876,6 +1876,10 @@ static func get_layout(map_id: String) -> Dictionary:
 			return {"tiles": _gen_andar_estrutura(true), "width": 18, "height": 14}
 		"indigo_league_f5":
 			return {"tiles": _gen_andar_estrutura(false), "width": 18, "height": 14}
+		"ss_anne_f1":
+			return {"tiles": _gen_andar_estrutura(true), "width": 18, "height": 14}
+		"ss_anne_f2":
+			return {"tiles": _gen_andar_estrutura(false), "width": 18, "height": 14}
 		_:
 			return {}
 

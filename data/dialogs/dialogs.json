@@ -316,5 +316,23 @@
     "Então você venceu a Elite Four inteira. Impressionante — poucos conseguem.",
     "Mas o título de Campeão de Kanto só tem um dono por vez, e hoje ainda sou eu.",
     "Mostre-me a força que te trouxe até aqui!"
+  ],
+  "marinheiro_ssanne_1": [
+    "Ei! Passageiro sem paciência pra viagem tranquila?",
+    "Vamos ver do que seu time é feito!"
+  ],
+  "marinheiro_ssanne_2": [
+    "Trabalhar nesse navio é osso, mas treinar Pokémon nas horas vagas ajuda a passar o tempo.",
+    "Bora, treinador!"
+  ],
+  "marinheiro_ssanne_3": [
+    "Você chegou até o convés de cima? Nada mal.",
+    "Mas o Capitão só recebe quem provar que é forte de verdade. Comigo primeiro!"
+  ],
+  "capitao_ssanne": [
+    "Hm? Um treinador de fora, aqui no meu convés...",
+    "Vejo que atravessou meus marinheiros sem desistir. Isso diz muito sobre você.",
+    "Tenho andado enjoado com o balanço do mar — mas isso não impede de reconhecer talento.",
+    "Aceite este presente. Vai abrir caminhos que troncos e árvores hoje bloqueiam."
   ]
 }

@@ -1398,6 +1398,34 @@
     "requires": [],
     "unlocks": []
   },
+  "UTIL-19": {
+    "id": "UTIL-19",
+    "title": "O Capitão do S.S. Anne",
+    "category": "util",
+    "npc_id": "capitao_ssanne",
+    "location_tile": {
+      "x": 228,
+      "y": 165
+    },
+    "objectives": [
+      {
+        "type": "talk",
+        "target": "capitao_ssanne"
+      }
+    ],
+    "rewards": {
+      "exp_trainer": 300,
+      "items": [
+        {
+          "id": "hm01",
+          "quantity": 1
+        }
+      ]
+    },
+    "requires": [],
+    "unlocks": [],
+    "_ajuste_editorial": "Interior do S.S. Anne construído do zero (03/09, Onda 3) — só existia a fachada antes. O Capitão dá MO01 Cortar (hm01), que até então não era concedido em NENHUMA quest do jogo (só MO02 Voar, via GYM-07, existia)."
+  },
   "COLETOR-01": {
     "id": "COLETOR-01",
     "title": "Diversidade",

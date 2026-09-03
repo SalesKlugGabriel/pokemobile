@@ -9,6 +9,35 @@
 
 ---
 
+## Interior do S.S. Anne construído (2026-09-03, continuação)
+
+**Primeira das dungeons pendentes de verdade** (a Usina Elétrica fica de fora — depende de Surf/
+Voar, que ainda não existem no jogo). Antes só a fachada existia em Vermilion (um "casco vazio"
+pintado direto no mapa, sem nada atrás da porta). Construídos 2 andares de verdade (mesmo molde
+genérico de sala 18×14 já usado em Silph Co./Torre Pokémon/Liga): convés de baixo com 2
+marinheiros treinadores, convés de cima com mais 1 marinheiro + o Capitão, que dá **MO01 Cortar**
+— achado no caminho: **essa MO nunca era concedida em lugar NENHUM do jogo** (só MO02 Voar
+existia, via GYM-07). MO03 Força continua sem fonte nenhuma — não é desta tarefa resolver, só
+registrando o achado.
+
+**Bug do meu próprio lote, achado e corrigido antes de publicar**: o Capitão tinha `gift_item_id`
+E a quest UTIL-19 dando MO01 Cortar ao mesmo tempo — exatamente a MESMA classe de bug que acabei
+de corrigir no Giovanni (recompensa em dobro). Corrigido removendo o `gift_item_id` — só a quest
+concede, igual o padrão já usado pro MO02.
+
+**Testado**: `teste_ss_anne.gd` (novo, 15 conferências — os 2 andares geram, os 3 marinheiros têm
+time real, o Capitão não é treinador e não duplica a recompensa, MO01 concedida exatamente 1 vez).
+O warp novo (`WarpSSAnne`) de novo exigiu a mesma correção de lista de exceção em 7 testes antigos
+(agora "SSAnne" junto de "IndigoLeague"/"SilphCo"/etc). Suíte inteira (54 arquivos) sem regressão.
+Publicado.
+
+**Próximo passo, sem pedir confirmação: Caverna de Cerulean + Mewtwo** — a última peça de
+conteúdo grande pendente, hoje 100% inexistente (só um registro de zona com a tabela de Pokémon
+selvagem, nenhum mapa/interior/warp).
+**Precisa de decisão do Gabriel?** Não.
+
+---
+
 ## Elite Four + Campeão, construído do zero (2026-09-03, continuação)
 
 **Onda 4 — a Liga Pokémon não existia de forma nenhuma** (confirmado pela pesquisa do lote

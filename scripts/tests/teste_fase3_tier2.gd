@@ -92,7 +92,7 @@ func _teste_geral() -> void:
 				if w.target_map.contains("MtMoon"):
 					vai_pro_mtmoon = true
 				elif w.target_map != "" and not w.target_map.contains("PokemonCenter") \
-				and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone") and not w.target_map.contains("RocketHideout") and not w.target_map.contains("VictoryRoad") and not w.target_map.contains("DiglettsCave") and not w.target_map.contains("PokemonTower") and not w.target_map.contains("SilphCo") and not w.target_map.contains("GameCorner") and not w.target_map.contains("RocketHQ") and not w.target_map.contains("PokemonMansion") and not w.target_map.contains("IndigoLeague"):
+				and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone") and not w.target_map.contains("RocketHideout") and not w.target_map.contains("VictoryRoad") and not w.target_map.contains("DiglettsCave") and not w.target_map.contains("PokemonTower") and not w.target_map.contains("SilphCo") and not w.target_map.contains("GameCorner") and not w.target_map.contains("RocketHQ") and not w.target_map.contains("PokemonMansion") and not w.target_map.contains("IndigoLeague") and not w.target_map.contains("SSAnne"):
 					alvos_indevidos += 1
 		_assert(vai_pro_mtmoon, "existe um warp pra dentro do Mt Moon (caverna — exceção permitida)")
 		_assert(alvos_indevidos == 0,
