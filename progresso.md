@@ -9,6 +9,48 @@
 
 ---
 
+## Elite Four + Campeão, construído do zero (2026-09-03, continuação)
+
+**Onda 4 — a Liga Pokémon não existia de forma nenhuma** (confirmado pela pesquisa do lote
+anterior: zero quest, zero NPC, zero mapa — só texto de design nunca implementado). Construído
+reaproveitando 100% do que já existia pros 8 ginásios e pras estruturas de múltiplos andares
+(Silph Co./Torre Pokémon) — nenhuma mecânica nova, só o MESMO motor aplicado a 5 combates novos.
+
+**A Liga (Indigo Plateau) abre com as 8 insígnias**, não uma quest específica — é uma trilha à
+parte da história principal, mesma técnica de gatilho-de-save que já existia só pro Ginásio de
+Viridian (`_giovanni_liberado()`), agora generalizada em `_liga_liberada()` (checa as 8 ao mesmo
+tempo). **5 andares** (`IndigoLeague_F1..F5.tscn`, reaproveitando literalmente a mesma função
+`_gen_andar_estrutura()` de Silph Co./Torre Pokémon — sala 18×14, escada embaixo/em cima): Lorelei
+(Gelo), Bruno (Lutador), Agatha (Fantasma/Veneno), Lance (Dragão), e o Campeão de Kanto no topo —
+times reais escalando de nível 54 até 62, cada um mais forte que o anterior. Cadeia de quests
+`ELITE4-01..04` + `CHAMPION-01`, uma por andar, cada vitória destravando a próxima sozinha —
+recompensa final: Troféu de Campeão (item novo, cadastrado direito em items.json, não um "item
+fantasma" só citado em quest.json sem existir — achei esse padrão quebrado em VÁRIOS outros
+prêmios antigos do jogo, tipo `diario_1..6`/`pokeradar`/`documento_fratura_parcial`, nenhum
+cadastrado; não é desta tarefa consertar todos, mas pelo menos o meu não repete o erro) + título
+"Campeão de Kanto".
+
+**Achado no caminho**: adicionar o warp novo (`WarpIndigoLeague`) quebrou 7 testes antigos que
+mantêm uma lista de "todo warp de cidade/rota tem que estar nesta lista de exceções permitidas"
+(mesma lista que já tinha entrada pra Silph Co./Torre Pokémon/Zona Safari) — corrigido
+adicionando "IndigoLeague" na lista, nos 7 arquivos.
+
+**Testado**: `teste_elite_four.gd` (novo, 46 conferências — porta fechada com 0 e com 7 de 8
+insígnias, abre só com as 8, os 5 andares geram e carregam de verdade, cadeia de quests completa
+na ordem certa com XP somando exato, item/título concedidos, dificuldade crescente confirmada
+nível a nível). Suíte inteira (53 arquivos) sem regressão. Export Web + rebuild + `docker service
+update --force`, `curl` confirma 200, e um smoke test em navegador real (Playwright) sem erro
+nenhum de script. **Não joguei a campanha inteira até lá** (juntar as 8 insígnias de verdade
+levaria muito tempo de automação) — a validação é pelo teste automatizado, que já instancia as
+cenas de verdade e roda a lógica de jogo real, não só a matemática isolada.
+
+**Próximo passo, sem pedir confirmação (autorizado pelo Gabriel): dungeons.** S.S. Anne (só
+fachada hoje) e Caverna de Cerulean/Mewtwo (não existe nada ainda) são as duas que dá pra construir
+agora — Usina Elétrica fica de fora, bloqueada por Surf/Voar que ainda não existem no jogo.
+**Precisa de decisão do Gabriel?** Não.
+
+---
+
 ## Ginásios: 2 bugs achados e corrigidos antes de partir pra Elite Four (2026-09-03, continuação)
 
 **Pedido do Gabriel: "siga com ginásios e elite four, depois pode tocar direto para dungeons sem

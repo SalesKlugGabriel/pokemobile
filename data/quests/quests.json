@@ -1635,5 +1635,140 @@
       "MAIN-12"
     ],
     "unlocks": []
+  },
+  "ELITE4-01": {
+    "id": "ELITE4-01",
+    "title": "Elite Four — Lorelei",
+    "category": "elite_four",
+    "npc_id": "lorelei",
+    "objectives": [
+      {
+        "type": "defeat",
+        "target": "lorelei"
+      }
+    ],
+    "rewards": {
+      "exp_trainer": 2000,
+      "items": [
+        {
+          "id": "max_elixir",
+          "quantity": 2
+        }
+      ]
+    },
+    "requires": [],
+    "unlocks": [
+      "ELITE4-02"
+    ]
+  },
+  "ELITE4-02": {
+    "id": "ELITE4-02",
+    "title": "Elite Four — Bruno",
+    "category": "elite_four",
+    "npc_id": "bruno_e4",
+    "objectives": [
+      {
+        "type": "defeat",
+        "target": "bruno"
+      }
+    ],
+    "rewards": {
+      "exp_trainer": 2200,
+      "items": [
+        {
+          "id": "max_elixir",
+          "quantity": 2
+        }
+      ]
+    },
+    "requires": [
+      "ELITE4-01"
+    ],
+    "unlocks": [
+      "ELITE4-03"
+    ]
+  },
+  "ELITE4-03": {
+    "id": "ELITE4-03",
+    "title": "Elite Four — Agatha",
+    "category": "elite_four",
+    "npc_id": "agatha",
+    "objectives": [
+      {
+        "type": "defeat",
+        "target": "agatha"
+      }
+    ],
+    "rewards": {
+      "exp_trainer": 2400,
+      "items": [
+        {
+          "id": "max_elixir",
+          "quantity": 2
+        }
+      ]
+    },
+    "requires": [
+      "ELITE4-02"
+    ],
+    "unlocks": [
+      "ELITE4-04"
+    ]
+  },
+  "ELITE4-04": {
+    "id": "ELITE4-04",
+    "title": "Elite Four — Lance",
+    "category": "elite_four",
+    "npc_id": "lance",
+    "objectives": [
+      {
+        "type": "defeat",
+        "target": "lance"
+      }
+    ],
+    "rewards": {
+      "exp_trainer": 2600,
+      "items": [
+        {
+          "id": "max_elixir",
+          "quantity": 3
+        }
+      ]
+    },
+    "requires": [
+      "ELITE4-03"
+    ],
+    "unlocks": [
+      "CHAMPION-01"
+    ]
+  },
+  "CHAMPION-01": {
+    "id": "CHAMPION-01",
+    "title": "O Campeão de Kanto",
+    "category": "elite_four",
+    "npc_id": "campeao",
+    "objectives": [
+      {
+        "type": "defeat",
+        "target": "campeao"
+      }
+    ],
+    "rewards": {
+      "exp_trainer": 5000,
+      "items": [
+        {
+          "id": "trofeu_campeao",
+          "quantity": 1
+        }
+      ],
+      "titles": [
+        "campeao_de_kanto"
+      ]
+    },
+    "requires": [
+      "ELITE4-04"
+    ],
+    "unlocks": [],
+    "_ajuste_editorial": "A porta da Liga (MapLayouts._liga_liberada()) já exige as 8 insígnias pra sequer entrar — por isso nenhuma quest desta cadeia tem 'requires' de insígnia: a barreira física do mapa já garante isso, igual o Ginásio de Viridian faz com MAIN-08. Cada andar só destrava o próximo por 'unlocks', não por posição no mapa (o jogador já anda em ordem 1->5 de qualquer forma, não tem como pular andar)."
   }
 }

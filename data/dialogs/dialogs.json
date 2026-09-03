@@ -295,5 +295,26 @@
   "viridian_gym_closed": [
     "O Líder deste Ginásio anda muito ocupado — ninguém sabe direito com o quê.",
     "As portas não abrem enquanto ele não voltar. Tente sua sorte outro dia."
+  ],
+  "lorelei_e4": [
+    "Sou Lorelei, a primeira das Elite Four. Meus Pokémon de Gelo vão te congelar no lugar.",
+    "Ninguém que chega até aqui acha o caminho fácil. Vamos ver se você é exceção."
+  ],
+  "bruno_e4": [
+    "Bruno. Força bruta e treino duro — é só isso que interessa.",
+    "Poder é tudo. Mostre o seu."
+  ],
+  "agatha_e4": [
+    "Hihihi... um treinador jovem, até aqui? Interessante.",
+    "Meus Pokémon Fantasma vão te ensinar o que é medo de verdade."
+  ],
+  "lance_e4": [
+    "Sou Lance, o Mestre dos Dragões. Poucos chegam tão longe quanto você chegou.",
+    "Mas a Liga não se entrega fácil. Prepare-se!"
+  ],
+  "campeao_e4": [
+    "Então você venceu a Elite Four inteira. Impressionante — poucos conseguem.",
+    "Mas o título de Campeão de Kanto só tem um dono por vez, e hoje ainda sou eu.",
+    "Mostre-me a força que te trouxe até aqui!"
   ]
 }

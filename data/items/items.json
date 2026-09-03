@@ -92,5 +92,7 @@
   "charcoal":     {"id":"charcoal",     "name":"Charcoal",     "category":"held", "boost_type":"Fire",     "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes de Fogo em 20%."},
   "mystic_water":  {"id":"mystic_water", "name":"Mystic Water", "category":"held", "boost_type":"Water",    "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes de Água em 20%."},
   "miracle_seed": {"id":"miracle_seed", "name":"Miracle Seed", "category":"held", "boost_type":"Grass",    "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes de Planta em 20%."},
-  "magnet":       {"id":"magnet",       "name":"Magnet",       "category":"held", "boost_type":"Electric", "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes Elétricos em 20%."}
+  "magnet":       {"id":"magnet",       "name":"Magnet",       "category":"held", "boost_type":"Electric", "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes Elétricos em 20%."},
+
+  "trofeu_campeao": {"id":"trofeu_campeao", "name":"Troféu de Campeão", "category":"key", "price":0, "description":"Prova de que você derrotou a Elite Four e se tornou Campeão de Kanto."}
 }

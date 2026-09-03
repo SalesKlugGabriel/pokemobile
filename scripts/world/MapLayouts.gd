@@ -811,12 +811,22 @@ static func _oeste_de_viridian_cell(j: int, lr: int) -> String:
 	# ── Indigo Plateau ── local ip a partir de ROUTE22_COLS ────────────────
 	var ip := j - ROUTE22_COLS
 
-	# ── Liga Pokémon — FECHADA (mesma história do Ginásio de Viridian/
-	# Giovanni, GYM-08: porta nunca abre até essa cadeia existir) ──────────
+	# ── Liga Pokémon (Elite Four + Campeão, 03/09) — abre só com as 8
+	# insígnias, mesmo padrão do Ginásio de Viridian/Giovanni (_giovanni_
+	# liberado), só que a condição aqui é "todas as insígnias" em vez de uma
+	# quest específica — combate/premiação usa o MESMO pipeline genérico de
+	# qualquer treinador (NpcEntity → BattleResolver → EventBus.battle_ended
+	# → QuestManager), só que em 5 andares (ELITE4-01..04 + CHAMPION-01).
 	if ip >= 10 and ip <= 22 and lr >= 6 and lr <= 14:
 		if ip == 10 or ip == 22: return "W"
 		if lr == 6: return "H"
-		if lr == 14: return "W"  # porta bloqueada, igual ao Ginásio de Viridian
+		if _liga_liberada():
+			if lr == 14:
+				if ip >= 15 and ip <= 17: return "P"
+				return "W"
+			return "I"
+		if lr == 14:
+			return "W"  # porta bloqueada (faltam insígnias)
 		return "W"  # interior inacessível
 
 	# ── Centro Pokémon de Indigo Plateau ── ip 25-37, lr 6-14 ──────────────
@@ -1309,6 +1319,31 @@ static func _giovanni_liberado() -> bool:
 	if qm == null:
 		return false
 	return qm.is_quest_complete("MAIN-08")
+
+## As 8 insígnias — mesma lista que os 8 GYM-0N já concedem (ver
+## data/quests/quests.json). Só existe aqui pra checar "tem todas", não
+## precisa bater com nenhuma ordem específica de conquista.
+const ALL_BADGES : Array[String] = [
+	"boulder_badge", "cascade_badge", "thunder_badge", "rainbow_badge",
+	"soul_badge", "marsh_badge", "volcano_badge", "earth_badge",
+]
+
+## Verdade só com as 8 insígnias — mesma técnica de _giovanni_liberado()
+## (único jeito de amarrar "abre depois de um evento de save" na arquitetura
+## atual de tiles procedurais), só que a condição é badge count em vez de
+## quest específica (a Liga não depende de nenhuma quest de história, é uma
+## trilha à parte — Elite Four/Campeão, 03/09).
+static func _liga_liberada() -> bool:
+	var loop : SceneTree = Engine.get_main_loop()
+	if loop == null:
+		return false
+	var sm : Node = loop.root.get_node_or_null("SaveManager")
+	if sm == null:
+		return false
+	for badge in ALL_BADGES:
+		if not sm.has_badge(badge):
+			return false
+	return true
 
 static func _viridian_cell(c: int, r: int, W: int) -> String:
 	# Bordas laterais
@@ -1836,6 +1871,10 @@ static func get_layout(map_id: String) -> Dictionary:
 		"pokemon_mansion_f1", "pokemon_mansion_f2":
 			return {"tiles": _gen_andar_estrutura(true), "width": 18, "height": 14}
 		"pokemon_mansion_f3":
+			return {"tiles": _gen_andar_estrutura(false), "width": 18, "height": 14}
+		"indigo_league_f1", "indigo_league_f2", "indigo_league_f3", "indigo_league_f4":
+			return {"tiles": _gen_andar_estrutura(true), "width": 18, "height": 14}
+		"indigo_league_f5":
 			return {"tiles": _gen_andar_estrutura(false), "width": 18, "height": 14}
 		_:
 			return {}

@@ -100,7 +100,7 @@ func _teste_geral() -> void:
 				# Mt Moon é caverna — exceção permitida (ver Tier 2). Só
 				# cidade/rota ligada por warp que não deveria existir.
 				if w.target_map != "" and not w.target_map.contains("PokemonCenter") \
-				and not w.target_map.contains("MtMoon") and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone") and not w.target_map.contains("RocketHideout") and not w.target_map.contains("VictoryRoad") and not w.target_map.contains("DiglettsCave") and not w.target_map.contains("PokemonTower") and not w.target_map.contains("SilphCo") and not w.target_map.contains("GameCorner") and not w.target_map.contains("RocketHQ") and not w.target_map.contains("PokemonMansion"):
+				and not w.target_map.contains("MtMoon") and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone") and not w.target_map.contains("RocketHideout") and not w.target_map.contains("VictoryRoad") and not w.target_map.contains("DiglettsCave") and not w.target_map.contains("PokemonTower") and not w.target_map.contains("SilphCo") and not w.target_map.contains("GameCorner") and not w.target_map.contains("RocketHQ") and not w.target_map.contains("PokemonMansion") and not w.target_map.contains("IndigoLeague"):
 					alvos_nao_pokecenter += 1
 		_assert(alvos_nao_pokecenter == 0,
 			"nenhum warp de CIDADE/ROTA indevido sobrou no WorldMap — só Centro Pokémon e Mt Moon (%d de sobra)" % alvos_nao_pokecenter)

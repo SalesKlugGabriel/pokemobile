@@ -54,6 +54,9 @@ size = Vector2(384, 128)
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_indigo"]
 size = Vector2(384, 128)
 
+[sub_resource type="RectangleShape2D" id="Shape_indigoleague"]
+size = Vector2(384, 128)
+
 [sub_resource type="RectangleShape2D" id="Shape_digletts"]
 size = Vector2(384, 128)
 
@@ -471,6 +474,14 @@ is_pokemon_center_entrance = true
 
 [node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Indigo"]
 shape = SubResource("Shape_pokecenter_indigo")
+
+[node name="WarpIndigoLeague" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(-9664, 12352)
+target_map = "res://scenes/world/maps/IndigoLeague_F1.tscn"
+spawn_tile = Vector2i(8, 11)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpIndigoLeague"]
+shape = SubResource("Shape_indigoleague")
 
 [node name="WarpDiglettsCave" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(38848, 19392)
