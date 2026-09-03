@@ -9,6 +9,50 @@
 
 ---
 
+## Onda 1, item 6: tabela completa de pokébolas (Net/Dusk/Quick/Timer/Heal) (2026-09-03, continuação)
+
+**Segundo item da Onda 1.** Antes de construir, achei DOIS bugs reais no sistema de bola já
+existente (nenhum tinha sido notado, os dois corrigidos junto):
+1. **A tecla de arremesso (Espaço) nunca conseguia usar nada além de Poké Ball comum.** A lista
+   fixa de prioridade em `TrainerEntity.gd` usava IDs sem underline ("masterball") que nunca
+   batiam com o ID real salvo no inventário ("master_ball") — `SaveManager.has_item()` nunca
+   achava a bola, mesmo com uma no bolso. Corrigido junto com a troca de abordagem (ver abaixo).
+2. **O multiplicador de bola no combate em tempo real também nunca batia** — outro dicionário
+   (`POKEBALL_MULT`) com chaves diferentes ("superball") e até um VALOR diferente do que
+   `items.json` já dizia pro Master Ball (99.0 ali vs 255.0 no arquivo real, que o combate por
+   turno já lia corretamente) — todo multiplicador de bola caía sempre no padrão 1.0 sem avisar.
+
+**Corrigido pela raiz**: os dois sistemas (tempo real e por turno) agora leem o MESMO
+`catch_rate_mult` de `items.json`, fonte única. `CaptureSystem.gd` ganhou `ball_multiplier()`
+(lê o multiplicador base + aplica o bônus situacional de cada bola nova) e `pick_best_owned_ball()`
+— escolhe, entre as bolas que o Treinador tem, a de MAIOR chance calculada pro alvo ATUAL, em vez
+de uma ordem fixa (que não fazia sentido nenhum com bola situacional: Net Ball não é "melhor" que
+Ultra Ball em geral, só contra Água/Inseto).
+
+**5 bolas novas em `items.json`** (com preço/descrição do jogo real): Net Ball (3x contra
+Água/Inseto), Dusk Ball (3x dentro de caverna escura — `FloorMap.dark_cave`; o jogo não tem ciclo
+dia/noite, só a metade "caverna" da regra clássica existe), Quick Ball (5x nos primeiros instantes
+do encontro, usa o mesmo `TURN_SECONDS` do sistema de status pra não inventar um segundo "tamanho
+de turno"), Timer Ball (cresce com o tempo de combate, +0,3x por "turno" até o teto de 4x), Heal
+Ball (sem bônus de captura, mas cura HP e status por completo do Pokémon capturado). Todas
+aparecem sozinhas na Loja (aba "Poké Bolas" já existe, lista os itens de `items.json` por
+categoria — nenhuma tela nova precisou ser construída).
+
+**Testado**: `teste_onda1_tabela_pokebolas.gd` (novo, 31 conferências — dado em items.json,
+multiplicador de cada bola isolado, escolha automática pelo contexto, captura de ponta a ponta com
+Heal Ball confirmando cura completa). Achado 1 bug real no PRÓPRIO teste no caminho: comparar
+`Time.get_ticks_msec()` contra um timestamp "no passado" podia sobrar negativo logo no início do
+processo (engine com poucos ms de vida), colidindo com o sentinela -1 ("nunca engajou") — corrigido
+trocando a checagem de `< 0` pra `== -1` no código de produção (mais preciso de qualquer forma, não
+só um jeito de passar no teste). Suíte inteira (49 arquivos) sem regressão. Export Web + rebuild +
+`docker service update --force`, `curl` confirma 200 em https://poke.workprog.pro.
+
+**Próximo passo**: item 7 da Onda 1 (TM Gold de uso infinito, diferente de TM comum) ou o que o
+Gabriel preferir.
+**Precisa de decisão do Gabriel?** Não.
+
+---
+
 ## Onda 1, item 5: status persistente (queima/veneno/paralisia/sono/congelamento) + confusão (2026-09-03, continuação)
 
 **Primeiro item da Onda 1 do roteiro geral** (a Onda 0 ficou concluída/corrigida na entrada

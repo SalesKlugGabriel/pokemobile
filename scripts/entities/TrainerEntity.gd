@@ -326,22 +326,28 @@ func _show_system_message(dialog_id: String) -> void:
 # já existia pronto (arremesso em arco, cálculo de chance), só nunca tinha
 # sido ligado a uma tecla. A ação "pokeball" (Espaço) já existia no mapa de
 # input, também nunca usada até agora.
+#
+# Achado na Onda 1, item 6 (03/09, tabela completa de bolas): a lista fixa
+# antiga (BALL_PRIORITY, "melhor bola primeiro") usava IDs sem underline
+# ("masterball") que NUNCA batiam com o ID real salvo no inventário
+# ("master_ball") — SaveManager.has_item() nunca achava nada além da
+# "pokeball" (único ID que por acaso é igual nos dois formatos), então
+# apertar a tecla só conseguia arremessar Poké Ball comum, mesmo com
+# Master Ball no bolso. E uma lista fixa nunca faria sentido de qualquer
+# forma com bolas situacionais (Net Ball não é "melhor" que Ultra Ball em
+# geral, só contra Água/Inseto) — trocado por escolher, entre as bolas que o
+# Treinador tem, a de MAIOR chance calculada pra ESTE alvo específico.
 # ──────────────────────────────────────────────────────────────────────────────
-const BALL_PRIORITY := ["masterball", "ultraball", "superball", "pokeball"]  # melhor bola primeiro
 
 func _try_throw_pokeball() -> void:
-	var ball_id := ""
-	for candidate in BALL_PRIORITY:
-		if SaveManager.has_item(candidate, 1):
-			ball_id = candidate
-			break
-	if ball_id.is_empty():
-		_show_system_message("no_pokeball")
-		return
-
 	var alvo := _find_nearest_wild_pokemon()
 	if not alvo:
 		_show_system_message("no_wild_nearby")
+		return
+
+	var ball_id := CaptureSystem.pick_best_owned_ball(alvo)
+	if ball_id.is_empty():
+		_show_system_message("no_pokeball")
 		return
 
 	SaveManager.remove_item(ball_id, 1)

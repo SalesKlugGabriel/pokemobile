@@ -4,6 +4,12 @@
   "ultra_ball":      {"id":"ultra_ball",      "name":"Ultra Ball",       "category":"ball",       "catch_rate_mult":2.0,   "price":1200, "description":"An ultra-grade ball with an even better catch rate."},
   "master_ball":     {"id":"master_ball",     "name":"Master Ball",      "category":"ball",       "catch_rate_mult":255.0, "price":0,    "description":"The best ball. Catches any wild Pokémon without fail."},
 
+  "net_ball":        {"id":"net_ball",        "name":"Net Ball",         "category":"ball",       "catch_rate_mult":1.0, "catch_bonus":"water_bug",     "catch_bonus_mult":3.0, "price":1000, "description":"A ball for catching Water- and Bug-type Pokémon more easily."},
+  "dusk_ball":       {"id":"dusk_ball",       "name":"Dusk Ball",        "category":"ball",       "catch_rate_mult":1.0, "catch_bonus":"dark_cave",     "catch_bonus_mult":3.0, "price":1000, "description":"A ball that works better on Pokémon encountered in dark caves."},
+  "quick_ball":      {"id":"quick_ball",      "name":"Quick Ball",       "category":"ball",       "catch_rate_mult":1.0, "catch_bonus":"quick_throw",   "catch_bonus_mult":5.0, "price":1000, "description":"A ball with a better catch rate if used at the very start of an encounter."},
+  "timer_ball":      {"id":"timer_ball",      "name":"Timer Ball",       "category":"ball",       "catch_rate_mult":1.0, "catch_bonus":"battle_length", "catch_bonus_mult":4.0, "price":1000, "description":"A ball that becomes more effective the longer a battle drags on."},
+  "heal_ball":       {"id":"heal_ball",       "name":"Heal Ball",        "category":"ball",       "catch_rate_mult":1.0, "heals_on_catch":true,                                  "price":300,  "description":"A ball that fully heals and cures the status of the Pokémon caught with it."},
+
   "potion":          {"id":"potion",          "name":"Potion",           "category":"medicine",   "heal_hp":20,   "price":300,  "target":"pokemon", "description":"Restores 20 HP to one Pokémon."},
   "super_potion":    {"id":"super_potion",    "name":"Super Potion",     "category":"medicine",   "heal_hp":50,   "price":700,  "target":"pokemon", "description":"Restores 50 HP to one Pokémon."},
   "hyper_potion":    {"id":"hyper_potion",    "name":"Hyper Potion",     "category":"medicine",   "heal_hp":200,  "price":1200, "target":"pokemon", "description":"Restores 200 HP to one Pokémon."},

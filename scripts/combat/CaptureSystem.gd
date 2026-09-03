@@ -11,17 +11,24 @@ extends Node
 
 const POKEBALL_ARC_HEIGHT : float = 240.0  # migração tile128 (03/09): era 60 pro tile de 32px
 
-## Multiplicadores de chance de captura por tipo de pokébola
-const POKEBALL_MULT : Dictionary = {
-	"pokeball":      1.0,
-	"superball":     1.5,
-	"ultraball":     2.0,
-	"masterball":    99.0,   # captura garantida
-	"safariball":    1.5,
-	"netball":       1.3,
-	"diveball":      1.3,
-	"nestball":      1.0,
-}
+## Toda pokébola conhecida, da pior chance base pra melhor — usado só por
+## pick_best_owned_ball() pra saber o que existe no jogo (não define ordem de
+## escolha: cada bola tem sua própria chance calculada pro alvo específico).
+const ALL_BALL_IDS : Array[String] = [
+	"pokeball", "great_ball", "net_ball", "dusk_ball", "quick_ball",
+	"timer_ball", "heal_ball", "ultra_ball", "master_ball",
+]
+
+## Onda 1, item 6 (03/09): tabela completa de pokébolas. Achado ao construir
+## isto: o dicionário antigo (POKEBALL_MULT) tinha chaves ("superball",
+## "masterball" sem underline) que NUNCA batiam com os IDs reais de
+## items.json ("great_ball", "master_ball") nem com os valores de lá
+## (master_ball é 255.0 em items.json, o dicionário antigo dizia 99.0) — todo
+## multiplicador de bola caía sempre no padrão 1.0, silenciosamente. Removido
+## de vez: agora o multiplicador vem sempre de items.json (fonte única),
+## mesmo campo `catch_rate_mult` que o combate por turno já lê
+## (BattleManager._attempt_capture) — os dois engines não podem discordar do
+## que uma bola vale.
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Estado
@@ -86,21 +93,88 @@ func throw_pokeball(target: WildPokemon, pokeball_type: String) -> void:
 
 ## Calcula a chance de captura conforme a fórmula do spec.
 ## master_bonus: pontos de mestre_captura do Treinador (0-8).
-func calculate_catch_chance(
-	species_id    : int,
-	hp_ratio      : float,
-	master_bonus  : float,
-	pokeball_type : String = "pokeball"
-) -> float:
-	var species_data   : Dictionary = GameData.get_species(species_id)
+func calculate_catch_chance(target: WildPokemon, master_bonus: float, pokeball_type: String = "pokeball") -> float:
+	var species_data   : Dictionary = GameData.get_species(target.species_id)
 	var catch_rate_raw : int        = species_data.get("catch_rate", 45)
 
 	var catch_base  : float = float(catch_rate_raw) / 255.0
-	var hp_bonus    : float = (1.0 - hp_ratio) * 0.5
+	var hp_bonus    : float = (1.0 - target.get_hp_ratio()) * 0.5
 	var master_bns  : float = master_bonus * 0.03
-	var ball_mult   : float = POKEBALL_MULT.get(pokeball_type, 1.0)
+	var ball_mult   : float = ball_multiplier(pokeball_type, target)
 
 	return min((catch_base + hp_bonus + master_bns) * ball_mult, 0.97)
+
+## Multiplicador de UMA bola específica contra UM alvo específico — o mesmo
+## `catch_rate_mult` que items.json já expunha pro combate por turno
+## (BattleManager._attempt_capture), com o bônus situacional em cima quando a
+## condição da bola se cumpre (Onda 1, item 6, 03/09). Bola desconhecida ou
+## sem `catch_bonus` cadastrado = só o multiplicador base, sem bônus nenhum.
+func ball_multiplier(pokeball_type: String, target: WildPokemon) -> float:
+	var item : Dictionary = GameData.get_item(pokeball_type)
+	var mult : float = item.get("catch_rate_mult", 1.0)
+	if item.is_empty():
+		return mult
+	match item.get("catch_bonus", ""):
+		"water_bug":
+			if "Water" in target.types or "Bug" in target.types:
+				mult = item.get("catch_bonus_mult", mult)
+		"dark_cave":
+			if _is_in_dark_cave():
+				mult = item.get("catch_bonus_mult", mult)
+		"quick_throw":
+			if _is_early_in_encounter(target):
+				mult = item.get("catch_bonus_mult", mult)
+		"battle_length":
+			mult = _timer_ball_multiplier(target, item.get("catch_bonus_mult", mult))
+	return mult
+
+## Bola Rápida (Quick Ball): bônus máximo se arremessada ANTES do selvagem
+## notar o Treinador, ou nos primeiros instantes depois disso — mesma ideia
+## do jogo real ("primeiro turno"), adaptada pro tempo real (usa o mesmo
+## TURN_SECONDS de StatusEffectController, pra não inventar um segundo
+## "tamanho de turno" diferente no mesmo motor).
+func _is_early_in_encounter(target: WildPokemon) -> bool:
+	if target.engaged_at_msec == -1:
+		return true
+	var elapsed_sec : float = float(Time.get_ticks_msec() - target.engaged_at_msec) / 1000.0
+	return elapsed_sec < StatusEffectController.TURN_SECONDS
+
+## Bola Tempo (Timer Ball): cresce com o tempo de combate, até o teto da
+## própria bola (item.catch_bonus_mult) — mesma curva do jogo real (~+0.3x
+## por "turno"). Selvagem que nunca "engajou" (capturado furtivamente, fora
+## de combate) não tem tempo de batalha nenhum: fica no mínimo (1.0x).
+func _timer_ball_multiplier(target: WildPokemon, cap_mult: float) -> float:
+	if target.engaged_at_msec == -1:
+		return 1.0
+	var elapsed_turns : float = float(Time.get_ticks_msec() - target.engaged_at_msec) / 1000.0 / StatusEffectController.TURN_SECONDS
+	return clampf(1.0 + elapsed_turns * 0.3, 1.0, cap_mult)
+
+## Bola do Anoitecer (Dusk Ball): bônus em caverna escura (FloorMap.dark_cave
+## — Rock Tunnel etc). O jogo não tem ciclo dia/noite (o outro gatilho
+## clássico dessa bola), então só a metade "caverna" existe aqui.
+func _is_in_dark_cave() -> bool:
+	var scene := get_tree().current_scene
+	return scene is FloorMap and scene.dark_cave
+
+## Dado o alvo atual, escolhe a bola que o Treinador possui com a MAIOR
+## chance de captura calculada pra ele — substitui a lista fixa antiga
+## (BALL_PRIORITY em TrainerEntity.gd), que já nascia quebrada (IDs sem
+## underline não batiam com o save) e não fazia sentido nenhum com bolas
+## situacionais (uma Net Ball não é "melhor" que Ultra Ball em geral, só
+## contra Água/Inseto). "" = nenhuma bola no inventário.
+func pick_best_owned_ball(target: WildPokemon) -> String:
+	_find_trainer_stats()
+	var master_pts : float = float(trainer_stats.get_master_capture_points()) if trainer_stats else 0.0
+	var best_id     : String = ""
+	var best_chance : float  = -1.0
+	for ball_id in ALL_BALL_IDS:
+		if not SaveManager.has_item(ball_id, 1):
+			continue
+		var chance := calculate_catch_chance(target, master_pts, ball_id)
+		if chance > best_chance:
+			best_chance = chance
+			best_id     = ball_id
+	return best_id
 
 ## Tenta capturar o Pokémon. Retorna true se a captura for bem-sucedida.
 ## Pokémon de treinador nunca pode ser capturado.
@@ -112,11 +186,16 @@ func attempt_capture(target: WildPokemon, pokeball_type: String) -> bool:
 
 	_find_trainer_stats()
 	var master_pts : float = float(trainer_stats.get_master_capture_points()) if trainer_stats else 0.0
-	var hp_ratio   : float = target.get_hp_ratio()
-	var chance     : float = calculate_catch_chance(target.species_id, hp_ratio, master_pts, pokeball_type)
+	var chance     : float = calculate_catch_chance(target, master_pts, pokeball_type)
 
 	if RNGManager.chance(chance):
 		var pokemon_data := _build_pokemon_data(target)
+		# Bola de Cura (Heal Ball): sem bônus de captura, mas cura tudo do
+		# Pokémon capturado — sobrescreve o que _build_pokemon_data() já
+		# tinha montado (HP/status reais do momento da captura).
+		if GameData.get_item(pokeball_type).get("heals_on_catch", false):
+			pokemon_data["hp_current"] = pokemon_data.get("hp_max", 1)
+			pokemon_data["status"]     = "none"
 		SaveManager.add_pokemon(pokemon_data)
 		SaveManager.mark_caught(target.species_id)
 		EventBus.capture_success.emit(pokemon_data)

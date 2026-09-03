@@ -685,6 +685,12 @@ func get_catch_rate() -> int:
 
 var _encounter_triggered : bool = false   # evita emissão repetida por encontro
 
+## Timestamp (Time.get_ticks_msec) de quando o encontro atual começou — -1 =
+## nunca engajou ainda (ou o encontro anterior já terminou). Usado só pela
+## Bola Rápida/Bola Tempo (CaptureSystem.gd, Onda 1 item 6, 03/09) pra saber
+## "há quanto tempo estamos nisso", sem inventar um sistema de turno próprio.
+var engaged_at_msec : int = -1
+
 func _set_state(new_state: State) -> void:
 	var prev := state
 	state = new_state
@@ -696,12 +702,14 @@ func _set_state(new_state: State) -> void:
 	# wild_pokemon_engaged é só cosmético (câmera/SFX), pra QUALQUER encontro.
 	if new_state == State.ATTACK and prev != State.ATTACK and not _encounter_triggered:
 		_encounter_triggered = true
+		engaged_at_msec = Time.get_ticks_msec()
 		EventBus.wild_pokemon_engaged.emit(self)
 		if zone_id == BattleManager.SAFARI_ZONE_ID:
 			EventBus.wild_encounter_started.emit(self)
 	# Reset do flag quando sai do ATTACK (ex: para PATROL/DEAD)
 	if prev == State.ATTACK and new_state != State.ATTACK:
 		_encounter_triggered = false
+		engaged_at_msec = -1
 
 func _get_move_speed() -> float:
 	var speed := BASE_MOVE_SPEED + (speed_stat * 0.8)
