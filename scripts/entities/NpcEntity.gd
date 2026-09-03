@@ -99,10 +99,13 @@ func _load_sprites() -> void:
 			tex_path = "res://assets/sprites/npc/npc_nurse.png"
 		_:
 			tex_path = "res://assets/sprites/npc/npc_default.png"
-	sprite.sprite_frames = SpriteBuilder.build_entity_frames(tex_path)
+	sprite.sprite_frames = SpriteBuilder.build_entity_frames(tex_path, 128, 256)
 	# Migração tile128 (03/09): arte reamostrada pra 128px nativos (igual ao
 	# tile), não precisa mais da escala 2x que compensava a arte de 16px.
+	# 2 tiles de altura (mesmo pedido do Treinador): sprite.position.y
+	# compensa igual, ver NORMAL_SPRITE_Y de TrainerEntity.gd.
 	sprite.scale = Vector2(1.0, 1.0)
+	sprite.position.y = -60.0
 	sprite.play("idle_down")
 
 # ──────────────────────────────────────────────────────────────────────────────

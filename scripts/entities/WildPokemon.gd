@@ -126,16 +126,47 @@ func initialize(new_species_id: int, new_level: int, new_behavior: String = "agg
 	behavior    = new_behavior
 	zone_id     = new_zone_id
 
-## Achado (02/09, revisão de escala): a arte real (32px nativos, mesmo
-## tamanho do tile) NÃO precisa de escala nenhuma — o 2x era resquício de
-## quando a sprite era só um placeholder minúsculo de 16×16 dentro de um
-## quadro maior. Deixado em 2x por engano na sessão da troca de arte, o
-## Pokémon saía literalmente do dobro do tamanho de uma árvore/tile.
+## Base Y do Sprite (do .tscn, escala 1.0) — usada por PokemonScale pra
+## manter o PÉ do Pokémon fixo no chão não importa o tamanho (03/09).
+const SPRITE_BASE_OFFSET_Y : float = -32.0
+
+## Escala visual por espécie (03/09, pedido do Gabriel: "Pikachu < Charmander
+## < Bulbasaur < Charizard << Onix", baseado na altura oficial da Pokédex —
+## ver PokemonScale.gd pra fórmula e limites). Sem isto, TODO Pokémon
+## ocupava exatamente 1 tile, não importa a espécie ("Pikachu=32px,
+## Charizard=32px, Onix=32px" — exatamente o que ele NÃO queria).
 func _load_sprite() -> void:
 	if sprite and not sprite.sprite_frames:
 		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(species_id, is_shiny)
 		sprite.play("idle")
-		sprite.scale = Vector2(1.0, 1.0)
+		var vscale := PokemonScale.get_visual_scale(species_id)
+		PokemonScale.anchor_sprite_bottom(sprite, SPRITE_BASE_OFFSET_Y, vscale)
+		_add_ground_shadow(vscale)
+
+## Sombra no chão, proporcional ao tamanho do Pokémon (03/09) — mesma
+## técnica de TrainerEntity._add_visibility_shadow() (degradê radial em
+## código, sem precisar de arte nova). Fica NO CHÃO sempre — diferente do
+## sprite (que cresce pra cima com a escala), a sombra só fica um pouco
+## maior/menor, nunca sai do lugar onde o Pokémon pisa.
+func _add_ground_shadow(vscale: float) -> void:
+	var grad := Gradient.new()
+	grad.set_color(0, Color(0, 0, 0, 0.55))
+	grad.add_point(0.7, Color(0, 0, 0, 0.35))
+	grad.set_color(grad.get_point_count() - 1, Color(0, 0, 0, 0.0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = maxi(20, roundi(130.0 * vscale))
+	tex.height = maxi(10, roundi(65.0 * vscale))
+
+	var shadow := Sprite2D.new()
+	shadow.texture = tex
+	shadow.position = Vector2(0, 24)
+	shadow.z_index = 0
+	add_child(shadow)
+	move_child(shadow, 0)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Seleção de alvo + HP/nível visível (motor de combate em tempo real, 02/09)

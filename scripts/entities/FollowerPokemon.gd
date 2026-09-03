@@ -86,15 +86,42 @@ func _on_wild_pokemon_fainted(pokemon: Node) -> void:
 	if current_target == pokemon:
 		current_target = null
 
+## Base Y do Sprite (do .tscn, escala 1.0) — usada por PokemonScale pra
+## manter o PÉ do Pokémon fixo no chão não importa o tamanho (03/09).
+const SPRITE_BASE_OFFSET_Y : float = -24.0
+
 func _load_sprite() -> void:
 	if sprite and not sprite.sprite_frames:
 		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(pokemon_species_id, pokemon_is_shiny)
 		sprite.play("idle")
-		# Achado (02/09, revisão de escala): a arte real (32px nativos, mesmo
-		# tamanho do tile) não precisa de escala — o 2x era resquício de quando
-		# a sprite era só um placeholder de 16×16. Deixado em 2x por engano na
-		# sessão da troca de arte, o Follower saía do dobro do tamanho do tile.
-		sprite.scale = Vector2(1.0, 1.0)
+		# Escala visual por espécie (03/09) — mesma regra do selvagem
+		# (WildPokemon.gd): companheiro também respeita altura da Pokédex,
+		# senão um Onix companheiro ficaria do mesmo tamanho que um Pikachu.
+		var vscale := PokemonScale.get_visual_scale(pokemon_species_id)
+		PokemonScale.anchor_sprite_bottom(sprite, SPRITE_BASE_OFFSET_Y, vscale)
+		_add_ground_shadow(vscale)
+
+## Sombra no chão, proporcional ao tamanho do Pokémon — mesma técnica de
+## WildPokemon._add_ground_shadow() (degradê radial em código).
+func _add_ground_shadow(vscale: float) -> void:
+	var grad := Gradient.new()
+	grad.set_color(0, Color(0, 0, 0, 0.55))
+	grad.add_point(0.7, Color(0, 0, 0, 0.35))
+	grad.set_color(grad.get_point_count() - 1, Color(0, 0, 0, 0.0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = maxi(20, roundi(130.0 * vscale))
+	tex.height = maxi(10, roundi(65.0 * vscale))
+
+	var shadow := Sprite2D.new()
+	shadow.texture = tex
+	shadow.position = Vector2(0, 24)
+	shadow.z_index = 0
+	add_child(shadow)
+	move_child(shadow, 0)
 
 func _load_species_data() -> void:
 	species_data = GameData.get_species(pokemon_species_id)

@@ -12,23 +12,29 @@ const DIRS : Array = ["down", "up", "left", "right"]
 
 ## Cria SpriteFrames para entidade com spritesheet 384×512 (tile 128,
 ## padrão desde a migração tile128 de 03/09). texture_path: caminho res://
-## para o PNG. tile: tamanho de cada frame em px (a Bicicleta usa 256,
+## para o PNG. tile: LARGURA de cada frame em px (a Bicicleta usa 256,
 ## maior que o resto do jogo de propósito, pro desenho ter espaço pra
 ## mostrar o personagem montado; ver docs/customizacao-personagem.md,
 ## "footprint de colisão continua pequeno mesmo com o sprite maior" — quem
 ## usa o sprite ajusta a posição pra compensar, não é decisão daqui).
-static func build_entity_frames(texture_path: String, tile: int = TILE) -> SpriteFrames:
+## tile_h: ALTURA de cada frame, só quando diferente da largura (03/09,
+## pedido do Gabriel: Treinador/NPC podem ter "2 tiles de altura por 1 de
+## largura" — sprite mais alto que largo, tipo Zelda/Stardew, pra caber
+## corpo humano de verdade sem ficar espremido num quadrado). -1 = usa o
+## mesmo valor de `tile` (quadrado, como todo o resto do jogo).
+static func build_entity_frames(texture_path: String, tile: int = TILE, tile_h: int = -1) -> SpriteFrames:
 	var tex : Texture2D = load(texture_path)
 	if not tex:
 		push_warning("SpriteBuilder: não encontrou '%s'" % texture_path)
 		return null
-	return build_entity_frames_from_texture(tex, tile)
+	return build_entity_frames_from_texture(tex, tile, tile_h)
 
 ## Mesma coisa que build_entity_frames(), mas recebe a Texture2D já pronta
 ## em vez de um caminho res:// — usado quando a textura vem de outro lugar
 ## (Editor Visual, 02/09: sprite editada baixada em bytes no boot, não
 ## empacotada no jogo, então não existe um caminho res:// pra ela).
-static func build_entity_frames_from_texture(tex: Texture2D, tile: int = TILE) -> SpriteFrames:
+static func build_entity_frames_from_texture(tex: Texture2D, tile: int = TILE, tile_h: int = -1) -> SpriteFrames:
+	var th : int = tile_h if tile_h > 0 else tile
 	var sf := SpriteFrames.new()
 	sf.remove_animation("default")
 
@@ -39,26 +45,26 @@ static func build_entity_frames_from_texture(tex: Texture2D, tile: int = TILE) -
 		sf.add_animation("idle_" + dir)
 		sf.set_animation_loop("idle_" + dir, true)
 		sf.set_animation_speed("idle_" + dir, 5.0)
-		sf.add_frame("idle_" + dir, _atlas(tex, 0, row, tile))
+		sf.add_frame("idle_" + dir, _atlas(tex, 0, row, tile, th))
 
 		# walk_<dir> — 2 frames alternados
 		sf.add_animation("walk_" + dir)
 		sf.set_animation_loop("walk_" + dir, true)
 		sf.set_animation_speed("walk_" + dir, 8.0)
-		sf.add_frame("walk_" + dir, _atlas(tex, 1, row, tile))
-		sf.add_frame("walk_" + dir, _atlas(tex, 2, row, tile))
+		sf.add_frame("walk_" + dir, _atlas(tex, 1, row, tile, th))
+		sf.add_frame("walk_" + dir, _atlas(tex, 2, row, tile, th))
 
 	# Fallback genérico "idle" e "walk" (sem sufixo de direção)
 	sf.add_animation("idle")
 	sf.set_animation_loop("idle", true)
 	sf.set_animation_speed("idle", 5.0)
-	sf.add_frame("idle", _atlas(tex, 0, 0, tile))
+	sf.add_frame("idle", _atlas(tex, 0, 0, tile, th))
 
 	sf.add_animation("walk")
 	sf.set_animation_loop("walk", true)
 	sf.set_animation_speed("walk", 8.0)
-	sf.add_frame("walk", _atlas(tex, 1, 0, tile))
-	sf.add_frame("walk", _atlas(tex, 2, 0, tile))
+	sf.add_frame("walk", _atlas(tex, 1, 0, tile, th))
+	sf.add_frame("walk", _atlas(tex, 2, 0, tile, th))
 
 	return sf
 
@@ -149,8 +155,9 @@ static func build_pokemon_frames(species_id: int, shiny: bool = false) -> Sprite
 # Helpers internos
 # ──────────────────────────────────────────────────────────────────────────────
 
-static func _atlas(tex: Texture2D, col: int, row: int, tile: int = TILE) -> AtlasTexture:
-	return _atlas_rect(tex, Rect2(col * tile, row * tile, tile, tile))
+static func _atlas(tex: Texture2D, col: int, row: int, tile: int = TILE, tile_h: int = -1) -> AtlasTexture:
+	var th : int = tile_h if tile_h > 0 else tile
+	return _atlas_rect(tex, Rect2(col * tile, row * th, tile, th))
 
 static func _atlas_rect(tex: Texture2D, region: Rect2) -> AtlasTexture:
 	var at := AtlasTexture.new()

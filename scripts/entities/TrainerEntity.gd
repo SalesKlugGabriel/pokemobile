@@ -83,8 +83,14 @@ func _on_ready() -> void:
 ## previa isso), por isso sprite.position.y compensa na troca (ver
 ## _apply_sprite_mode) senão o personagem "afunda" visualmente no chão.
 const BIKE_TEXTURE_PATH : String = "res://assets/sprites/player/player_bike.png"
-const NORMAL_SPRITE_Y : float = -32.0  # migração tile128 (03/09): era -8
-const BIKE_SPRITE_Y   : float = -96.0  # migração tile128 (03/09): era -24
+## Pedido do Gabriel (03/09): "personagem e NPCs podem ter 2 tiles de
+## altura por 1 de largura" — player.png agora é 128×256 por quadro (corpo
+## humano de verdade, não mais um quadrado achatado). O pé fica ~32px
+## abaixo da origem da entidade (mesma proporção "pé um pouco abaixo do
+## centro" que já existia antes da migração, só recalculada pro quadro
+## mais alto) — ver conta em NORMAL_SPRITE_Y.
+const NORMAL_SPRITE_Y : float = -60.0  # migração 2-tiles-altura (03/09): era -32
+const BIKE_SPRITE_Y   : float = -96.0  # bike continua 256×256 (quadrado) — sem arte nova ainda
 
 var _frames_normal : SpriteFrames
 var _frames_bike    : SpriteFrames
@@ -93,7 +99,7 @@ var _sprite_mode    : String = "normal"
 func _load_sprites() -> void:
 	if sprite and not sprite.sprite_frames:
 		_frames_normal = SpriteBuilder.build_entity_frames(
-			"res://assets/sprites/player/player.png"
+			"res://assets/sprites/player/player.png", 128, 256
 		)
 		if ResourceLoader.exists(BIKE_TEXTURE_PATH):
 			_frames_bike = SpriteBuilder.build_entity_frames(BIKE_TEXTURE_PATH, 256)
@@ -128,7 +134,7 @@ func _add_visibility_shadow() -> void:
 	var shadow := Sprite2D.new()
 	shadow.texture = tex
 	shadow.position = Vector2(0, 28)  # migração tile128 (03/09): era (0, 7)
-	shadow.z_index = -1
+	shadow.z_index = 0
 	add_child(shadow)
 	move_child(shadow, 0)
 

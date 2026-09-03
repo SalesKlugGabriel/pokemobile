@@ -9,6 +9,65 @@
 
 ---
 
+## Escala de Pokémon pela altura da Pokédex + Treinador/NPC com 2 tiles de altura (2026-09-03, continuação)
+
+**Pedido do Gabriel (prompt grande de sistema de "Overworld Pokémon"), resumido por ele mesmo
+depois em uma frase**: "O personagem e npcs podem ter 2 tiles de altura por 1 de largura, e os
+pokemons de acordo com a Pokédex podem utilizar mais que 1 tile de altura/largura, para que eles
+sejam proporcionalmente ao player no tamanho real." Do prompt gigante (que cobria state machine,
+tipos de movimento por espécie, pooling de performance, reestruturação de assets em pastas por
+ID, etc.), escolhi entregar primeiro as DUAS partes que ele confirmou como as importantes de
+verdade, reaproveitando ao máximo o motor de combate em tempo real que já existe (o prompt em si
+já pedia isso: "não reescrever o projeto inteiro... implementar incrementalmente").
+
+**`PokemonScale.gd` (novo) — escala visual por altura oficial da Pokédex.** Baixado
+`data/pokemon/heights.json` (altura em metros das 151 espécies, mesma fonte PokeAPI já usada pras
+sprites) uma vez, guardado local (mesmo motivo das sprites: o jogo não pode depender de internet
+pra carregar uma espécie). Fórmula: `escala = clamp((altura/1.0)^0.5, 0.6, 2.2)` — a raiz quadrada
+COMPRIME a faixa enorme de alturas reais (0,2m a 8,8m) em algo jogável (linear puro faria Onix
+44x maior que o menor Pokémon — o oposto do que ele pediu: "não quero que ocupe metade da tela
+simplesmente porque a altura é grande"). `REFERENCE_HEIGHT=1.0m` não foi chutado — é a MEDIANA
+real das 151 alturas, então a maioria dos Pokémon continua do tamanho de sempre (1 tile) e só os
+extremos se destacam. Resultado bate exatamente com o pedido dele: Pikachu(0,63) < Charmander
+(0,77) < Bulbasaur(0,84) < Charizard(1,30) < Snorlax(1,45) < Onix(2,2, no teto).
+
+**Pé fixo no chão, sprite cresce só pra cima** (regra 8/9 do prompt dele: "separar sprite de
+collider", "ponto de origem = pés"): `PokemonScale.anchor_sprite_bottom()` recalcula a posição Y
+do sprite toda vez que a escala muda, mantendo o PONTO onde o Pokémon pisa sempre no mesmo lugar
+— um Onix não "flutua" nem afunda no chão, só cresce pra cima a partir da base. Aplicado em
+WildPokemon e FollowerPokemon (a colisão em si não muda — ela já era menor que o sprite desde a
+migração tile128).
+
+**Sombra própria pro Pokémon** (não existia — só o Treinador tinha): tamanho proporcional à
+escala, sempre no chão. Achado no caminho, corrigido: a sombra do Treinador (desde 02/09) e a
+nova dos Pokémon usavam `z_index = -1`, que fazia elas desenharem ATRÁS do próprio chão
+(invisíveis) — trocado pra `z_index = 0` (desenha na ordem normal da árvore de cena, atrás do
+próprio personagem mas na frente do mapa).
+
+**Treinador/NPC — 2 tiles de altura por 1 de largura.** `player.png`/`npc_*.png` redesenhados do
+zero num quadro de 128×256 (eram 128×128, um quadrado "achatado") — corpo humano de verdade
+(cabeça+tronco+pernas), mesma paleta de cor de sempre (boné vermelho, macacão azul). `SpriteBuilder`
+ganhou suporte a quadro NÃO quadrado (`tile_h` separado de `tile`, parâmetro opcional — todo
+resto do jogo continua quadrado por padrão, sem quebrar nada). Sem referência de personagem do
+Gabriel ainda (só a do mapa) — desenhado no mesmo espírito simples da arte anterior; registrado
+como pendência se ele quiser mandar uma referência de personagem também, igual fez com o mapa.
+
+**Testado:** teste novo dedicado (`teste_fase6_pokemon_scale.gd`, 28 conferências — altura de
+cada espécie batendo com a Pokédex oficial, ordem de escala exata, limites nunca estourados, pé
+fixo em qualquer escala, e o mais importante: instanciando `WildPokemon`/`FollowerPokemon` DE
+VERDADE, não só a função isolada) + suíte completa (49 arquivos, 0 falhas) + navegador real:
+Treinador com corpo proporcionado, Bulbasaur companheiro com sombra visível, os dois firmes no
+chão.
+
+**Não incluído desta vez** (fica registrado, não esquecido): as partes "arquitetura pra depois" do
+prompt do Gabriel (state machine com RUNNING/ATTACKING/HURT/FAINTED, tipos de movimento por
+espécie água/voador/toca, reestruturação de assets em pasta por ID, pooling de performance pra
+Pokémon fora da área ativa) — o motor de combate em tempo real já cobre idle/walking/direção/
+animação sincronizada (construído em 02/09), então a base já existe; o que faltava e foi entregue
+agora foi especificamente a ESCALA e a ALTURA do personagem, que era o pedido concreto dele.
+
+---
+
 ## Risco preto entre tiles resolvido de vez + árvore centralizada (2026-09-03, continuação)
 
 **Gabriel jogou de novo e confirmou o que eu tinha visto: "As árvores estão descentralizadas e
