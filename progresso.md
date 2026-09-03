@@ -9,6 +9,45 @@
 
 ---
 
+## Ginásios: 2 bugs achados e corrigidos antes de partir pra Elite Four (2026-09-03, continuação)
+
+**Pedido do Gabriel: "siga com ginásios e elite four, depois pode tocar direto para dungeons sem
+pedir permissão."** Antes de construir qualquer coisa nova, mandei uma pesquisa dedicada
+investigar o estado real dos 8 ginásios, Elite Four/Victory Road/Indigo Plateau, e as dungeons
+pendentes — achado importante: **os 8 ginásios (Brock a Giovanni) e boa parte das dungeons
+"pendentes" do roteiro (Silph Co., Torre Pokémon, Quartel da Rocket, Caverna do Diglett) já
+estavam prontos e testados**, mais uma vez o próprio roteiro geral (artifact) estava desatualizado
+— mesma lição do Mount de alguns lotes atrás. Achados 2 bugs reais nos ginásios já existentes,
+corrigidos antes de seguir:
+
+1. **Derrotar Giovanni dava insígnia/MT/XP em DOBRO.** `MAIN-09` (história principal) e `GYM-08`
+   (trilha de insígnias) tinham o MESMO objetivo ("defeat giovanni") e as MESMAS recompensas —
+   como `MAIN-08` desbloqueia as duas juntas, uma vitória só completava as duas ao mesmo tempo.
+   Corrigido: `GYM-08` fica com a recompensa cheia (insígnia + MT + XP, igual aos outros 7
+   ginásios); `MAIN-09` passa a dar só XP de marco (300, na mesma escala das outras MAIN-0N),
+   sem insígnia nem MT duplicados.
+2. **O guarda do Ginásio de Viridian falava com um `dialog_id` que não existia** —
+   `viridian_gym_closed` (zones.json) nunca tinha uma entrada em dialogs.json. Adicionado (fala
+   genérica de "o Líder está ocupado", sem revelar que é o Giovanni — a revelação continua só na
+   luta de verdade, como já estava).
+
+**Testado**: `teste_giovanni_recompensa_dupla.gd` (novo, 8 conferências — completa MAIN-08 pelos
+3 objetivos reais, confirma XP total 1800 em vez de 3000, insígnia/MT concedidos 1x só, diálogo do
+guarda existe). **Achado e corrigido de quebra**: `teste_onda1_status_persistente.gd` (de um lote
+anterior) tinha ~40% de chance de falhar por sorte — comparava dano COM e SEM queimadura usando 2
+sorteios de RNG independentes (crítico/variação aleatória), então às vezes o lado "sem queimadura"
+saía num crítico e quebrava a proporção esperada. Corrigido semeando o RNG igual antes de cada
+par, isolando só a variável testada (status). Suíte inteira (52 arquivos) sem regressão.
+
+Publicado. **Próximo passo, sem pedir confirmação (autorizado pelo Gabriel)**: construir a Elite
+Four (Lorelei/Bruno/Agatha/Lance + Campeão) do zero — hoje é 100% inexistente (Victory Road já
+existe como caverna vazia, só falta o prédio da Liga com os 5 combates). Depois, dungeons ainda
+pendentes de verdade (S.S. Anne, Caverna de Cerulean/Mewtwo — Usina Elétrica fica de fora, depende
+de Surf/Voar que ainda não existem).
+**Precisa de decisão do Gabriel?** Não.
+
+---
+
 ## Fecha a Onda 1 + verificação de jogabilidade ao vivo + conserto do mapa "feio" (2026-09-03, continuação)
 
 **Pedido do Gabriel: "finalize tudo o que está pendente, depois verifique a jogabilidade e então

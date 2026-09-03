@@ -9,8 +9,11 @@ var _ok    := 0
 var _fail  := 0
 var _rodou := false
 
+var RNGManager : Node
+
 func _initialize() -> void:
 	print("=== Teste Onda 1 (Status persistente + confusão) ===")
+	RNGManager = root.get_node("RNGManager")
 
 func _process(_delta: float) -> bool:
 	if _rodou:
@@ -56,11 +59,19 @@ func _process(_delta: float) -> bool:
 	var move_physical := { "power": 40, "type": "Normal", "category": "physical" }
 	var move_special  := { "power": 40, "type": "Normal", "category": "special" }
 	var def_stats     := { "def": 50, "types": ["Normal"] }
+	# Semeado igual antes de cada par (mesmo crítico/mesma variação 0.85-1.0
+	# em ambas as chamadas) — sem isso, dois sorteios independentes podiam
+	# fazer a comparação de proporção falhar por sorte (achado 03/09: ~40%
+	# de chance de falha nesta linha, crítico batendo num lado só).
+	RNGManager.set_seed(12345)
 	var dmg_normal  := DamageCalculator.calculate_damage(move_physical, { "atk": 50, "status": "none" }, def_stats)
+	RNGManager.set_seed(12345)
 	var dmg_burned  := DamageCalculator.calculate_damage(move_physical, { "atk": 50, "status": "burn" }, def_stats)
 	_assert(dmg_burned < dmg_normal, "golpe físico com queimadura causa menos dano (%d < %d)" % [dmg_burned, dmg_normal])
 	_assert(float(dmg_burned) <= float(dmg_normal) * 0.6, "a redução é compatível com metade (%d ~= %d/2)" % [dmg_burned, dmg_normal])
+	RNGManager.set_seed(12345)
 	var dmg_special_burned := DamageCalculator.calculate_damage(move_special, { "atk": 50, "status": "burn" }, def_stats)
+	RNGManager.set_seed(12345)
 	var dmg_special_normal := DamageCalculator.calculate_damage(move_special, { "atk": 50, "status": "none" }, def_stats)
 	_assert(dmg_special_burned >= float(dmg_special_normal) * 0.9, "queimadura não penaliza golpe especial")
 

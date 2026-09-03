@@ -290,17 +290,9 @@
       }
     ],
     "rewards": {
-      "exp_trainer": 1500,
-      "badges": [
-        "earth_badge"
-      ],
-      "tms": [
-        {
-          "id": "tm_terra_power",
-          "tier": "epic"
-        }
-      ]
+      "exp_trainer": 300
     },
+    "_ajuste_editorial": "Recompensa reduzida (03/09) — GYM-08 tem o MESMO objetivo (defeat giovanni) e antes tinha os MESMOS badges/tms/exp que aqui; como MAIN-08 desbloqueia as duas ao mesmo tempo e uma vitória só sobre Giovanni completa as duas juntas, o jogador ganhava a insígnia/MT/XP em dobro. GYM-08 (a trilha de insígnias, igual aos outros 7 ginásios) fica com a recompensa cheia; esta (a trilha da história principal) fica só com XP de marco, seguindo a mesma escala das outras MAIN-0N.",
     "requires": [
       "MAIN-08"
     ],
