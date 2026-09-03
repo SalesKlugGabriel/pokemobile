@@ -53,3 +53,27 @@ borda, casa com telhado inclinado/janelas/vaso de flor, cerca de madeira com seb
 com abas (Remédios/Pokébolas/Frutas/Chave/TM-HM). Mesmo status da primeira referência: **guardado
 pro futuro, não implementar agora** — mandado durante a reorganização geográfica de 02/09, sem
 pedido de ação imediata.
+
+## Terceira leva de referências (02/09, sessão do zoom/árvore) — Estrutura (casa/Centro Pokémon/Mercado)
+
+Mandadas no meio do trabalho de diversidade de tiles ("aproveitando que estamos falando de objetos
+novos, olha essa referência pra casas, centro Pokémon e market"). 3 arquivos em
+`docs/referencias/`:
+
+- `estrutura-referencia-casa.jpg` — planta de casa vista de cima SEM telhado (mostra o interior:
+  piso de tábua clara, escada, portas, janelas de sacada), cercada por canteiro de flores
+  (vermelha/amarela/roxa), 2 fileiras de sebe recortada nas laterais, caminho de terra batida com
+  borda de pedra.
+- `estrutura-referencia-pokemon-center.jpg` e `estrutura-referencia-market.jpg` — screenshots de
+  um jogo já pronto (MMO 2D com chat/HUD visível). **Bate com o estilo que eu já tinha achado numa
+  pesquisa anterior (mesma sessão): Pokémon Revolution Online (PRO)** — fã-MMO conhecido, sprites
+  de overworld HD amplamente compartilhados/reutilizados em outros fã-projetos (o mesmo espírito
+  de reaproveitamento já usado pras sprites de Pokémon vindas do PokeAPI). Mostra chão de PC em
+  ladrilho cinza/azulado com padrão, balcão de atendimento, PC de cura, prateleiras/vending de
+  Mercado.
+
+**Mesmo status das 2 referências anteriores: guardado pra quando "Estrutura" (Parede, Janela,
+Porta, Entrada Casa, Canto Casa, Telhado, Cerca, Caixa) virar o foco de verdade** — o Gabriel
+confirmou ("siga pra próxima parte antes de trabalharmos em detalhes") que a leva de hoje é
+Terreno base primeiro; casas/Centro Pokémon/Mercado ficam pra próxima rodada de diversidade de
+tiles.

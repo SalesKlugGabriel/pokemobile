@@ -18,6 +18,8 @@
 ## Atlas (source 0, overworld.tres):
 ##   Walkable row 0:  . grass  P path  F flower  S sand  G lt_grass  D dk_path  I floor  M mat
 ##   Blocked  row 1:  W wall   ~ water  T tree    R rock  E fence     d door     H roof   X hedge
+##   Linha 2 (02/09, categoria "Terreno base" — diversidade de tiles pedida pelo Gabriel):
+##                    A tall_grass (walkable)  N pine_tree  O autumn_tree  K stump (bloqueados)
 class_name MapLayouts
 extends RefCounted
 
@@ -26,6 +28,7 @@ const CHAR_MAP : Dictionary = {
 	"G": Vector2i(4, 0), "D": Vector2i(5, 0), "I": Vector2i(6, 0), "M": Vector2i(7, 0),
 	"W": Vector2i(0, 1), "~": Vector2i(1, 1), "T": Vector2i(2, 1), "R": Vector2i(3, 1),
 	"E": Vector2i(4, 1), "d": Vector2i(5, 1), "H": Vector2i(6, 1), "X": Vector2i(7, 1),
+	"A": Vector2i(0, 2), "N": Vector2i(1, 2), "O": Vector2i(2, 2), "K": Vector2i(3, 2),
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -1221,10 +1224,28 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 # ──────────────────────────────────────────────────────────────────────────────
 # Rota 1 — rows 39-79, corredor cols 44-56, árvores nas bordas
 # ──────────────────────────────────────────────────────────────────────────────
+## Variedade de árvore determinística (mesmo (c,r) sempre dá a mesma espécie —
+## sem RNG, mapa continua reproduzível). Pedido do Gabriel (02/09): floresta
+## "menos repetitiva" — antes toda árvore da Rota 1 era o mesmo "T". Pesos:
+## 55% carvalho (padrão), 20% pinheiro, 15% outono, 10% toco (mais raro, só
+## decoração pontual). Só usada aqui por ora — o resto do mundo (bordas
+## genéricas de outras rotas/cidades) fica pra quando "detalhes" virar foco,
+## pra não arriscar os testes de borda (Tier 13/14/15/18) que comparam
+## posição exata contra o literal "T".
+static func _forest_variant(c: int, r: int) -> String:
+	var h := (c * 31 + r * 17) % 20
+	if h < 11:
+		return "T"
+	elif h < 15:
+		return "N"
+	elif h < 18:
+		return "O"
+	return "K"
+
 static func _route1_cell(c: int, r: int, W: int) -> String:
 	# Bordas laterais densas
 	if c <= 4 or c >= W - 5:
-		return "T"
+		return _forest_variant(c, r)
 	# Corredor central N-S: cols 44-56
 	if c >= 44 and c <= 56:
 		return "P"
@@ -1232,22 +1253,22 @@ static func _route1_cell(c: int, r: int, W: int) -> String:
 	# Lado oeste: cols 5-43 — grama com árvores esparsas
 	if c <= 43:
 		if c <= 8 or c >= 40:
-			return "T"  # bordas internas também são árvore
+			return _forest_variant(c, r)  # bordas internas também são árvore
 		if (c + r * 2) % 7 == 0:
-			return "T"
+			return _forest_variant(c, r)
 		if (c * 2 + r) % 9 == 3:
 			return "F"
 		return "."
 	# Lado leste: cols 57-94 — grama com árvores esparsas
 	if c >= 57:
 		if c <= 60 or c >= 91:
-			return "T"
+			return _forest_variant(c, r)
 		# Lago pequeno (Fase 2 do Diário — pesca precisa de água de verdade
 		# em algum lugar do mapa; não existia nenhum tile "~" no jogo antes).
 		if c >= 63 and c <= 70 and r >= 55 and r <= 60:
 			return "~"
 		if (c + r * 3) % 7 == 1:
-			return "T"
+			return _forest_variant(c, r)
 		if (c + r * 2) % 11 == 4:
 			return "F"
 		return "."

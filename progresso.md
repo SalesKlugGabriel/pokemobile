@@ -9,6 +9,39 @@
 
 ---
 
+## Diversidade de tiles — categoria "Terreno base" + floresta da Rota 1 variada (2026-09-02, sessão seguinte 6)
+
+**Retomando o plano de `docs/tileset-referencia-visual.md` (Gabriel: "siga para a próxima parte
+antes de trabalharmos em detalhes").** Completada a categoria "Terreno base" da referência: Grama
+Alta, Árvore Pinho, Árvore Outono, Toco/Tronco (Chão Batido/Grama Baixa/Arbusto/Árvore já
+existiam). Desenhados por código (não IA), mesma técnica do redesenho da árvore — paleta extraída
+dos tiles existentes, garante consistência sem gastar cota. Atlas `overworld.png` ganhou uma 3ª
+linha (256×64 → 256×96); `overworld.tres` e o `CHAR_MAP` de `MapLayouts.gd` ganharam as letras
+novas (`A` grama alta, `N` pinheiro, `O` outono, `K` toco — as 3 últimas bloqueadas, igual árvore).
+
+**Aplicado de verdade na Rota 1** (não só registrado no atlas sem aparecer em lugar nenhum):
+`_route1_cell()` ganhou `_forest_variant(c,r)`, uma escolha determinística (sem RNG — mesmo (c,r)
+sempre dá a mesma espécie, mapa continua 100% reproduzível) que mistura as 4 variantes (55%
+carvalho, 20% pinheiro, 15% outono, 10% toco) nos pontos que antes eram só "T" fixo. **Decisão de
+escopo**: só a Rota 1 por ora — as bordas genéricas do resto do mundo (usadas por outras rotas/
+cidades) não foram tocadas, porque os testes Tier 13/14/15/18 comparam posição exata contra o
+literal `"T"`; misturar lá exigiria atualizar esses testes também, o que é trabalho de "detalhe"
+pra próxima rodada, não desta.
+
+**Referência nova recebida no meio do trabalho**: o Gabriel mandou 3 imagens de casa/Centro
+Pokémon/Mercado (uma planta de casa com jardim, e 2 screenshots que batem com o estilo do
+Pokémon Revolution Online, achado numa pesquisa mais cedo no mesmo dia) — guardadas em
+`docs/referencias/estrutura-referencia-*.jpg`, documentadas em `docs/tileset-referencia-visual.md`
+pra quando a categoria "Estrutura" (casa/parede/telhado/porta) virar o foco.
+
+**Testado:** suíte completa (48 arquivos, 0 falhas — inclusive os testes de borda que dependiam do
+literal "T", intactos porque só a Rota 1 mudou) e navegador real confirmando a floresta variada
+(carvalho/pinheiro/outono/toco misturados, bem menos repetitivo que antes). Pendente: as outras 4
+categorias da referência (Estrutura, Água/gelo/rocha, Terrenos especiais, Interior/decoração) e
+estender a variedade de floresta pro resto do mundo — ficam pra quando "detalhes" for o pedido.
+
+---
+
 ## Câmera com zoom 3x ("tile de 96px") + árvore redesenhada (2026-09-02, sessão seguinte 5)
 
 **Gabriel: "usar tudo no mapa na escala 96x96 como base... achei muito pequeno, se aumentarmos o
