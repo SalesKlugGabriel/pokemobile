@@ -9,6 +9,38 @@
 
 ---
 
+## Onda 1, item 7: MT Ouro (uso infinito) vs MT comum (uso único) (2026-09-03, continuação)
+
+**Terceiro item da Onda 1.** Achados 2 bugs reais antes de construir:
+1. **MO (HM) vinha sendo consumida igual MT comum** — `PauseMenu._teach_and_finish()` removia
+   QUALQUER item `tm_hm` do inventário depois de ensinar, sem distinguir MO de MT. Como as 3 MO
+   (Cortar/Voar/Força) têm `price:0` (só chegam por presente/recompensa, nunca à venda), usar a
+   única cópia numa Pokémon deixava o jogador sem jeito nenhum de ensinar o mesmo golpe pra outro
+   Pokémon depois — MO deveria ser sempre reaproveitável, convenção clássica da franquia.
+2. **`TMSystem.gd` era código morto** — nunca instanciado nem referenciado em lugar nenhum do
+   projeto, e mesmo se fosse chamado tinha DOIS bugs próprios (lia o campo errado do JSON,
+   `teaches_move` em vez de `teaches`; e checava `Engine.has_singleton("GameData")`, que nunca é
+   verdadeiro pra um autoload comum deste projeto — os dois juntos garantiam falha sempre). O
+   fluxo real de ensinar MT/MO sempre foi outro, direto em `PauseMenu.gd`. Removido.
+
+**Corrigido pela raiz**: novo campo `single_use` em `items.json` (fonte única, mesmo padrão das
+pokébolas) — `true` nas 12 MT comuns (comportamento igual a antes, só explícito agora), `false`
+nas 3 MO (bug corrigido) e `false` nas 12 **MT Ouro novas** (`gold_tm01`-`gold_tm12`, uma pra
+cada MT existente, ensinando o MESMO golpe, custando 3x o preço — compradas na mesma Loja, aba
+"MT/MO" que já existia, nenhuma tela nova precisou ser construída). `PauseMenu._teach_and_finish()`
+agora só remove o item se `single_use` disser pra remover.
+
+**Testado**: `teste_onda1_tm_gold.gd` (novo, 74 conferências — dado das 12 MT Ouro + 3 MO em
+items.json, e a mecânica de ponta a ponta: MT comum some do inventário depois de ensinar, MT Ouro
+e MO continuam lá e conseguem ensinar um SEGUNDO Pokémon com a mesma cópia). Suíte inteira (50
+arquivos) sem regressão. Export Web + rebuild + `docker service update --force`, `curl` confirma
+200 em https://poke.workprog.pro.
+
+**Próximo passo**: item 8 da Onda 1 (Montaria/Mount) ou o que o Gabriel preferir.
+**Precisa de decisão do Gabriel?** Não.
+
+---
+
 ## Onda 1, item 6: tabela completa de pokébolas (Net/Dusk/Quick/Timer/Heal) (2026-09-03, continuação)
 
 **Segundo item da Onda 1.** Antes de construir, achei DOIS bugs reais no sistema de bola já

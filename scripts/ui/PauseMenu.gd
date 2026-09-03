@@ -385,10 +385,18 @@ func _open_move_replace_picker(index: int) -> void:
 	cancel.pressed.connect(func(): _close_bag_flow())
 	vbox.add_child(cancel)
 
+## Onda 1, item 7 (03/09): MO (HM) e MT Ouro nunca se gastam — achado ao
+## construir isto que MO01/02/03 (Cortar/Voar/Força) já vinham sendo
+## consumidos aqui igual qualquer MT comum, mesmo sem serem vendidos na loja
+## (price:0) — usar a única cópia numa Pokémon deixava o jogador sem jeito
+## de ensinar de novo pra outra. Corrigido junto: a decisão agora vem do
+## dado (`single_use` em items.json), não mais "toda MT/MO se gasta".
 func _teach_and_finish(index: int, slot: int) -> void:
-	var move_id : String = GameData.get_item(_pending_item_id).get("teaches", "")
+	var item    : Dictionary = GameData.get_item(_pending_item_id)
+	var move_id : String     = item.get("teaches", "")
 	if SaveManager.learn_move(index, move_id, slot):
-		SaveManager.remove_item(_pending_item_id, 1)
+		if item.get("single_use", true):
+			SaveManager.remove_item(_pending_item_id, 1)
 		SaveManager.save_game()
 		label_info.text = "Aprendeu %s!" % GameData.get_move(move_id).get("name", move_id)
 	_close_bag_flow()
