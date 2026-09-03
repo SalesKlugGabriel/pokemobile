@@ -20,6 +20,16 @@
 ##   Blocked  row 1:  W wall   ~ water  T tree    R rock  E fence     d door     H roof   X hedge
 ##   Linha 2 (02/09, categoria "Terreno base" — diversidade de tiles pedida pelo Gabriel):
 ##                    A tall_grass (walkable)  N pine_tree  O autumn_tree  K stump (bloqueados)
+##   Linha 3 (categoria "Água/gelo/rocha"):
+##                    B água_lírios (bloq.)  C gelo  J gelo_trincado  L parede_rocha (bloq.)
+##                    Q entrada_caverna  U água_praia
+##   Linha 4 (categoria "Terrenos especiais"):
+##                    V solo_envenenado  Y lama  Z lama_funda  b poça_dágua
+##                    c rocha_vulcânica (bloq.)  e trilhos  f piso_pedra
+##   Linha 5 (categoria "Interior/decoração", todos walkable):
+##                    g piso_pedra_clara  h pedra_c_musgo  i cogumelos  j folhas_caídas  k junco
+##   Linha 6 (categoria "Estrutura", todos bloqueados):
+##                    l janela  m canto_casa  n caixa
 class_name MapLayouts
 extends RefCounted
 
@@ -29,6 +39,13 @@ const CHAR_MAP : Dictionary = {
 	"W": Vector2i(0, 1), "~": Vector2i(1, 1), "T": Vector2i(2, 1), "R": Vector2i(3, 1),
 	"E": Vector2i(4, 1), "d": Vector2i(5, 1), "H": Vector2i(6, 1), "X": Vector2i(7, 1),
 	"A": Vector2i(0, 2), "N": Vector2i(1, 2), "O": Vector2i(2, 2), "K": Vector2i(3, 2),
+	"B": Vector2i(0, 3), "C": Vector2i(1, 3), "J": Vector2i(2, 3), "L": Vector2i(3, 3),
+	"Q": Vector2i(4, 3), "U": Vector2i(5, 3),
+	"V": Vector2i(0, 4), "Y": Vector2i(1, 4), "Z": Vector2i(2, 4), "b": Vector2i(3, 4),
+	"c": Vector2i(4, 4), "e": Vector2i(5, 4), "f": Vector2i(6, 4),
+	"g": Vector2i(0, 5), "h": Vector2i(1, 5), "i": Vector2i(2, 5), "j": Vector2i(3, 5),
+	"k": Vector2i(4, 5),
+	"l": Vector2i(0, 6), "m": Vector2i(1, 6), "n": Vector2i(2, 6),
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -1639,8 +1656,11 @@ static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 		return "P"
 
 	# ── Rochedo vulcânico esparso (identidade de ilha vulcânica) ──
+	# 02/09: usava rocha genérica "R" apesar do comentário já pedir "vulcânica"
+	# desde antes — agora usa o tile de verdade ("c", categoria Terrenos
+	# especiais), sem mudar nem a posição nem a lógica de geração.
 	if (c + r * 3) % 11 == 4:
-		return "R"
+		return "c"
 	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
