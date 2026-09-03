@@ -9,6 +9,55 @@
 
 ---
 
+## Onda 1, item 5: status persistente (queima/veneno/paralisia/sono/congelamento) + confusão (2026-09-03, continuação)
+
+**Primeiro item da Onda 1 do roteiro geral** (a Onda 0 ficou concluída/corrigida na entrada
+anterior). Fecha uma lacuna documentada há dias no próprio código: `DamageCalculator.gd` já lia
+um parâmetro `status` pra dar bônus de Guts, mas o comentário ao lado avisava "combate em tempo
+real ainda não tem status persistente... não é bug, é lacuna conhecida" — Guts nunca ativava de
+verdade porque ninguém nunca setava esse status. Também corrige um bug pequeno encontrado no
+caminho: um golpe puro de status (ex: Thunder Wave, poder 0) causava 1 de dano hoje, porque nada
+distinguia golpe de status de golpe de dano.
+
+**`StatusEffectController.gd` (novo)** — funções estáticas puras, reaproveitando EXATAMENTE as
+frações já validadas no combate por turno (`BattlePokemon.gd`): queima 1/16 HP, veneno 1/8,
+veneno grave crescendo por estágio, paralisia 25% de chance de falhar o golpe + metade da
+velocidade, sono 1-3 "turnos" (viraram segundos), congelamento com 20% de degelo por "turno",
+confusão 1/3 de chance de bater em si mesmo. `DamageCalculator.calculate_damage()` ganhou a
+redução de 50% no dano físico de quem está queimado (mesma regra do combate por turno,
+independente de qualquer habilidade).
+
+**`WildPokemon.gd` e `FollowerPokemon.gd`** (duplicado de propósito, mesmo padrão já usado pra
+habilidade passiva — cada lado já tem seu próprio estado): `current_status`/`_confused` novos;
+sono e congelamento travam total (não persegue, não ataca, fica parado); paralisia só reduz
+velocidade + falha o golpe por tentativa; confusão pode bater em si mesmo em vez do golpe
+pretendido; golpe de status puro não causa mais dano nenhum, só o efeito. Selvagem ganhou uma
+etiqueta pequena (BRN/PSN/PAR/SLP/FRZ/CNF) do lado do nível, igual convenção clássica de HUD de
+batalha.
+
+**Testado**: `teste_onda1_status_persistente.gd` (novo, 35 conferências: resolução de efeito por
+nome/chance, frações de dano, multiplicadores de velocidade/ataque, aplicação de verdade em
+WildPokemon/FollowerPokemon reais, trava de status duplo, sono incapacitando, desmaiar limpando
+status). Suíte inteira (48 arquivos) rodada depois, 0 falhas. Export Web + rebuild da imagem +
+`docker service update --force`, `curl` confirma 200 em https://poke.workprog.pro. **Não
+verificado numa partida real no navegador** — é uma mudança de mecânica de combate (paralisia/
+sono/etc só aparecem depois de vários ataques com golpe certo), não visual, então a cobertura por
+teste automatizado (que instancia os nós reais do jogo e chama os métodos de verdade, não só a
+matemática isolada) é o que valida isso aqui, igual já foi feito com o ajuste do Follower na
+entrada anterior.
+
+**Escopo deixado de fora, de propósito**: mudanças de stat (atk/def sobe/desce), flinch, e outros
+efeitos secundários de moves.json que não são um dos 5 status clássicos — são golpes que hoje já
+"não fazem nada" no tempo real, continuam assim, é uma peça de roteiro diferente (não pedida
+nesta rodada). Status também não é persistido no save (mesma lacuna que já existe pro HP do
+Follower entre sessões — não é desta tarefa resolver).
+
+**Próximo passo**: seguir pro item 6 da Onda 1 (tabela completa de Pokébolas) ou o que o Gabriel
+preferir.
+**Precisa de decisão do Gabriel?** Não.
+
+---
+
 ## Roteiro geral do projeto (artifact) + início da "Onda 0" (2026-09-03, continuação)
 
 **Pedido do Gabriel**: "deixa a parte gráfica pra depois, continue com todas as outras tarefas

@@ -135,6 +135,15 @@ static func calculate_damage(
 		var status     : String = attacker_stats.get("status", "none")
 		dano_efet *= ability_damage_multiplier(ability, mv_type, is_special, hp_ratio, status)
 
+	# Queimadura reduz dano FÍSICO a 50% — independente de ability, por isso
+	# não entra em ability_damage_multiplier() (StatusEffectController.
+	# attack_multiplier() replica a mesma regra, chamada aqui pra não exigir
+	# "ability" != "" pra funcionar — status persistente (Onda 1, 03/09) vale
+	# pra qualquer Pokémon, com ou sem habilidade cadastrada).
+	var atk_status : String = attacker_stats.get("status", "none")
+	if atk_status == "burn" and move_data.get("category", "physical") != "special":
+		dano_efet *= 0.5
+
 	return max(1, int(floor(dano_efet)))
 
 ## Mesma regra de BattleManager._ability_damage_multiplier(), só que recebendo

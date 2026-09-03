@@ -70,6 +70,20 @@ var current_target : Node2D = null
 var _is_fainted    : bool   = false
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Status persistente (Onda 1, item 5 do roteiro geral, 03/09) — mesma
+# mecânica de WildPokemon.gd, duplicada de propósito (mesmo motivo da
+# passiva logo abaixo: cada lado já tem seu próprio estado/stats, dividir
+# numa classe à parte custaria mais que repetir). Ver StatusEffectController.gd
+# pras regras/frações (todas reaproveitadas do combate por turno já validado).
+# ──────────────────────────────────────────────────────────────────────────────
+var current_status      : String = "none"
+var _status_tick_timer  : float  = 0.0
+var _sleep_timer        : float  = 0.0
+var _bad_poison_stacks  : int    = 0
+var _confused           : bool   = false
+var _confuse_timer      : float  = 0.0
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Inicialização
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -236,8 +250,90 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if _is_fainted:
 		return
-	_update_position(delta)
+	_tick_status(delta)
+	# Sono/congelado: incapaz de agir — fica parado no lugar (não persegue o
+	# Treinador, não ataca) até acordar/degelar (03/09).
+	if StatusEffectController.is_incapacitated(current_status):
+		velocity = Vector2.ZERO
+		move_and_slide()
+	else:
+		_update_position(delta)
 	_tick_passive(delta)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Status persistente (Onda 1, item 5, 03/09) — ver StatusEffectController.gd
+# ──────────────────────────────────────────────────────────────────────────────
+
+func _tick_status(delta: float) -> void:
+	if _confused:
+		_confuse_timer -= delta
+		if _confuse_timer <= 0.0:
+			_confused = false
+
+	match current_status:
+		"sleep":
+			_sleep_timer -= delta
+			if _sleep_timer <= 0.0:
+				current_status = "none"
+			return
+		"none":
+			return
+
+	_status_tick_timer -= delta
+	if _status_tick_timer > 0.0:
+		return
+	_status_tick_timer = StatusEffectController.TURN_SECONDS
+
+	match current_status:
+		"freeze":
+			if StatusEffectController.should_thaw():
+				current_status = "none"
+		"burn", "poison":
+			_apply_status_damage(StatusEffectController.tick_damage(current_status, max_hp, 0))
+		"bad_poison":
+			_bad_poison_stacks += 1
+			_apply_status_damage(StatusEffectController.tick_damage(current_status, max_hp, _bad_poison_stacks))
+
+func _apply_status_damage(dmg: int) -> void:
+	if dmg <= 0 or _is_fainted:
+		return
+	current_hp = max(0, current_hp - dmg)
+	EventBus.follower_hp_changed.emit(current_hp, max_hp)
+	FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184),
+		"%s -%d" % [StatusEffectController.status_label(current_status), dmg], Color(0.8, 0.5, 1.0))
+	if current_hp <= 0:
+		_faint()
+
+## Chamado por StatusEffectController.try_apply() quando ESTE Follower é o
+## alvo de um golpe com efeito de status/confusão.
+func apply_move_effect(effect: String, default_chance: int) -> void:
+	if _is_fainted:
+		return
+	var confuse_chance := StatusEffectController.resolve_confuse_effect(effect, default_chance)
+	if confuse_chance > 0 and not _confused and RNGManager.chance(confuse_chance / 100.0):
+		_confused      = true
+		_confuse_timer = StatusEffectController.roll_confuse_duration()
+		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184), "Confuso!", Color(0.9, 0.5, 0.9))
+
+	var resolved := StatusEffectController.resolve_status_effect(effect, default_chance)
+	if resolved.is_empty() or current_status != "none":
+		return
+	if not RNGManager.chance(int(resolved["chance"]) / 100.0):
+		return
+	current_status     = resolved["status"]
+	_bad_poison_stacks = 0
+	if current_status == "sleep":
+		_sleep_timer = StatusEffectController.roll_sleep_duration()
+	_status_tick_timer = StatusEffectController.TURN_SECONDS
+	FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184),
+		StatusEffectController.status_label(current_status) + "!", Color(1.0, 0.85, 0.3))
+
+## Confusão: chance de bater em si mesmo em vez de agir — mesma fórmula de
+## WildPokemon._hit_self_confused()/BattleManager._confusion_self_damage.
+func _hit_self_confused() -> void:
+	var dmg : float = (2.0 * pokemon_level / 5.0 + 2.0) * 40.0 * float(atk_stat) / float(max(1, def_stat)) / 50.0 + 2.0
+	_apply_status_damage(maxi(1, roundi(dmg)))
+	FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -220), "Confuso!", Color(0.9, 0.5, 0.9))
 
 func _tick_cooldowns(delta: float) -> void:
 	for i in 4:
@@ -266,6 +362,10 @@ func use_skill(slot: int) -> void:
 		return
 	if _cooldowns[slot] > 0.0:
 		return
+	# Sono/congelado: nem tenta agir (03/09) — diferente de paralisia/confusão
+	# abaixo, que ainda "gastam a tentativa" (cooldown corre, mas o golpe falha).
+	if StatusEffectController.is_incapacitated(current_status):
+		return
 
 	var move_data : Dictionary = GameData.get_move(move_slots[slot])
 	if move_data.is_empty():
@@ -283,6 +383,16 @@ func use_skill(slot: int) -> void:
 	var base_cd    : float = move_data.get("cooldown", 2.0)
 	var spd_reduc  : float = speed_stat / 500.0
 	_cooldowns[slot] = max(0.2, base_cd * (1.0 - spd_reduc))
+
+	# Paralisia: chance por tentativa de falhar o golpe inteiro (mesma regra
+	# de WildPokemon._perform_attack() — 25%, StatusEffectController, 03/09).
+	if current_status == "paralysis" and StatusEffectController.should_paralysis_fail():
+		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184), "Paralisado!", Color(1.0, 0.85, 0.3))
+		return
+	# Confusão: chance de acertar a si mesmo em vez de agir.
+	if _confused and StatusEffectController.should_confuse_self_hit():
+		_hit_self_confused()
+		return
 
 	EventBus.follower_skill_used.emit(slot, move_slots[slot])
 	_execute_move(move_data)
@@ -302,11 +412,13 @@ func _execute_move(move_data: Dictionary) -> void:
 
 ## Mesmo formato de attacker_stats usado em 3 lugares deste arquivo (dano
 ## direto, área e a passiva) — centralizado aqui pra não divergir os 3.
+## "status" (03/09): bônus de Guts e halving de queima em golpe físico.
 func _attacker_stats() -> Dictionary:
 	return {
 		"atk": atk_stat, "level": pokemon_level,
 		"ability": species_data.get("ability", ""),
 		"hp_ratio": float(current_hp) / float(max_hp) if max_hp > 0 else 1.0,
+		"status": current_status,
 	}
 
 ## Golpe de área: bate em todo `wild_pokemon` no raio, nunca no próprio time
@@ -317,13 +429,16 @@ func _apply_damage_area(move_data: Dictionary) -> void:
 	var alvos : Array = AreaTargeting.find_targets_in_radius(global_position, radius, "wild_pokemon")
 	var attacker_stats := _attacker_stats()
 	var nome : String = move_data.get("name", "")
+	var is_status_move : bool = move_data.get("category", "physical") == "status"
 	for alvo in alvos:
 		if not alvo.has_method("take_damage"):
 			continue
-		var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
-		var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
-		alvo.take_damage(dmg, self)
-		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -184), "%s -%d" % [nome, dmg], Color(1.0, 0.6, 0.2))
+		if not is_status_move:
+			var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
+			var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
+			alvo.take_damage(dmg, self)
+			FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -184), "%s -%d" % [nome, dmg], Color(1.0, 0.6, 0.2))
+		StatusEffectController.try_apply(alvo, move_data)
 
 func _apply_damage_direct(move_data: Dictionary) -> void:
 	if not current_target.has_method("take_damage"):
@@ -332,9 +447,13 @@ func _apply_damage_direct(move_data: Dictionary) -> void:
 	var defender_stats : Dictionary = {}
 	if current_target.has_method("get_combat_stats"):
 		defender_stats = current_target.get_combat_stats()
-	var damage := DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
-	current_target.take_damage(damage, self)
-	FloatingText.show_text(get_tree().current_scene, current_target.global_position + Vector2(0, -184), "%s -%d" % [move_data.get("name", ""), damage], Color(1.0, 0.9, 0.3))
+	# Golpe puro de status (ex: Thunder Wave, power=0) não causa dano nenhum
+	# — só o efeito, aplicado abaixo via StatusEffectController (03/09).
+	if move_data.get("category", "physical") != "status":
+		var damage := DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
+		current_target.take_damage(damage, self)
+		FloatingText.show_text(get_tree().current_scene, current_target.global_position + Vector2(0, -184), "%s -%d" % [move_data.get("name", ""), damage], Color(1.0, 0.9, 0.3))
+	StatusEffectController.try_apply(current_target, move_data)
 
 func _spawn_projectile(move_data: Dictionary) -> void:
 	# O ProjectileBase é instanciado pela cena — aqui apenas notificamos
@@ -352,7 +471,7 @@ func _update_position(delta: float) -> void:
 	var target_pos := _calculate_target_position()
 	var diff       := target_pos - global_position
 	var dist       := diff.length()
-	var move_speed : float = MOVE_SPEED_BASE + (speed_stat * 0.8)
+	var move_speed : float = (MOVE_SPEED_BASE + (speed_stat * 0.8)) * StatusEffectController.speed_multiplier(current_status)
 
 	# Dentro da folga: trata como "chegou", não persegue cada pixel do
 	# Treinador (efeito "coleira frouxa" em vez de "sombra colada").
@@ -420,8 +539,10 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 		_faint()
 
 func _faint() -> void:
-	_is_fainted = true
-	velocity    = Vector2.ZERO
+	_is_fainted     = true
+	velocity        = Vector2.ZERO
+	current_status  = "none"   # desmaiado não carrega status (igual troca de Pokémon no combate por turno)
+	_confused       = false
 	EventBus.follower_fainted.emit(_build_pokemon_data())
 	if sprite:
 		sprite.modulate = Color(0.4, 0.4, 0.4, 0.6)

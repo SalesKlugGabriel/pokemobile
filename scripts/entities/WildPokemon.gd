@@ -78,6 +78,18 @@ var default_move  : Dictionary = {}
 var _attack_cd    : float = 0.0
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Status persistente (Onda 1, item 5 do roteiro geral, 03/09) — ver
+# StatusEffectController.gd pras regras/frações, todas reaproveitadas do
+# combate por turno já validado (BattlePokemon.gd).
+# ──────────────────────────────────────────────────────────────────────────────
+var current_status      : String = "none"   # "none"/"burn"/"poison"/"bad_poison"/"paralysis"/"sleep"/"freeze"
+var _status_tick_timer  : float  = 0.0      # até o próximo dano de queima/veneno ou checagem de degelo
+var _sleep_timer        : float  = 0.0      # segundos restantes de sono
+var _bad_poison_stacks  : int    = 0
+var _confused           : bool   = false
+var _confuse_timer      : float  = 0.0
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Patrol
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -177,6 +189,7 @@ func _add_ground_shadow(vscale: float) -> void:
 var _hp_bar_bg     : ColorRect
 var _hp_bar_fill   : ColorRect
 var _level_label   : Label
+var _status_label  : Label
 const HP_BAR_WIDTH  : float = 160.0  # migração tile128 (03/09): era 40
 const HP_BAR_HEIGHT : float = 20.0   # migração tile128 (03/09): era 5
 const HP_BAR_Y      : float = -160.0  # migração tile128 (03/09): era -40
@@ -199,7 +212,25 @@ func _build_health_bar() -> void:
 	_level_label.position = Vector2(-HP_BAR_WIDTH / 2.0, HP_BAR_Y - 56.0)
 	add_child(_level_label)
 
+	# Status persistente (03/09) — abreviação (BRN/PSN/PAR/SLP/FRZ), igual
+	# convenção clássica de HUD de batalha. Vazio = sem status, label some.
+	_status_label = Label.new()
+	_status_label.add_theme_font_size_override("font_size", 10)
+	_status_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	_status_label.position = Vector2(HP_BAR_WIDTH / 2.0 - 36.0, HP_BAR_Y - 56.0)
+	add_child(_status_label)
+
 	_update_health_bar()
+
+func _update_status_label() -> void:
+	if not _status_label:
+		return
+	var label := StatusEffectController.status_label(current_status)
+	if _confused and label == "":
+		label = "CNF"
+	elif _confused:
+		label += "/CNF"
+	_status_label.text = label
 
 func _update_health_bar() -> void:
 	if not _hp_bar_fill or max_hp <= 0:
@@ -345,11 +376,102 @@ func _physics_process(delta: float) -> void:
 	_find_target()
 	_attack_cd = max(0.0, _attack_cd - delta)
 	_tick_passive(delta)
+	_tick_status(delta)
+
+	# Sono/congelado: incapaz de agir, nem persegue nem ataca nem foge —
+	# fica parado até acordar/degelar (StatusEffectController.is_incapacitated).
+	if StatusEffectController.is_incapacitated(current_status):
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 
 	match state:
 		State.PATROL: _tick_patrol(delta)
 		State.CHASE:  _tick_chase()
 		State.ATTACK: _tick_attack()
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Status persistente (Onda 1, item 5, 03/09) — ver StatusEffectController.gd
+# ──────────────────────────────────────────────────────────────────────────────
+
+func _tick_status(delta: float) -> void:
+	if _confused:
+		_confuse_timer -= delta
+		if _confuse_timer <= 0.0:
+			_confused = false
+			_update_status_label()
+
+	match current_status:
+		"sleep":
+			_sleep_timer -= delta
+			if _sleep_timer <= 0.0:
+				current_status = "none"
+				_update_status_label()
+			return  # sono não tem dano de fim-de-turno, só a checagem acima
+		"none":
+			return
+
+	_status_tick_timer -= delta
+	if _status_tick_timer > 0.0:
+		return
+	_status_tick_timer = StatusEffectController.TURN_SECONDS
+
+	match current_status:
+		"freeze":
+			if StatusEffectController.should_thaw():
+				current_status = "none"
+				_update_status_label()
+		"burn", "poison":
+			_apply_status_damage(StatusEffectController.tick_damage(current_status, max_hp, 0))
+		"bad_poison":
+			_bad_poison_stacks += 1
+			_apply_status_damage(StatusEffectController.tick_damage(current_status, max_hp, _bad_poison_stacks))
+
+func _apply_status_damage(dmg: int) -> void:
+	if dmg <= 0 or state == State.DEAD:
+		return
+	current_hp = max(0, current_hp - dmg)
+	EventBus.wild_pokemon_hp_changed.emit(self, current_hp, max_hp)
+	_update_health_bar()
+	FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184),
+		"%s -%d" % [StatusEffectController.status_label(current_status), dmg], Color(0.8, 0.5, 1.0))
+	if current_hp <= 0:
+		_die()
+
+## Chamado por StatusEffectController.try_apply() quando ESTE Pokémon é o
+## alvo de um golpe com efeito de status/confusão — nunca chamado direto por
+## fora (a chance/checagem já foi resolvida lá).
+func apply_move_effect(effect: String, default_chance: int) -> void:
+	if state == State.DEAD:
+		return
+	var confuse_chance := StatusEffectController.resolve_confuse_effect(effect, default_chance)
+	if confuse_chance > 0 and not _confused and RNGManager.chance(confuse_chance / 100.0):
+		_confused      = true
+		_confuse_timer = StatusEffectController.roll_confuse_duration()
+		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184), "Confuso!", Color(0.9, 0.5, 0.9))
+		_update_status_label()
+
+	var resolved := StatusEffectController.resolve_status_effect(effect, default_chance)
+	if resolved.is_empty() or current_status != "none":
+		return
+	if not RNGManager.chance(int(resolved["chance"]) / 100.0):
+		return
+	current_status     = resolved["status"]
+	_bad_poison_stacks = 0
+	if current_status == "sleep":
+		_sleep_timer = StatusEffectController.roll_sleep_duration()
+	_status_tick_timer = StatusEffectController.TURN_SECONDS
+	FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184),
+		StatusEffectController.status_label(current_status) + "!", Color(1.0, 0.85, 0.3))
+	_update_status_label()
+
+## Confusão: chance de bater em si mesmo em vez de agir (mesma fórmula de
+## BattleManager._confusion_self_damage — golpe físico potência 40, sem
+## STAB/tipo, contra a própria defesa).
+func _hit_self_confused() -> void:
+	var dmg : float = (2.0 * wild_level / 5.0 + 2.0) * 40.0 * float(atk_stat) / float(max(1, def_stat)) / 50.0 + 2.0
+	_apply_status_damage(maxi(1, roundi(dmg)))
+	FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -220), "Confuso!", Color(0.9, 0.5, 0.9))
 
 func _find_target() -> void:
 	# Prioridade: Follower ativo → Treinador
@@ -445,6 +567,17 @@ func _perform_attack() -> void:
 	var spd_reduc : float = speed_stat / 500.0
 	_attack_cd = max(0.3, base_cd * (1.0 - spd_reduc))
 
+	# Paralisia: chance por TENTATIVA de falhar o golpe inteiro (mesma regra
+	# de BattlePokemon.can_move() — 25%, StatusEffectController.03/09).
+	if current_status == "paralysis" and StatusEffectController.should_paralysis_fail():
+		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184), "Paralisado!", Color(1.0, 0.85, 0.3))
+		return
+	# Confusão: chance de acertar a si mesmo em vez de agir (mesma ordem do
+	# combate por turno — checa paralisia primeiro, confusão depois).
+	if _confused and StatusEffectController.should_confuse_self_hit():
+		_hit_self_confused()
+		return
+
 	if default_move.get("target_type", "single") == "area":
 		_apply_damage_area(default_move)
 		return
@@ -454,16 +587,22 @@ func _perform_attack() -> void:
 		var defender_stats : Dictionary = {}
 		if target.has_method("get_combat_stats"):
 			defender_stats = target.get_combat_stats()
-		var damage := DamageCalculator.calculate_damage(default_move, attacker_stats, defender_stats)
-		target.take_damage(damage, self)
-		FloatingText.show_text(get_tree().current_scene, target.global_position + Vector2(0, -184), "%s -%d" % [default_move.get("name", ""), damage], Color(1.0, 0.4, 0.4))
+		# Golpe puro de status (ex: Thunder Wave, power=0) não causa dano
+		# nenhum — só o efeito, aplicado abaixo via StatusEffectController.
+		if default_move.get("category", "physical") != "status":
+			var damage := DamageCalculator.calculate_damage(default_move, attacker_stats, defender_stats)
+			target.take_damage(damage, self)
+			FloatingText.show_text(get_tree().current_scene, target.global_position + Vector2(0, -184), "%s -%d" % [default_move.get("name", ""), damage], Color(1.0, 0.4, 0.4))
+		StatusEffectController.try_apply(target, default_move)
 
 ## Mesmo formato de attacker_stats usado no ataque direto, na área e na
-## passiva — centralizado aqui pra não divergir.
+## passiva — centralizado aqui pra não divergir. "status" (03/09): usado por
+## DamageCalculator pro bônus de Guts e pra halving de queima em golpe físico.
 func _attacker_stats() -> Dictionary:
 	return {
 		"atk": atk_stat, "level": wild_level,
 		"ability": species_data.get("ability", ""), "hp_ratio": get_hp_ratio(),
+		"status": current_status,
 	}
 
 ## Golpe de área: bate em Follower + Treinador (os únicos alvos válidos de um
@@ -474,13 +613,16 @@ func _apply_damage_area(move_data: Dictionary) -> void:
 	var alvos  : Array  = AreaTargeting.find_targets_in_radius(global_position, radius, ["follower_pokemon", "player"])
 	var attacker_stats := _attacker_stats()
 	var nome : String = move_data.get("name", "")
+	var is_status_move : bool = move_data.get("category", "physical") == "status"
 	for alvo in alvos:
 		if not alvo.has_method("take_damage"):
 			continue
-		var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
-		var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
-		alvo.take_damage(dmg, self)
-		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -184), "%s -%d" % [nome, dmg], Color(1.0, 0.4, 0.4))
+		if not is_status_move:
+			var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
+			var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
+			alvo.take_damage(dmg, self)
+			FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -184), "%s -%d" % [nome, dmg], Color(1.0, 0.4, 0.4))
+		StatusEffectController.try_apply(alvo, move_data)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Receber dano
@@ -562,4 +704,5 @@ func _set_state(new_state: State) -> void:
 		_encounter_triggered = false
 
 func _get_move_speed() -> float:
-	return BASE_MOVE_SPEED + (speed_stat * 0.8)
+	var speed := BASE_MOVE_SPEED + (speed_stat * 0.8)
+	return speed * StatusEffectController.speed_multiplier(current_status)
