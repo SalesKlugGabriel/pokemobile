@@ -24,6 +24,18 @@ const FOLLOW_DISTANCE   : float = 256.0  # px — distância de repouso atrás d
 const BODYGUARD_OFFSET  : float = 160.0  # px — distância do Treinador em direção ao inimigo (migração tile128 03/09 — era 40)
 const MOVE_SPEED_BASE   : float = 960.0  # migração tile128 (03/09): era 240 pro tile de 32px
 
+## "Sensação de coleira" (pedido do Gabriel, 03/09: "não uma sombra exatamente
+## atrás de mim"). A posição-alvo continua a MESMA regra de sempre (quadro
+## cardeal oposto ao Treinador, nunca sobrepõe — ver _position_behind_trainer),
+## só a forma de chegar até ela mudou: uma folga antes de começar a andar (não
+## reage a cada pixel do Treinador) + aceleração suave em vez de sair/parar
+## instantaneamente a MOVE_SPEED_BASE. Isso dá o efeito de "ficar pra trás e
+## alcançar correndo", sem reintroduzir o rastro de posições passadas (Fase
+## removida antes por sobrepor o sprite numa curva — risco que continua
+## existindo se o alvo deixasse de ser sempre cardeal).
+const SLACK_DISTANCE    : float = 48.0   # px — não anda enquanto estiver mais perto que isso do alvo
+const ACCEL_RATE        : float = 8.0    # 1/s — quanto maior, mais rápido a velocidade alcança o alvo
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Referências de cena
 # ──────────────────────────────────────────────────────────────────────────────
@@ -339,14 +351,21 @@ func _spawn_projectile(move_data: Dictionary) -> void:
 func _update_position(delta: float) -> void:
 	var target_pos := _calculate_target_position()
 	var diff       := target_pos - global_position
+	var dist       := diff.length()
 	var move_speed : float = MOVE_SPEED_BASE + (speed_stat * 0.8)
 
-	if diff.length() > 4.0:
-		velocity = diff.normalized() * min(diff.length() / delta, move_speed)
-		_play_anim("walk")
-	else:
-		velocity = Vector2.ZERO
-		_play_anim("idle")
+	# Dentro da folga: trata como "chegou", não persegue cada pixel do
+	# Treinador (efeito "coleira frouxa" em vez de "sombra colada").
+	var desired_velocity := Vector2.ZERO
+	if dist > SLACK_DISTANCE:
+		desired_velocity = diff.normalized() * min(dist / delta, move_speed)
+
+	# Aceleração/desaceleração suave (frame-rate independente) em vez de
+	# trocar velocidade instantaneamente — dá a sensação de "correr pra
+	# alcançar" e "desacelerar ao chegar" de um bicho de estimação de verdade.
+	velocity = velocity.lerp(desired_velocity, 1.0 - exp(-ACCEL_RATE * delta))
+
+	_play_anim("walk" if velocity.length() > 8.0 else "idle")
 
 	move_and_slide()
 

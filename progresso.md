@@ -9,6 +9,55 @@
 
 ---
 
+## Roteiro geral do projeto (artifact) + início da "Onda 0" (2026-09-03, continuação)
+
+**Pedido do Gabriel**: "deixa a parte gráfica pra depois, continue com todas as outras tarefas
+pendentes. E revise o projeto original... transforme isso em um plano gigante com todos os
+passos e ideias cabíveis, em ordem de facilidade e importância." Delegado a leitura do
+changelog inteiro (progresso.md, ~2600 linhas) + docs a um agente-fork, pra não pesar o contexto
+principal; reorganizei o resultado por ORDEM DE FACILIDADE+IMPORTÂNCIA (o pedido específico dele,
+diferente do agrupamento por categoria que a pesquisa devolveu) e publiquei como artifact
+("Roteiro PokéMobile", Ondas 0 a 6). Comecei a executar a Onda 0 ("vitórias rápidas"):
+
+- **Item 1 (limpeza de código morto) — feito.** `DungeonPortal.gd`/`DungeonMap.gd`/
+  `DungeonPortal.tscn`/`KantoDungeons.tscn` removidos (`git rm`) — zero referência restante no
+  projeto, confirmado por busca antes de apagar. Suíte inteira (47 arquivos) rodada depois, 0
+  falhas.
+- **Item 4 (Follower com "sensação de coleira", não "sombra colada") — feito.** Pedido antigo do
+  Gabriel, deixado pra depois na sessão que introduziu o Follower. A REGRA de posição-alvo não
+  mudou (sempre 1 quadro cardeal oposto ao Treinador — nunca diagonal, nunca sobrepõe, ver
+  `_position_behind_trainer()`); o que mudava era só a FORMA de perseguir esse alvo: antes,
+  qualquer diferença > 4px disparava movimento instantâneo a toda velocidade (parecia colado).
+  Agora: uma folga de 48px antes de começar a andar + aceleração/desaceleração suave (em vez de
+  ligar/desligar velocidade), dando a sensação de "ficar pra trás e correr pra alcançar" sem
+  reintroduzir o antigo sistema de "rastro de posições passadas" (removido antes por sobrepor o
+  sprite numa curva — risco que essa mudança não reintroduz, porque o alvo continua sempre
+  cardeal). `scripts/entities/FollowerPokemon.gd`: `SLACK_DISTANCE`/`ACCEL_RATE` novos,
+  `_update_position()` reescrita.
+- **Itens 2 (X-Attack) e 3 (UTIL-05/Seafoam) — achados na investigação direta: NÃO são "fácil"
+  como o roteiro publicado rotulou, precisam de correção no artifact.** X-Attack: não existe
+  NENHUM mecanismo de usar item no motor de combate em tempo real atual (procurado em
+  `scripts/combat/`, `scripts/entities/`, `OverworldHUD.gd` — nada de `use_item`/Bag/Potion); o
+  único consumidor do item é o `BattleManager` por turno, já retirado de uso. É construir um
+  recurso novo, não corrigir um existente. UTIL-05: o NPC da quest (`guia_fuchsia`) não existe,
+  não há cena de andares pras Ilhas Gêmeas, e `data/world/zones.json` já documenta que a área é
+  propositalmente inalcançável até existir Surf/Fly (nenhum construído) — emaranhado com o
+  trabalho de reorganização de mapas da Onda 5, não uma confirmação rápida.
+
+**Testado**: suíte headless completa (47/47 arquivos, 0 falhas — 2 delas só falharam por cache
+de classe do Godot desatualizado, resolvido com o `--headless --editor --quit-after N` de sempre,
+não regressão minha). Export Web + rebuild da imagem Docker + `docker service update --force
+pokemobile_pokemobile_app`, `curl` confirma 200 em https://poke.workprog.pro. Sensação de
+movimento do Follower não verificada em navegador nesta sessão (mudança de "feel" ao longo do
+tempo, não dá pra confirmar por screenshot único — só teste automático da REGRA de não-sobreposição
++ inspeção do código).
+
+**Próximo passo**: corrigir os badges de dificuldade de X-Attack/UTIL-05 no artifact publicado e
+avisar o Gabriel, depois seguir pro resto da Onda 0/Onda 1 do roteiro.
+**Precisa de decisão do Gabriel?** Não pra continuar — só avisar sobre a correção de estimativa.
+
+---
+
 ## Escala de Pokémon pela altura da Pokédex + Treinador/NPC com 2 tiles de altura (2026-09-03, continuação)
 
 **Pedido do Gabriel (prompt grande de sistema de "Overworld Pokémon"), resumido por ele mesmo
