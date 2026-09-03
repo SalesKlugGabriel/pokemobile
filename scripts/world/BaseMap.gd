@@ -24,6 +24,8 @@ extends Node2D
 
 func _ready() -> void:
 	_paint_tiles()
+	if not MapOverrides.overrides_loaded.is_connected(_on_map_overrides_loaded):
+		MapOverrides.overrides_loaded.connect(_on_map_overrides_loaded)
 	_apply_camera_limits()
 	WorldManager.register_map(map_id, tilemap, player)
 	WorldManager.apply_pending_spawn()
@@ -72,6 +74,14 @@ func _paint_tiles() -> void:
 	if not tilemap:
 		return
 	MapLayouts.paint(tilemap, map_id)
+	MapOverrides.apply_overrides(tilemap, map_id)
+
+## Cobre o caso em que este mapa já pintou ANTES da busca de ajustes do
+## Editor Visual terminar (achado esperado no boot — a 1ª tela do jogo não
+## espera a rede pra não travar o jogador à toa).
+func _on_map_overrides_loaded() -> void:
+	if tilemap:
+		MapOverrides.apply_overrides(tilemap, map_id)
 
 func _apply_camera_limits() -> void:
 	var cam : Camera2D = _find_camera()

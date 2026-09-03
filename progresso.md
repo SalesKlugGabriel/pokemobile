@@ -9,6 +9,65 @@
 
 ---
 
+## Editor Visual (poke.workprog.pro/editor) — mapa e sprites, sem precisar de mim (2026-09-02, sessão seguinte 7)
+
+**Pedido do Gabriel: "criasse uma página de editor de mapa (...) arrastar os blocos/árvores/
+estruturas ou deletá-las (...) botão de salvar (...) botão de publicar. A mesma coisa para as
+sprites dos pokémons e uma maneira de animar a movimentação. (...) interface extremamente fácil,
+intuitiva (...) e tenha um guia de edições."** Marcada por ele como "última tarefa", depois de
+"finalize todas as tarefas pendentes, decida por mim" (que fechou as 4 categorias restantes do
+plano de tiles — ver entrada logo abaixo).
+
+**Decisão de arquitetura (a que mais importa aqui): publicar NÃO reexporta o jogo.** Cada
+publicação normal, ao longo desta sessão, levava uns 3-5 min (exportar Web + build da imagem +
+redeploy) — inviável pro Gabriel usar sozinho toda vez que move uma árvore de lugar. Em vez disso:
+o jogo agora **busca os ajustes prontos** de um servidor pequeno (o próprio Editor Visual) toda
+vez que liga (`MapOverrides.gd`/`SpriteOverrides.gd`, autoloads novos, via `HTTPRequest`). Editor
+"Salvar" grava um rascunho; "Publicar" copia o rascunho pro arquivo que o jogo de fato lê. Zero
+rebuild, efeito imediato pra quem abrir o jogo depois de publicar. Se o servidor do editor cair ou
+a rede falhar, o jogo funciona 100% normal (mapas do jeito de sempre) — nunca trava o boot por
+causa disso (testado: bloqueando a rede de propósito, o jogo carregou normal).
+
+**Repositório novo, separado do jogo**: `/root/pokemobile-editor/` (Node/Express + HTML/JS puro,
+sem framework pesado). Dados ficam em `/root/pokemobile-editor-data/` (fora do repo, sobrevive a
+redeploy) — grid base dos mapas (dump do `MapLayouts.gd`, `scripts/tools/dump_map_json.gd`),
+rascunho e versão publicada dos ajustes de mapa, e as sprites em rascunho/publicadas. Publicado
+como serviço novo no MESMO stack Swarm do jogo (`pokemobile_editor` em `/root/pokemobile.yaml`),
+roteado por Traefik no MESMO domínio via `PathPrefix('/editor')` — **não precisou de DNS novo**.
+
+**Editor de Mapa** (`poke.workprog.pro/editor/map.html`): paleta com os 41 tiles (nome em
+português, ícone 🚫 se bloqueia passagem), clique ou clique-e-arraste pinta, "Apagar" volta pra
+grama, setas/arraste com botão direito pra navegar pelo mapa (465×330 tiles — grande demais pra
+mostrar tudo de uma vez), atalhos "Ir para" (Pallet Town, Rota 1, Viridian). Cobre só `world_map`
+por ora (a maior parte do jogo já é um mapa contínuo só) — outros mapas exigiriam rodar o dump de
+novo e cadastrar no editor, deixado como próximo passo se o Gabriel quiser mexer nos interiores.
+
+**Editor de Sprites** (`.../sprites.html`): lista das 151 espécies (Normal/Shiny), abas de direção
+(Baixo/Cima/Esquerda/Direita) e quadro (Parado/Passo A/Passo B), pincel de pixel com paleta
+extraída automaticamente das cores já usadas na própria sprite + cor livre, borracha. **"Uma
+maneira de animar a movimentação"**: caixa de pré-visualização que roda os 3 quadros em loop
+(Parado→Passo A→Passo B) com controle de velocidade — mostra o "balanço" de passo que já existe
+nas sprites (da sessão de refinamento anterior) sem precisar abrir o jogo pra ver.
+
+**Guia embutido nas duas páginas** (botão "❓ Como usar", visível por padrão) — pedido explícito do
+Gabriel por não saber editar: passo a passo curto, sem jargão.
+
+**Testado de ponta a ponta, incluindo em produção de verdade**: suíte completa do jogo (48
+arquivos, 0 falhas — `BaseMap`/`SpriteBuilder` ganharam código novo, mas o caminho antigo continua
+idêntico quando não há ajuste nenhum), navegador real nas duas páginas do editor (pintar, salvar,
+pré-visualização de animação), e a prova final: publiquei um Toco e uma Árvore Pinho perto do
+spawn pela API do editor **em produção**, recarreguei o jogo publicado (sem rebuild nenhum) e as
+duas apareceram exatamente onde eu coloquei — depois revertido (`overrides` voltou a `{}`) pra não
+deixar tile de teste solto no mapa de verdade.
+
+**Não incluído, por decisão de escopo dado o tamanho do pedido**: "arrastar" um objeto já colocado
+(hoje é apagar + pintar de novo no lugar certo — equivalente na prática, mas não é literalmente
+pegar-e-arrastar o mesmo objeto); mapas além do `world_map` no editor; desenhar quadro de
+caminhada novo pra Pokémon (a "animação" é a pré-visualização do bob que já existe, não um editor
+de quadros novos). Ficam pra quando o Gabriel pedir depois de usar o que já está pronto.
+
+---
+
 ## Diversidade de tiles — categoria "Terreno base" + floresta da Rota 1 variada (2026-09-02, sessão seguinte 6)
 
 **Retomando o plano de `docs/tileset-referencia-visual.md` (Gabriel: "siga para a próxima parte

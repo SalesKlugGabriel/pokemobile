@@ -22,7 +22,13 @@ static func build_entity_frames(texture_path: String, tile: int = TILE) -> Sprit
 	if not tex:
 		push_warning("SpriteBuilder: não encontrou '%s'" % texture_path)
 		return null
+	return build_entity_frames_from_texture(tex, tile)
 
+## Mesma coisa que build_entity_frames(), mas recebe a Texture2D já pronta
+## em vez de um caminho res:// — usado quando a textura vem de outro lugar
+## (Editor Visual, 02/09: sprite editada baixada em bytes no boot, não
+## empacotada no jogo, então não existe um caminho res:// pra ela).
+static func build_entity_frames_from_texture(tex: Texture2D, tile: int = TILE) -> SpriteFrames:
 	var sf := SpriteFrames.new()
 	sf.remove_animation("default")
 
@@ -87,7 +93,13 @@ static func pokemon_sprite_path(species_id: int, shiny: bool = false) -> String:
 ## pro normal — nunca fica sem sprite nenhum por falta da variante shiny.
 static func build_pokemon_frames(species_id: int, shiny: bool = false) -> SpriteFrames:
 	var path : String = pokemon_sprite_path(species_id, shiny)
-	var tex : Texture2D = load(path)
+	# Achado (Editor Visual, 02/09): se o Gabriel editou esta sprite pelo
+	# editor, usa a versão editada (baixada uma vez no boot pelo
+	# SpriteOverrides) em vez da que veio empacotada no jogo.
+	var override_name : String = path.get_file()
+	var tex : Texture2D = SpriteOverrides.get_texture(override_name) if SpriteOverrides.has_override(override_name) else null
+	if not tex:
+		tex = load(path)
 	if not tex:
 		tex = load("res://assets/sprites/pokemon/placeholder.png")
 	if not tex:
@@ -95,7 +107,7 @@ static func build_pokemon_frames(species_id: int, shiny: bool = false) -> Sprite
 		return null
 
 	if tex.get_width() >= 96 and tex.get_height() >= 128:
-		return build_entity_frames(path, 32)
+		return build_entity_frames_from_texture(tex, 32)
 
 	var sf := SpriteFrames.new()
 	sf.remove_animation("default")
