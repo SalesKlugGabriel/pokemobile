@@ -444,6 +444,16 @@ static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
 			return "P"
 		return "~"
 
+	# ── Boca da Caverna de Cerulean (Mewtwo, MAIN-10, 03/09) — colada no
+	# corredor, bem perto de Cerulean (fb 35-39, logo antes do seam da
+	# cidade). Mesma técnica de "boca de caverna" de Diglett's Cave: rocha
+	# ao redor, só o vão central é andável (o warp fica ali). Vinha faltando
+	# — a "confront mewtwo" da MAIN-10 nunca teve onde acontecer.
+	if fb >= 35 and fb <= 39 and c >= RAMO_NORTE_COL_INICIO - 3 and c < RAMO_NORTE_COL_INICIO:
+		if fb >= 36 and fb <= 38:
+			return "P"
+		return "R"
+
 	# ── Rota 24 (mais perto de Cerulean, fb ROUTE25_ROWS..NORTE_OFFSET-1) ──
 	if no_corredor:
 		return "P"
@@ -1471,6 +1481,44 @@ static func _mtmoon_cell(c: int, r: int, W: int, H: int) -> String:
 	return "I"
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Caverna de Cerulean (Mewtwo, MAIN-10, 03/09) — 7 andares, mesmo molde do Mt
+# Moon (retângulo + rochas espalhadas, corredor central sempre livre —
+# conectividade garantida, nunca fica sem caminho, diferente da caminhada
+# aleatória do Rock Tunnel/Victory Road que não precisa disso porque só tem
+# 1 porta). Cada andar usa `floor_n` pra variar o padrão de rocha e ficar mais
+# denso/difícil quanto mais fundo — sem isso os 7 andares ficariam idênticos.
+# Andar 7 (o mais fundo) não tem saída norte — é o fim da linha, sala do
+# Mewtwo (colocado como WildPokemon de verdade na cena, não no spawn
+# aleatório — encontro único, não repetível igual qualquer selvagem comum).
+# ──────────────────────────────────────────────────────────────────────────────
+static func _gen_cerulean_cave_floor(floor_n: int, tem_saida_norte: bool) -> Array:
+	var W := 20
+	var H := 30
+	var grid : Array = []
+	for r in H:
+		var row := ""
+		for c in W:
+			row += _cerulean_cave_cell(c, r, W, H, floor_n, tem_saida_norte)
+		grid.append(row)
+	return grid
+
+static func _cerulean_cave_cell(c: int, r: int, W: int, H: int, floor_n: int, tem_saida_norte: bool) -> String:
+	if c == 0 or c == W - 1:
+		return "W"
+	if r == 0:
+		if tem_saida_norte and c >= 9 and c <= 10: return "P"
+		return "W"
+	if r == H - 1:
+		if c >= 9 and c <= 10: return "P"
+		return "W"
+	# Densidade de rocha cresce com a profundidade (divisor menor = mais
+	# rocha) — anda de 7 (andar 1, igual ao Mt Moon) até 4 (andar 7).
+	var divisor := maxi(4, 7 - floor_n / 2)
+	if (c + r * 2 + floor_n * 3) % divisor == 0 and (c < 8 or c > 11):
+		return "R"
+	return "I"
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Rock Tunnel — 36×36, cena própria (caverna/subterrâneo, mesma exceção de
 # warp do Mt Moon). Tier 10 (01/09): PRIMEIRA caverna construída depois da
 # regra de tematização de bioma do Gabriel — diferente do Mt Moon (retângulo
@@ -1880,6 +1928,12 @@ static func get_layout(map_id: String) -> Dictionary:
 			return {"tiles": _gen_andar_estrutura(true), "width": 18, "height": 14}
 		"ss_anne_f2":
 			return {"tiles": _gen_andar_estrutura(false), "width": 18, "height": 14}
+		"cerulean_cave_f1", "cerulean_cave_f2", "cerulean_cave_f3", "cerulean_cave_f4", \
+		"cerulean_cave_f5", "cerulean_cave_f6":
+			var n := int(map_id.right(1))
+			return {"tiles": _gen_cerulean_cave_floor(n, true), "width": 20, "height": 30}
+		"cerulean_cave_f7":
+			return {"tiles": _gen_cerulean_cave_floor(7, false), "width": 20, "height": 30}
 		_:
 			return {}
 

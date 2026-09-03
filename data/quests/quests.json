@@ -306,8 +306,8 @@
     "category": "main",
     "npc_id": null,
     "location_tile": {
-      "x": 252,
-      "y": 42
+      "x": 245,
+      "y": -3
     },
     "objectives": [
       {
@@ -316,7 +316,7 @@
         "floors": 7
       },
       {
-        "type": "confront",
+        "type": "capture",
         "target": "mewtwo"
       }
     ],
@@ -329,7 +329,8 @@
     ],
     "unlocks": [
       "MAIN-11"
-    ]
+    ],
+    "_ajuste_editorial": "Caverna de Cerulean construída do zero (03/09) — location_tile também corrigido (252,42 era placeholder do plano original, caía dentro da faixa de Pewter/Rota2, nunca perto de Cerulean de verdade; a boca real fica em (245,-3), Rota 24). 'confront' não tem handler no motor (mesma classe de ajuste já feita em MAIN-01..09) — trocado por 'capture', que já existe (QuestManager._on_capture_success) e bate com o texto de rewards.notes ('mewtwo catchable 5% chance': o esperado é capturar, não derrotar — derrotar o mata pra sempre, sem chance de recaptura, igual jogo real). MAIN-11 ('A Escolha', tipo 'choice') e o mecanismo de ramificação continuam sem handler — ficam pra quando isso for pedido."
   },
   "MAIN-11": {
     "id": "MAIN-11",

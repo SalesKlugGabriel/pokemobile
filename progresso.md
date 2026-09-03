@@ -9,6 +9,47 @@
 
 ---
 
+## Caverna de Cerulean + Mewtwo, a última dungeon pendente (2026-09-03, continuação)
+
+**Fecha o pedido "ginásios, elite four, dungeons" do Gabriel.** Antes só existia um registro de
+zona (`data/world/zones.json`) com a tabela de selvagens (Geodude/Graveler/Abra/Zubat/Mewtwo) —
+**sem nenhum mapa, andar, boca de caverna ou warp de verdade**, e as coordenadas ali dentro eram
+do plano mestre ANTIGO, incompatíveis com o mapa atual (mesma classe de achado já feita antes pra
+UTIL-03). Construído do zero: **7 andares** (`CeruleanCave_F1..F7.tscn`), mesmo molde do Mt Moon
+(retângulo + rochas espalhadas, corredor central sempre livre — nunca fica sem caminho, diferente
+da caminhada aleatória do Rock Tunnel que não precisa disso porque só tem 1 porta), com a rocha
+ficando mais densa a cada andar (mais difícil quanto mais fundo). Boca da caverna nova na Rota 24,
+perto de Cerulean (achado: a `location_tile` que a MAIN-10 já tinha registrada, x=252/y=42, também
+era do plano antigo — caía dentro da faixa de Pewter/Rota2, longe de qualquer Cerulean de
+verdade). **Mewtwo** (species_id 150, nível 70) colocado direto no 7º andar como selvagem de
+verdade — não sorteado pelo spawn aleatório, encontro único, igual jogo real (se for derrotado em
+vez de capturado, não volta).
+
+**Achado + corrigido antes de publicar**: MAIN-10 tinha um objetivo `"type": "confront"` sem
+NENHUM handler no motor (mesma classe de ajuste editorial já feita em várias outras MAIN-0N) —
+trocado por `"capture"`, que já existe (`QuestManager._on_capture_success`) e bate com o texto de
+`rewards.notes` ("mewtwo catchable 5% chance": o esperado é capturar, derrotar mata pra sempre,
+sem chance de recaptura). **MAIN-11 ("A Escolha", tipo `"choice"`, ramificação narrativa
+seal_fracture/capture_mewtwo) continua sem handler nenhum** — construir uma UI de escolha
+ramificada de verdade é um projeto à parte, deliberadamente fora do escopo de "construir a
+dungeon"; documentado no `_ajuste_editorial` da própria quest pra próxima sessão saber onde parou.
+
+**Testado**: `teste_cerulean_cave.gd` (novo, 37 conferências — boca da caverna abre certo, os 7
+andares geram com conectividade garantida no corredor central em TODOS, andar 7 não tem saída ao
+norte, Mewtwo existe como selvagem de verdade com espécie/nível certos, MAIN-10 completa só depois
+de andar 7 + capturar, desbloqueia MAIN-11). O warp novo (`WarpCeruleanCave`) precisou da mesma
+correção de lista de exceção nos 7 testes antigos. Suíte inteira (55 arquivos) sem regressão.
+Publicado, smoke test em navegador sem erro.
+
+**Com isso, as 3 frentes que o Gabriel pediu ("ginásios, elite four, dungeons") estão fechadas**:
+ginásios (já existiam + 2 bugs corrigidos), Elite Four (construída do zero), 3 dungeons novas
+(S.S. Anne, Liga Pokémon, Caverna de Cerulean) — a única dungeon do roteiro que ficou de fora foi
+a Usina Elétrica, bloqueada por Surf/Voar (mecânica de travessia que ainda não existe).
+**Precisa de decisão do Gabriel?** Não — mas MAIN-11 (a escolha final da história) fica esperando
+prioridade explícita, é um projeto de UI/narrativa à parte.
+
+---
+
 ## Interior do S.S. Anne construído (2026-09-03, continuação)
 
 **Primeira das dungeons pendentes de verdade** (a Usina Elétrica fica de fora — depende de Surf/

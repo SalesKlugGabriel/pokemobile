@@ -63,6 +63,9 @@ size = Vector2(384, 128)
 [sub_resource type="RectangleShape2D" id="Shape_ssanne"]
 size = Vector2(384, 128)
 
+[sub_resource type="RectangleShape2D" id="Shape_ceruleancave"]
+size = Vector2(384, 128)
+
 [sub_resource type="RectangleShape2D" id="Shape_pokemontower"]
 size = Vector2(384, 128)
 
@@ -501,6 +504,14 @@ spawn_tile = Vector2i(8, 11)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpSSAnne"]
 shape = SubResource("Shape_ssanne")
+
+[node name="WarpCeruleanCave" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(31424, -320)
+target_map = "res://scenes/world/maps/CeruleanCave_F1.tscn"
+spawn_tile = Vector2i(9, 1)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpCeruleanCave"]
+shape = SubResource("Shape_ceruleancave")
 
 [node name="WarpPokemonTower" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(53312, 10432)
