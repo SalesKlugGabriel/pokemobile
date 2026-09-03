@@ -126,15 +126,16 @@ func initialize(new_species_id: int, new_level: int, new_behavior: String = "agg
 	behavior    = new_behavior
 	zone_id     = new_zone_id
 
-## Achado (mesma causa do Pokémon companheiro): sem isto, o Pokémon selvagem
-## nunca tinha sprite nenhum — existia, se movia e reagia, mas era 100%
-## invisível no mapa. A escala 2x evita o outro problema já visto: a região
-## do spritesheet é só 16×16, quase invisível do lado do jogador.
+## Achado (02/09, revisão de escala): a arte real (32px nativos, mesmo
+## tamanho do tile) NÃO precisa de escala nenhuma — o 2x era resquício de
+## quando a sprite era só um placeholder minúsculo de 16×16 dentro de um
+## quadro maior. Deixado em 2x por engano na sessão da troca de arte, o
+## Pokémon saía literalmente do dobro do tamanho de uma árvore/tile.
 func _load_sprite() -> void:
 	if sprite and not sprite.sprite_frames:
 		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(species_id, is_shiny)
 		sprite.play("idle")
-		sprite.scale = Vector2(2.0, 2.0)
+		sprite.scale = Vector2(1.0, 1.0)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Seleção de alvo + HP/nível visível (motor de combate em tempo real, 02/09)

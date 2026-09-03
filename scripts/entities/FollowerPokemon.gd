@@ -90,11 +90,11 @@ func _load_sprite() -> void:
 	if sprite and not sprite.sprite_frames:
 		sprite.sprite_frames = SpriteBuilder.build_pokemon_frames(pokemon_species_id, pokemon_is_shiny)
 		sprite.play("idle")
-		# Sprites de Pokémon usam a mesma região 16×16 do jogador, mas ficam quase
-		# vazios dentro desse quadro — sem isto, o Pokémon fica praticamente
-		# invisível do lado do Treinador (achado: "sprite" existe e é desenhado,
-		# só é minúsculo demais pra notar a olho nu).
-		sprite.scale = Vector2(2.0, 2.0)
+		# Achado (02/09, revisão de escala): a arte real (32px nativos, mesmo
+		# tamanho do tile) não precisa de escala — o 2x era resquício de quando
+		# a sprite era só um placeholder de 16×16. Deixado em 2x por engano na
+		# sessão da troca de arte, o Follower saía do dobro do tamanho do tile.
+		sprite.scale = Vector2(1.0, 1.0)
 
 func _load_species_data() -> void:
 	species_data = GameData.get_species(pokemon_species_id)

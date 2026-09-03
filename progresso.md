@@ -9,6 +9,48 @@
 
 ---
 
+## Escala Pokémon×árvore corrigida + troca pra Geração 5 (mais detalhe) (2026-09-02, sessão seguinte 4)
+
+**Gabriel jogou, mandou print de referência de um jogo com sprites pintadas/detalhadas, e apontou:
+"os pokemons estão maiores do que as árvores".**
+
+**Escala — bug real, corrigido.** Conferido no `overworld.tres`: tile do jogo é 32×32, e o
+Treinador/NPC renderizam nesse tamanho exato (sprite nativa 16px × escala 2 = 32px). Os Pokémon em
+combate (`WildPokemon.gd`/`FollowerPokemon.gd`), porém, ainda estavam com escala 2× herdada da
+sessão anterior (pensada pra quando a arte real tinha acabado de ficar 2× maior que o placeholder
+velho) — só que a arte real já ocupa o tile inteiro, então o certo era escala 1×, não 2×. Resultado
+do bug: Pokémon renderizando literalmente no dobro do tamanho de uma árvore/tile. Corrigido nos 2
+arquivos.
+
+**Estilo pintado do print → avaliado e não é viável direto.** É um nível de produção bem além do
+que dá pra baixar pronto (nossos sprites de Game Boy são propositalmente blocados). Perguntei ao
+Gabriel como priorizar — ele escolheu a opção do meio: continuar sem gerar por IA (evita custo e
+risco de inconsistência entre as 151 espécies), mas trocar pra uma geração de sprite bem mais
+detalhada que ainda existe pronta e de graça no mesmo repositório já usado (PokeAPI/sprites).
+
+**Fonte trocada: Red/Blue (Geração 1) → Black/White (Geração 5).** Mesmo pipeline
+(`build_pokemon_sprites.py`), só a URL base mudou. Achado que simplificou o código: a Geração 5 já
+vem com **transparência de verdade** (paleta com índice transparente — conferido em 8 espécies
+variadas, todo canto da imagem nasce com alfa 0), ao contrário da Red/Blue que usava fundo branco
+sólido e por isso precisava do flood-fill da sessão anterior. Também achado: a Geração 5 tem
+**paleta shiny oficial de verdade** (`shiny/{id}.png`) — trocado o hue-shift caseiro por ela nas 151
+espécies (a rotação de matiz fica só de salvaguarda pra id sem shiny oficial, o que não aconteceu
+nenhuma vez).
+
+**Resultado:** sprites 3× mais detalhadas (96×96 nativos, sombreado real, contorno mais limpo),
+ainda pixel art (não é o estilo pintado do print, mas uma melhora grande e sem custo). Testado: as
+151 espécies regeneradas, suíte completa (48 arquivos, 0 falhas), navegador real confirmando
+tamanho correto (Pokémon agora do tamanho de 1 tile, igual ao Treinador) e a arte nova sem buracos.
+
+**Pendente/decisão do Gabriel:** diversidade de tiles (mais variedade de piso/arbusto/árvore) tem
+plano já escrito em `docs/tileset-referencia-visual.md` desde 01/09-02/09 (referência com ~40
+tiles, 2 tentativas de geração por IA já arquivadas em `docs/referencias/`), esperando virar foco —
+ainda não retomado nesta entrada. Estilo "pintado" pros Pokémon fica registrado como opção futura
+(exigiria prototipar 3-5 espécies por IA antes de decidir se vale fazer as 151, custo real por
+imagem).
+
+---
+
 ## Refinamento das 151 sprites — fecha buracos + sensação de movimento (2026-09-02, sessão seguinte 3)
 
 **Gabriel jogou e pediu: "as sprites ficaram identificáveis, mas (...) fechar os buracos e ajustar

@@ -1,41 +1,46 @@
 #!/usr/bin/env python3
 """Monta as sprites dos 151 Pokémon (4 direções + shiny) a partir das sprites
-REAIS da Geração 1 (Red/Blue), baixadas do repositório público e gratuito
-PokeAPI/sprites (GitHub) — sem depender de geração por IA, sem cota.
+REAIS de batalha, baixadas do repositório público e gratuito PokeAPI/sprites
+(GitHub) — sem depender de geração por IA, sem cota.
 
 Pedido do Gabriel (02/09): "pegar as imagens disponíveis e usar" em vez de
 gerar — projeto pessoal, sem distribuição/venda, uso comum em fã-jogos.
 
 Refinamento (02/09, mesmo dia — Gabriel jogou e pediu pra "fechar os
 buracos" e fazer parecer "que está em movimentação"):
-1. **Buracos**: a 1ª versão removia fundo branco por LIMIAR NO PIXEL
-   INTEIRO (qualquer pixel ~branco virava transparente, onde estivesse).
-   Conferido pixel a pixel no Pikachu: 281 de 1600 pixels (17,6%) eram
-   "ilhas" transparentes DENTRO do contorno do Pokémon (brilho do corpo,
-   reflexo do olho) — nada a ver com o fundo de verdade. Ao reduzir de
-   ~40px pra 32px (tile do jogo), essas ilhas viravam buracos visíveis
-   ("suíço"). Corrigido com **flood fill a partir da borda da imagem**:
-   só vira transparente o branco que está CONECTADO ao fundo de verdade
-   (alcançável a partir da moldura externa); brilho/reflexo branco preso
-   dentro do contorno preto do desenho fica intacto, porque não toca a
-   borda.
-2. **Posição/sensação de movimento**: (a) a sprite entrava centralizada
-   verticalmente no quadro de 32×32 — como cada pose baixada tem altura
-   diferente, o "chão" (pé) de cada Pokémon caía numa altura diferente
-   dentro do quadro, fazendo parecer flutuar de forma inconsistente entre
-   direções. Corrigido alinhando pelo **rodapé** (só sobra espaço em
-   cima), igual o resto do jogo já assume pro chão da entidade. (b) as
-   sprites de batalha da Red/Blue são só 1 pose parada (sem quadro de
-   "andando" de verdade) — sem diferença nenhuma entre as 3 colunas do
-   sheet, o Pokémon nunca parecia se mexer. Criado um "bob" de 1px pra
-   cima/baixo entre as colunas 2 e 3 (mesmo truque clássico dos jogos
-   Pokémon originais pro sprite do Pokémon seguindo o treinador no mapa),
-   dando a sensação de passo mesmo sem arte de perna nova.
+1. **Buracos**: a 1ª versão (fonte Red/Blue) removia fundo branco por
+   LIMIAR NO PIXEL INTEIRO (qualquer pixel ~branco virava transparente,
+   onde estivesse). Conferido pixel a pixel no Pikachu: 281 de 1600
+   pixels (17,6%) eram "ilhas" transparentes DENTRO do contorno do
+   Pokémon (brilho do corpo, reflexo do olho) — nada a ver com o fundo de
+   verdade. Corrigido então com flood fill a partir da borda da imagem.
+2. **Posição/sensação de movimento**: (a) alinhamento pelo RODAPÉ em vez
+   de centralizado verticalmente — o "pé" de cada pose (alturas
+   diferentes) sempre cai na mesma linha do quadro. (b) "bob" de 1px
+   entre as colunas walk_a/walk_b (mesmo truque clássico dos jogos
+   Pokémon originais pro sprite do companheiro seguindo no mapa), já que
+   a arte de batalha não tem quadro de "andando" de verdade.
+
+Troca de geração (02/09, mesmo dia — Gabriel mandou print de referência
+querendo mais detalhe): a fonte virou **Geração 5 (Black/White)** em vez
+de Red/Blue — mesmo repositório gratuito, mesma ideia, só um "conjunto"
+mais detalhado (96×96 nativos, sombreado de verdade, contorno mais limpo
+— ainda pixel art, não é o estilo "pintado" do print, mas uma melhora
+grande e sem custo). Achado que SIMPLIFICOU o pipeline: a Geração 5 já
+vem com **transparência de verdade** (paleta com índice transparente,
+confirmado em 8 espécies variadas — todo canto da imagem já nasce com
+alfa 0), diferente da Red/Blue que usava fundo branco sólido. Por isso a
+etapa de remoção de fundo (`remove_white_bg`) não é mais necessária —
+mantida no arquivo só como salvaguarda (roda sempre, mas não deve
+encontrar nada pra apagar nesta fonte).
 
 Formato de saída (mesmo layout 4-direções já usado pro Treinador/NPC,
 SpriteBuilder.build_entity_frames): 96×128 (3 colunas × 32px, 4 linhas ×
-32px) — tile 32, não 16, porque a arte baixada (32-40px) já é grande demais
-pra caber sem virar ruído em 16px (mesmo achado da sprite da Bicicleta).
+32px) — tile 32, não 16, porque a arte baixada já é grande demais pra
+caber sem virar ruído em 16px (mesmo achado da sprite da Bicicleta), e
+32 é o tamanho do tile do jogo (Treinador/árvore/tudo mais) — Pokémon
+maior que isso voltaria a ficar desproporcional (achado do Gabriel,
+02/09: "os pokemons estão maiores do que as árvores").
 
 Mapeamento de direção (sem sprite de perfil real disponível — batalha só
 tem frente/costas):
@@ -45,9 +50,10 @@ tem frente/costas):
   linha 3 (right)= front_default espelhado horizontalmente (pelo menos
                    diferente de "left", não é perfil de verdade)
 
-Shiny: gerado por rotação de matiz (HSV +100°) em cima do sprite normal —
-não existe "shiny" oficial pra Red/Blue (o conceito é da Geração 2), então
-esta é uma aproximação nossa, não uma paleta oficial.
+Shiny: a Geração 5 TEM variante shiny oficial de verdade
+(`shiny/{id}.png`) — usada em vez da aproximação por rotação de matiz da
+versão Red/Blue (`shiny_variant()` fica só de salvaguarda pra id sem
+shiny oficial disponível, o que não deveria acontecer nas 151 espécies).
 """
 import io
 import sys
@@ -59,7 +65,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = ROOT / "assets" / "sprites" / "pokemon"
-BASE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue"
+BASE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white"
 
 TILE = 32
 SHEET_W = TILE * 3
@@ -190,8 +196,19 @@ def process_species(species_id: int) -> bool:
     normal_sheet = build_sheet(front, back)
     normal_sheet.save(OUT_DIR / f"mon_{species_id:03d}.png")
 
-    shiny_front = shiny_variant(front)
-    shiny_back = shiny_variant(back)
+    # Geração 5 tem paleta shiny oficial de verdade — só cai pra aproximação
+    # por rotação de matiz se por algum motivo faltar (não deveria acontecer
+    # nas 151 espécies, conferido antes de trocar a fonte).
+    shiny_front_raw = fetch(f"{BASE_URL}/shiny/{species_id}.png")
+    shiny_back_raw = fetch(f"{BASE_URL}/back/shiny/{species_id}.png")
+    if shiny_front_raw is not None and shiny_back_raw is not None:
+        shiny_front = remove_white_bg(shiny_front_raw)
+        shiny_back = remove_white_bg(shiny_back_raw)
+    else:
+        print(f"  id {species_id}: sem shiny oficial, usando aproximação por matiz")
+        shiny_front = shiny_variant(front)
+        shiny_back = shiny_variant(back)
+
     shiny_sheet = build_sheet(shiny_front, shiny_back)
     shiny_sheet.save(OUT_DIR / f"mon_{species_id:03d}_shiny.png")
     return True
