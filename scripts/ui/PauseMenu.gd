@@ -360,6 +360,12 @@ func _on_picker_target(index: int) -> void:
 			_open_move_replace_picker(index)
 	elif _pending_action == "vitamin":
 		var item := GameData.get_item(_pending_item_id)
+		# PP Up (03/09) precisa de um segundo pick (QUAL golpe), diferente das
+		# outras vitaminas — sai cedo antes de fechar a Mochila.
+		if item.get("effect", "") == "pp_up":
+			_pending_target = index
+			_open_pp_move_picker(index)
+			return
 		var usou := false
 		if item.get("effect", "") == "level_up":
 			usou = SaveManager.use_rare_candy(index)
@@ -422,6 +428,53 @@ func _teach_and_finish(index: int, slot: int) -> void:
 			SaveManager.remove_item(_pending_item_id, 1)
 		SaveManager.save_game()
 		label_info.text = "Aprendeu %s!" % GameData.get_move(move_id).get("name", move_id)
+	_close_bag_flow()
+
+## PP Up (03/09): igual _open_move_replace_picker, mas escolher um golpe aqui
+## não descarta nada — só decide QUAL golpe recebe o PP a mais.
+func _open_pp_move_picker(index: int) -> void:
+	_free_picker()
+	var pc := PanelContainer.new()
+	pc.process_mode  = Node.PROCESS_MODE_ALWAYS
+	pc.anchor_left   = 0.28
+	pc.anchor_top    = 0.15
+	pc.anchor_right  = 0.72
+	pc.anchor_bottom = 0.85
+	add_child(pc)
+	_picker = pc
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	pc.add_child(vbox)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "Aumentar o PP máximo de qual golpe?"
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_font_size_override("font_size", 15)
+	vbox.add_child(title_lbl)
+
+	var team := SaveManager.get_team()
+	var moves : Array = team[index].get("moves", [])
+	for i in moves.size():
+		var move_name : String = GameData.get_move(moves[i].get("id", "")).get("name", "???")
+		var btn := Button.new()
+		btn.text = "%s (PP %d)" % [move_name, int(moves[i].get("pp_max", 0))]
+		var slot := i
+		btn.pressed.connect(func(): _apply_pp_up_and_finish(index, slot))
+		vbox.add_child(btn)
+
+	var cancel := Button.new()
+	cancel.text = "Cancelar"
+	cancel.pressed.connect(func(): _close_bag_flow())
+	vbox.add_child(cancel)
+
+func _apply_pp_up_and_finish(index: int, slot: int) -> void:
+	if SaveManager.apply_pp_up(index, slot):
+		SaveManager.remove_item(_pending_item_id, 1)
+		SaveManager.save_game()
+		label_info.text = "PP máximo aumentou!"
+	else:
+		label_info.text = "Esse golpe já está no limite de PP Up."
 	_close_bag_flow()
 
 func _on_help() -> void:

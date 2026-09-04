@@ -262,6 +262,10 @@
         {
           "id": "pokeradar",
           "quantity": 1
+        },
+        {
+          "id": "exp_share",
+          "quantity": 1
         }
       ]
     },
@@ -272,7 +276,7 @@
       "MAIN-09",
       "GYM-08"
     ],
-    "_ajuste_editorial": "'rescue' não tem handler -- virou 'talk' com o Carvalho preso (dialog_id carvalho_resgate) dentro do Quartel General. 'infiltrate' e 'defeat' já tinham handler (infiltrate reaproveita reach_zone/zone_changed; defeat já era usado em toda batalha de treinador)."
+    "_ajuste_editorial": "'rescue' não tem handler -- virou 'talk' com o Carvalho preso (dialog_id carvalho_resgate) dentro do Quartel General. 'infiltrate' e 'defeat' já tinham handler (infiltrate reaproveita reach_zone/zone_changed; defeat já era usado em toda batalha de treinador). Reward exp_share adicionado (03/09, revisão de lore/balanceamento) -- mesmo Carvalho resgatado, agora tambem entrega o Repartidor de EXP (mecanica nova: reparte XP com o time inteiro), ao lado do Pokeradar ja concedido aqui."
   },
   "MAIN-09": {
     "id": "MAIN-09",

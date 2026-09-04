@@ -1053,7 +1053,7 @@ func _end_battle(result: String) -> void:
 				var base_exp  : int = _get_base_exp(enemy_pokemon.species_id)
 				var exp_gained: int = maxi(1, roundi(base_exp * enemy_pokemon.level / 7.0))
 				var old_level : int = player_pokemon.level
-				var new_level : int = SaveManager.add_exp_to_pokemon(_player_save_index, exp_gained)
+				var new_level : int = SaveManager.add_exp_with_share(_player_save_index, exp_gained)
 				battle_scene.show_message("Você venceu!")
 				battle_scene.show_message("%s ganhou %d EXP!" % [player_pokemon.species_name, exp_gained])
 				# Bestiary (Fase 1 do Diário) — só selvagem conta como "presença

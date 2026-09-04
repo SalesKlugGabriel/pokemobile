@@ -42,7 +42,7 @@ func _grant_exp_and_signal(species_id: int, level: int, species_name: String, is
 
 	var base_exp   : int = BattleManager._get_base_exp(species_id)
 	var exp_gained : int = maxi(1, roundi(base_exp * level / 7.0))
-	var new_level  : int = SaveManager.add_exp_to_pokemon(player_save_index, exp_gained)
+	var new_level  : int = SaveManager.add_exp_with_share(player_save_index, exp_gained)
 
 	var result_dict := {
 		"result":             "win",

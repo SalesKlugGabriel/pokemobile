@@ -191,6 +191,48 @@ func _process(_delta: float) -> bool:
 	_assert(not SaveManager.has_title("guardiao_da_fratura"), "capture_mewtwo: NÃO ganha o título do outro ramo (save novo)")
 	_assert(SaveManager.get_final_choice() == "capture_mewtwo", "get_final_choice() reflete a escolha feita (ramo B)")
 
+	# ---- 10. Repartidor de EXP: só o líder ganhava EXP, agora reparte com o time ----
+	SaveManager.new_game("TesteLoreBalance3", 1)
+	SaveManager.gift_pokemon_by_name("charmander", 5)  # vira índice 1
+	var exp_p0_antes := int(SaveManager.get_pokemon_at(0).get("exp", 0))  # nível 5 já nasce com EXP > 0
+	var exp_p1_antes := int(SaveManager.get_pokemon_at(1).get("exp", 0))
+	SaveManager.add_exp_with_share(0, 100)  # sem exp_share: só o índice 0 ganha
+	_assert(int(SaveManager.get_pokemon_at(0).get("exp", 0)) == exp_p0_antes + 100, "sem Repartidor: quem lutou ganha o EXP normal")
+	_assert(int(SaveManager.get_pokemon_at(1).get("exp", 0)) == exp_p1_antes, "sem Repartidor: o resto do time NÃO ganha nada")
+
+	SaveManager.add_item("exp_share", 1)
+	SaveManager.add_exp_with_share(0, 50)
+	_assert(int(SaveManager.get_pokemon_at(0).get("exp", 0)) == exp_p0_antes + 150, "com Repartidor: quem lutou continua ganhando normal")
+	_assert(int(SaveManager.get_pokemon_at(1).get("exp", 0)) == exp_p1_antes + 50, "com Repartidor: o resto do time ganha a MESMA quantia")
+
+	# Pokémon desmaiado (HP 0) fica de fora do reparte
+	var p1 : Dictionary = SaveManager.get_pokemon_at(1)
+	p1["hp_current"] = 0
+	SaveManager.save_data["team"][1] = p1
+	var exp_p1_desmaiado := int(SaveManager.get_pokemon_at(1).get("exp", 0))
+	SaveManager.add_exp_with_share(0, 50)
+	_assert(int(SaveManager.get_pokemon_at(1).get("exp", 0)) == exp_p1_desmaiado, "com Repartidor: Pokémon desmaiado (HP 0) NÃO ganha EXP")
+
+	# ---- 11. PP Up: +1/5 do PP base por uso, até 3 usos (teto de +60%) ----
+	var move_id_teste : String = str(SaveManager.get_pokemon_at(0).get("moves", [])[0].get("id", ""))
+	var pp_base : int = int(GameData.get_move(move_id_teste).get("pp", 10))
+	var incremento_esperado : int = maxi(1, pp_base / 5)
+	_assert(SaveManager.apply_pp_up(0, 0), "1º PP Up funciona")
+	_assert(int(SaveManager.get_pokemon_at(0).get("moves", [])[0].get("pp_max", 0)) == pp_base + incremento_esperado,
+		"1º PP Up soma exatamente 1/5 do PP base")
+	SaveManager.apply_pp_up(0, 0)
+	SaveManager.apply_pp_up(0, 0)
+	_assert(int(SaveManager.get_pokemon_at(0).get("moves", [])[0].get("pp_max", 0)) == pp_base + incremento_esperado * 3,
+		"depois de 3 usos, PP máximo é base + 3x o incremento (teto de +60%)")
+	_assert(not SaveManager.apply_pp_up(0, 0), "4º uso não faz mais nada (já no teto de 3 usos)")
+
+	# ---- 12. Caçador de Shinies: conquista nova, própria (não reaproveita ID sobrescrito) ----
+	_assert(not SaveManager.has_title("cacador_de_shinies"), "sem título antes de capturar shiny nenhum")
+	EventBus.capture_success.emit({"species_id": 25, "level": 10, "is_shiny": false})
+	_assert(not SaveManager.has_title("cacador_de_shinies"), "capturar um Pokémon NÃO shiny não concede o título")
+	EventBus.capture_success.emit({"species_id": 25, "level": 10, "is_shiny": true})
+	_assert(SaveManager.has_title("cacador_de_shinies"), "capturar um shiny de verdade concede 'Caçador de Shinies'")
+
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	quit(1 if _fail > 0 else 0)
 	return true

@@ -229,6 +229,13 @@ func _get_objective_required(objective: Dictionary) -> int:
 
 func _on_capture_success(pokemon_data: Dictionary) -> void:
 	var species_id: int = int(pokemon_data.get("species_id", 0))
+	# Caçador de Shinies (03/09): a conquista de shiny do master doc original
+	# tinha sido sobrescrita por engano por outra quest reusando o mesmo ID
+	# (COLETOR-05 virou "Quase Lendário") — em vez de reaproveitar um ID já
+	# usado, esta é uma conquista NOVA e própria, concedida na hora, sem
+	# depender de nenhuma quest estar ativa.
+	if pokemon_data.get("is_shiny", false):
+		SaveManager.unlock_title("cacador_de_shinies")
 	for quest_id in _active_quests.keys():
 		var quest_data: Dictionary = _all_quests.get(quest_id, {})
 		var objectives: Array = quest_data.get("objectives", [])

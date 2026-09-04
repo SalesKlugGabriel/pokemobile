@@ -60,6 +60,7 @@
   "calcium":         {"id":"calcium",         "name":"Calcium",          "category":"vitamin",    "ev_stat":"sp_atk",  "ev_amount":10, "price":9800, "description":"Raises Sp. Atk EVs."},
   "zinc":            {"id":"zinc",            "name":"Zinc",             "category":"vitamin",    "ev_stat":"sp_def",  "ev_amount":10, "price":9800, "description":"Raises Sp. Def EVs."},
   "rare_candy":      {"id":"rare_candy",      "name":"Rare Candy",       "category":"vitamin",    "effect":"level_up", "price":0,    "description":"Raises level by 1."},
+  "pp_up":           {"id":"pp_up",           "name":"PP Up",            "category":"vitamin",    "effect":"pp_up",   "price":9800, "description":"Aumenta o PP máximo de um golpe em 1/5 do valor base. Até 3 usos por golpe."},
 
   "tm01": {"id":"tm01", "name":"MT01 Corte Duplo",   "category":"tm_hm", "teaches":"swords_dance", "price":1000, "single_use":true, "description":"Ensina Corte Duplo (aumenta o próprio Ataque)."},
   "tm02": {"id":"tm02", "name":"MT02 Terremoto",     "category":"tm_hm", "teaches":"earthquake",   "price":3000, "single_use":true, "description":"Ensina Terremoto (Terra, dano forte)."},
@@ -115,5 +116,7 @@
 
   "pokeradar": {"id":"pokeradar", "name":"Pokéradar", "category":"key", "price":0, "description":"Detecta padrões estatísticos raros em populações selvagens — na prática, aumenta bastante a chance de encontrar um Pokémon shiny enquanto estiver com você."},
   "pokeradar_advanced": {"id":"pokeradar_advanced", "name":"Pokéradar Avançado", "category":"key", "price":0, "description":"Versão recalibrada do Pokéradar, a partir de dados de centenas de encontros. Aumenta a chance de Pokémon shiny ainda mais que o modelo comum."},
-  "premium_pokeball": {"id":"premium_pokeball", "name":"Poké Bola Premium", "category":"ball", "catch_rate_mult":2.5, "price":0, "description":"Uma pokébola de coleção, forjada só pra quem já provou ser um treinador dedicado. Chance de captura bem acima da Great Ball."}
+  "premium_pokeball": {"id":"premium_pokeball", "name":"Poké Bola Premium", "category":"ball", "catch_rate_mult":2.5, "price":0, "description":"Uma pokébola de coleção, forjada só pra quem já provou ser um treinador dedicado. Chance de captura bem acima da Great Ball."},
+
+  "exp_share": {"id":"exp_share", "name":"Repartidor de EXP", "category":"key", "price":0, "description":"Um dispositivo que reparte a experiência de cada vitória com todo o time (não só com quem lutou), enquanto estiver na sua mochila."}
 }

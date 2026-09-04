@@ -588,6 +588,53 @@ func use_rare_candy(index: int) -> bool:
 	add_exp_to_pokemon(index, maxi(1, faltando))
 	return true
 
+## Repartidor de EXP (03/09) — achado ao revisar a lore/balanceamento: só o
+## Pokémon no índice 0 (o líder/ativo) jamais ganhava EXP de batalha nenhuma;
+## upar o time inteiro exigia trocar de líder e repetir a mesma luta várias
+## vezes. Possuir "exp_share" faz o resto do time (vivo, HP > 0) ganhar a
+## MESMA quantia de EXP do vencedor, sem dividir — decisão de simplicidade,
+## igual jogo moderno, não a versão antiga que divide entre os dois. Devolve
+## o novo nível de quem lutou (`active_index`), igual add_exp_to_pokemon().
+func add_exp_with_share(active_index: int, exp_gained: int) -> int:
+	var new_level : int = add_exp_to_pokemon(active_index, exp_gained)
+	if has_item("exp_share", 1):
+		var team: Array = save_data["team"]
+		for i in team.size():
+			if i == active_index:
+				continue
+			if int(team[i].get("hp_current", 0)) > 0:
+				add_exp_to_pokemon(i, exp_gained)
+	return new_level
+
+## PP Up (03/09) — mesma classe de item "vitamina" que só existia no jogo
+## como conceito, nunca lido em código nenhum. Cada uso soma 1/5 do PP BASE
+## do golpe (não do PP já aumentado — evita crescimento composto/infinito),
+## até 3 usos por golpe (teto de +60% sobre o base), igual jogo real.
+func apply_pp_up(index: int, move_slot: int) -> bool:
+	var team: Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return false
+	var poke  : Dictionary = team[index]
+	var moves : Array      = poke.get("moves", [])
+	if move_slot < 0 or move_slot >= moves.size():
+		return false
+	var move_entry : Dictionary = moves[move_slot]
+	var base_pp : int = int(GameData.get_move(str(move_entry.get("id", ""))).get("pp", 10))
+	var incremento : int = maxi(1, base_pp / 5)
+	var teto : int = base_pp + incremento * 3
+	var atual_max : int = int(move_entry.get("pp_max", base_pp))
+	if atual_max >= teto:
+		return false
+	var novo_max : int = mini(teto, atual_max + incremento)
+	var ganho    : int = novo_max - atual_max
+	move_entry["pp_max"]     = novo_max
+	move_entry["pp_current"] = int(move_entry.get("pp_current", atual_max)) + ganho
+	moves[move_slot] = move_entry
+	poke["moves"] = moves
+	team[index] = poke
+	save_game()
+	return true
+
 # ──────────────────────────────────────────────────────────────────────────────
 # HELPERS — DIÁRIOS (lore da Fratura) e A ESCOLHA FINAL (MAIN-11, 03/09)
 # ──────────────────────────────────────────────────────────────────────────────
