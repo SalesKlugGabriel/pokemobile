@@ -33,7 +33,8 @@ var save_data: Dictionary = {
 		"last_pokemon_center": "world_map",
 		"visited_maps": [],
 		"defeated_alphas": [],
-		"alpha_respawn_timers": {}
+		"alpha_respawn_timers": {},
+		"defeated_trainers": []
 	},
 	"final_choice": "",
 	"rng_seed": 0
@@ -124,6 +125,7 @@ func new_game(trainer_name: String, starter_species_id: int) -> void:
 	save_data["world"]["visited_maps"]         = []
 	save_data["world"]["defeated_alphas"]      = []
 	save_data["world"]["alpha_respawn_timers"] = {}
+	save_data["world"]["defeated_trainers"]    = []
 	save_data["final_choice"] = ""
 	save_data["rng_seed"]     = randi()
 
@@ -386,6 +388,21 @@ func add_pokemon(pokemon_data: Dictionary) -> String:
 func add_pokemon_to_party(pokemon_data: Dictionary) -> String:
 	return add_pokemon(pokemon_data)
 
+## Presente de missão dado por NOME de espécie (quests.json guarda
+## {"id":"eevee","level":30} — mais legível que species_id cru). Achado ao
+## fechar a lore da Fratura (03/09): QuestManager._give_rewards() passava
+## esse dict CRU direto pra add_pokemon(), sem NENHUMA conversão — o
+## "Pokémon" resultante não tinha species_id/ivs/moves/hp_max, um registro
+## quebrado que nunca teria funcionado em batalha nem exibido certo em tela
+## nenhuma. Reaproveita o MESMO _make_pokemon_data() que já cria o inicial
+## do jogo, pra nunca ter um segundo jeito (divergente) de montar Pokémon.
+func gift_pokemon_by_name(species_name: String, level: int) -> String:
+	var species_id := GameData.get_species_id_by_name(species_name)
+	if species_id <= 0:
+		push_warning("SaveManager.gift_pokemon_by_name: espécie '%s' não encontrada" % species_name)
+		return ""
+	return add_pokemon(_make_pokemon_data(species_id, maxi(1, level)))
+
 # ──────────────────────────────────────────────────────────────────────────────
 # HELPERS — INVENTÁRIO
 # ──────────────────────────────────────────────────────────────────────────────
@@ -496,6 +513,129 @@ func unlock_title(title: String) -> void:
 
 func has_title(title: String) -> bool:
 	return title in save_data.get("titles", [])
+
+# ──────────────────────────────────────────────────────────────────────────────
+# HELPERS — TREINADORES DERROTADOS (03/09, revisão de lore/balanceamento)
+# ──────────────────────────────────────────────────────────────────────────────
+## Achado grave ao planejar uma economia de nível de verdade: `trainer_
+## defeated` (NpcEntity.gd) era uma variável só em memória, nunca salva —
+## toda troca de mapa recria a cena (e o NPC) do zero, resetando pra false.
+## Isso deixava QUALQUER treinador do jogo (líderes de ginásio, Elite Four,
+## Campeão inclusive) re-lutável infinitas vezes só saindo e voltando na
+## sala — o suficiente pra farmar Lance em loop e zerar qualquer meta de
+## horas de jogo. `trainer_id` vem de NpcEntity._trainer_save_id()
+## (map_id + nome do nó, sempre único, sem precisar editar nenhuma cena).
+func mark_trainer_defeated(trainer_id: String) -> void:
+	if trainer_id.is_empty() or trainer_id in save_data["world"]["defeated_trainers"]:
+		return
+	save_data["world"]["defeated_trainers"].append(trainer_id)
+	save_game()
+
+func is_trainer_defeated(trainer_id: String) -> bool:
+	return trainer_id in save_data["world"].get("defeated_trainers", [])
+
+# ──────────────────────────────────────────────────────────────────────────────
+# HELPERS — "BOOSTAR" POKÉMON: vitaminas (EVs) e Doce Raro (03/09)
+# ──────────────────────────────────────────────────────────────────────────────
+## items.json usa nomes de stat em inglês por extenso ("attack","sp_atk"...)
+## nos vitamin — mas o dicionário `evs` de cada Pokémon usa as chaves curtas
+## já padronizadas no resto do jogo (mesma classe de bug já corrigida
+## outras vezes neste projeto: "attack" vs "atk"). Traduz aqui, uma vez só.
+const EV_STAT_KEY_MAP : Dictionary = {
+	"hp": "hp", "attack": "atk", "defense": "def",
+	"speed": "spe", "sp_atk": "spa", "sp_def": "spd",
+}
+const EV_CAP_PER_STAT : int = 252   # mesmo teto por stat do jogo real
+
+## Achado: os itens de categoria "vitamin" (HP Up, Protein, Ferro, Carbos,
+## Cálcio — e o Zinco que faltava, adicionado junto) já existiam com os
+## campos `ev_stat`/`ev_amount`, e cada Pokémon já tinha um dicionário
+## `evs` de verdade (lido no cálculo de stat, `BattlePokemon.gd`) — só
+## NUNCA existia nenhum código que de fato incrementasse esse dicionário.
+## Usar uma vitamina não fazia literalmente nada, em lugar nenhum do jogo.
+func apply_ev_vitamin(index: int, ev_stat_raw: String, amount: int) -> bool:
+	var team: Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return false
+	var key : String = EV_STAT_KEY_MAP.get(ev_stat_raw, "")
+	if key.is_empty():
+		return false
+	var poke : Dictionary = team[index]
+	var evs : Dictionary = poke.get("evs", {})
+	var atual : int = int(evs.get(key, 0))
+	if atual >= EV_CAP_PER_STAT:
+		return false
+	evs[key] = mini(EV_CAP_PER_STAT, atual + amount)
+	poke["evs"] = evs
+	team[index] = poke
+	save_game()
+	return true
+
+## Doce Raro: sobe exatamente 1 nível, reaproveitando o MESMO cálculo de EXP
+## cumulativo (n³) de add_exp_to_pokemon() — sem fórmula duplicada. Também
+## era um item de categoria "vitamin" (`effect:"level_up"`) nunca lido em
+## lugar nenhum, igual as outras vitaminas.
+func use_rare_candy(index: int) -> bool:
+	var team: Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return false
+	var poke : Dictionary = team[index]
+	var lv : int = int(poke.get("level", 1))
+	if lv >= 100:
+		return false
+	var needed : int = (lv + 1) * (lv + 1) * (lv + 1)
+	var faltando : int = needed - int(poke.get("exp", 0))
+	add_exp_to_pokemon(index, maxi(1, faltando))
+	return true
+
+# ──────────────────────────────────────────────────────────────────────────────
+# HELPERS — DIÁRIOS (lore da Fratura) e A ESCOLHA FINAL (MAIN-11, 03/09)
+# ──────────────────────────────────────────────────────────────────────────────
+## As 6 páginas de diário (diario_1..6) já eram dadas como recompensa de
+## MAIN-02..07, mas o campo `save_data["diaries"]` que existia pra rastrear
+## quais o jogador já tem nunca era escrito em lugar nenhum — puro
+## reaproveitamento de um campo que já estava certo, só esquecido.
+func add_diary(diary_id: String) -> void:
+	if diary_id.is_empty() or diary_id in save_data["diaries"]:
+		return
+	save_data["diaries"].append(diary_id)
+	save_game()
+
+func get_diaries() -> Array:
+	return save_data.get("diaries", [])
+
+## Resolve MAIN-11 ("A Escolha") de verdade — a ramificação narrativa da
+## Fratura nunca tinha handler nenhum no motor (tipo de objetivo "choice" e
+## chave de recompensa "world_state" eram só texto morto em quests.json).
+## "seal_fracture": fecha a Fratura pra sempre — Mewtwo, sendo uma criatura
+## nascida da energia dela, se desfaz junto (removido da coleção do
+## jogador, mesmo que já tenha sido capturado). "capture_mewtwo": o jogador
+## fica com o Mewtwo, a Fratura continua aberta. Os dois títulos são
+## mutuamente exclusivos por design — refletem escolhas opostas, não dá
+## pra ganhar os dois na mesma partida.
+func resolve_main11_choice(option: String) -> void:
+	save_data["final_choice"] = option
+	if option == "seal_fracture":
+		_remove_first_pokemon_by_species(150)
+		unlock_title("guardiao_da_fratura")
+	elif option == "capture_mewtwo":
+		unlock_title("domador_de_mewtwo")
+	save_game()
+
+func get_final_choice() -> String:
+	return save_data.get("final_choice", "")
+
+func _remove_first_pokemon_by_species(species_id: int) -> void:
+	var team : Array = save_data["team"]
+	for i in team.size():
+		if int(team[i].get("species_id", -1)) == species_id:
+			team.remove_at(i)
+			return
+	var pc : Array = save_data["pc"]
+	for i in pc.size():
+		if int(pc[i].get("species_id", -1)) == species_id:
+			pc.remove_at(i)
+			return
 
 # ──────────────────────────────────────────────────────────────────────────────
 # HELPERS — QUESTS (progresso persistido; QuestManager é o dono da lógica)

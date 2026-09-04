@@ -51,7 +51,7 @@ npc_name = "Lorelei"
 dialog_id = "lorelei_e4"
 starts_quest_id = "ELITE4-01"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 87, "level": 54}, {"species_id": 91, "level": 55}, {"species_id": 80, "level": 54}, {"species_id": 124, "level": 56}, {"species_id": 131, "level": 58}])
+trainer_team = Array[Dictionary]([{"species_id": 87, "level": 100}, {"species_id": 91, "level": 100}, {"species_id": 80, "level": 100}, {"species_id": 124, "level": 100}, {"species_id": 131, "level": 100}])
 is_patrolling = false
 
 [node name="ZoneManager" type="Node" parent="."]

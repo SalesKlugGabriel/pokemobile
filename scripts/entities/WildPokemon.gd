@@ -260,12 +260,19 @@ func _on_wild_pokemon_selected(pokemon: Node) -> void:
 		return
 	sprite.modulate = Color(1.5, 1.5, 0.7) if pokemon == self else Color(1, 1, 1)
 
-## 1/4096, taxa clássica de shiny — achado ao mexer nisso: o jogo já tinha o
-## CAMPO "is_shiny" no save (BattlePokemon.gd) desde antes, mas nunca em
-## lugar nenhum ele era de fato sorteado — a conquista "Shiny Hunter" do
-## master doc nunca tinha como acontecer. Sorteado aqui (nascimento do
-## selvagem) porque é o único lugar onde um Pokémon novo "aparece no mundo".
-const SHINY_CHANCE : float = 1.0 / 4096.0
+## 1/4096, taxa clássica de shiny — achado ao mexer nisso (sessão anterior):
+## o jogo já tinha o CAMPO "is_shiny" no save (BattlePokemon.gd) desde
+## antes, mas nunca em lugar nenhum ele era de fato sorteado. Revisão de
+## lore (03/09): mesmo sorteado, shiny não tinha NENHUM propósito
+## jogável — cosmético puro, sem gancho de gameplay pra "caçar shiny" valer
+## a pena de verdade. O Pokéradar/Pokéradar Avançado (itens que já existiam
+## em quests.json como recompensa, mas nunca tinham definição nem efeito)
+## agora fazem exatamente isso: possuir um deles aumenta a chance de
+## verdade, enquanto durar a posse do item — sem precisar de mecanismo de
+## "combo"/chain como o jogo real, mantendo simples.
+const SHINY_CHANCE                    : float = 1.0 / 4096.0
+const SHINY_CHANCE_POKERADAR          : float = 1.0 / 512.0
+const SHINY_CHANCE_POKERADAR_AVANCADO : float = 1.0 / 256.0
 var is_shiny : bool = false
 
 func _load_species() -> void:
@@ -273,7 +280,7 @@ func _load_species() -> void:
 	if species_data.is_empty():
 		push_warning("[WildPokemon] Espécie %d não encontrada." % species_id)
 		return
-	is_shiny = RNGManager.chance(SHINY_CHANCE)
+	is_shiny = RNGManager.chance(_shiny_chance_efetiva())
 
 	var base : Dictionary = species_data.get("base_stats", {})
 	types      = species_data.get("types", ["Normal"])
@@ -302,6 +309,13 @@ func _load_species() -> void:
 	_passive_data = species_data.get("passive", {})
 	if not _passive_data.is_empty():
 		_reroll_passive_timer()
+
+func _shiny_chance_efetiva() -> float:
+	if SaveManager.has_item("pokeradar_advanced", 1):
+		return SHINY_CHANCE_POKERADAR_AVANCADO
+	if SaveManager.has_item("pokeradar", 1):
+		return SHINY_CHANCE_POKERADAR
+	return SHINY_CHANCE
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Habilidade passiva (Fase 2 do motor de combate em tempo real, 02/09) — pedido

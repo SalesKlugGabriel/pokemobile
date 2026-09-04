@@ -51,7 +51,7 @@ npc_name = "Bruno"
 dialog_id = "bruno_e4"
 starts_quest_id = "ELITE4-02"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 95, "level": 53}, {"species_id": 107, "level": 55}, {"species_id": 106, "level": 55}, {"species_id": 95, "level": 54}, {"species_id": 68, "level": 57}])
+trainer_team = Array[Dictionary]([{"species_id": 95, "level": 100}, {"species_id": 107, "level": 100}, {"species_id": 106, "level": 100}, {"species_id": 95, "level": 100}, {"species_id": 68, "level": 100}])
 is_patrolling = false
 
 [node name="ZoneManager" type="Node" parent="."]

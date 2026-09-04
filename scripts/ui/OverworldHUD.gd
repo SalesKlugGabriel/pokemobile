@@ -133,10 +133,60 @@ func _ready() -> void:
 	EventBus.movement_mode_changed.connect(_on_movement_mode_changed)
 	EventBus.follower_skill_cooldown_updated.connect(_on_skill_cooldown_updated)
 	EventBus.follower_changed.connect(_on_follower_changed)
+	EventBus.mewtwo_choice_requested.connect(_show_mewtwo_choice)
 	btn_fly.pressed.connect(_on_btn_fly_pressed)
 	mode_panel.hide()
 	_build_skill_cooldown_bars()
 	_refresh()
+
+# ──────────────────────────────────────────────────────────────────────────────
+# A Escolha da Fratura (MAIN-11, 03/09) — a ramificação narrativa do final
+# principal nunca tinha UI nenhuma (nem handler no motor: ver QuestManager.
+# _on_quest_choice_made). Construída em código, mesma técnica dos pickers
+# de PauseMenu.gd (PanelContainer com UM filho direto só, pra não repetir o
+# bug antigo de vários filhos disputando o mesmo espaço) — sem cena nova,
+# pra não somar mais um arquivo só pra 2 botões.
+# ──────────────────────────────────────────────────────────────────────────────
+func _show_mewtwo_choice() -> void:
+	get_tree().paused = true
+
+	var pc := PanelContainer.new()
+	pc.process_mode  = Node.PROCESS_MODE_ALWAYS
+	pc.anchor_left   = 0.18
+	pc.anchor_top    = 0.15
+	pc.anchor_right  = 0.82
+	pc.anchor_bottom = 0.85
+	add_child(pc)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	pc.add_child(vbox)
+
+	var title := Label.new()
+	title.text = "A Fratura"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 18)
+	vbox.add_child(title)
+
+	var body := Label.new()
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD
+	body.text = "O Mewtwo está em suas mãos — e com ele, a Fratura que o gerou continua aberta bem abaixo de você.\n\nVocê pode SELAR a Fratura pra sempre, encerrando o risco que ela representa pra Kanto — mas Mewtwo, nascido da energia dela, se desfaz junto.\n\nOu pode MANTER o Mewtwo como seu — a criatura mais poderosa que existe — e deixar a Fratura como está: aberta, instável, um problema pra outro dia."
+	vbox.add_child(body)
+
+	var btn_seal := Button.new()
+	btn_seal.text = "Selar a Fratura (Mewtwo se vai)"
+	btn_seal.pressed.connect(func(): _resolve_mewtwo_choice(pc, "seal_fracture"))
+	vbox.add_child(btn_seal)
+
+	var btn_keep := Button.new()
+	btn_keep.text = "Manter o Mewtwo (a Fratura fica aberta)"
+	btn_keep.pressed.connect(func(): _resolve_mewtwo_choice(pc, "capture_mewtwo"))
+	vbox.add_child(btn_keep)
+
+func _resolve_mewtwo_choice(popup: PanelContainer, option: String) -> void:
+	popup.queue_free()
+	get_tree().paused = false
+	EventBus.quest_choice_made.emit("MAIN-11", option)
 
 ## progress: 0.0 (acabou de usar) → 1.0 (pronta de novo). Emitido só enquanto
 ## a skill está recarregando (FollowerPokemon._tick_cooldowns()) — por isso a

@@ -92,7 +92,12 @@ func _process(_delta: float) -> bool:
 	_assert(int(SaveManager.get_inventory().get("trofeu_campeao", 0)) == 1, "Troféu de Campeão concedido")
 	_assert("campeao_de_kanto" in SaveManager.get_titles(), "título 'campeao_de_kanto' concedido")
 
-	# ---- Cenas dos 5 treinadores: times reais, não vazios, escalando em nível ----
+	# ---- Cenas dos 5 treinadores: times reais, não vazios ----
+	# Decisão do Gabriel (03/09/2026): a Elite Four INTEIRA — Lorelei, Bruno,
+	# Agatha, Lance e o Campeão — é nível 100 em todos os andares, pra ser um
+	# desafio de verdade no fim do grind (não mais uma escalada 58→65→... como
+	# antes). Esta suíte tinha uma checagem de "dificuldade cresce" que ficou
+	# obsoleta com essa mudança de design — trocada por "todos no teto".
 	var niveis_maximos : Array[int] = []
 	for n in range(1, 6):
 		var scene : PackedScene = load("res://scenes/world/maps/IndigoLeague_F%d.tscn" % n)
@@ -109,8 +114,8 @@ func _process(_delta: float) -> bool:
 			niveis_maximos.append(maior_nivel)
 		inst.free()
 
-	_assert(niveis_maximos.size() == 5 and niveis_maximos[4] > niveis_maximos[0],
-		"o Campeão (andar 5) é mais forte que Lorelei (andar 1) — dificuldade cresce")
+	_assert(niveis_maximos.size() == 5 and niveis_maximos.all(func(lv): return lv == 100),
+		"todos os 5 andares (Lorelei a Campeão) são nível 100 — teto de desafio real")
 
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	quit(1 if _fail > 0 else 0)

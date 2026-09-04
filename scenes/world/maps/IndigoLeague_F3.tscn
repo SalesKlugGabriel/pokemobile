@@ -51,7 +51,7 @@ npc_name = "Agatha"
 dialog_id = "agatha_e4"
 starts_quest_id = "ELITE4-03"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 24, "level": 54}, {"species_id": 93, "level": 54}, {"species_id": 42, "level": 55}, {"species_id": 94, "level": 56}, {"species_id": 94, "level": 58}])
+trainer_team = Array[Dictionary]([{"species_id": 24, "level": 100}, {"species_id": 93, "level": 100}, {"species_id": 42, "level": 100}, {"species_id": 94, "level": 100}, {"species_id": 94, "level": 100}])
 is_patrolling = false
 
 [node name="ZoneManager" type="Node" parent="."]

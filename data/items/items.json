@@ -58,6 +58,7 @@
   "iron":            {"id":"iron",            "name":"Iron",             "category":"vitamin",    "ev_stat":"defense", "ev_amount":10, "price":9800, "description":"Raises Defense EVs."},
   "carbos":          {"id":"carbos",          "name":"Carbos",           "category":"vitamin",    "ev_stat":"speed",   "ev_amount":10, "price":9800, "description":"Raises Speed EVs."},
   "calcium":         {"id":"calcium",         "name":"Calcium",          "category":"vitamin",    "ev_stat":"sp_atk",  "ev_amount":10, "price":9800, "description":"Raises Sp. Atk EVs."},
+  "zinc":            {"id":"zinc",            "name":"Zinc",             "category":"vitamin",    "ev_stat":"sp_def",  "ev_amount":10, "price":9800, "description":"Raises Sp. Def EVs."},
   "rare_candy":      {"id":"rare_candy",      "name":"Rare Candy",       "category":"vitamin",    "effect":"level_up", "price":0,    "description":"Raises level by 1."},
 
   "tm01": {"id":"tm01", "name":"MT01 Corte Duplo",   "category":"tm_hm", "teaches":"swords_dance", "price":1000, "single_use":true, "description":"Ensina Corte Duplo (aumenta o próprio Ataque)."},
@@ -75,6 +76,11 @@
   "hm01": {"id":"hm01", "name":"MO01 Cortar",        "category":"tm_hm", "teaches":"cut",          "price":0,    "single_use":false, "description":"Ensina Cortar. Não pode ser apagado."},
   "hm02": {"id":"hm02", "name":"MO02 Voar",          "category":"tm_hm", "teaches":"fly",          "price":0,    "single_use":false, "description":"Ensina Voar. Não pode ser apagado."},
   "hm03": {"id":"hm03", "name":"MO03 Força",         "category":"tm_hm", "teaches":"strength",     "price":0,    "single_use":false, "description":"Ensina Força. Não pode ser apagado."},
+
+  "tm13": {"id":"tm13", "name":"MT13 Rocha Explosiva", "category":"tm_hm", "teaches":"rock_slide", "price":3500, "single_use":true, "description":"Ensina Rocha Explosiva (Pedra, pode hesitar o oponente)."},
+  "tm14": {"id":"tm14", "name":"MT14 Absorver Folha",  "category":"tm_hm", "teaches":"mega_drain", "price":2500, "single_use":true, "description":"Ensina Absorver Folha (Planta, drena metade do dano como HP)."},
+  "tm15": {"id":"tm15", "name":"MT15 Explosão de Fogo","category":"tm_hm", "teaches":"fire_blast", "price":4000, "single_use":true, "description":"Ensina Explosão de Fogo (Fogo, dano altíssimo, pode queimar)."},
+  "tm16": {"id":"tm16", "name":"MT16 Hiper Raio",      "category":"tm_hm", "teaches":"hyper_beam", "price":4500, "single_use":true, "description":"Ensina Hiper Raio (dano devastador, precisa recarregar depois)."},
 
   "gold_tm01": {"id":"gold_tm01", "name":"MT Ouro 01 Corte Duplo", "category":"tm_hm", "teaches":"swords_dance", "price":3000, "single_use":false, "description":"Versão dourada de uso infinito de MT01 (aumenta o próprio Ataque)."},
   "gold_tm02": {"id":"gold_tm02", "name":"MT Ouro 02 Terremoto", "category":"tm_hm", "teaches":"earthquake", "price":9000, "single_use":false, "description":"Versão dourada de uso infinito de MT02 (Terra, dano forte)."},
@@ -94,5 +100,20 @@
   "miracle_seed": {"id":"miracle_seed", "name":"Miracle Seed", "category":"held", "boost_type":"Grass",    "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes de Planta em 20%."},
   "magnet":       {"id":"magnet",       "name":"Magnet",       "category":"held", "boost_type":"Electric", "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes Elétricos em 20%."},
 
-  "trofeu_campeao": {"id":"trofeu_campeao", "name":"Troféu de Campeão", "category":"key", "price":0, "description":"Prova de que você derrotou a Elite Four e se tornou Campeão de Kanto."}
+  "trofeu_campeao": {"id":"trofeu_campeao", "name":"Troféu de Campeão", "category":"key", "price":0, "description":"Prova de que você derrotou a Elite Four e se tornou Campeão de Kanto."},
+
+  "diario_1": {"id":"diario_1", "name":"Diário — Página 1", "category":"key", "price":0, "description":"Página de diário, letra apressada: 'Dia 12. As bússolas dos treinadores perto da Floresta de Viridian andam malucas sem explicação nenhuma. O Professor Carvalho acha que é magnetismo natural. Eu não tenho tanta certeza — não é magnetismo nenhum que eu já vi antes.'"},
+  "diario_2": {"id":"diario_2", "name":"Diário — Página 2", "category":"key", "price":0, "description":"Página de diário: 'Dia 34, Pewter. Achei uma rocha no museu que nenhum aparelho consegue datar — mais velha que qualquer fóssil catalogado, e ainda assim vibra como se estivesse viva. Comecei a chamar o fenômeno de Fratura, por falta de nome melhor.'"},
+  "diario_3": {"id":"diario_3", "name":"Diário — Página 3", "category":"key", "price":0, "description":"Página de diário, com um mapa rabiscado ao lado: 'A Fratura não está espalhada — está CONCENTRADA, bem debaixo de Cerulean, numa caverna que ninguém nunca explorou até o fim. E não sou o único procurando: vi uniformes da Equipe Rocket rondando a entrada duas vezes essa semana.'"},
+  "diario_4": {"id":"diario_4", "name":"Diário — Página 4", "category":"key", "price":0, "description":"Página de diário, a letra mais trêmula que nas outras: 'Perdi o Renato lá embaixo. Não vou fingir que sei o que aconteceu — só sei que ele desceu comigo e voltou de lá outra pessoa, e três dias depois desapareceu de vez. Kanto nunca teve um lugar pra chorar gente que a Fratura levou sem deixar corpo. Agora tem uma torre.'"},
+  "diario_5": {"id":"diario_5", "name":"Diário — Página 5", "category":"key", "price":0, "description":"Página de diário: 'O Cassino de Celadon lava dinheiro da Equipe Rocket há anos — isso, em Kanto, todo mundo meio que sabe e finge que não. O que eu descobri é PRA ONDE esse dinheiro vai: uma escavação inteira, secreta, embaixo da cidade, cavando direto na direção da Fratura.'"},
+  "diario_6": {"id":"diario_6", "name":"Diário — Página 6", "category":"key", "price":0, "description":"A última página encontrada, queimada nas bordas: 'O incêndio na mansão não foi acidente. Tentaram estabilizar um clone usando energia extraída direto da Fratura, e alguma coisa deu terrivelmente certo — certo demais. Se estiver lendo isto e algum dia encontrar uma criatura fora de qualquer classificação que a gente conhece, corra. Ou não — talvez já seja tarde demais pros dois.'"},
+  "mapa_fratura": {"id":"mapa_fratura", "name":"Mapa da Fratura", "category":"key", "price":0, "description":"Um mapa desenhado à mão, com um X marcado bem no fundo da Caverna de Cerulean. Na margem, uma anotação apressada: 'se eu não voltar, é aqui que eu fui.'"},
+  "documento_fratura_parcial": {"id":"documento_fratura_parcial", "name":"Documento Rocket (Parcial)", "category":"key", "price":0, "description":"Um relatório interno da Equipe Rocket, rasgado ao meio. A parte legível fala em 'extração de energia dimensional' e 'aplicação em espécime sintético' — sem nome, sem local exato, mas o suficiente pra confirmar que eles sabiam exatamente o que estavam acordando."},
+  "rocket_hq_code": {"id":"rocket_hq_code", "name":"Cartão de Acesso Rocket", "category":"key", "price":0, "description":"Um cartão codificado, roubado de um agente da Equipe Rocket. Abre portas que preferiam continuar fechadas."},
+  "item_exclusive": {"id":"item_exclusive", "name":"Distintivo Confiscado", "category":"key", "price":0, "description":"Um distintivo confiscado da Equipe Rocket — prova de que você desmontou pessoalmente uma célula inteira da organização."},
+
+  "pokeradar": {"id":"pokeradar", "name":"Pokéradar", "category":"key", "price":0, "description":"Detecta padrões estatísticos raros em populações selvagens — na prática, aumenta bastante a chance de encontrar um Pokémon shiny enquanto estiver com você."},
+  "pokeradar_advanced": {"id":"pokeradar_advanced", "name":"Pokéradar Avançado", "category":"key", "price":0, "description":"Versão recalibrada do Pokéradar, a partir de dados de centenas de encontros. Aumenta a chance de Pokémon shiny ainda mais que o modelo comum."},
+  "premium_pokeball": {"id":"premium_pokeball", "name":"Poké Bola Premium", "category":"ball", "catch_rate_mult":2.5, "price":0, "description":"Uma pokébola de coleção, forjada só pra quem já provou ser um treinador dedicado. Chance de captura bem acima da Great Ball."}
 }

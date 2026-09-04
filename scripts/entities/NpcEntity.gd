@@ -82,10 +82,32 @@ func _on_ready() -> void:
 	EventBus.dialog_ended.connect(_on_dialog_ended)
 	_load_sprites()
 
+	# Achado grave (03/09, revisão de lore/balanceamento): `trainer_defeated`
+	# nunca era salvo em lugar nenhum — toda troca de mapa recria a cena
+	# (e este NPC) do zero, resetando pra false. Isso deixava QUALQUER
+	# treinador do jogo (líderes de ginásio, Elite Four e Campeão inclusive)
+	# re-lutável infinitas vezes só saindo e voltando na sala. Agora lê o
+	# estado real do save assim que o NPC nasce.
+	if is_trainer:
+		trainer_defeated = SaveManager.is_trainer_defeated(_trainer_save_id())
+
 	if patrol_route.is_empty() or not is_patrolling:
 		_set_state(State.IDLE)
 	else:
 		_set_state(State.PATROL_MOVE)
+
+## ID estável do treinador pro save — mapa + nome do nó (sempre único dentro
+## da cena, já que Godot não permite 2 nós irmãos com o mesmo nome). Lido
+## via `get_tree().current_scene.map_id` em vez de WorldManager.current_
+## map_id de propósito: filhos rodam _ready() ANTES do pai (BaseMap), então
+## WorldManager ainda não teria registrado o mapa novo neste ponto — a
+## propriedade @export no nó raiz já está carregada, não depende de ordem.
+func _trainer_save_id() -> String:
+	var scene := get_tree().current_scene
+	var map_id : String = "unknown"
+	if scene and "map_id" in scene:
+		map_id = scene.map_id
+	return "%s/%s" % [map_id, name]
 
 func _load_sprites() -> void:
 	if not sprite or sprite.sprite_frames:
@@ -191,6 +213,15 @@ func _effective_dialog_id() -> String:
 		return dialog_id + "_depois"
 	if not requires_quest_for_travel.is_empty() and QuestManager.is_quest_complete(requires_quest_for_travel):
 		return dialog_id + "_liberado"
+	# Epílogo (MAIN-12, "Cartas") — o Prof. Carvalho troca de fala depois que
+	# a história principal (MAIN-11, a Escolha da Fratura) termina, até o
+	# jogador falar com ele de novo pra fechar o jogo. Achado ao ligar o
+	# "choice" da Fratura (03/09): MAIN-12 pedia "talk" com dialog_id
+	# "carvalho" — um ID que nunca existiu em lugar nenhum, tornando o
+	# epílogo inalcançável mesmo depois de eu consertar o "requires" dela.
+	if dialog_id == "oak_intro" and QuestManager.is_quest_complete("MAIN-11") \
+	and not QuestManager.is_quest_complete("MAIN-12"):
+		return "carvalho_final"
 	return dialog_id
 
 func _on_dialog_ended() -> void:
@@ -243,6 +274,7 @@ func _start_trainer_battle() -> void:
 func _spawn_next_trainer_pokemon() -> void:
 	if _trainer_team_idx >= trainer_team.size():
 		trainer_defeated = true
+		SaveManager.mark_trainer_defeated(_trainer_save_id())
 		_interacted_by = null
 		if patrol_route.is_empty() or not is_patrolling:
 			_set_state(State.IDLE)

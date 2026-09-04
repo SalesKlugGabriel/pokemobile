@@ -51,7 +51,7 @@ npc_name = "Lance"
 dialog_id = "lance_e4"
 starts_quest_id = "ELITE4-04"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 130, "level": 56}, {"species_id": 148, "level": 56}, {"species_id": 148, "level": 57}, {"species_id": 142, "level": 57}, {"species_id": 149, "level": 60}])
+trainer_team = Array[Dictionary]([{"species_id": 130, "level": 100}, {"species_id": 148, "level": 100}, {"species_id": 148, "level": 100}, {"species_id": 142, "level": 100}, {"species_id": 149, "level": 100}])
 is_patrolling = false
 
 [node name="ZoneManager" type="Node" parent="."]

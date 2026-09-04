@@ -49,7 +49,7 @@ npc_name = "Campeão"
 dialog_id = "campeao_e4"
 starts_quest_id = "CHAMPION-01"
 is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 18, "level": 58}, {"species_id": 65, "level": 59}, {"species_id": 112, "level": 59}, {"species_id": 103, "level": 59}, {"species_id": 130, "level": 60}, {"species_id": 6, "level": 62}])
+trainer_team = Array[Dictionary]([{"species_id": 18, "level": 100}, {"species_id": 65, "level": 100}, {"species_id": 112, "level": 100}, {"species_id": 103, "level": 100}, {"species_id": 130, "level": 100}, {"species_id": 6, "level": 100}])
 is_patrolling = false
 
 [node name="ZoneManager" type="Node" parent="."]

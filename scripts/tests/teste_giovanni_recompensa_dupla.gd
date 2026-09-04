@@ -76,8 +76,10 @@ func _process(_delta: float) -> bool:
 
 	_assert(SaveManager.get_badges().count("earth_badge") == 1,
 		"earth_badge concedida exatamente 1 vez (não 2)")
-	_assert(int(SaveManager.get_inventory().get("tm_terra_power", 0)) == 1,
-		"tm_terra_power concedida exatamente 1 vez (não 2) — MAIN-09 não tem mais esse reward")
+	# tm_terra_power era um ID fantasma (nunca existiu em items.json) — corrigido
+	# em 03/09/2026 pra tm02 (Terremoto), o TM real que já cobria esse golpe.
+	_assert(int(SaveManager.get_inventory().get("tm02", 0)) == 1,
+		"tm02 (ex-tm_terra_power) concedida exatamente 1 vez (não 2) — MAIN-09 não tem mais esse reward")
 
 	# Segundo achado corrigido no mesmo lote: o guarda do Ginásio de Viridian
 	# (zones.json) apontava pra um dialog_id que não existia em dialogs.json.

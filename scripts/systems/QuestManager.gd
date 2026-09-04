@@ -165,6 +165,7 @@ func _connect_event_bus() -> void:
 	EventBus.item_picked_up.connect(_on_item_picked_up)
 	EventBus.zone_changed.connect(_on_zone_changed)
 	EventBus.floor_reached.connect(_on_floor_reached)
+	EventBus.quest_choice_made.connect(_on_quest_choice_made)
 
 
 func _give_rewards(quest_data: Dictionary) -> void:
@@ -181,6 +182,10 @@ func _give_rewards(quest_data: Dictionary) -> void:
 		var quantity: int   = item_entry.get("quantity", 1)
 		if not item_id.is_empty():
 			SaveManager.add_item(item_id, quantity)
+			# Página de diário (lore da Fratura, 03/09) — registra em
+			# save_data["diaries"], campo que já existia e nunca era escrito.
+			if item_id.begins_with("diario_"):
+				SaveManager.add_diary(item_id)
 	for tm_entry in rewards.get("tms", []) + rewards.get("hms", []):
 		var tm_id: String = tm_entry.get("id", "")
 		if not tm_id.is_empty():
@@ -195,10 +200,12 @@ func _give_rewards(quest_data: Dictionary) -> void:
 	# Insígnias
 	for badge in rewards.get("badges", []):
 		SaveManager.award_badge(badge)
-	# Pokémon de presente
+	# Pokémon de presente — {"id": "<nome da espécie>", "level": N}. Corrigido
+	# 03/09: ia direto pra add_pokemon_to_party() sem conversão nenhuma (ver
+	# SaveManager.gift_pokemon_by_name() pro achado completo).
 	var gift_pokemon: Dictionary = rewards.get("pokemon", {})
 	if not gift_pokemon.is_empty():
-		SaveManager.add_pokemon_to_party(gift_pokemon)
+		SaveManager.gift_pokemon_by_name(str(gift_pokemon.get("id", "")), int(gift_pokemon.get("level", 5)))
 
 
 func _get_objective_required(objective: Dictionary) -> int:
@@ -238,6 +245,26 @@ func _on_capture_success(pokemon_data: Dictionary) -> void:
 				"capture":
 					if GameData.get_species_id_by_name(str(obj.get("target", ""))) == species_id:
 						update_objective(quest_id, i, 1)
+	# A Escolha da Fratura (MAIN-11, 03/09): capturar o Mewtwo completa o
+	# objetivo "capture" da MAIN-10 (acima, no MESMO loop) — se isso for o
+	# suficiente pra fechar MAIN-10, ela desbloqueia MAIN-11 sozinha
+	# (complete_quest() já chama start_quest() dos unlocks). Checado DEPOIS
+	# do loop, não dentro, porque só faz sentido perguntar "MAIN-11 tá ativa
+	# agora?" depois que MAIN-10 já teve a chance de completar nesta mesma
+	# chamada.
+	if species_id == 150 and _active_quests.has("MAIN-11"):
+		EventBus.mewtwo_choice_requested.emit()
+
+
+## Resposta da tela de escolha (OverworldHUD) — fecha MAIN-11 de verdade e
+## aplica a consequência (SaveManager.resolve_main11_choice: Mewtwo se
+## desfaz junto com a Fratura selada, ou fica com o jogador se ele optar
+## por capturá-lo em definitivo).
+func _on_quest_choice_made(quest_id: String, option: String) -> void:
+	if quest_id != "MAIN-11" or not _active_quests.has(quest_id):
+		return
+	SaveManager.resolve_main11_choice(option)
+	update_objective(quest_id, 0, 1)
 
 
 func _on_battle_ended(result: Dictionary) -> void:

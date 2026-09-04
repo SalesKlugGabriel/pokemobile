@@ -267,6 +267,16 @@ func _on_bag_item_used(item_id: String) -> void:
 			_pending_item_id = item_id
 			_pending_action  = "teach"
 			_open_pokemon_picker("Ensinar %s pra qual Pokémon?" % item.get("name", item_id))
+		"vitamin":
+			# Achado (03/09): "vitamin" caía sempre no default abaixo, com uma
+			# mensagem que nem era verdade — nenhum item desta categoria tinha
+			# handler NA BATALHA também, então usar uma vitamina não fazia
+			# literalmente nada em lugar nenhum do jogo. HP Up/Proteína/Ferro/
+			# Carbos/Cálcio/Zinco (EVs) e Doce Raro (level_up) agora funcionam
+			# de verdade, fora de batalha, igual jogo real.
+			_pending_item_id = item_id
+			_pending_action  = "vitamin"
+			_open_pokemon_picker("Usar %s em qual Pokémon?" % item.get("name", item_id))
 		_:
 			label_info.text = "%s só pode ser usado numa batalha por enquanto." % item.get("name", item_id)
 
@@ -348,6 +358,19 @@ func _on_picker_target(index: int) -> void:
 		else:
 			_pending_target = index
 			_open_move_replace_picker(index)
+	elif _pending_action == "vitamin":
+		var item := GameData.get_item(_pending_item_id)
+		var usou := false
+		if item.get("effect", "") == "level_up":
+			usou = SaveManager.use_rare_candy(index)
+			label_info.text = "Subiu de nível!" if usou else "Já está no nível máximo (100)."
+		elif item.has("ev_stat"):
+			usou = SaveManager.apply_ev_vitamin(index, str(item.get("ev_stat", "")), int(item.get("ev_amount", 0)))
+			label_info.text = "Melhorou!" if usou else "Não teve efeito — esse status já está no limite."
+		if usou:
+			SaveManager.remove_item(_pending_item_id, 1)
+			SaveManager.save_game()
+		_close_bag_flow()
 
 func _open_move_replace_picker(index: int) -> void:
 	_free_picker()

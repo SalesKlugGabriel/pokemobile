@@ -369,7 +369,7 @@
     "objectives": [
       {
         "type": "talk",
-        "target": "carvalho"
+        "target": "carvalho_final"
       }
     ],
     "rewards": {
@@ -380,7 +380,7 @@
       },
       "tms": [
         {
-          "tier": "rare",
+          "id": "gold_tm09",
           "quantity": 1
         }
       ],
@@ -389,8 +389,9 @@
       ]
     },
     "requires": [
-      "MAIN-10"
+      "MAIN-11"
     ],
+    "_ajuste_editorial": "3 bugs corrigidos junto com a Fratura (03/09): (1) target 'carvalho' nunca bateu com dialog_id nenhum — virou 'carvalho_final' (NpcEntity._effective_dialog_id() agora troca a fala do Prof. Carvalho depois de MAIN-11, achado ao tentar completar esta quest de verdade); (2) requires era ['MAIN-10'], deixando dar pra pular MAIN-11 (a Escolha) inteira — virou ['MAIN-11']; (3) rewards.tms não tinha 'id' nenhum (dava silenciosamente nenhuma MT) — virou gold_tm09 (Lança-Chamas, uso infinito), presente de despedida condizente com ser a última recompensa do jogo. Também achado (corrigido em SaveManager.gd, não aqui): rewards.pokemon ia direto pra add_pokemon() sem NENHUMA conversão — vira um 'Pokémon' quebrado sem ivs/moves/hp_max. Agora reaproveita o mesmo _make_pokemon_data() do inicial do jogo.",
     "unlocks": [
       "COLETOR-01",
       "COLETOR-02",
@@ -432,7 +433,7 @@
       ],
       "tms": [
         {
-          "id": "tm_rock_slide",
+          "id": "tm13",
           "tier": "rare"
         }
       ]
@@ -495,7 +496,7 @@
       ],
       "tms": [
         {
-          "id": "tm_thunderbolt",
+          "id": "tm10",
           "tier": "rare"
         }
       ]
@@ -533,7 +534,7 @@
       ],
       "tms": [
         {
-          "id": "tm_mega_drain",
+          "id": "tm14",
           "tier": "uncommon"
         }
       ]
@@ -571,7 +572,7 @@
       ],
       "tms": [
         {
-          "id": "tm_toxic",
+          "id": "tm05",
           "tier": "rare"
         }
       ],
@@ -615,7 +616,7 @@
       ],
       "tms": [
         {
-          "id": "tm_fire_blast",
+          "id": "tm15",
           "tier": "epic"
         }
       ]
@@ -653,7 +654,7 @@
       ],
       "tms": [
         {
-          "id": "tm_psychic",
+          "id": "tm12",
           "tier": "epic"
         }
       ],
@@ -693,7 +694,7 @@
       ],
       "tms": [
         {
-          "id": "tm_terra_power",
+          "id": "tm02",
           "tier": "epic"
         }
       ]
@@ -1558,7 +1559,7 @@
       "exp_trainer": 700,
       "tms": [
         {
-          "id": "tm_hyper_beam",
+          "id": "tm16",
           "tier": "epic"
         }
       ]

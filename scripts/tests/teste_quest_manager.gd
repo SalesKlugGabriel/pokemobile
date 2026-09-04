@@ -97,7 +97,9 @@ func _teste_geral() -> void:
 	})
 	_assert(QuestManager.is_quest_complete("GYM-01"), "derrotar Brock fecha GYM-01")
 	_assert(SaveManager.has_badge("boulder_badge"), "insígnia boulder_badge foi concedida")
-	_assert(SaveManager.get_inventory().get("tm_rock_slide", 0) == 1,
+	# tm_rock_slide era um ID fantasma (nunca existiu em items.json) — corrigido
+	# em 03/09/2026 pra tm13, o TM real criado pra esse golpe.
+	_assert(SaveManager.get_inventory().get("tm13", 0) == 1,
 		"recompensa de TM (tms[]) virou item no inventário")
 
 	SaveManager.award_badge("boulder_badge")

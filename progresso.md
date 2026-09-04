@@ -9,6 +9,89 @@
 
 ---
 
+## Revisão de lore + balanceamento — 60h de jogo de verdade (2026-09-03)
+
+**Pedido do Gabriel, executado por conta própria de ponta a ponta**: "revise toda a lore, feche
+lacunas, faça o jogo precisar de pelo menos 60h pra terminar (upar, caçar shiny, boostar Pokémon,
+grindar de verdade), Elite Four INTEIRA em nível 100, e escreva NPCs/diálogos/quests sozinho".
+
+**Achado que veio primeiro e mudou tudo**: nenhuma das mecânicas de "grind" ia significar nada
+enquanto existisse um exploit — `trainer_defeated` (inclusive de líder de ginásio, Giovanni, os 5
+da Elite Four e o Campeão) vivia só na memória do NPC, nunca no save. Sair da sala e voltar
+recriava o NPC do zero, sempre "não derrotado" — dava pra farmar QUALQUER treinador em loop
+infinito. Corrigido primeiro, antes de qualquer outra coisa (`SaveManager` ganhou
+`defeated_trainers` persistido de verdade).
+
+**"Boostar Pokémon" — motorizado do zero, tudo já existia pela metade e nunca fazia nada**: as 6
+vitaminas (Proteína, Ferro, Calcio, Carboidratos, HP Up, Zinco — faltava o Zinco em si, criado) e
+o Doce Raro tinham item no jogo há tempos, mas **nenhum código lia esses campos** — usar um
+sumia da mochila sem efeito nenhum. Mesma classe de bug já vista antes neste projeto: o campo
+`ev_stat` dos itens usa nomes por extenso (`"attack"`), o `evs` interno do Pokémon usa abreviação
+(`"atk"`) — nunca bateu. Corrigido com uma tabela de tradução; EV trava em 252 por stat, Doce Raro
+sobe exatamente 1 nível.
+
+**Caça ao shiny ganhou um motivo de verdade pela primeira vez**: a chance (1/4096) já era
+sorteada, mas não tinha NENHUM gancho de jogo — cosmético puro. Os itens Pokéradar/Pokéradar
+Avançado (que já apareciam como recompensa de quest, mas nunca tinham definição) agora sobem a
+chance de verdade (1/512 e 1/256) enquanto o jogador tiver um na mochila.
+
+**Elite Four inteira virou nível 100** nos 5 andares (Lorelei, Bruno, Agatha, Lance, Campeão) —
+antes escalava de 58 a ~65, agora é o teto de desafio real que o Gabriel pediu.
+
+**21 itens fantasma corrigidos** (recompensa de quest apontando pra um ID que não existia em
+`items.json` — ficavam invisíveis na mochila pra sempre): os 8 TMs de ginásio (nome batido errado
+com o esquema real `tmNN`, 4 remapeados pros TMs existentes, 4 TMs novos criados onde não havia
+nenhum), os 6 diários (`diario_1..6` — escritos do zero, contam a história da Fratura), mapa e
+documento da Fratura, código do QG Rocket, Pokéradar/Avançado, Poké Bola Premium e um item
+genérico de recompensa.
+
+**A "Fratura" — a única história principal sem NENHUM conteúdo real — ganhou lore do zero**: o pai
+falecido do jogador pesquisava uma anomalia dimensional sob Kanto; os 6 diários dele, espalhados
+pelas quests principais, contam essa história; a Equipe Rocket queria armar essa energia; Mewtwo
+nasceu de um experimento que deu terrivelmente certo. **MAIN-11 ("A Escolha") virou jogável de
+verdade** — ao capturar Mewtwo com essa quest ativa, abre um popup real (2 opções: selar a
+Fratura, perdendo o Mewtwo pra sempre, ou ficar com ele e deixar a Fratura aberta), cada ramo dá
+um título exclusivo. Não existia handler NENHUM pra isso antes — nem sinal, nem UI, nem lógica de
+resolução.
+
+**3 bugs de dado corrigidos no fim da história (MAIN-12)**: o objetivo final apontava pra um
+diálogo do Prof. Carvalho que nunca existiu (quest impossível de terminar); faltava o requisito de
+MAIN-11 (dava pra pular "A Escolha" inteira); o TM de recompensa não tinha ID nenhum (concedia
+zero). E um bug mais profundo, achado ao consertar isso: **o presente de Pokémon de quest
+(Eevee final) ia pro save como um dict cru sem `species_id`/`ivs`/`moves`/`hp_max`** — não era um
+Pokémon de verdade, era lixo de dado. Corrigido com `SaveManager.gift_pokemon_by_name()`.
+
+**🔴 Bug crítico do meu próprio lote, achado pela suíte de testes antes de publicar**: ao inserir
+a função do Pokéradar, colei ela NO MEIO de `WildPokemon._load_species()` — cortando a função ao
+meio e deixando todo o resto (tipos, stats, HP, movimento padrão, habilidade passiva) como código
+morto, nunca executado. Todo Pokémon selvagem teria nascido com tipo/stats vazios. A suíte
+completa (58 arquivos) pegou isso na hora — 0 falhas antes da minha mudança, 5 arquivos falhando
+depois. Corrigido movendo a função pro lugar certo, suíte voltou a 0 falhas.
+
+**Testado**: `teste_revisao_lore_balanceamento.gd` (novo, 89 conferências — exploit de treinador,
+Elite Four nível 100 nos 5 andares, vitaminas/Doce Raro, Pokéradar, diários, os 21 itens, presente
+de Pokémon completo, diálogo de epílogo, e as duas ramificações de MAIN-11 ponta a ponta). 3
+testes antigos tinham referência a IDs fantasma que deixaram de existir (`tm_terra_power`,
+`tm_rock_slide`) ou a uma regra de design substituída (Elite Four "escalando" virou "todos no
+teto") — atualizados, nenhum era regressão real. Suíte inteira (58 arquivos) em 0 falhas. Publicado
+e smoke test em navegador sem erro novo no console.
+
+**Deliberadamente fora do escopo desta leva** (decisão minha, pra não estourar o pedido): lore/
+diálogo pra NPCs genéricos/decorativos do mundo inteiro, Rota 23, Usina Elétrica, EXP-Share, PP-Up,
+uma conquista formal de "Caçador de Shiny", e qualquer profundidade narrativa em MAIN-11 além da
+mecânica central (a escolha em si já é real e tem consequência, mas não ganhou uma cutscene maior).
+
+**Sobre as "60 horas"**: não é algo que joguei do início ao fim pra cronometrar — é um alvo de
+design alcançado por alavancas concretas e verificáveis: o exploit de treinador fechado (sem ele,
+nenhum balanceamento por nível resiste) e a Elite Four em nível 100 contra a curva de EXP que já
+existia (subir de ~55 pra 100 só com selvagem, sem repetir treinador, exige centenas de vitórias
+por Pokémon). É um teto de grind real, não um número solto.
+
+**Precisa de decisão do Gabriel?** Não — pedido explícito era "por conta própria". Só vale ele
+saber o que ficou de fora (lista acima) caso queira priorizar algo dali depois.
+
+---
+
 ## Caverna de Cerulean + Mewtwo, a última dungeon pendente (2026-09-03, continuação)
 
 **Fecha o pedido "ginásios, elite four, dungeons" do Gabriel.** Antes só existia um registro de

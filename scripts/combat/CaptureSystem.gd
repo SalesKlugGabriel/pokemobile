@@ -16,7 +16,7 @@ const POKEBALL_ARC_HEIGHT : float = 240.0  # migração tile128 (03/09): era 60 
 ## escolha: cada bola tem sua própria chance calculada pro alvo específico).
 const ALL_BALL_IDS : Array[String] = [
 	"pokeball", "great_ball", "net_ball", "dusk_ball", "quick_ball",
-	"timer_ball", "heal_ball", "ultra_ball", "master_ball",
+	"timer_ball", "heal_ball", "premium_pokeball", "ultra_ball", "master_ball",
 ]
 
 ## Onda 1, item 6 (03/09): tabela completa de pokébolas. Achado ao construir
