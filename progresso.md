@@ -9,6 +9,44 @@
 
 ---
 
+## Spawn fixo por terreno (2026-09-03, continuação)
+
+**Fecha o pedido "Pokémon selvagem sempre visível, spawn fixo por tipo de terreno".** O sistema
+antigo (`SpawnManager._try_spawn()`) sorteava uma posição perto do jogador a cada 3s e desovava
+Pokémon de uma tabela curada por zona — exatamente o "surge do nada" que o Gabriel reclamou.
+Trocado, só no mundo aberto (world_map): ao entrar numa zona pela 1ª vez, o jogo varre o terreno
+de verdade ali dentro e nasce até 2 Pokémon de cada categoria encontrada — grama→Oddish/Gloom/
+Weepinbell, mato alto→Ekans/Arbok/Kakuna/Beedrill, praia/água→Squirtle/Slowpoke/Krabby, ao lado de
+pedra→Geodude/Graveler/Golem/Rhyhorn, ao lado de rocha vulcânica→Ponyta/Magmar/Growlithe, e uma
+categoria extra (ao lado de árvore→Caterpie/Metapod/Pidgey/Pikachu) pra cobrir o resto do mapa que
+não bateria em nenhuma das 5 que o Gabriel deu. A mesma espécie pode nascer em vários lugares do
+mapa com aquele terreno — não é mais 1 lista fixa por zona. Nunca mais despawna por distância no
+mundo aberto (só limpa quem já morreu/foi capturado); "ficam se movimentando livremente" já existia
+de graça (State.PATROL), só ganhou uma coleira (usa `_spawn_pos`, campo que já existia desde sempre
+e nunca era lido) pra não vagar pra fora da própria área de terreno.
+
+**Dungeons (Mt Moon, Rock Tunnel, Zona Safari, Cerulean Cave etc.) ficaram de fora de propósito** —
+continuam no sistema antigo de tabela curada por zona, que já é mais controlado (e o Mewtwo de
+Cerulean Cave nem passa pelo SpawnManager, sempre foi um nó fixo à parte). Achado ao construir:
+o recurso de "densidade de spawn cresce com a profundidade da floresta" (Fase 10, 02/09) fica sem
+efeito prático no mundo aberto agora — não tem mais "taxa de spawn" pra intensificar com população
+fixa. O código continua de pé (os testes daquela feature ainda passam), só não é mais chamado no
+loop real do mundo aberto.
+
+Testado: 19 conferências novas (`teste_spawn_por_terreno.gd`) + suíte inteira (60 arquivos) em 0
+falhas. Publicado; smoke test em navegador real (novo jogo, Bulbasaur, andando) sem erro de script
+novo — achei 1 erro no console (`physics.size()=0` em `get_collision_polygons_count`), mas é de
+`WorldManager.gd`, arquivo que não toquei nesta mudança — pré-existente, não é regressão. **Não
+confirmei visualmente um Pokémon de terreno na tela** (a navegação automática esbarrou numa
+cerca-viva antes de chegar na grama de verdade) — a lógica está validada a fundo pelos testes, mas
+vale o Gabriel dar uma olhada de verdade quando puder.
+
+**Precisa de decisão do Gabriel?** Não pra continuar — mas ele deve saber que a Fase 10 (densidade
+por profundidade de floresta) parou de fazer efeito prático, e que dungeons ainda usam o sistema
+antigo (podem ganhar o mesmo tratamento depois, se ele quiser).
+
+---
+
 ## Voar/Surfar por espécie + primeiras 3 estradas alargadas (2026-09-03)
 
 **Voar e Surfar agora exigem TER o Pokémon certo no time** (Fearow/Pidgeot/Aerodactyl/Dragonite/
