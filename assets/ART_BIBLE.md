@@ -118,8 +118,13 @@ Resumo de 3 achados da auditoria técnica anterior, que esta Art Bible já leva 
    diferença entre frames de caminhada. É por isso que a Fase B do prompt do Gabriel já começa
    pelo personagem: é o pior ponto e o mais visível o tempo inteiro.
 
-Achado técnico à parte, que não é sobre arte mas afeta a percepção de qualidade: o modo de
-escala da janela (`window/stretch/mode="canvas_items"`, sem escala inteira) já está causando
-borrão sub-pixel independente da arte — recomendo corrigir isso ANTES da Fase B, senão a arte
-nova sofre o mesmo efeito. Fica registrado aqui porque impacta diretamente a Fase B ("comparar
-com o jogo real"): sem esse ajuste, a comparação visual fica injusta com a arte nova.
+**Correção a um achado técnico da auditoria anterior** (04/09): eu tinha recomendado ligar
+`window/stretch/scale_mode="integer"` pra eliminar o sub-pixel da escala fracionária. Testei ao
+vivo (Playwright, 3 tamanhos de janela) antes de publicar e achei um problema pior do que o que
+resolvia: com escala inteira, qualquer janela MENOR que 1280×720 (comum em celular — o jogo se
+chama PokéMobile) faz o Godot travar no mínimo 1x e **cortar** a tela em vez de encolher —
+testado em 800×600, o "Novo Jogo" saiu cortado. Reverti a mudança. O texture filter já é
+NEAREST em 100% dos assets (confirmado na auditoria) — isso significa que a escala fracionária
+de hoje não gera blend/blur de cor entre pixels, só uma leve variação de espessura entre colunas
+de pixel (artefato bem mais discreto do que eu tinha suposto). **Decisão: manter a escala
+fracionária como está.** Não é mais um bloqueador pra Fase B.
