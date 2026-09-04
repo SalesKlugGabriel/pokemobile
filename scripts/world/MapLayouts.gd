@@ -1961,6 +1961,48 @@ static func get_layout(map_id: String) -> Dictionary:
 ## vizinha, ficaria visivelmente errada).
 const VARIETY_CHARS : String = ".PSG"
 
+## Variações REAIS de terreno (04/09). O espelhamento sozinho (VARIETY_CHARS +
+## _variety_alt) não resolvia a repetição — pior, criava padrão simétrico em
+## "borboleta" que o olho pega na hora. Estas são tiles diferentes de verdade no
+## atlas, geradas por rolagem circular do tile original (`tools/
+## gerar_variacoes_terreno.py`): como os tiles de terreno são seamless, rolar
+## gera outro arranjo igualmente seamless e com EXATAMENTE o mesmo estilo/paleta
+## — é a mesma arte, só deslocada. Primeira entrada de cada lista é o tile
+## original, então o mapa nunca fica sem o visual de referência.
+## ⚠️ Areia e mato alto ficaram DE FORA (04/09): a areia tem uma tira escura
+## na borda que a rolagem joga pro meio do tile, e o mato alto tem as folhas
+## ancoradas na base — os dois apareceram em jogo com faixa preta atravessada,
+## lidos como "tile partido ao meio". Só entra terreno verificado seamless E
+## sem elemento ancorado.
+const VARIANTES_TERRENO : Dictionary = {
+	".": [Vector2i(0, 0), Vector2i(0, 7), Vector2i(1, 7), Vector2i(2, 7)],
+	"P": [Vector2i(1, 0), Vector2i(3, 7), Vector2i(4, 7), Vector2i(5, 7)],
+	"G": [Vector2i(4, 0), Vector2i(6, 7), Vector2i(7, 7), Vector2i(0, 8)],
+}
+
+## "Esta coordenada de atlas é do terreno `ch`?" — um tile pintado pode ser o
+## original OU qualquer variante dele. Quem precisa checar tipo de terreno
+## (teste, ferramenta, checagem de mapa) tem que perguntar POR AQUI, nunca
+## comparar com CHAR_MAP[ch] direto: comparação exata quebra toda vez que uma
+## variante nova entra, mesmo com o mapa 100% correto (foi exatamente o que
+## aconteceu ao introduzir as variações em 04/09 — 3 testes acusaram
+## "corredor intransitável" num corredor que estava perfeitamente andável).
+static func atlas_e_do_char(coord: Vector2i, ch: String) -> bool:
+	if VARIANTES_TERRENO.has(ch):
+		return coord in VARIANTES_TERRENO[ch]
+	return coord == CHAR_MAP.get(ch, Vector2i(0, 0))
+
+## Escolhe a variante de atlas do tile. Determinístico pela posição (o mesmo
+## tile sempre cai na mesma variante — o mapa não "pisca" ao repintar), com
+## hash diferente do usado no espelhamento pra não correlacionar os dois e
+## reintroduzir padrão.
+static func _variety_atlas(ch: String, col_idx: int, row_idx: int) -> Vector2i:
+	var lista : Array = VARIANTES_TERRENO.get(ch, [])
+	if lista.is_empty():
+		return CHAR_MAP.get(ch, Vector2i(0, 0))
+	var h : int = absi((col_idx * 374761393) ^ (row_idx * 668265263))
+	return lista[h % lista.size()]
+
 static func paint(tilemap: TileMap, map_id: String) -> void:
 	var layout := get_layout(map_id)
 	if layout.is_empty():
@@ -1972,7 +2014,7 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 		var row : String = rows[row_idx]
 		for col_idx in row.length():
 			var ch := row[col_idx]
-			var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
+			var atlas : Vector2i = _variety_atlas(ch, col_idx, row_idx)
 			var alt  : int = _variety_alt(ch, col_idx, row_idx)
 			tilemap.set_cell(0, Vector2i(col_idx, row_idx), 0, atlas, alt)
 
@@ -1986,7 +2028,7 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 			var r := i - NORTE_OFFSET
 			for col_idx in row.length():
 				var ch := row[col_idx]
-				var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
+				var atlas : Vector2i = _variety_atlas(ch, col_idx, r)
 				var alt  : int = _variety_alt(ch, col_idx, r)
 				tilemap.set_cell(0, Vector2i(col_idx, r), 0, atlas, alt)
 
@@ -2000,7 +2042,7 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 			for j in row.length():
 				var c := -(j + 1)
 				var ch := row[j]
-				var atlas : Vector2i = CHAR_MAP.get(ch, Vector2i(0, 0))
+				var atlas : Vector2i = _variety_atlas(ch, c, r)
 				var alt  : int = _variety_alt(ch, c, r)
 				tilemap.set_cell(0, Vector2i(c, r), 0, atlas, alt)
 

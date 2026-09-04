@@ -383,6 +383,19 @@ func _fire_passive_reflect() -> void:
 # Loop principal
 # ──────────────────────────────────────────────────────────────────────────────
 
+## Move respeitando os tiles bloqueados (árvore/parede/água), usando a MESMA
+## fonte de verdade do jogador (WorldManager.is_tile_walkable). Antes de 04/09
+## estas entidades chamavam move_and_slide() cru e atravessavam tudo — o
+## TileSet não tem camada de física, então não havia nada segurando.
+## PE_OFFSET: a origem do nó fica acima do chão; o contato com o solo (e a
+## sombra) está +24px abaixo, e é ESSE ponto que decide em qual tile a
+## entidade está.
+const PE_OFFSET : Vector2 = Vector2(0, 24)
+
+func _mover_com_colisao() -> void:
+	velocity = WorldManager.filtrar_velocidade(global_position + PE_OFFSET, velocity)
+	move_and_slide()
+
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
@@ -396,7 +409,7 @@ func _physics_process(delta: float) -> void:
 	# fica parado até acordar/degelar (StatusEffectController.is_incapacitated).
 	if StatusEffectController.is_incapacitated(current_status):
 		velocity = Vector2.ZERO
-		move_and_slide()
+		_mover_com_colisao()
 		return
 
 	match state:
@@ -522,7 +535,7 @@ func _tick_patrol(delta: float) -> void:
 
 	var move_speed := _get_move_speed()
 	velocity = _patrol_dir * move_speed
-	move_and_slide()
+	_mover_com_colisao()
 
 ## Coleira (03/09, spawn fixo por terreno): sem isso, um passeio 100%
 ## aleatório pode, com tempo suficiente, sair da própria área de terreno
@@ -546,7 +559,7 @@ func _flee_from_target() -> void:
 		return
 	var away := (global_position - target.global_position).normalized()
 	velocity  = away * _get_move_speed() * 1.5
-	move_and_slide()
+	_mover_com_colisao()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # CHASE
@@ -567,7 +580,7 @@ func _tick_chase() -> void:
 
 	var dir  := (target.global_position - global_position).normalized()
 	velocity  = dir * _get_move_speed()
-	move_and_slide()
+	_mover_com_colisao()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # ATTACK

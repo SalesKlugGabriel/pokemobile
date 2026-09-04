@@ -45,33 +45,33 @@ func _teste_geral() -> void:
 	MapLayouts.paint(tm, "world_map")
 
 	# ---- 2. Seam: sair de Viridian (c=0/1/2, rows 100-101) pro ramo oeste ----
-	_assert(_atlas_at(tm, 0, 100) == MapLayouts.CHAR_MAP["P"], "seam: c=0 na row 100 é caminho (abre o ramo oeste)")
-	_assert(_atlas_at(tm, -1, 100) == MapLayouts.CHAR_MAP["P"], "c=-1 (já dentro da Rota 22) é caminhável")
-	_assert(_atlas_at(tm, 0, 99) == MapLayouts.CHAR_MAP["T"], "fora das 2 linhas do seam (row 99), c=0 continua borda")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, 0, 100), "P"), "seam: c=0 na row 100 é caminho (abre o ramo oeste)")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -1, 100), "P"), "c=-1 (já dentro da Rota 22) é caminhável")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, 0, 99), "T"), "fora das 2 linhas do seam (row 99), c=0 continua borda")
 
 	# ---- 3. Corredor da Rota 22 contínuo até a boca de Victory Road ----
 	var quebras := 0
 	for c in range(-24, 0):
-		if _atlas_at(tm, c, 100) != MapLayouts.CHAR_MAP["P"]:
+		if not MapLayouts.atlas_e_do_char(_atlas_at(tm, c, 100), "P"):
 			quebras += 1
 	_assert(quebras == 0, "corredor da Rota 22 contínuo de c=-1 a c=-24 (%d quebras)" % quebras)
 
 	# ---- 4. Victory Road: boca existe (opcional/lateral — dá pra contornar) ----
-	_assert(_atlas_at(tm, -28, 100) == MapLayouts.CHAR_MAP["P"], "boca de Victory Road é caminhável (entrada do warp)")
-	_assert(_atlas_at(tm, -28, 90) == MapLayouts.CHAR_MAP["R"], "fora do corredor (row 90), a montanha de Victory Road é rocha")
-	_assert(_atlas_at(tm, -28, 85) != MapLayouts.CHAR_MAP["R"], "dá pra contornar a montanha por fora da caixa (row 85)")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -28, 100), "P"), "boca de Victory Road é caminhável (entrada do warp)")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -28, 90), "R"), "fora do corredor (row 90), a montanha de Victory Road é rocha")
+	_assert(not MapLayouts.atlas_e_do_char(_atlas_at(tm, -28, 85), "R"), "dá pra contornar a montanha por fora da caixa (row 85)")
 
 	# ---- 5. Indigo Plateau: Liga Pokémon fechada + Centro Pokémon funcional ----
 	# Liga: ip10-22 → j70-82 → c=-70..-82 (col de teste: ip16 → c=-76)
-	_assert(_atlas_at(tm, -76, 88) == MapLayouts.CHAR_MAP["H"], "Indigo Plateau: telhado da Liga existe")
-	_assert(_atlas_at(tm, -76, 96) == MapLayouts.CHAR_MAP["W"], "Indigo Plateau: porta da Liga é parede (fechada, bloqueada por história)")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -76, 88), "H"), "Indigo Plateau: telhado da Liga existe")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -76, 96), "W"), "Indigo Plateau: porta da Liga é parede (fechada, bloqueada por história)")
 	# Centro: ip25-37 → j85-97 → c=-85..-97 (col de teste: ip31 → c=-91)
-	_assert(_atlas_at(tm, -91, 88) == MapLayouts.CHAR_MAP["H"], "Indigo Plateau: telhado do Centro Pokémon existe")
-	_assert(_atlas_at(tm, -91, 92) == MapLayouts.CHAR_MAP["I"], "Indigo Plateau: interior do Centro Pokémon é piso")
-	_assert(_atlas_at(tm, -91, 96) == MapLayouts.CHAR_MAP["P"], "Indigo Plateau: porta do Centro Pokémon está aberta")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -91, 88), "H"), "Indigo Plateau: telhado do Centro Pokémon existe")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -91, 92), "I"), "Indigo Plateau: interior do Centro Pokémon é piso")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -91, 96), "P"), "Indigo Plateau: porta do Centro Pokémon está aberta")
 
 	# ---- 6. Borda absoluta no fim do ramo oeste (j=OESTE_OFFSET=100, c=-100) ----
-	_assert(_atlas_at(tm, -100, 100) == MapLayouts.CHAR_MAP["T"], "fim do ramo oeste (c=-100) é borda")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -100, 100), "T"), "fim do ramo oeste (c=-100) é borda")
 	# Além da borda, não tem tile nenhum pintado — mas isso é SEGURO (a
 	# própria regra de walkability trata tile vazio como bloqueado, "Estratégia
 	# 2" de WorldManager.is_tile_walkable), não precisa de pintura extra ali.

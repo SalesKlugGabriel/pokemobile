@@ -318,7 +318,8 @@ def desenhar_cabeca(t, pal, dir_, bob):
         t.rect(CX - 3, y_rosto, CX + 2, y_rosto + 1, cp["sombra"])
 
 
-def montar_frame(pal, dir_, fase):
+def montar_frame_tela(pal, dir_, fase):
+    """Devolve a Tela lógica (32x64) — quem chama decide a escala final."""
     t = Tela()
     bob = -1 if fase in (1, 2) else 0   # leve sobe-desce ao andar
     desenhar_sombra_chao(t)
@@ -334,17 +335,37 @@ def montar_frame(pal, dir_, fase):
     mapa[(30, 26, 22, 255)] = (30, 26, 22, 255)
     mapa[(70, 62, 56, 255)] = (30, 26, 22, 255)
     t.contornar(mapa)
-    return t.para_imagem()
+    return t
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Escala final (correção do Gabriel, 04/09: "personagem desproporcionalmente
+# grande em relação às árvores").
+#
+# O frame continua 128x256 (é o que SpriteBuilder espera — não dá pra mudar sem
+# mexer no jogo), mas o personagem passa a ser desenhado em 3x em vez de 4x:
+#   antes: 46 px lógicos * 4 = 184 px = 1,44 tile de altura
+#   agora: 46 px lógicos * 3 = 138 px = 1,08 tile  -> bate com as árvores (1 tile)
+# 3x continua sendo escala INTEIRA, então o pixel art não borra nem fica com
+# coluna de espessura desigual (o que aconteceria com 0,78x, por exemplo).
+#
+# O offset vertical mantém a LINHA DO PÉ exatamente onde estava (y=216 no frame),
+# então sombra do motor, pivô e alinhamento com o tile não mudam nada.
+ESCALA_FINAL = 3
+FRAME_W, FRAME_H = LW * SCALE, LH * SCALE          # 128 x 256, o formato do jogo
+LINHA_PE_FRAME = Y_PE * SCALE                       # 216
 
 
 def gerar_spritesheet(pal, destino):
-    fw, fh = LW * SCALE, LH * SCALE
-    folha = Image.new("RGBA", (fw * COLS, fh * ROWS), TRANSP)
+    folha = Image.new("RGBA", (FRAME_W * COLS, FRAME_H * ROWS), TRANSP)
     direcoes = ["down", "up", "left", "right"]
+    off_x = (FRAME_W - LW * ESCALA_FINAL) // 2
+    off_y = LINHA_PE_FRAME - Y_PE * ESCALA_FINAL
     for row, dir_ in enumerate(direcoes):
         for col, fase in enumerate((0, 1, 2)):     # idle, walk_a, walk_b
-            frame = montar_frame(pal, dir_, fase)
-            folha.paste(frame, (col * fw, row * fh))
+            t = montar_frame_tela(pal, dir_, fase)
+            menor = t.para_imagem(ESCALA_FINAL)
+            folha.paste(menor, (col * FRAME_W + off_x, row * FRAME_H + off_y), menor)
     folha.save(destino)
     return destino
 

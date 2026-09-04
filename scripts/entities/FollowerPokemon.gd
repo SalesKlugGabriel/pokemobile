@@ -247,6 +247,19 @@ func _process(delta: float) -> void:
 	_tick_cooldowns(delta)
 	_handle_skill_input()
 
+## Move respeitando os tiles bloqueados (árvore/parede/água), usando a MESMA
+## fonte de verdade do jogador (WorldManager.is_tile_walkable). Antes de 04/09
+## estas entidades chamavam move_and_slide() cru e atravessavam tudo — o
+## TileSet não tem camada de física, então não havia nada segurando.
+## PE_OFFSET: a origem do nó fica acima do chão; o contato com o solo (e a
+## sombra) está +24px abaixo, e é ESSE ponto que decide em qual tile a
+## entidade está.
+const PE_OFFSET : Vector2 = Vector2(0, 24)
+
+func _mover_com_colisao() -> void:
+	velocity = WorldManager.filtrar_velocidade(global_position + PE_OFFSET, velocity)
+	move_and_slide()
+
 func _physics_process(delta: float) -> void:
 	if _is_fainted:
 		return
@@ -255,7 +268,7 @@ func _physics_process(delta: float) -> void:
 	# Treinador, não ataca) até acordar/degelar (03/09).
 	if StatusEffectController.is_incapacitated(current_status):
 		velocity = Vector2.ZERO
-		move_and_slide()
+		_mover_com_colisao()
 	else:
 		_update_position(delta)
 	_tick_passive(delta)
@@ -486,7 +499,7 @@ func _update_position(delta: float) -> void:
 
 	_play_anim("walk" if velocity.length() > 8.0 else "idle")
 
-	move_and_slide()
+	_mover_com_colisao()
 
 func _calculate_target_position() -> Vector2:
 	# Com inimigo em combate: posiciona entre Treinador e inimigo

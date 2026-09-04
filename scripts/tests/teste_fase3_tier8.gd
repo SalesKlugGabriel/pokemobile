@@ -50,21 +50,21 @@ func _teste_geral() -> void:
 	# ---- 2. Corredor contínuo de Cerulean (r=-1) até perto da borda (r=-39) ----
 	var quebras := 0
 	for r in range(-39, 0):
-		if _atlas_at(tm, 248, r) != MapLayouts.CHAR_MAP["P"]:
+		if not MapLayouts.atlas_e_do_char(_atlas_at(tm, 248, r), "P"):
 			quebras += 1
 	_assert(quebras == 0, "corredor da Rota 24/25 (col 248) contínuo de r=-39 a r=-1 (%d quebras)" % quebras)
 
 	# ---- 3. A costura conecta o ramo (r=-1) com Cerulean (r=3, já dentro
 	# da própria lógica da cidade, sem o seam-fix) ----
-	_assert(_atlas_at(tm, 248, 0) == MapLayouts.CHAR_MAP["P"], "seam: r=0 na coluna do ramo é caminho (não borda) — sem isso o ramo ficaria isolado")
-	_assert(_atlas_at(tm, 248, 3) != MapLayouts.CHAR_MAP["T"], "r=3 (já território normal de Cerulean) é caminhável")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, 248, 0), "P"), "seam: r=0 na coluna do ramo é caminho (não borda) — sem isso o ramo ficaria isolado")
+	_assert(not MapLayouts.atlas_e_do_char(_atlas_at(tm, 248, 3), "T"), "r=3 (já território normal de Cerulean) é caminhável")
 
 	# ---- 4. Casa do Bill existe (ao lado do corredor, não em cima) ----
-	_assert(_atlas_at(tm, 257, -36) == MapLayouts.CHAR_MAP["I"], "Casa do Bill: interior é piso")
-	_assert(_atlas_at(tm, 257, -37) == MapLayouts.CHAR_MAP["H"], "Casa do Bill: telhado existe")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, 257, -36), "I"), "Casa do Bill: interior é piso")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, 257, -37), "H"), "Casa do Bill: telhado existe")
 
 	# ---- 5. Fora da faixa do ramo continua borda (não vazou pro resto do mapa) ----
-	_assert(_atlas_at(tm, 100, -20) == MapLayouts.CHAR_MAP["T"], "fora da faixa de colunas do ramo (ex: col 100) continua borda em r negativo")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, 100, -20), "T"), "fora da faixa de colunas do ramo (ex: col 100) continua borda em r negativo")
 
 	# ---- 6. NPCs existem no WorldMap.tscn ----
 	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene

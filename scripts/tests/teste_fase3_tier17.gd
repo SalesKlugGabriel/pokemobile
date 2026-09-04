@@ -39,21 +39,21 @@ func _teste_geral() -> void:
 
 	# Dentro da faixa da ponte (r=-15..-7): corredor continua "P" (tabuleiro
 	# da ponte), os dois lados viram rio "~".
-	_assert(_atlas_at(tm, 248, -10) == MapLayouts.CHAR_MAP["P"], "ponte: corredor (col 248) continua caminhável em r=-10")
-	_assert(_atlas_at(tm, 245, -10) == MapLayouts.CHAR_MAP["~"], "ponte: lado oeste (col 245) é rio em r=-10")
-	_assert(_atlas_at(tm, 251, -10) == MapLayouts.CHAR_MAP["~"], "ponte: lado leste (col 251) é rio em r=-10")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, 248, -10), "P"), "ponte: corredor (col 248) continua caminhável em r=-10")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, 245, -10), "~"), "ponte: lado oeste (col 245) é rio em r=-10")
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, 251, -10), "~"), "ponte: lado leste (col 251) é rio em r=-10")
 
 	# Corredor continua contínuo de ponta a ponta da Rota 24/25 (não quebrou
 	# nada do Tier 8) — mesma conferência de sempre.
 	var quebras := 0
 	for r in range(-39, 0):
-		if _atlas_at(tm, 248, r) != MapLayouts.CHAR_MAP["P"]:
+		if not MapLayouts.atlas_e_do_char(_atlas_at(tm, 248, r), "P"):
 			quebras += 1
 	_assert(quebras == 0, "corredor da Rota 24/25 continua contínuo de r=-39 a r=-1 (%d quebras)" % quebras)
 
 	# Fora da faixa da ponte (r=-20, ainda dentro da Rota 24): os lados
 	# voltam a ser terreno normal, não rio.
-	_assert(_atlas_at(tm, 245, -20) != MapLayouts.CHAR_MAP["~"], "fora da ponte (r=-20), lado oeste NÃO é rio")
+	_assert(not MapLayouts.atlas_e_do_char(_atlas_at(tm, 245, -20), "~"), "fora da ponte (r=-20), lado oeste NÃO é rio")
 
 	# O TreinadorRota24 (Tier 8) já existente cai dentro da faixa da ponte —
 	# é ele quem faz o papel do "treinador que bloqueia a ponte" canônico.

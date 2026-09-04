@@ -124,6 +124,42 @@ func _tile_walkable_tilemap(tm: TileMap, tile: Vector2i) -> bool:
 			break
 	return has_any
 
+## Converte posição em pixels para coordenada de tile.
+## Usa floor(), não truncamento: o mundo tem coordenadas NEGATIVAS (ramos da
+## Rota 22/24/25) e Vector2i(v/128.0) truncaria -0.5 pra 0, devolvendo o tile
+## errado justamente na borda desses ramos.
+func pos_para_tile(pos: Vector2) -> Vector2i:
+	return Vector2i(floori(pos.x / 128.0), floori(pos.y / 128.0))
+
+const LOOKAHEAD_COLISAO : float = 28.0   # px à frente que a entidade "sente"
+
+## Filtra uma velocidade pra que a entidade não entre em tile bloqueado
+## (árvore/parede/água). Testa os eixos SEPARADAMENTE, então ela desliza ao
+## longo do obstáculo em vez de travar de frente nele.
+##
+## Por que existe (correção do Gabriel, 04/09: "o Pokémon consegue ignorar
+## árvores e andar por cima delas"): o jogador anda tile-a-tile e já consultava
+## is_tile_walkable(), mas Pokémon (WildPokemon/FollowerPokemon) se movem por
+## move_and_slide() contínuo e não consultavam NADA — e o TileSet não tem camada
+## de física, então não havia absolutamente nada impedindo. Aqui eles passam a
+## usar a MESMA fonte de verdade do jogador, sem duplicar regra de colisão.
+##
+## `pos` deve ser o ponto de CONTATO COM O CHÃO da entidade (o pé), não a origem
+## do nó — senão a colisão é medida na altura da cabeça.
+func filtrar_velocidade(pos: Vector2, vel: Vector2) -> Vector2:
+	if vel == Vector2.ZERO or not tilemap:
+		return vel
+	var out := vel
+	if not is_zero_approx(vel.x):
+		var frente_x := pos + Vector2(signf(vel.x) * LOOKAHEAD_COLISAO, 0.0)
+		if not is_tile_walkable(pos_para_tile(frente_x)):
+			out.x = 0.0
+	if not is_zero_approx(vel.y):
+		var frente_y := pos + Vector2(0.0, signf(vel.y) * LOOKAHEAD_COLISAO)
+		if not is_tile_walkable(pos_para_tile(frente_y)):
+			out.y = 0.0
+	return out
+
 ## Retorna true se o tile é água (atlas coords == WATER_ATLAS_COORDS) —
 ## usado pra pesca: só dá pra pescar de frente pra um tile assim.
 func is_water_tile(tile: Vector2i) -> bool:
