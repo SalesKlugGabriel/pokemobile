@@ -69,6 +69,17 @@ func _teste_geral() -> void:
 					pokecenter_warps += 1
 		_assert(alvos_indevidos == 0,
 			"nenhum warp de cidade/rota indevido sobrou (%d de sobra)" % alvos_indevidos)
-		_assert(pokecenter_warps >= 9,
-			"pelo menos os 9 Centros Pokémon do Tier 7 têm warp de entrada (achou %d)" % pokecenter_warps)
+		# MUDANÇA DE DESIGN (04/09, decisão do Gabriel): Centro Pokémon deixou de
+		# ter warp — agora o jogador ENTRA ANDANDO no prédio e fala com a
+		# Enfermeira Joy que ficou dentro dele, no próprio mapa-mundo. Só
+		# S.S. Anne, Zona Safari e Torre Pokémon (mais as cavernas) seguem com
+		# warp. A checagem virou o oposto: não pode sobrar warp de Centro, e as
+		# enfermeiras têm que existir.
+		_assert(pokecenter_warps == 0,
+			"Centro Pokémon não usa mais warp — entra andando (achou %d warps)" % pokecenter_warps)
+		var enfermeiras := 0
+		for no in inst.find_children("*", "", true, false):
+			if no.name.begins_with("EnfermeiraJoy"):
+				enfermeiras += 1
+		_assert(enfermeiras >= 9, "cada Centro tem Enfermeira Joy dentro pra curar (achou %d)" % enfermeiras)
 		inst.free()

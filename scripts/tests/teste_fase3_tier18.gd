@@ -89,10 +89,14 @@ func _teste_geral() -> void:
 			for w in warp_zones.get_children():
 				if w.target_map.contains("VictoryRoad"):
 					achou_vr = true
-				if w.name == "WarpPokeCenter_Indigo":
-					achou_indigo_center = true
+				pass
 		_assert(achou_vr, "warp de entrada pra VictoryRoad.tscn existe")
-		_assert(achou_indigo_center, "warp do Centro Pokémon de Indigo Plateau existe")
+				# 04/09: Centro Pokémon virou "entra andando" (sem warp) — o que prova que
+		# ele funciona agora é ter a Enfermeira Joy dentro, não um warp.
+		for no in inst.find_children("*", "", true, false):
+			if no.name == "EnfermeiraJoyIndigo":
+				achou_indigo_center = true
+		_assert(achou_indigo_center, "Centro Pokémon de Indigo Plateau tem Enfermeira Joy dentro")
 		inst.free()
 
 	# ---- 8. Victory Road: cena própria carrega e não fica isolada ----

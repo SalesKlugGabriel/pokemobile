@@ -349,34 +349,77 @@ script = ExtResource("4_zm")
 [node name="SpawnManager" type="Node" parent="."]
 script = ExtResource("4b_sm")
 
+[node name="EnfermeiraJoyPallet" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(9664, 20416)
+npc_name = "Enfermeira Joy"
+dialog_id = "nurse_joy"
+heal_on_dialog_end = true
+is_patrolling = false
+
+[node name="EnfermeiraJoyViridian" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(9664, 10688)
+npc_name = "Enfermeira Joy"
+dialog_id = "nurse_joy"
+heal_on_dialog_end = true
+is_patrolling = false
+
+[node name="EnfermeiraJoyPewter" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(9792, 1472)
+npc_name = "Enfermeira Joy"
+dialog_id = "nurse_joy"
+heal_on_dialog_end = true
+is_patrolling = false
+
+[node name="EnfermeiraJoyCerulean" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(33472, 1472)
+npc_name = "Enfermeira Joy"
+dialog_id = "nurse_joy"
+heal_on_dialog_end = true
+is_patrolling = false
+
+[node name="EnfermeiraJoyVermilion" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(33472, 18496)
+npc_name = "Enfermeira Joy"
+dialog_id = "nurse_joy"
+heal_on_dialog_end = true
+is_patrolling = false
+
+[node name="EnfermeiraJoyCeladon" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(20672, 10048)
+npc_name = "Enfermeira Joy"
+dialog_id = "nurse_joy"
+heal_on_dialog_end = true
+is_patrolling = false
+
+[node name="EnfermeiraJoyFuchsia" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(56512, 18496)
+npc_name = "Enfermeira Joy"
+dialog_id = "nurse_joy"
+heal_on_dialog_end = true
+is_patrolling = false
+
+[node name="EnfermeiraJoySaffron" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(33472, 10048)
+npc_name = "Enfermeira Joy"
+dialog_id = "nurse_joy"
+heal_on_dialog_end = true
+is_patrolling = false
+
+[node name="EnfermeiraJoyLavender" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(56512, 10048)
+npc_name = "Enfermeira Joy"
+dialog_id = "nurse_joy"
+heal_on_dialog_end = true
+is_patrolling = false
+
+[node name="EnfermeiraJoyIndigo" parent="Entities" instance=ExtResource("3_npc")]
+position = Vector2(-11584, 11968)
+npc_name = "Enfermeira Joy"
+dialog_id = "nurse_joy"
+heal_on_dialog_end = true
+is_patrolling = false
+
 [node name="WarpZones" type="Node2D" parent="."]
-
-[node name="WarpPokeCenter_Pallet" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(9600, 20736)
-target_map = "res://scenes/world/maps/PokemonCenter.tscn"
-spawn_tile = Vector2i(7, 11)
-is_pokemon_center_entrance = true
-
-[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Pallet"]
-shape = SubResource("Shape_pokecenter_pallet")
-
-[node name="WarpPokeCenter_Viridian" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(9600, 11008)
-target_map = "res://scenes/world/maps/PokemonCenter.tscn"
-spawn_tile = Vector2i(7, 11)
-is_pokemon_center_entrance = true
-
-[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Viridian"]
-shape = SubResource("Shape_pokecenter_viridian")
-
-[node name="WarpPokeCenter_Pewter" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(9792, 1856)
-target_map = "res://scenes/world/maps/PokemonCenter.tscn"
-spawn_tile = Vector2i(7, 11)
-is_pokemon_center_entrance = true
-
-[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Pewter"]
-shape = SubResource("Shape_pokecenter_pewter")
 
 [node name="WarpMtMoon" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(20416, 2368)
@@ -410,60 +453,6 @@ spawn_tile = Vector2i(8, 11)
 [node name="CollisionShape2D" parent="WarpZones/WarpRocketHideout"]
 shape = SubResource("Shape_rockethideout")
 
-[node name="WarpPokeCenter_Cerulean" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(33472, 1856)
-target_map = "res://scenes/world/maps/PokemonCenter.tscn"
-spawn_tile = Vector2i(7, 11)
-is_pokemon_center_entrance = true
-
-[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Cerulean"]
-shape = SubResource("Shape_pokecenter_cerulean")
-
-[node name="WarpPokeCenter_Vermilion" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(33472, 18880)
-target_map = "res://scenes/world/maps/PokemonCenter.tscn"
-spawn_tile = Vector2i(7, 11)
-is_pokemon_center_entrance = true
-
-[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Vermilion"]
-shape = SubResource("Shape_pokecenter_vermilion")
-
-[node name="WarpPokeCenter_Celadon" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(20672, 10432)
-target_map = "res://scenes/world/maps/PokemonCenter.tscn"
-spawn_tile = Vector2i(7, 11)
-is_pokemon_center_entrance = true
-
-[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Celadon"]
-shape = SubResource("Shape_pokecenter_celadon")
-
-[node name="WarpPokeCenter_Fuchsia" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(56512, 18880)
-target_map = "res://scenes/world/maps/PokemonCenter.tscn"
-spawn_tile = Vector2i(7, 11)
-is_pokemon_center_entrance = true
-
-[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Fuchsia"]
-shape = SubResource("Shape_pokecenter_fuchsia")
-
-[node name="WarpPokeCenter_Saffron" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(33472, 10432)
-target_map = "res://scenes/world/maps/PokemonCenter.tscn"
-spawn_tile = Vector2i(7, 11)
-is_pokemon_center_entrance = true
-
-[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Saffron"]
-shape = SubResource("Shape_pokecenter_saffron")
-
-[node name="WarpPokeCenter_Lavender" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(56512, 10432)
-target_map = "res://scenes/world/maps/PokemonCenter.tscn"
-spawn_tile = Vector2i(7, 11)
-is_pokemon_center_entrance = true
-
-[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Lavender"]
-shape = SubResource("Shape_pokecenter_lavender")
-
 [node name="WarpVictoryRoad" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(-3520, 12864)
 target_map = "res://scenes/world/maps/VictoryRoad.tscn"
@@ -471,15 +460,6 @@ spawn_tile = Vector2i(15, 30)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpVictoryRoad"]
 shape = SubResource("Shape_victoryroad")
-
-[node name="WarpPokeCenter_Indigo" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(-11584, 12352)
-target_map = "res://scenes/world/maps/PokemonCenter.tscn"
-spawn_tile = Vector2i(7, 11)
-is_pokemon_center_entrance = true
-
-[node name="CollisionShape2D" parent="WarpZones/WarpPokeCenter_Indigo"]
-shape = SubResource("Shape_pokecenter_indigo")
 
 [node name="WarpIndigoLeague" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(-9664, 12352)
