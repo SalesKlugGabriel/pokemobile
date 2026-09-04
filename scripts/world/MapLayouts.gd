@@ -615,9 +615,12 @@ static func _vermilion_cell(cc: int, r: int) -> String:
 	return "."
 
 ## Rota 7 (Saffron → Celadon, pra oeste). `dist` cresce se afastando de
-## Saffron (0 = colado nela).
+## Saffron (0 = colado nela). Estrada alargada de 5 pra 8 tiles (03/09,
+## pedido do Gabriel: "estradas 6 a 10 pisos de largura, mais perto do
+## formato original") — esta rota não tem nenhum prédio/moldura de caverna
+## por perto, então alargar foi seguro sem mexer em mais nada.
 static func _route7_cell(dist: int, r: int) -> String:
-	if r >= 16 and r <= 20:
+	if r >= 14 and r <= 21:
 		return "P"
 	if (dist + r * 2) % 9 == 4:
 		return "T"
@@ -695,8 +698,12 @@ static func _celadon_cell(ce: int, r: int) -> String:
 ## boca de Rock Tunnel que já existiam nas antigas Rota 9 (pedregosa) e
 ## Rota 10 (a boca em si). `dist` cresce se afastando de Saffron.
 static func _route8_cell(dist: int, r: int) -> String:
+	# Estrada alargada de 5 pra 10 tiles (03/09, pedido do Gabriel). Onde a
+	# moldura da boca de Rock Tunnel existe (r10 20-27, abaixo), ela é
+	# checada ANTES e continua vencendo nas próprias linhas — alargar aqui
+	# só afeta o resto da rota, sem tocar a moldura.
 	if dist < ROUTE9_COLS:
-		if r >= 16 and r <= 20:
+		if r >= 13 and r <= 22:
 			return "P"
 		if (dist + r * 2) % 9 == 6:
 			return "R"  # pedregosa (leva pro Rock Tunnel no Kanto real)
@@ -705,13 +712,13 @@ static func _route8_cell(dist: int, r: int) -> String:
 		return "."
 
 	var r10 := dist - ROUTE9_COLS
-	# Boca do Rock Tunnel — moldura de rocha ACIMA do corredor (rows 12-15),
-	# nunca atravessando o corredor em si (r16-20 sempre vence).
+	# Boca do Rock Tunnel — moldura de rocha ACIMA do corredor (rows 12-15,
+	# checada primeiro, sempre vence nesta faixa de colunas específica).
 	if r10 >= 20 and r10 <= 27 and r >= 12 and r <= 15:
 		if r10 >= 22 and r10 <= 25:
 			return "P"
 		return "R"
-	if r >= 16 and r <= 20:
+	if r >= 13 and r <= 22:
 		return "P"
 	if (r10 + r * 2) % 9 == 7:
 		return "T"
@@ -1020,8 +1027,14 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 	if r <= 2 or r >= PEWTER_ROWS - 1:
 		return "T"
 
-	# ── Caminho principal leste-oeste ── rows 16-20
-	var no_caminho := r >= 16 and r <= 20
+	# ── Caminho principal leste-oeste ── rows 13-22 (03/09: alargado de 5 pra
+	# 10 tiles, pedido do Gabriel — "estradas 6 a 10 pisos de largura, mais
+	# perto do formato original"). Seguro alargar até aqui porque a moldura
+	# da boca de Mt Moon (linha 1041, abaixo) já reserva r12-24 pro entorno
+	# rochoso — o caminho mais largo cabe inteiro dentro dessa moldura sem
+	# encostar nela. Não afeta Cerulean (cc adiante nesta função): os
+	# prédios de lá não usam esta variável, têm o próprio conector r14-16.
+	var no_caminho := r >= 13 and r <= 22
 
 	# ── Rota 3 ── local cols 0-59
 	if c < ROUTE3_COLS:

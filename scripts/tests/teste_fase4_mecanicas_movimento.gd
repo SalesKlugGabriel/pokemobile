@@ -38,6 +38,7 @@ func _process(_delta: float) -> bool:
 	_teste_visited_maps()
 	_teste_recompensas_surf_fly()
 	_teste_posicao_pokemon_seguidor()
+	_teste_surf_fly_por_especie()
 
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	quit(1 if _fail > 0 else 0)
@@ -242,3 +243,38 @@ func _teste_posicao_pokemon_seguidor() -> void:
 
 	trainer.free()
 	follower.free()
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 7. Surfar/Voar por ESPÉCIE (03/09, pedido do Gabriel): antes era "qualquer
+#    Pokémon sabendo o golpe" — agora é "TER um dos Pokémon certos no time",
+#    mesmo padrão da Montaria. Instancia TrainerEntity.gd cru (mesmo truque
+#    do teste 6 acima) só pra chamar _pode_surfar()/_pode_voar() direto.
+# ──────────────────────────────────────────────────────────────────────────────
+func _teste_surf_fly_por_especie() -> void:
+	var TrainerScript := ResourceLoader.load("res://scripts/entities/TrainerEntity.gd", "", ResourceLoader.CACHE_MODE_IGNORE)
+	var trainer = TrainerScript.new()
+
+	SaveManager.save_data["team"] = [{"species_id": 25, "level": 10, "moves": []}]  # Pikachu
+	_assert(not trainer._pode_surfar(), "Pikachu sozinho no time não permite Surfar")
+	_assert(not trainer._pode_voar(), "Pikachu sozinho no time não permite Voar")
+
+	# Squirtle sabendo o golpe Surf NÃO basta mais — não é da lista de espécie.
+	SaveManager.save_data["team"] = [
+		{"species_id": 7, "level": 10, "moves": [{"id": "surf", "pp_current": 15, "pp_max": 15}]}
+	]
+	_assert(not trainer._pode_surfar(), "Squirtle sabendo Surfar NÃO basta mais — a regra agora é por espécie")
+
+	SaveManager.save_data["team"] = [{"species_id": 130, "level": 30, "moves": []}]  # Gyarados
+	_assert(trainer._pode_surfar(), "Gyarados no time permite Surfar, mesmo sem saber o golpe")
+
+	SaveManager.save_data["team"] = [{"species_id": 131, "level": 30, "moves": []}]  # Lapras
+	_assert(trainer._pode_surfar(), "Lapras no time também permite Surfar")
+
+	SaveManager.save_data["team"] = [{"species_id": 149, "level": 55, "moves": []}]  # Dragonite
+	_assert(trainer._pode_voar(), "Dragonite no time permite Voar, mesmo sem saber o golpe")
+	_assert(not trainer._pode_surfar(), "Dragonite não é da lista de Surfar")
+
+	SaveManager.save_data["team"] = [{"species_id": 22, "level": 30, "moves": []}]  # Fearow
+	_assert(trainer._pode_voar(), "Fearow no time permite Voar")
+
+	trainer.free()

@@ -61,6 +61,32 @@ const MOUNT_SPECIES : Array[int] = [
 	78,   # Rapidash
 ]
 
+## Pokémon de Voar (Gabriel, 03/09: "usando pokémons tipo voador — fearow,
+## pidgeot, aerodactyl, dragonite, etc") — troca a regra antiga (qualquer
+## Pokémon que soubesse o golpe "fly", mesmo sem ser voador de verdade tipo
+## Rhydon com MO) por uma lista de espécie, mesmo padrão da Montaria: TER o
+## bicho no time já é suficiente, nenhum golpe envolvido.
+const FLY_SPECIES : Array[int] = [
+	22,   # Fearow
+	18,   # Pidgeot
+	142,  # Aerodactyl
+	149,  # Dragonite
+	6,    # Charizard
+]
+
+## Pokémon de Surfar (Gabriel, 03/09: "tipo água — poliwag, poliwhirl,
+## seadra, gyarados, lapras, etc") — mesma troca acima, de golpe pra lista
+## de espécie. Poliwrath incluído por simetria (mesma razão do Rhydon na
+## Montaria: se a pré-evolução surfa, a evolução também surfa).
+const SURF_SPECIES : Array[int] = [
+	60,   # Poliwag
+	61,   # Poliwhirl
+	62,   # Poliwrath
+	117,  # Seadra
+	130,  # Gyarados
+	131,  # Lapras
+]
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Inicialização
 # ──────────────────────────────────────────────────────────────────────────────
@@ -287,10 +313,10 @@ func _read_direction() -> int:
 
 ## Só o jogador entra na água — sobrescreve a checagem herdada de BaseEntity
 ## (que bloqueia água pra todo mundo, NPC incluso, de propósito). Permite o
-## tile se o time tiver Surfar (Pokémon de tipo Água) OU Voar (Pokémon de
-## tipo Voador) — quem não tem nenhum dos dois esbarra na água igual numa
-## parede, sem mensagem extra (mesmo padrão silencioso já usado pra árvore/
-## rocha no resto do jogo).
+## tile se o time tiver um dos Pokémon de SURF_SPECIES ou FLY_SPECIES —
+## quem não tem nenhum dos dois esbarra na água igual numa parede, sem
+## mensagem extra (mesmo padrão silencioso já usado pra árvore/rocha no
+## resto do jogo).
 func _is_tile_walkable(tile: Vector2i) -> bool:
 	if WorldManager.is_water_tile(tile):
 		return _pode_voar() or _pode_surfar()
@@ -307,11 +333,14 @@ func _on_tile_entered(tile: Vector2i) -> void:
 	is_surfing = na_agua and not is_flying and _pode_surfar()
 	EventBus.player_tile_entered.emit(tile)
 
+## Correção 03/09 (pedido do Gabriel): era "qualquer Pokémon sabendo o golpe
+## Surfar/Voar", virou "TER um dos Pokémon de verdade capazes disso no
+## time" — mesma lógica de espécie da Montaria, sem depender de golpe.
 func _pode_surfar() -> bool:
-	return SaveManager.team_has_move_of_type("surf", "Water")
+	return SaveManager.team_has_any_species(SURF_SPECIES)
 
 func _pode_voar() -> bool:
-	return SaveManager.team_has_move_of_type("fly", "Flying")
+	return SaveManager.team_has_any_species(FLY_SPECIES)
 
 ## Escolhe a marcha mais rápida disponível no momento — sobrescreve o hook
 ## de BaseEntity (que só tem Andar/Correr). Nenhuma marcha empilha com outra.
