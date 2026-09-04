@@ -64,6 +64,35 @@ func _process(_delta: float) -> bool:
 	_assert(fora.is_empty(), "todo char do CHAR_MAP aponta pra um tile que existe — %s" % (
 		"ok" if fora.is_empty() else str(fora)))
 
+	# ── Regra obrigatória 1: objeto inteiro e centralizado no próprio quadro ──
+	# O defeito real achado em 04/09 não era só descentralização: as três árvores
+	# estavam CORTADAS ao meio por um recorte reto — a coluna x=5 era o limite
+	# esquerdo em 62 a 88 das ~90 linhas do objeto, assinatura de corte e não de
+	# silhueta natural. Foram reconstruídas espelhando o lado são.
+	#
+	# Duas conferências, porque uma sozinha deixa o defeito passar:
+	#   a) desvio do centro do quadro   -> pega objeto descentralizado
+	#   b) borda reta em muitas linhas  -> pega objeto cortado
+	# Só vale pra tile de OBJETO SOLTO. Textura que preenche o quadro (parede,
+	# sebe, toco, grama alta) tem borda reta de propósito e fica fora da lista.
+	var objetos := {"arbusto": Vector2i(2, 1), "pinheiro": Vector2i(1, 2),
+		"arvore_outono": Vector2i(2, 2), "caixa": Vector2i(2, 6)}
+	var descentrados : Array[String] = []
+	var cortados     : Array[String] = []
+	for nome in objetos:
+		var co : Vector2i = objetos[nome]
+		var m := _medir_objeto(img, co.x, co.y)
+		if m.is_empty():
+			continue
+		if absf(float(m["centro_x"]) - (T / 2.0)) > 12.0:
+			descentrados.append("%s (centro em x=%d)" % [nome, m["centro_x"]])
+		if bool(m["borda_reta"]):
+			cortados.append("%s (%d linhas na mesma coluna)" % [nome, m["repeticoes"]])
+	_assert(descentrados.is_empty(), "todo tile de objeto está centralizado no quadro — %s" % (
+		"ok" if descentrados.is_empty() else str(descentrados)))
+	_assert(cortados.is_empty(), "nenhum tile de objeto tem borda reta de corte — %s" % (
+		"ok" if cortados.is_empty() else str(cortados)))
+
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	quit(1 if _fail > 0 else 0)
 	return true
@@ -89,6 +118,49 @@ func _colunas_pretas(img: Image, c: int, r: int) -> int:
 		if escuros > int(T * 0.85):
 			total += 1
 	return total
+
+## Mede o objeto de um tile: onde fica o centro dele e se alguma borda lateral é
+## uma linha reta (assinatura de corte). Compara com a grama limpa do tile (0,0)
+## em vez de olhar transparência, porque estes tiles são opacos — o objeto vem
+## desenhado JÁ sobre grama, então "fundo" aqui significa "igual à grama".
+func _medir_objeto(img: Image, c: int, r: int) -> Dictionary:
+	var esq : Dictionary = {}
+	var dir : Dictionary = {}
+	var min_x := T
+	var max_x := -1
+	var linhas := 0
+	for y in T:
+		var a := -1
+		var b := -1
+		for x in T:
+			var p := img.get_pixel(c * T + x, r * T + y)
+			var g := img.get_pixel(x, y)   # mesma posição no tile de grama limpa
+			var d := absf(p.r - g.r) + absf(p.g - g.g) + absf(p.b - g.b)
+			if d > 0.21:
+				if a < 0:
+					a = x
+				b = x
+		if a < 0:
+			continue
+		linhas += 1
+		min_x = mini(min_x, a)
+		max_x = maxi(max_x, b)
+		esq[a] = int(esq.get(a, 0)) + 1
+		dir[b] = int(dir.get(b, 0)) + 1
+	if linhas < 10:
+		return {}
+	var pico := 0
+	for k in esq:
+		pico = maxi(pico, int(esq[k]))
+	for k in dir:
+		pico = maxi(pico, int(dir[k]))
+	return {
+		"centro_x": int((min_x + max_x) / 2.0),
+		"repeticoes": pico,
+		# metade das linhas do objeto começando/terminando na MESMA coluna é
+		# corte reto; silhueta de árvore nunca faz isso
+		"borda_reta": pico > int(linhas * 0.5),
+	}
 
 func _assert(cond: bool, msg: String) -> void:
 	if cond:
