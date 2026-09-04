@@ -1,99 +1,70 @@
-## NewGameFlow.gd — Fluxo de Novo Jogo: nome do treinador + escolha do starter.
+## NewGameFlow.gd — Só o nome do treinador (05/09).
+##
+## Antes esta tela também escolhia o Pokémon inicial, em três cartões de texto
+## com um botão "Escolher" em cada. A pedido do Gabriel, a escolha virou uma
+## CENA — o encontro com o Prof. Carvalho e as três pokébolas na mesa
+## (EscolhaInicial.gd), como nos jogos originais. Aqui ficou só a pergunta do
+## nome, que é o que vem antes no original também.
+##
+## O nome viaja pra cena seguinte pela static var `EscolhaInicial.nome_treinador`
+## — não vale a pena um autoload novo pra carregar uma string por dois segundos.
 extends Control
 
-const STARTERS := [
-	{ "species_id": 1,  "name": "Bulbasaur",  "type": "Planta / Veneno", "desc": "Fácil. Vantagem nos primeiros ginásios." },
-	{ "species_id": 4,  "name": "Charmander", "type": "Fogo",            "desc": "Difícil. Poderoso nas etapas finais." },
-	{ "species_id": 7,  "name": "Squirtle",   "type": "Água",            "desc": "Equilibrado. Boa defesa e versatilidade." },
-]
+@onready var name_input   : LineEdit = $Layout/TopRow/NameInput
+@onready var btn_confirm  : Button   = $Layout/BtnConfirm
+@onready var lbl_error    : Label    = $Layout/LblError
 
-var _selected_index : int = 0
-
-@onready var name_input    : LineEdit        = $Layout/TopRow/NameInput
-@onready var starter_cards : HBoxContainer  = $Layout/StarterRow/Cards
-@onready var btn_confirm   : Button         = $Layout/BtnConfirm
-@onready var lbl_error     : Label          = $Layout/LblError
+const CAMINHO_FUNDO := "res://assets/ui/fundo_titulo.png"
 
 func _ready() -> void:
-	_build_starter_cards()
+	_vestir()
 	btn_confirm.pressed.connect(_on_confirm)
-	_select(0)
+	name_input.text_submitted.connect(func(_t): _on_confirm())
+	name_input.grab_focus()
 	set_process_unhandled_input(true)
 
-## Caminho de teclado completo. No teste de 04/09 o jogo "travou" nesta tela: o
-## clique caiu 26px acima do botão e não existia NENHUMA outra forma de seguir —
-## Enter não fazia nada. Com o jogo mudo, um clique que erra é indistinguível de
-## um jogo quebrado.
+func _vestir() -> void:
+	var bg := $BG as ColorRect
+	if bg:
+		bg.color = Color(0.06, 0.10, 0.08)
+	if ResourceLoader.exists(CAMINHO_FUNDO):
+		var paisagem := TextureRect.new()
+		paisagem.texture = load(CAMINHO_FUNDO)
+		paisagem.set_anchors_preset(Control.PRESET_FULL_RECT)
+		paisagem.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		paisagem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		paisagem.modulate = Color(1, 1, 1, 0.55)   # atrás do texto, não competindo
+		paisagem.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(paisagem)
+		move_child(paisagem, 1)
+	var confirmar := $Layout/BtnConfirm as Button
+	if confirmar:
+		confirmar.custom_minimum_size = Vector2(300, 52)
+		confirmar.add_theme_font_size_override("font_size", 20)
+		confirmar.add_theme_color_override("font_color", Color(1, 0.98, 0.94))
+		var caixa := StyleBoxFlat.new()
+		caixa.bg_color = Color(0.84, 0.24, 0.20)
+		caixa.border_color = Color(0.98, 0.84, 0.36)
+		caixa.set_border_width_all(3)
+		caixa.set_corner_radius_all(14)
+		caixa.set_content_margin_all(10)
+		confirmar.add_theme_stylebox_override("normal", caixa)
+
+	var titulo := $Layout/TitleLabel as Label
+	if titulo:
+		titulo.add_theme_color_override("font_color", Color(0.99, 0.95, 0.84))
+		titulo.add_theme_color_override("font_outline_color", Color(0.10, 0.08, 0.06))
+		titulo.add_theme_constant_override("outline_size", 10)
+
+## Enter/Z seguem. Sem caminho de teclado, um clique que erra o botão é
+## indistinguível de jogo travado — foi o que aconteceu no teste de 04/09.
 func _unhandled_input(event: InputEvent) -> void:
-	if name_input.has_focus() and event is InputEventKey and event.keycode not in [KEY_ENTER, KEY_KP_ENTER]:
-		return
-	if event.is_action_pressed("interact") or (event is InputEventKey and event.pressed \
-			and event.keycode in [KEY_ENTER, KEY_KP_ENTER]):
+	if event.is_action_pressed("interact") or (event is InputEventKey and event.pressed
+			and not event.is_echo() and event.keycode in [KEY_ENTER, KEY_KP_ENTER]):
 		get_viewport().set_input_as_handled()
 		_on_confirm()
-	elif event.is_action_pressed("move_right"):
-		get_viewport().set_input_as_handled()
-		_select((_selected_index + 1) % STARTERS.size())
-	elif event.is_action_pressed("move_left"):
-		get_viewport().set_input_as_handled()
-		_select((_selected_index - 1 + STARTERS.size()) % STARTERS.size())
-
-func _build_starter_cards() -> void:
-	for i in STARTERS.size():
-		var idx := i
-		var data : Dictionary = STARTERS[i]
-		var card := PanelContainer.new()
-		card.custom_minimum_size = Vector2(200, 250)
-		var vb := VBoxContainer.new()
-		vb.add_theme_constant_override("separation", 6)
-
-		# O sprite do inicial. Sem ele a escolha mais icônica da franquia virava
-		# uma lista de texto (achado no teste de gameplay de 04/09).
-		var sprite := PokemonIcon.criar(int(data["species_id"]), 96)
-		sprite.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-
-		var lbl_name := Label.new()
-		lbl_name.text = data["name"]
-		lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl_name.add_theme_font_size_override("font_size", 18)
-
-		var lbl_type := Label.new()
-		lbl_type.text = data["type"]
-		lbl_type.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl_type.add_theme_font_size_override("font_size", 12)
-		lbl_type.modulate = Color(0.7, 0.7, 0.7)
-
-		var lbl_desc := Label.new()
-		lbl_desc.text = data["desc"]
-		lbl_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl_desc.add_theme_font_size_override("font_size", 11)
-		lbl_desc.modulate = Color(0.55, 0.55, 0.55)
-		lbl_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-
-		var btn := Button.new()
-		btn.text = "Escolher"
-		btn.pressed.connect(func(): _select(idx))
-
-		vb.add_child(sprite)
-		vb.add_child(lbl_name)
-		vb.add_child(lbl_type)
-		vb.add_child(lbl_desc)
-		vb.add_child(btn)
-		card.add_child(vb)
-		starter_cards.add_child(card)
-
-func _select(index: int) -> void:
-	_selected_index = index
-	# Destaca card selecionado
-	for i in starter_cards.get_child_count():
-		var card := starter_cards.get_child(i) as PanelContainer
-		card.modulate = Color(1, 0.6, 0.2) if i == index else Color(1, 1, 1)
 
 func _on_confirm() -> void:
-	var trainer_name := name_input.text.strip_edges()
-	if trainer_name.length() == 0:
-		trainer_name = "Ash"
-	var starter_id : int = STARTERS[_selected_index]["species_id"]
-	SaveManager.new_game(trainer_name, starter_id)
-	QuestManager.reload_from_save()  # zera progresso de quest de um save anterior, se havia
-	SceneTransition.fade_to("res://scenes/world/maps/WorldMap.tscn")
+	AudioManager.play_sfx("confirm")
+	EscolhaInicial.nome_treinador = name_input.text.strip_edges()
+	SceneTransition.fade_to("res://scenes/ui/EscolhaInicial.tscn")

@@ -3316,3 +3316,48 @@ escolher o inicial.
 
 **Precisa de decisão do Gabriel?** Não. Vale ele jogar e dizer o que ainda
 incomoda.
+
+---
+
+## 05/09/2026 — Tela de título colorida + o encontro com o Prof. Carvalho
+
+**Pedido do Gabriel:** (1) a tela inicial devia ser colorida, com temática de
+Pokémon, mundo, alegria; (2) a escolha do inicial devia deixar de ser uma tela
+de cartões e virar um encontro com o Professor Carvalho, com as três pokébolas
+na frente dele, escolhendo qual abrir — como nos jogos originais.
+
+**Tela de título.** A de ontem era escura e desfocada — bonita como pano de
+fundo, mas o oposto do pedido. Refeita de dia, saturada, sem escurecimento
+geral (só um degradê no alto e embaixo, o bastante pro texto ficar legível):
+mata em cima, lago, encruzilhada de estradas, dois trechos de mato alto, praia
+e mar. Tudo montado com os TILES DO PRÓPRIO JOGO, então a capa nunca envelhece
+em relação ao mundo. Seis Pokémon (Pikachu, os 3 iniciais, Eevee, Jigglypuff)
+flutuando na frente, cada um no seu ritmo. Logo em dourado com contorno azul —
+a paleta clássica da franquia — e botão vermelho de pokébola com borda dourada.
+
+**O encontro com o Professor.** Cena nova (`EscolhaInicial.gd`): o laboratório,
+o Prof. Carvalho de pé ao lado da bancada, as três pokébolas fechadas em cima
+dela. Ele fala 3 linhas de abertura, e aí a criança escolhe uma BOLA — sem saber
+ainda o que tem dentro, como no original. A bola escolhida brilha e balança; ao
+apertar Enter ela ABRE, o Pokémon sai de dentro dela com som e animação, e só
+então vem a pergunta "quer levar este com você?". Esc volta e abre outra. A
+tela antiga de nome+cartões virou só a pergunta do nome, colorida, antes disso.
+
+Peças novas: `tools/gerar_pokebola.py` (bola fechada/brilhando/aberta, desenhada
+com a luz de cima-esquerda da Art Bible) e `tools/gerar_cenarios.py` (os dois
+fundos de tela cheia, montados com tiles + uma bancada desenhada, porque o
+atlas só tem móveis vistos de cima).
+
+**🔴 Um erro meu, achado na tela:** na primeira versão as três bolas apareceram
+coladas no alto da parede em vez de na bancada. Causa: o balanço da bola
+selecionada mexia em `offset_top`/`offset_bottom`, e num Control ancorado no
+canto o offset É a posição. A posição de repouso passou a viver numa lista
+própria e o balanço é somado a ela. Um segundo, mesma classe: o Pokémon
+revelado saía sempre no meio da mesa — escolhendo a bola da direita, ele
+aparecia sobre a bola do meio e a cena mentia sobre qual bola tinha aberto.
+
+**Testado:** 64 arquivos de teste, 0 falhas. Percorrido no navegador de
+verdade, do título até entrar no mundo, console limpo.
+
+**Próximo passo:** decorar as estradas largas (placas, cercas, postes) e uma
+fala de abertura ao chegar no mundo.

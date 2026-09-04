@@ -29,7 +29,7 @@ theme_override_constants/separation = 24
 
 [node name="TitleLabel" type="Label" parent="Layout"]
 layout_mode = 2
-text = "Novo Jogo"
+text = "Qual é o seu nome?"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 32
 
@@ -50,20 +50,6 @@ placeholder_text = "Ash"
 max_length = 12
 theme_override_font_sizes/font_size = 16
 
-[node name="LblStarter" type="Label" parent="Layout"]
-layout_mode = 2
-text = "Escolha seu Pokémon inicial:"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
-
-[node name="StarterRow" type="HBoxContainer" parent="Layout"]
-layout_mode = 2
-alignment = 1
-
-[node name="Cards" type="HBoxContainer" parent="Layout/StarterRow"]
-layout_mode = 2
-theme_override_constants/separation = 20
-
 [node name="LblError" type="Label" parent="Layout"]
 layout_mode = 2
 text = ""
@@ -75,5 +61,5 @@ visible = false
 layout_mode = 2
 custom_minimum_size = Vector2(200, 48)
 size_flags_horizontal = 4
-text = "Iniciar Aventura   (Enter)"
+text = "Continuar   (Enter)"
 theme_override_font_sizes/font_size = 18
