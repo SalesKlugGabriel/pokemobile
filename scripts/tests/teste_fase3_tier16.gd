@@ -38,8 +38,8 @@ func _teste_geral() -> void:
 
 	_assert(tiles[r0 + 22][cc0 + 8] == "H", "S.S. Anne: telhado existe")
 	_assert(tiles[r0 + 26][cc0 + 8] == "I", "S.S. Anne: interior é piso")
-	_assert(tiles[r0 + 26][cc0 + 2] == "W", "S.S. Anne: parede oeste existe")
-	_assert(tiles[r0 + 26][cc0 + 14] == "W", "S.S. Anne: parede leste existe")
+	_assert(MapLayouts.e_parede(tiles[r0 + 26][cc0 + 2]), "S.S. Anne: parede oeste existe")
+	_assert(MapLayouts.e_parede(tiles[r0 + 26][cc0 + 14]), "S.S. Anne: parede leste existe")
 	_assert(tiles[r0 + 32][cc0 + 8] == "P", "S.S. Anne: porta existe")
 	_assert(tiles[r0 + 33][cc0 + 8] == "P", "S.S. Anne: caminho da porta pro corredor")
 

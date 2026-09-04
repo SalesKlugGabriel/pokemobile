@@ -46,6 +46,12 @@ const CHAR_MAP : Dictionary = {
 	"g": Vector2i(0, 5), "h": Vector2i(1, 5), "i": Vector2i(2, 5), "j": Vector2i(3, 5),
 	"k": Vector2i(4, 5),
 	"l": Vector2i(0, 6), "m": Vector2i(1, 6), "n": Vector2i(2, 6), "o": Vector2i(3, 6),
+	# "w" = PAREDE LISA (04/09). O atlas não tinha uma: o tile "W" tem uma janela
+	# desenhada nele, então prédio inteiro feito de "W" virava grade de janelas
+	# (correção do Gabriel: "as paredes estão sendo representadas incorretamente
+	# como se fossem apenas janelas"). Gerada a partir da faixa limpa do próprio
+	# "W", então casa perfeitamente com ele — ver tools/ (parede lisa em (4,8)).
+	"w": Vector2i(4, 8),
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -424,7 +430,7 @@ static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
 		if c == casa_col_inicio or c == casa_col_fim: return "W"
 		if fb == 3: return "H"
 		if fb == 9:
-			if c >= casa_col_inicio + 3 and c <= casa_col_inicio + 5: return "P"  # porta
+			if c >= casa_col_inicio + 3 and c <= casa_col_inicio + 5: return "d"  # porta
 			return "W"
 		return "I"
 	# ── Trecho ligando a porta da Casa do Bill até o corredor principal ──
@@ -548,7 +554,7 @@ static func _sul_de_cerulean_cell(cc: int, sr: int) -> String:
 ## Co. nas mesmas posições relativas de sempre.
 static func _saffron_cell(cc: int, r: int) -> String:
 	if cc >= 10 and cc <= 22 and r >= 6 and r <= 14:
-		if cc == 10 or cc == 22: return "W"
+		if cc == 10 or cc == 22: return "w"
 		if r == 6: return "H"
 		if r == 14:
 			if cc >= 15 and cc <= 17: return "P"
@@ -558,7 +564,7 @@ static func _saffron_cell(cc: int, r: int) -> String:
 		return "P"
 
 	if cc >= 35 and cc <= 47 and r >= 6 and r <= 14:
-		if cc == 35 or cc == 47: return "W"
+		if cc == 35 or cc == 47: return "w"
 		if r == 6: return "H"
 		if r == 14:
 			if cc >= 40 and cc <= 42: return "P"
@@ -569,7 +575,7 @@ static func _saffron_cell(cc: int, r: int) -> String:
 
 	# Silph Co. — torre alta, só o prédio, sem interior ligado ainda.
 	if cc >= 50 and cc <= 58 and r >= 4 and r <= 14:
-		if cc == 50 or cc == 58: return "W"
+		if cc == 50 or cc == 58: return "w"
 		if r == 4: return "H"
 		if r == 14:
 			if cc >= 53 and cc <= 55: return "P"
@@ -586,7 +592,7 @@ static func _saffron_cell(cc: int, r: int) -> String:
 ## Rota 11 → Diglett's Cave.
 static func _vermilion_cell(cc: int, r: int) -> String:
 	if cc >= 10 and cc <= 22 and r >= 6 and r <= 14:
-		if cc == 10 or cc == 22: return "W"
+		if cc == 10 or cc == 22: return "w"
 		if r == 6: return "H"
 		if r == 14:
 			if cc >= 15 and cc <= 17: return "P"
@@ -596,7 +602,7 @@ static func _vermilion_cell(cc: int, r: int) -> String:
 		return "P"
 
 	if cc >= 35 and cc <= 47 and r >= 6 and r <= 14:
-		if cc == 35 or cc == 47: return "W"
+		if cc == 35 or cc == 47: return "w"
 		if r == 6: return "H"
 		if r == 14:
 			if cc >= 40 and cc <= 42: return "P"
@@ -607,7 +613,7 @@ static func _vermilion_cell(cc: int, r: int) -> String:
 
 	# S.S. Anne — navio ancorado no cais (Tier 16). Só fachada.
 	if cc >= 2 and cc <= 14 and r >= 22 and r <= 32:
-		if cc == 2 or cc == 14: return "W"
+		if cc == 2 or cc == 14: return "w"
 		if r == 22: return "H"
 		if r == 32:
 			if cc >= 7 and cc <= 9: return "P"
@@ -642,7 +648,7 @@ static func _route7_cell(dist: int, r: int) -> String:
 ## Viridian de verdade.
 static func _celadon_cell(ce: int, r: int) -> String:
 	if ce >= 10 and ce <= 22 and r >= 6 and r <= 14:
-		if ce == 10 or ce == 22: return "W"
+		if ce == 10 or ce == 22: return "w"
 		if r == 6: return "H"
 		if r == 14:
 			if ce >= 15 and ce <= 17: return "P"
@@ -652,7 +658,7 @@ static func _celadon_cell(ce: int, r: int) -> String:
 		return "P"
 
 	if ce >= 35 and ce <= 47 and r >= 6 and r <= 14:
-		if ce == 35 or ce == 47: return "W"
+		if ce == 35 or ce == 47: return "w"
 		if r == 6: return "H"
 		if r == 14:
 			if ce >= 40 and ce <= 42: return "P"
@@ -663,7 +669,7 @@ static func _celadon_cell(ce: int, r: int) -> String:
 
 	# Grande Loja de Departamentos (Celadon Mart).
 	if ce >= 50 and ce <= 58 and r >= 8 and r <= 14:
-		if ce == 50 or ce == 58: return "W"
+		if ce == 50 or ce == 58: return "w"
 		if r == 8: return "H"
 		if r == 14:
 			if ce >= 53 and ce <= 55: return "P"
@@ -676,7 +682,7 @@ static func _celadon_cell(ce: int, r: int) -> String:
 	# Quartel General escondido por baixo. Espelha a posição do Rocket
 	# Hideout (do outro lado da rua), mesma altura.
 	if ce >= 2 and ce <= 9 and r >= 21 and r <= 28:
-		if ce == 2 or ce == 9: return "W"
+		if ce == 2 or ce == 9: return "w"
 		if r == 21: return "H"
 		if r == 28:
 			if ce >= 5 and ce <= 6: return "P"
@@ -687,7 +693,7 @@ static func _celadon_cell(ce: int, r: int) -> String:
 
 	# Rocket Hideout — entrada/porão (Tier 15), warp de verdade.
 	if ce >= 24 and ce <= 31 and r >= 21 and r <= 28:
-		if ce == 24 or ce == 31: return "W"
+		if ce == 24 or ce == 31: return "w"
 		if r == 21: return "H"
 		if r == 28:
 			if ce >= 27 and ce <= 28: return "P"
@@ -1076,10 +1082,10 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 
 	# ── Ginásio de Cerulean (Misty) ── cols 10-22, rows 6-14
 	if cc >= 10 and cc <= 22 and r >= 6 and r <= 14:
-		if cc == 10 or cc == 22: return "W"
+		if cc == 10 or cc == 22: return "w"
 		if r == 6: return "H"
 		if r == 14:
-			if cc >= 15 and cc <= 17: return "P"  # porta
+			if cc >= 15 and cc <= 17: return "d"  # porta
 			return "W"
 		return "I"
 	if r >= 14 and r <= 16 and cc >= 15 and cc <= 17:
@@ -1087,10 +1093,10 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 
 	# ── Centro Pokémon de Cerulean ── cols 35-47, rows 6-14
 	if cc >= 35 and cc <= 47 and r >= 6 and r <= 14:
-		if cc == 35 or cc == 47: return "W"
+		if cc == 35 or cc == 47: return "w"
 		if r == 6: return "H"
 		if r == 14:
-			if cc >= 40 and cc <= 42: return "P"  # porta
+			if cc >= 40 and cc <= 42: return "d"  # porta
 			return "W"
 		return "I"
 	if r >= 14 and r <= 16 and cc >= 40 and cc <= 42:
@@ -1130,10 +1136,10 @@ static func _pewter_cell(c: int, r: int, W: int) -> String:
 
 	# ── Ginásio de Pewter (Brock) ── cols 18-34, rows 6-18
 	if c >= 18 and c <= 34 and r >= 6 and r <= 18:
-		if c == 18 or c == 34: return "W"
+		if c == 18 or c == 34: return "w"
 		if r == 6: return "H"
 		if r == 18:
-			if c >= 25 and c <= 27: return "P"  # porta
+			if c >= 25 and c <= 27: return "d"  # porta
 			return "W"
 		return "I"
 	# ── Caminho Ginásio → corredor ── row 18-19, cols 34-44
@@ -1142,10 +1148,10 @@ static func _pewter_cell(c: int, r: int, W: int) -> String:
 
 	# ── Centro Pokémon de Pewter ── cols 70-82, rows 6-14
 	if c >= 70 and c <= 82 and r >= 6 and r <= 14:
-		if c == 70 or c == 82: return "W"
+		if c == 70 or c == 82: return "w"
 		if r == 6: return "H"
 		if r == 14:
-			if c >= 75 and c <= 77: return "P"  # porta (warp aqui)
+			if c >= 75 and c <= 77: return "d"  # porta (warp aqui)
 			return "W"
 		return "I"
 	# ── Caminho PokéCenter → corredor ── row 14-15, cols 56-77
@@ -1242,10 +1248,10 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 
 	# ── Laboratório do Prof. Carvalho ── cols 18-34, rows 82-90
 	if c >= 18 and c <= 34 and r >= 82 and r <= 90:
-		if c == 18 or c == 34: return "W"
+		if c == 18 or c == 34: return "w"
 		if r == 82: return "H"
 		if r == 90:
-			if c >= 25 and c <= 27: return "P"  # porta
+			if c >= 25 and c <= 27: return "d"  # porta
 			return "W"
 		return "I"
 
@@ -1257,10 +1263,10 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 
 	# ── PokéCenter de Pallet ── cols 70-82, rows 82-90
 	if c >= 70 and c <= 82 and r >= 82 and r <= 90:
-		if c == 70 or c == 82: return "W"
+		if c == 70 or c == 82: return "w"
 		if r == 82: return "H"
 		if r == 90:
-			if c >= 75 and c <= 77: return "P"  # porta (warp aqui)
+			if c >= 75 and c <= 77: return "d"  # porta (warp aqui)
 			return "W"
 		return "I"
 
@@ -1270,7 +1276,7 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 
 	# ── Casa 1 ── cols 8-16, rows 97-105
 	if c >= 8 and c <= 16 and r >= 97 and r <= 105:
-		if c == 8 or c == 16: return "W"
+		if c == 8 or c == 16: return "w"
 		if r == 97: return "H"
 		if r == 105:
 			if c == 12: return "P"
@@ -1285,7 +1291,7 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 
 	# ── Casa 2 ── cols 58-66, rows 97-105
 	if c >= 58 and c <= 66 and r >= 97 and r <= 105:
-		if c == 58 or c == 66: return "W"
+		if c == 58 or c == 66: return "w"
 		if r == 97: return "H"
 		if r == 105:
 			if c == 62: return "P"
@@ -1300,7 +1306,7 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 
 	# ── Casa 3 ── cols 84-92, rows 97-105
 	if c >= 84 and c <= 92 and r >= 97 and r <= 105:
-		if c == 84 or c == 92: return "W"
+		if c == 84 or c == 92: return "w"
 		if r == 97: return "H"
 		if r == 105:
 			if c == 88: return "P"
@@ -1434,7 +1440,7 @@ static func _viridian_cell(c: int, r: int, W: int) -> String:
 	# a única forma de representar "abre depois de um evento de história"
 	# com a arquitetura atual (tiles procedurais, sem camada de eventos).
 	if c >= 18 and c <= 34 and r >= 6 and r <= 18:
-		if c == 18 or c == 34: return "W"
+		if c == 18 or c == 34: return "w"
 		if r == 6: return "H"
 		if _giovanni_liberado():
 			if r == 18:
@@ -1447,7 +1453,7 @@ static func _viridian_cell(c: int, r: int, W: int) -> String:
 
 	# ── PokéCenter Viridian ── cols 70-82, rows 6-14
 	if c >= 70 and c <= 82 and r >= 6 and r <= 14:
-		if c == 70 or c == 82: return "W"
+		if c == 70 or c == 82: return "w"
 		if r == 6: return "H"
 		if r == 14:
 			if c >= 75 and c <= 77: return "P"
@@ -1464,7 +1470,7 @@ static func _viridian_cell(c: int, r: int, W: int) -> String:
 
 	# ── Loja de itens ── cols 50-60, rows 8-16
 	if c >= 50 and c <= 60 and r >= 8 and r <= 16:
-		if c == 50 or c == 60: return "W"
+		if c == 50 or c == 60: return "w"
 		if r == 8: return "H"
 		if r == 16:
 			if c == 55: return "P"
@@ -1757,7 +1763,7 @@ static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 
 	# ── Ginásio de Cinnabar (Blaine) ── cols 10-22, rows 10-18
 	if c >= 10 and c <= 22 and r >= 10 and r <= 18:
-		if c == 10 or c == 22: return "W"
+		if c == 10 or c == 22: return "w"
 		if r == 10: return "H"
 		if r == 18:
 			if c >= 15 and c <= 17: return "P"
@@ -1768,7 +1774,7 @@ static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 
 	# ── Centro Pokémon ── cols 25-33, rows 10-18
 	if c >= 25 and c <= 33 and r >= 10 and r <= 18:
-		if c == 25 or c == 33: return "W"
+		if c == 25 or c == 33: return "w"
 		if r == 10: return "H"
 		if r == 18:
 			if c >= 28 and c <= 29: return "P"
@@ -1780,7 +1786,7 @@ static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 	# ── Mansão Pokémon — só a fachada por enquanto (interior/andares ficam
 	# pra quando "Pokémon e estruturas" virar foco) ── cols 14-26, rows 22-28
 	if c >= 14 and c <= 26 and r >= 22 and r <= 28:
-		if c == 14 or c == 26: return "W"
+		if c == 14 or c == 26: return "w"
 		if r == 22: return "H"
 		if r == 28:
 			if c >= 19 and c <= 21: return "P"
@@ -2022,6 +2028,17 @@ const VARIANTES_TERRENO : Dictionary = {
 	"G": [Vector2i(4, 0), Vector2i(6, 7), Vector2i(7, 7), Vector2i(0, 8)],
 	"S": [Vector2i(3, 0), Vector2i(1, 8), Vector2i(2, 8), Vector2i(3, 8)],
 }
+
+## "Este char é uma porta?" / "é parede?" — checagens de significado, pra teste e
+## ferramenta não compararem char literal. O vocabulário de fachada mudou em
+## 04/09 (parede lisa "w" separada da parede-com-janela "W", porta virou o tile
+## de porta "d" em vez de um tile de caminho) e comparação literal quebrou
+## testes que na verdade continuavam corretos.
+static func e_porta(ch: String) -> bool:
+	return ch == "d"
+
+static func e_parede(ch: String) -> bool:
+	return ch == "W" or ch == "w"
 
 ## "Esta coordenada de atlas é do terreno `ch`?" — um tile pintado pode ser o
 ## original OU qualquer variante dele. Quem precisa checar tipo de terreno

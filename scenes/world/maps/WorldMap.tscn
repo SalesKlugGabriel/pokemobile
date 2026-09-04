@@ -181,7 +181,7 @@ gift_item_id = "old_rod"
 is_patrolling = false
 
 [node name="Colecionador" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(7744, 7104)
+position = Vector2(7872, 7104)
 npc_name = "Colecionador de Insetos"
 dialog_id = "route2_bugcatcher"
 is_trainer = true
@@ -272,7 +272,7 @@ trainer_team = Array[Dictionary]([{"species_id": 43, "level": 36}, {"species_id"
 is_patrolling = false
 
 [node name="FuchsiaLocal" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(58176, 19648)
+position = Vector2(58176, 19520)
 npc_name = "Morador"
 dialog_id = "fuchsia_local"
 is_patrolling = false

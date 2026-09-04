@@ -41,9 +41,9 @@ func _teste_geral() -> void:
 	# ---- 1. Pewter City (linhas 1-36) ----
 	_assert(tiles[10][26] == "I", "Pewter: interior do Ginásio (col 26, row 10) é piso")
 	_assert(tiles[6][26] == "H", "Pewter: telhado do Ginásio (row 6) existe")
-	_assert(tiles[18][26] == "P", "Pewter: porta do Ginásio (row 18) é caminho")
+	_assert(MapLayouts.e_porta(tiles[18][26]), "Pewter: porta do Ginásio (row 18) é porta")
 	_assert(tiles[10][76] == "I", "Pewter: interior do Centro Pokémon (col 76, row 10) é piso")
-	_assert(tiles[14][76] == "P", "Pewter: porta do Centro Pokémon (row 14) é caminho")
+	_assert(MapLayouts.e_porta(tiles[14][76]), "Pewter: porta do Centro Pokémon (row 14) é porta")
 
 	# ---- 2. Corredor central é UM SÓ, sem quebra, de Pewter até Pallet ----
 	# (a prova de que é mundo aberto de verdade: anda reto por 190 linhas
