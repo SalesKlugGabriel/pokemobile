@@ -146,19 +146,27 @@ const LOOKAHEAD_COLISAO : float = 28.0   # px à frente que a entidade "sente"
 ##
 ## `pos` deve ser o ponto de CONTATO COM O CHÃO da entidade (o pé), não a origem
 ## do nó — senão a colisão é medida na altura da cabeça.
-func filtrar_velocidade(pos: Vector2, vel: Vector2) -> Vector2:
+## `permitir_agua`: o Pokémon companheiro precisa acompanhar o jogador quando
+## ele está surfando, senão ficaria preso na praia — pra ele a água não é
+## obstáculo (é um Pokémon), só árvore/parede/prédio são.
+func filtrar_velocidade(pos: Vector2, vel: Vector2, permitir_agua: bool = false) -> Vector2:
 	if vel == Vector2.ZERO or not tilemap:
 		return vel
 	var out := vel
 	if not is_zero_approx(vel.x):
-		var frente_x := pos + Vector2(signf(vel.x) * LOOKAHEAD_COLISAO, 0.0)
-		if not is_tile_walkable(pos_para_tile(frente_x)):
+		var t_x := pos_para_tile(pos + Vector2(signf(vel.x) * LOOKAHEAD_COLISAO, 0.0))
+		if not _passa(t_x, permitir_agua):
 			out.x = 0.0
 	if not is_zero_approx(vel.y):
-		var frente_y := pos + Vector2(0.0, signf(vel.y) * LOOKAHEAD_COLISAO)
-		if not is_tile_walkable(pos_para_tile(frente_y)):
+		var t_y := pos_para_tile(pos + Vector2(0.0, signf(vel.y) * LOOKAHEAD_COLISAO))
+		if not _passa(t_y, permitir_agua):
 			out.y = 0.0
 	return out
+
+func _passa(tile: Vector2i, permitir_agua: bool) -> bool:
+	if is_tile_walkable(tile):
+		return true
+	return permitir_agua and is_water_tile(tile)
 
 ## Retorna true se o tile é água (atlas coords == WATER_ATLAS_COORDS) —
 ## usado pra pesca: só dá pra pescar de frente pra um tile assim.

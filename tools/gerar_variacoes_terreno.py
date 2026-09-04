@@ -25,15 +25,19 @@ T = 128
 
 # tiles isotrópicos que recebem variação (mesma lista do VARIETY_CHARS do jogo,
 # + mato alto). Paredes/portas/telhados ficam de fora: têm direção.
-# ⚠️ SÓ entram tiles verificados: seamless E sem elemento âncorado (tira de
-# borda, tufo centralizado). Areia (3,0) e mato alto (0,2) foram REMOVIDOS em
-# 04/09 depois de aparecerem em jogo com faixa preta atravessada: a areia tem
-# uma tira escura na borda direita que a rolagem joga pro meio do tile, e o
-# mato alto tem as folhas ancoradas na base. Rolar esses dois quebra a arte.
+# ⚠️ SÓ entram tiles verificados: seamless E sem elemento ancorado (tira de
+# borda, tufo centralizado). Mato alto (0,2) fica de FORA — tem as folhas
+# ancoradas na base, e rolar corta elas ao meio (apareceu em jogo como "tile
+# partido"). A areia só voltou depois de o tile ser consertado (ver abaixo).
 BASES = {
     ".": (0, 0),   # grama com tufos — seamless (dif de borda 4.3)
     "P": (1, 0),   # caminho de terra — seamless (dif 10.0)
     "G": (4, 0),   # grama clara — mesma família da (0,0)
+    "S": (3, 0),   # areia — voltou em 04/09 DEPOIS de o tile ser consertado:
+                   # ele tinha uma tira preta ocupando 40 das 128 colunas (recorte
+                   # ruim da referência), refeita por espelhamento da parte boa,
+                   # o que zerou a costura horizontal. Com a praia agora sendo uma
+                   # área grande de verdade, variar a areia importa.
 }
 
 # 3 variações por tile, deslocamentos irregulares de propósito

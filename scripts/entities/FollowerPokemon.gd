@@ -257,7 +257,9 @@ func _process(delta: float) -> void:
 const PE_OFFSET : Vector2 = Vector2(0, 24)
 
 func _mover_com_colisao() -> void:
-	velocity = WorldManager.filtrar_velocidade(global_position + PE_OFFSET, velocity)
+	# permitir_agua=true: acompanha o Treinador quando ele surfa, senão ficaria
+	# preso na praia enquanto o jogador entra no mar.
+	velocity = WorldManager.filtrar_velocidade(global_position + PE_OFFSET, velocity, true)
 	move_and_slide()
 
 func _physics_process(delta: float) -> void:

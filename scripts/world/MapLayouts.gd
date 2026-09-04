@@ -358,11 +358,19 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 		return _route2_cell(c, r - PEWTER_ROWS, W_ANTIGO)
 
 	# ── Daqui pra baixo: exatamente o mapa antigo (Viridian/Rota 1/Pallet),
-	# só com o número de linha traduzido de volta pro valor original — e,
-	# de novo, só existe até W_ANTIGO; o resto é borda ──────────────────────
-	if c >= W_ANTIGO:
-		return "T"
+	# só com o número de linha traduzido de volta pro valor original ────────
 	var old_r := r - OFFSET_ANTIGO
+
+	# A "cidade antiga" só tem W_ANTIGO (100) de largura, e tudo a leste disso
+	# era devolvido como árvore — o que, somado à borda sul, criava aquele bloco
+	# maciço de árvore morta no lugar onde devia estar o mar (correção do
+	# Gabriel, 04/09). Na faixa de PALLET essa área agora é oceano: é o que dá
+	# continuidade entre a costa sul e o resto da água. Viridian e Rota 1
+	# continuam com borda de árvore (não são costeiras neste mapa).
+	if c >= W_ANTIGO:
+		if old_r >= 80:
+			return _pallet_cell(c, old_r, W_ANTIGO)
+		return "T"
 
 	# ── Viridian City (rows 2-38 no mapa antigo) ────────────────────────────
 	if old_r <= 38:
@@ -1186,12 +1194,46 @@ static func _route2_cell(c: int, r: int, W: int) -> String:
 # Casas: várias posições
 # Player spawn: (50, 110)
 # ──────────────────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
+# COSTA DE PALLET (04/09) — correção do Gabriel: "as árvores estão sendo usadas
+# como uma parede que separa o mar da terra... isso impede o uso do Surf".
+#
+# Era literalmente isso: `_pallet_cell` devolvia "T" (árvore) pra TODA a borda
+# sul e leste, e como o mapa tem 465x330 mas a "cidade antiga" só tem 100 de
+# largura, isso transformava ~142 linhas x 465 colunas ao sul de Pallet num
+# bloco maciço de árvore morta — justamente onde, no Kanto de verdade, fica o
+# mar (Rota 21, rumo a Cinnabar).
+#
+# Agora a transição é a de um mapa Pokémon de verdade: terra → areia → mar.
+# A faixa de areia é ANDÁVEL (é praia), o mar é bloqueado pro pedestre e
+# liberado pra quem tem Pokémon de Surf — TrainerEntity._is_tile_walkable() já
+# fazia essa regra, só nunca tinha água alcançável pra exercê-la.
+#
+# Não precisa de "parede" no fim do mar: fora da área pintada não existe tile
+# nenhum, e is_tile_walkable() já trata ausência de tile como não-caminhável.
+const PALLET_PRAIA_LINHA : int = 116   # 1ª linha de areia (old_r), logo após a cidade
+const PALLET_PRAIA_LARG  : int = 3     # espessura da faixa de areia
+const PALLET_PRAIA_COL   : int = 3     # colunas de areia nas bordas leste/oeste
+
 static func _pallet_cell(c: int, r: int, W: int) -> String:
-	# Bordas laterais: árvores
-	if c <= 2 or c >= W - 3:
-		return "T"
-	# Borda sul
-	if r >= 116:
+	# ── Costa sul: terra → praia → mar ──
+	if r >= PALLET_PRAIA_LINHA:
+		if r < PALLET_PRAIA_LINHA + PALLET_PRAIA_LARG:
+			return "S"
+		return "~"
+
+	# ── Costa leste: a "cidade antiga" só tem 100 colunas, então tudo a leste
+	# disso era árvore morta até a coluna 464. Vira praia + mar aberto, que é o
+	# que liga a costa sul ao resto do oceano.
+	if c >= W - PALLET_PRAIA_COL:
+		if c < W:
+			return "S"
+		return "~"
+
+	# ── Borda oeste: continua árvore. É o extremo do mapa e `_world_cell` já
+	# força "T" em c==0 de qualquer jeito — abrir mar aqui só criaria uma faixa
+	# de água de 2 tiles encostada numa parede, sem servir pra nada.
+	if c <= 2:
 		return "T"
 
 	# ── Corredor norte-sul principal ── cols 44-56
@@ -1978,6 +2020,7 @@ const VARIANTES_TERRENO : Dictionary = {
 	".": [Vector2i(0, 0), Vector2i(0, 7), Vector2i(1, 7), Vector2i(2, 7)],
 	"P": [Vector2i(1, 0), Vector2i(3, 7), Vector2i(4, 7), Vector2i(5, 7)],
 	"G": [Vector2i(4, 0), Vector2i(6, 7), Vector2i(7, 7), Vector2i(0, 8)],
+	"S": [Vector2i(3, 0), Vector2i(1, 8), Vector2i(2, 8), Vector2i(3, 8)],
 }
 
 ## "Esta coordenada de atlas é do terreno `ch`?" — um tile pintado pode ser o

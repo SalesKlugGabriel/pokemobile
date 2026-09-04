@@ -80,7 +80,10 @@ func _teste_geral() -> void:
 
 	# ---- 6. Fora da faixa de colunas de Seafoam, continua borda — não
 	# vazou pro resto do mapa ----
-	_assert(tiles[row_ini + 15][col_ini - 10] == "T", "fora da faixa de colunas de Seafoam continua borda")
+	# NOTA (04/09): virou "~" (mar) quando a costa de Pallet foi criada — a
+	# região sul do mapa deixou de ser árvore morta e virou oceano, o que põe
+	# Seafoam DENTRO do mar (alcançável por Surf), como sempre foi a intenção.
+	_assert(tiles[row_ini + 15][col_ini - 10] == "~", "fora da faixa de colunas de Seafoam é preenchimento de mar, não conteúdo da ilha")
 
 	# ---- 7. zones.json: zona registrada com o tile_rect real, sem warp associado ----
 	var f := FileAccess.open("res://data/world/zones.json", FileAccess.READ)

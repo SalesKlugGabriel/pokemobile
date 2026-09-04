@@ -75,7 +75,13 @@ func _teste_geral() -> void:
 
 	# ---- 6. Fora da faixa de colunas do arquipélago, continua borda — não
 	# vazou pro resto do mapa ----
-	_assert(tiles[row_ini + 10][col_ini - 10] == "T", "fora da faixa de colunas do arquipélago continua borda")
+	# NOTA (04/09): o preenchimento fora dessas colunas era "T" (árvore) e virou
+	# "~" (mar) quando a costa de Pallet foi criada — a região ao sul do mapa
+	# deixou de ser árvore morta e virou oceano de verdade, o que aliás põe estas
+	# ilhas DENTRO do mar (alcançáveis por Surf), que era a intenção desde o
+	# Tier 13. A checagem continua sendo "não vazou": o que está fora da faixa
+	# tem que ser o preenchimento genérico, não conteúdo da ilha (areia/terra).
+	_assert(tiles[row_ini + 10][col_ini - 10] == "~", "fora da faixa de colunas do arquipélago é preenchimento de mar, não conteúdo da ilha")
 
 	# ---- 7. zones.json: zona registrada, spawn real do Gen 1, sem warp associado ----
 	var f := FileAccess.open("res://data/world/zones.json", FileAccess.READ)

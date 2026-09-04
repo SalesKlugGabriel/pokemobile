@@ -69,8 +69,14 @@ func _teste_geral() -> void:
 
 	# ---- 4. Fora da faixa de colunas do litoral, comportamento de sempre
 	# (borda) — o litoral não vazou pro resto do mapa ----
-	_assert(tiles[row_ini + 5][col_ini - 5] == "T",
-		"fora da faixa de colunas de Vermilion, a mesma linha continua borda (litoral não vazou)")
+	# NOTA (04/09): o preenchimento fora dessas colunas era "T" (árvore) e virou
+	# "~" (mar) quando a costa de Pallet foi criada — a região ao sul do mapa
+	# deixou de ser árvore morta e virou oceano de verdade, o que aliás põe estas
+	# ilhas DENTRO do mar (alcançáveis por Surf), que era a intenção desde o
+	# Tier 13. A checagem continua sendo "não vazou": o que está fora da faixa
+	# tem que ser o preenchimento genérico, não conteúdo da ilha (areia/terra).
+	_assert(tiles[row_ini + 5][col_ini - 5] == "~",
+		"fora da faixa de colunas de Vermilion é preenchimento de mar (litoral não vazou)")
 
 	# ---- 5. NPC pescador existe ----
 	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene
