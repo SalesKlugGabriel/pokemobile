@@ -2029,6 +2029,46 @@ const VARIANTES_TERRENO : Dictionary = {
 	"S": [Vector2i(3, 0), Vector2i(1, 8), Vector2i(2, 8), Vector2i(3, 8)],
 }
 
+## Agrupa as células de PISO INTERNO em prédios separados (regiões conectadas).
+##
+## Base do "segundo andar" (04/09, ideia do Gabriel): cada prédio recebe um
+## telhado por cima, numa camada à parte, que SOME quando o jogador entra nele.
+## Assim o prédio parece sólido visto de fora (resolve a falta de perspectiva)
+## sem abrir mão do "entra andando" — que é justamente o que ficou pendente
+## quando os Centros Pokémon perderam o warp.
+##
+## Trabalha sobre o TileMap JÁ PINTADO (não sobre o array de chars) de
+## propósito: assim pega também o que é pintado à parte, como os ramos de
+## coluna/linha negativa (Rota 22/24/25, Casa do Bill, Indigo Plateau), que não
+## existem no array principal.
+static func agrupar_interiores(tm: TileMap) -> Array:
+	var piso : Vector2i = CHAR_MAP["I"]
+	var interiores := {}
+	for celula in tm.get_used_cells(0):
+		if tm.get_cell_atlas_coords(0, celula) == piso:
+			interiores[celula] = true
+
+	var vistos := {}
+	var predios : Array = []
+	const VIZINHOS : Array[Vector2i] = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+	for inicio in interiores:
+		if vistos.has(inicio):
+			continue
+		var celulas : Array[Vector2i] = []
+		var fila : Array[Vector2i] = [inicio]
+		vistos[inicio] = true
+		while not fila.is_empty():
+			var atual : Vector2i = fila.pop_back()
+			celulas.append(atual)
+			for d in VIZINHOS:
+				var viz : Vector2i = atual + d
+				if vistos.has(viz) or not interiores.has(viz):
+					continue
+				vistos[viz] = true
+				fila.append(viz)
+		predios.append(celulas)
+	return predios
+
 ## "Este char é uma porta?" / "é parede?" — checagens de significado, pra teste e
 ## ferramenta não compararem char literal. O vocabulário de fachada mudou em
 ## 04/09 (parede lisa "w" separada da parede-com-janela "W", porta virou o tile

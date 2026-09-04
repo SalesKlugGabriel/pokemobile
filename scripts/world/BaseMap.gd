@@ -26,6 +26,9 @@ func _ready() -> void:
 	_paint_tiles()
 	if not MapOverrides.overrides_loaded.is_connected(_on_map_overrides_loaded):
 		MapOverrides.overrides_loaded.connect(_on_map_overrides_loaded)
+	# "segundo andar": telhado some ao entrar no prédio
+	if not EventBus.player_tile_entered.is_connected(_on_player_tile_entered):
+		EventBus.player_tile_entered.connect(_on_player_tile_entered)
 	_apply_camera_limits()
 	WorldManager.register_map(map_id, tilemap, player)
 	WorldManager.apply_pending_spawn()
@@ -75,6 +78,70 @@ func _paint_tiles() -> void:
 		return
 	MapLayouts.paint(tilemap, map_id)
 	MapOverrides.apply_overrides(tilemap, map_id)
+	_montar_telhados()
+
+# ──────────────────────────────────────────────────────────────────────────────
+# "Segundo andar" — telhado que some ao entrar no prédio (04/09, ideia do
+# Gabriel)
+#
+# Problema que isto resolve: quando os Centros Pokémon viraram "entra andando"
+# (sem warp), o prédio passou a mostrar o piso interno visto de fora — parecia
+# um tapete no chão, não uma construção. A saída clássica de RPG top-down é
+# desenhar o telhado numa camada POR CIMA e escondê-lo quando o jogador entra.
+#
+# Assim ganha-se os dois lados: de fora o prédio é uma massa sólida com telhado
+# (a "perspectiva" que faltava), e ao atravessar a porta o telhado some e
+# revela o interior onde o jogador de fato está andando.
+#
+# A camada de telhado é derivada do mapa já pintado (MapLayouts.agrupar_
+# interiores), então qualquer prédio novo ganha telhado sozinho — não existe
+# lista de prédios pra manter em sincronia.
+# ──────────────────────────────────────────────────────────────────────────────
+const CAMADA_TELHADO : int = 1
+
+var _predios       : Array = []    # cada item: Array[Vector2i] com as células de um prédio
+var _predio_atual  : int   = -1    # índice do prédio em que o jogador está (-1 = nenhum)
+
+func _montar_telhados() -> void:
+	_predios = MapLayouts.agrupar_interiores(tilemap)
+	_predio_atual = -1
+	if _predios.is_empty():
+		return
+	while tilemap.get_layers_count() <= CAMADA_TELHADO:
+		tilemap.add_layer(-1)
+	# acima do chão E das entidades: quem está dentro fica escondido pelo
+	# telhado, que é exatamente o efeito desejado
+	tilemap.set_layer_z_index(CAMADA_TELHADO, 5)
+	tilemap.set_layer_y_sort_enabled(CAMADA_TELHADO, false)
+	for i in _predios.size():
+		_pintar_telhado(i, true)
+
+func _pintar_telhado(indice: int, visivel: bool) -> void:
+	if indice < 0 or indice >= _predios.size():
+		return
+	var telhado : Vector2i = MapLayouts.CHAR_MAP["H"]
+	for celula in _predios[indice]:
+		if visivel:
+			tilemap.set_cell(CAMADA_TELHADO, celula, 0, telhado)
+		else:
+			tilemap.erase_cell(CAMADA_TELHADO, celula)
+
+## Índice do prédio que contém este tile, ou -1 se o jogador está do lado de fora.
+func predio_em(tile: Vector2i) -> int:
+	for i in _predios.size():
+		if tile in _predios[i]:
+			return i
+	return -1
+
+## Chamado quando o jogador muda de tile: esconde o telhado do prédio em que ele
+## entrou e devolve o do prédio de onde saiu.
+func _on_player_tile_entered(tile: Vector2i) -> void:
+	var indice := predio_em(tile)
+	if indice == _predio_atual:
+		return
+	_pintar_telhado(_predio_atual, true)   # devolve o telhado do anterior
+	_predio_atual = indice
+	_pintar_telhado(indice, false)         # esconde o do prédio em que entrou
 
 ## Cobre o caso em que este mapa já pintou ANTES da busca de ajustes do
 ## Editor Visual terminar (achado esperado no boot — a 1ª tela do jogo não

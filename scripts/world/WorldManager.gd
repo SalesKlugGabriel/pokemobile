@@ -108,21 +108,27 @@ func is_tile_walkable(tile: Vector2i) -> bool:
 		return td.get_collision_polygons_count(0) == 0
 	return true
 
+## Quem decide se dá pra andar é SÓ a camada do chão (0).
+##
+## Antes isto varria TODAS as camadas — o que não fazia diferença enquanto só
+## existia uma. Quando o "segundo andar" (telhado sobre os prédios, camada 1)
+## entrou, virou bug na hora: o tile de telhado é marcado como bloqueado no
+## TileSet, então a camada puramente DECORATIVA passou a funcionar como parede e
+## o jogador conseguia parar na porta mas não entrar no prédio.
+##
+## Regra, agora explícita: camadas acima da 0 são decoração (telhado, copa de
+## árvore, o que vier) e nunca influenciam movimento.
+const CAMADA_CHAO : int = 0
+
 func _tile_walkable_tilemap(tm: TileMap, tile: Vector2i) -> bool:
-	for layer_idx in tm.get_layers_count():
-		var td : TileData = tm.get_cell_tile_data(layer_idx, tile)
-		if td == null:
-			continue
-		if td.get_custom_data(BLOCKED_DATA_KEY):
-			return false
-		if td.get_collision_polygons_count(0) > 0:
-			return false
-	var has_any := false
-	for layer_idx in tm.get_layers_count():
-		if tm.get_cell_source_id(layer_idx, tile) != -1:
-			has_any = true
-			break
-	return has_any
+	if tm.get_cell_source_id(CAMADA_CHAO, tile) == -1:
+		return false   # sem chão = fora do mapa
+	var td : TileData = tm.get_cell_tile_data(CAMADA_CHAO, tile)
+	if td == null:
+		return false
+	if td.get_custom_data(BLOCKED_DATA_KEY):
+		return false
+	return true
 
 ## Converte posição em pixels para coordenada de tile.
 ## Usa floor(), não truncamento: o mundo tem coordenadas NEGATIVAS (ramos da
@@ -173,11 +179,9 @@ func _passa(tile: Vector2i, permitir_agua: bool) -> bool:
 func is_water_tile(tile: Vector2i) -> bool:
 	if not tilemap or not (tilemap is TileMap):
 		return false
-	var tm := tilemap as TileMap
-	for layer_idx in tm.get_layers_count():
-		if tm.get_cell_atlas_coords(layer_idx, tile) == WATER_ATLAS_COORDS:
-			return true
-	return false
+	# Camada do chão só, pelo mesmo motivo de is_tile_walkable: camadas acima
+	# são decoração e não definem o terreno.
+	return (tilemap as TileMap).get_cell_atlas_coords(CAMADA_CHAO, tile) == WATER_ATLAS_COORDS
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Conexão de sinais de entidades
