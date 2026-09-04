@@ -47,6 +47,36 @@ antigo (podem ganhar o mesmo tratamento depois, se ele quiser).
 
 ---
 
+## Fase E (parte 1) + escala dos Pokémon (2026-09-04, continuação)
+
+**Tema de UI em pixel art, aplicado ao jogo inteiro.** Achado que deu a alavancagem: o jogo não
+tinha tema custom nenhum — toda a interface era o padrão do Godot. Um único `Theme`
+(`assets/ui/theme/pokemobile_theme.tres`) restilou painéis, botões, barras e textos de uma vez,
+**sem tocar em cena nenhuma**. As texturas 9-slice são geradas por código
+(`tools/gerar_ui_pixelart.py`), mesma filosofia do gerador de personagem — trocar a paleta ali
+restila tudo. Botão pressionado inverte o bisel (afunda sem precisar de animação), hover ganha
+contorno no dourado que já era a cor de acento do chão, e os textos ganharam contorno escuro —
+antes o HUD sumia sobre chão claro.
+
+**Escala dos 151 Pokémon corrigida — o problema mais visível de "experiência" que restava.**
+Medição: os sprites da PokeAPI ocupavam frações muito diferentes do frame de 128px (Bulbasaur
+47×44, Charizard 128×111) e o jogo desenha tudo em escala 1.0 — então o Pokémon inicial parecia um
+inseto ao lado do Treinador (80×196). Escala única não servia (o maior já preenchia o frame), então
+normalizei a FAIXA: mapeia as alturas atuais (32..111) pra uma faixa alvo mais alta e estreita
+(72..120). Levanta muito os pequenos, quase não mexe nos grandes, e preserva a ordem relativa.
+Bulbasaur 44→79 de altura; Charizard continua o maior. Reamostragem NEAREST (pixel continua pixel),
+âncora no pé (continua plantado na sombra que o motor desenha), shiny herda a escala da variante
+normal. 302 arquivos, backup completo em `assets/old/pokemon/`.
+
+Testado: suíte inteira (60 arquivos) 0 falhas em cada etapa + navegador real (título, novo jogo,
+HUD, menu de pausa, personagem andando nas 4 direções), 0 erro de script. Publicado.
+
+**Próxima fase recomendada:** Fase C (tiles/estruturas — variações de chão sem repetição óbvia e
+árvores com silhuetas distintas) ou Fase F (efeitos de hit/cura/level up, que hoje não existem
+como arte nenhuma).
+
+---
+
 ## Fase B (parte 1) — personagem e NPCs em pixel art de verdade (2026-09-04)
 
 **Primeira arte da nova direção visual, no ar.** O Gabriel dispensou o Aseprite e delegou 100% das
