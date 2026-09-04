@@ -3189,3 +3189,55 @@ precisa ligar/testar, não recriar do zero).
 
 **Precisa de decisão do Gabriel?** Sim — qual lote ele quer que eu ataque
 primeiro, já usando a lista ajustada.
+
+---
+
+## 04/09/2026 — Regra 1 fechada + auditoria de gameplay (joguei o jogo)
+
+**O que eu fiz:** duas coisas. Primeiro terminei a "regra obrigatória 1" da
+direção de arte (todo objeto inteiro e centralizado no próprio quadro). Achei
+que o defeito era maior do que parecia: as três árvores não estavam só
+descentralizadas, estavam **cortadas ao meio**. Medindo linha a linha, a coluna
+x=5 era o limite esquerdo em 62 a 88 das ~90 linhas do objeto — isso é
+assinatura de corte reto, não de silhueta de árvore. Reconstruí a metade que
+faltava espelhando o lado são e centrei cada uma no quadro, mantendo o pé
+apoiado na base (centralizar na vertical faria a árvore flutuar). Sebe e toco eu
+NÃO mexi de propósito: medidos, eles preenchem o quadro de borda a borda — são
+textura de parede, e ali borda reta é o certo.
+
+Depois joguei o jogo de verdade no navegador, duas partidas do começo, como se
+fosse uma criança de 10 anos fã de Pokémon. **Achei 13 problemas, 4 deles
+travam o jogo.** Relatório completo publicado como página, com as capturas.
+
+**Os 4 que travam:** a Pokédex prende o jogador (Esc não fecha, só o "X"
+pequeno — e a tecla M está mapeada em DUAS ações ao mesmo tempo); a Pokédex
+desenha a folha de animação inteira (384x512) como se fosse o ícone de 20px, por
+isso aparecem 12 Bulbasaurs e nenhuma outra espécie; Esc abre o menu de Pausa
+POR CIMA do painel aberto em vez de fechar o de cima (menus empilham); e dá pra
+ficar preso na tela de Novo Jogo, porque não existe caminho de teclado (Enter
+não confirma) e um clique que erra o botão por 26px é indistinguível de um jogo
+travado.
+
+**O achado mais barato de consertar e mais transformador:** o jogo é
+completamente mudo. `assets/audio/` tem ZERO arquivos e o console reclama de 5
+faltando. O AudioManager já está pronto e chamando — só não existe nada pra
+tocar.
+
+**O segundo:** o jogador nasce no tile (50,182), no meio da estrada de terra de
+10 tiles de largura. O prédio mais próximo está a 15 tiles, fora da tela. Os 29
+prédios existem; nenhum aparece no primeiro quadro. A primeira tela do jogo é um
+campo marrom vazio.
+
+**Testado:** 62 arquivos de teste, 0 falhas. `teste_qa_tiles.gd` ganhou duas
+conferências novas que travam a regra 1 (desvio do centro do quadro E borda reta
+repetida em mais de 50% das linhas) — uma sozinha deixava o defeito passar,
+porque era corte E descentralização ao mesmo tempo. Publicado e conferido com
+curl (200).
+
+**Próximo passo:** o plano de melhoria do relatório, em 4 lotes, na ordem em que
+o jogador percebe: (1) destravar as 4 telas, (2) som + nascer na praça + título
++ sprites do inicial + primeiro objetivo, (3) barra de vida/painel do time/
+minimapa, (4) transições de terreno grama-areia-agua.
+
+**Precisa de decisão do Gabriel?** Não pra começar — o Lote 1 é conserto de bug,
+sigo direto. Vale ele olhar o relatório e dizer se concorda com a ordem.
