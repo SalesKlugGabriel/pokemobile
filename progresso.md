@@ -9,6 +9,35 @@
 
 ---
 
+## Voar/Surfar por espécie + primeiras 3 estradas alargadas (2026-09-03)
+
+**Voar e Surfar agora exigem TER o Pokémon certo no time** (Fearow/Pidgeot/Aerodactyl/Dragonite/
+Charizard pra Voar; Poliwag/Poliwhirl/Poliwrath/Seadra/Gyarados/Lapras pra Surfar), não mais
+"qualquer Pokémon sabendo o golpe" — mesma regra já usada pela Montaria (Tauros/Rhyhorn/etc).
+Pedido do Gabriel.
+
+**Estradas: 3 alargadas (5 → 8-10 tiles), o resto do mapa NÃO — motivo real, achado por
+inspeção.** Gabriel pediu pra aproximar o mapa do formato original, com estradas de 6 a 10 tiles.
+Antes de mexer em tudo, investiguei se dava pra alargar globalmente — achei que quase toda cidade
+(Saffron/Celadon/Vermilion/Fuchsia/Lavender/Indigo Plateau) tem prédios com a porta ligada ao
+corredor por um conector hard-ancorado bem na borda atual (mesmo padrão copiado ~15 vezes no
+código) — alargar às cegas bloquearia o acesso às portas dessas ~15 construções. Alarguei só as 3
+rotas onde confirmei ZERO colisão (Rota 7 Saffron↔Celadon: 8 tiles; Rota 3/4 Pewter↔Cerulean e
+Rota 8 Saffron↔Lavender: 10 tiles — as molduras de rocha de Mt Moon/Rock Tunnel já reservavam mais
+espaço que o caminho antigo, a estrada nova cabe dentro sem tocar nelas). **Pendente, mapeado e
+documentado, não construído**: as rotas verticais (Rota 22/24/25, hoje só 3 tiles de largura,
+ainda mais apertadas) e as cidades em si — cada uma exige mover prédios/moldura de caverna
+individualmente, não é uma constante só. Fica pra uma leva dedicada.
+
+Testado: 31 conferências novas (`teste_estradas_alargadas.gd`) + 6 novas de Surf/Fly por espécie
+(`teste_fase4_mecanicas_movimento.gd`) + suíte inteira (59 arquivos) em 0 falhas. Publicado.
+
+**Precisa de decisão do Gabriel?** Não pra continuar (por conta própria) — mas ele deve saber que
+"todo o mapa alargado" é bem maior do que parece (achado concreto documentado acima), então vai
+sair em fatias, cidade por cidade/rota por rota, não tudo de uma vez.
+
+---
+
 ## Revisão de lore + balanceamento — 60h de jogo de verdade (2026-09-03)
 
 **Pedido do Gabriel, executado por conta própria de ponta a ponta**: "revise toda a lore, feche
