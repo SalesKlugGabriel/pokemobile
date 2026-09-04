@@ -5,10 +5,11 @@
 > de verdade das duas referências que o Gabriel mandou (`docs/referencias/tileset-visual-
 > referencia.png` e `-2.png`).
 >
-> 🔴 **Rascunho aguardando aprovação do Gabriel — nenhum asset foi desenhado ainda.**
-> Depois de aprovado, este arquivo vira a referência obrigatória de toda fase seguinte
-> (B em diante), e qualquer mudança de paleta/luz/resolução daqui pra frente passa por aqui
-> primeiro, não é decidida solta dentro de uma fase.
+> ✅ **VIGENTE desde 04/09/2026.** O Gabriel dispensou o Aseprite e delegou 100% das decisões
+> ("siga com o projeto e tome 100% das decisões para melhorar o resultado e experiência do
+> player"), então esta Art Bible passou de rascunho a referência ativa. Toda fase seguinte
+> (B em diante) obedece o que está aqui; qualquer mudança de paleta/luz/resolução daqui pra
+> frente é registrada NESTE arquivo primeiro, não decidida solta dentro de uma fase.
 
 ---
 
@@ -128,3 +129,34 @@ NEAREST em 100% dos assets (confirmado na auditoria) — isso significa que a es
 de hoje não gera blend/blur de cor entre pixels, só uma leve variação de espessura entre colunas
 de pixel (artefato bem mais discreto do que eu tinha suposto). **Decisão: manter a escala
 fracionária como está.** Não é mais um bloqueador pra Fase B.
+
+---
+
+## Registro de execução — Fase B, parte 1: personagem e NPCs (04/09/2026)
+
+**Ferramenta escolhida (decisão minha, o Gabriel dispensou o Aseprite):** os sprites são
+desenhados **por código, pixel a pixel**, em `tools/gerar_sprites_personagem.py`. Esse arquivo é o
+"arquivo-fonte editável" que a Art Bible exige no lugar do `.aseprite` — dá pra regerar qualquer
+frame, trocar uma cor da paleta ou ajustar a anatomia sem redesenhar nada à mão, e a consistência
+entre 12 frames × 4 personagens é garantida por construção (todos saem da mesma função).
+
+**Densidade de pixel definida na prática:** grade lógica de **32×64**, escalada 4× (NEAREST) para
+os 128×256 por frame que o `SpriteBuilder` já esperava — zero mudança de código no jogo. Achado ao
+medir: o tileset atual **não** é pixel art de grade limpa (100% dos pixels são únicos, é arte de
+IA com aparência pixelada), então não havia uma densidade existente pra copiar — a de 32×64 foi
+escolhida por ser pixel art de verdade e legível no tamanho em que o personagem aparece.
+
+**4 ciclos de revisão feitos** (o plano pedia iterar, não aceitar a 1ª versão):
+1. 1ª versão: já muito melhor que os blocos chapados, mas costas com pele aparecendo, braço em
+   perfil flutuando no meio do tronco, e andar quase imperceptível.
+2. Corrigido cabelo cobrindo a nuca inteira, braço movido pra borda do corpo, passada 2× maior.
+   Novo problema: em perfil as duas pernas viraram um bloco roxo só.
+3. Linha de separação entre as pernas — **não resolveu**, porque as duas tinham o mesmo
+   comprimento e continuavam lendo como um retângulo.
+4. Solução real: a perna de trás **levanta o pé** (fica mais curta, em tom de sombra) e a da
+   frente fica plantada. A silhueta passou a contar o movimento sozinha.
+
+**Achado que só apareceu no jogo, não no arquivo:** sombra dupla. O motor já desenha sombra de
+contato por código (`TrainerEntity._add_visibility_shadow`), e eu tinha assado outra no sprite —
+juntas viravam um borrão. **Regra nova, vale pra todo sprite futuro: sombra de contato é do
+motor, o sprite entrega só o personagem recortado.**
