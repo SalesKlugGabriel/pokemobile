@@ -119,12 +119,20 @@ func _montar_telhados() -> void:
 func _pintar_telhado(indice: int, visivel: bool) -> void:
 	if indice < 0 or indice >= _predios.size():
 		return
-	var telhado : Vector2i = MapLayouts.CHAR_MAP["H"]
-	for celula in _predios[indice]:
-		if visivel:
-			tilemap.set_cell(CAMADA_TELHADO, celula, 0, telhado)
-		else:
+	var celulas : Array = _predios[indice]
+	if not visivel:
+		for celula in celulas:
 			tilemap.erase_cell(CAMADA_TELHADO, celula)
+		return
+	# Usa o KIT (cumeeira/beiral/arestas/cantos) em vez de repetir o tile
+	# central — é o que dá à casa a silhueta de construção fechada em vez de
+	# uma chapa de telha (regra obrigatória 2, 04/09).
+	var conjunto := {}
+	for celula in celulas:
+		conjunto[celula] = true
+	for celula in celulas:
+		var peca : String = MapLayouts.peca_de_telhado(celula, conjunto)
+		tilemap.set_cell(CAMADA_TELHADO, celula, 0, MapLayouts.CHAR_MAP[peca])
 
 ## Índice do prédio que contém este tile, ou -1 se o jogador está do lado de fora.
 func predio_em(tile: Vector2i) -> int:

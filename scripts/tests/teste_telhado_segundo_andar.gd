@@ -69,6 +69,24 @@ func _process(_delta: float) -> bool:
 
 	tm.free()
 
+	# ---- 5. O telhado usa o KIT (cantos/bordas), não só o tile central ----
+	# Regra obrigatória 2 do Gabriel: a estrutura tem que fechar como casa, com
+	# canto e borda — não pode ser uma faixa reta de telha repetida.
+	var conjunto := {}
+	for c in alvo:
+		conjunto[c] = true
+	var usadas := {}
+	for c in alvo:
+		usadas[MapLayouts.peca_de_telhado(c, conjunto)] = true
+	for canto in ["u", "v", "x", "y"]:
+		_assert(usadas.has(canto), "telhado usa o canto '%s' (casa fechada, não faixa reta)" % canto)
+	_assert(usadas.has("H"), "telhado tem miolo além das bordas")
+	var todas_no_atlas := true
+	for peca in usadas:
+		if not MapLayouts.CHAR_MAP.has(peca):
+			todas_no_atlas = false
+	_assert(todas_no_atlas, "toda peça do kit existe no CHAR_MAP")
+
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	quit(1 if _fail > 0 else 0)
 	return true

@@ -52,6 +52,22 @@ const CHAR_MAP : Dictionary = {
 	# como se fossem apenas janelas"). Gerada a partir da faixa limpa do próprio
 	# "W", então casa perfeitamente com ele — ver tools/ (parede lisa em (4,8)).
 	"w": Vector2i(4, 8),
+	# ── KIT MODULAR DE CASA (04/09, regra obrigatória 2 do Gabriel) ──
+	# Antes só existia telhado central + parede frontal, o que só permitia
+	# fachada reta infinita — nunca uma casa fechada vista de cima. Estas peças
+	# são derivadas da própria arte de telhado/parede (tools/gerar_kit_casa.py),
+	# então encaixam sem destoar. Luz de cima-esquerda: cumeeira e aresta
+	# esquerda claras, beiral e aresta direita escuros.
+	"q": Vector2i(5, 8),   # telhado — borda superior (cumeeira)
+	"r": Vector2i(6, 8),   # telhado — borda inferior (beiral)
+	"s": Vector2i(7, 8),   # telhado — borda esquerda
+	"t": Vector2i(0, 9),   # telhado — borda direita
+	"u": Vector2i(1, 9),   # telhado — canto superior esquerdo
+	"v": Vector2i(2, 9),   # telhado — canto superior direito
+	"x": Vector2i(3, 9),   # telhado — canto inferior esquerdo
+	"y": Vector2i(4, 9),   # telhado — canto inferior direito
+	"a": Vector2i(5, 9),   # parede — lateral esquerda
+	"p": Vector2i(6, 9),   # parede — lateral direita
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -2068,6 +2084,29 @@ static func agrupar_interiores(tm: TileMap) -> Array:
 				fila.append(viz)
 		predios.append(celulas)
 	return predios
+
+## Escolhe a PEÇA de telhado certa pra uma célula, olhando quais vizinhos
+## também são telhado do mesmo prédio (regra obrigatória 2 do Gabriel: o kit
+## precisa montar uma casa fechada, não uma faixa reta).
+##
+## Sem isto o telhado do "segundo andar" era uma chapa lisa de tiles centrais —
+## o prédio ficava sem cumeeira, sem beiral e sem canto, que é exatamente a
+## queixa de "faixa horizontal única".
+static func peca_de_telhado(celula: Vector2i, conjunto: Dictionary) -> String:
+	var cima   : bool = conjunto.has(celula + Vector2i(0, -1))
+	var baixo  : bool = conjunto.has(celula + Vector2i(0, 1))
+	var esq    : bool = conjunto.has(celula + Vector2i(-1, 0))
+	var dir    : bool = conjunto.has(celula + Vector2i(1, 0))
+
+	if not cima and not esq:   return "u"   # canto superior esquerdo
+	if not cima and not dir:   return "v"   # canto superior direito
+	if not baixo and not esq:  return "x"   # canto inferior esquerdo
+	if not baixo and not dir:  return "y"   # canto inferior direito
+	if not cima:               return "q"   # cumeeira
+	if not baixo:              return "r"   # beiral
+	if not esq:                return "s"   # aresta esquerda
+	if not dir:                return "t"   # aresta direita
+	return "H"                              # miolo
 
 ## "Este char é uma porta?" / "é parede?" — checagens de significado, pra teste e
 ## ferramenta não compararem char literal. O vocabulário de fachada mudou em
