@@ -19,6 +19,48 @@ const TILE_SIZE             : int   = 128   # pixels por tile (migração tile12
 const WILD_POKEMON_SCENE : String = "res://scenes/entities/pokemon/WildPokemon.tscn"
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Spawn fixo por terreno (03/09) — pedido do Gabriel: "quero que os pokémons
+# selvagens sempre estejam visíveis e não simplesmente surjam do nada... spawn
+# fixo de acordo com o tipo [de terreno] e localização... o mesmo Pokémon pode
+# spawnar em várias localizações do mapa". Só vale pro MUNDO ABERTO
+# (world_map) — dungeons (Mt Moon, Rock Tunnel, Zona Safari, Cerulean Cave
+# etc.) continuam no sistema antigo de tabela curada por zona, que já é mais
+# controlado de propósito (e o Mewtwo de Cerulean Cave, por exemplo, nem passa
+# por aqui — é um nó fixo direto na cena, sempre foi).
+#
+# Substitui a tabela curada (`zone.wild_pokemon`, 1 lista fixa por zona) por
+# uma tabela GLOBAL de terreno → espécies: a mesma espécie aparece em
+# QUALQUER lugar do mapa que tenha aquele terreno, ao entrar na zona pela
+# primeira vez (`_populated_zones`), sem timer e sem despawn por distância —
+# fica ali de verdade, patrulhando (State.PATROL já existe), até ser
+# derrotado/capturado.
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Chars marcados "(bloq.)"/"Blocked" na legenda de MapLayouts.gd — usado só
+## pra decidir onde NÃO nascer diretamente (categorias "adjacent_to" nascem
+## num vizinho livre, não em cima do obstáculo).
+const BLOCKED_TILE_CHARS := ["W", "~", "T", "R", "E", "d", "H", "X", "N", "O", "K", "B", "L", "c", "l", "m", "n"]
+
+## category -> {"tiles": [chars onde nasce direto]} OU {"adjacent_to": [chars
+## obstáculo, nasce num vizinho livre]}, mais "species" (lista de IDs — a
+## mesma categoria pode sortear qualquer uma delas, sem se prender a 1 só).
+const TERRAIN_SPECIES := {
+	"grass":       {"tiles": ["."],               "species": [43, 44, 70]},        # Oddish, Gloom, Weepinbell
+	"tall_grass":  {"tiles": ["A"],                "species": [23, 24, 14, 15]},    # Ekans, Arbok, Kakuna, Beedrill
+	"beach_water": {"tiles": ["S", "U"],           "species": [7, 79, 98]},         # Squirtle, Slowpoke, Krabby
+	"rocky":       {"adjacent_to": ["R", "L"],     "species": [74, 75, 76, 111]},   # Geodude, Graveler, Golem, Rhyhorn
+	"volcanic":    {"adjacent_to": ["c"],          "species": [77, 126, 58]},       # Ponyta, Magmar, Growlithe
+	"forest":      {"adjacent_to": ["T", "N", "O"], "species": [10, 11, 16, 25]},   # Caterpie, Metapod, Pidgey, Pikachu
+}
+
+const SPAWNS_PER_CATEGORY : int = 2   # quantos de cada categoria, por zona (teto por zona)
+const LEVEL_MIN_TERRAIN   : int = 3
+const LEVEL_MAX_TERRAIN   : int = 8
+const NEIGHBOR_RADIUS     : int = 2   # raio (em tiles) pra categorias "adjacent_to"
+
+var _populated_zones : Array[String] = []
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Estado
 # ──────────────────────────────────────────────────────────────────────────────
 var _wild_instances : Array   = []       # lista de WildPokemon ativos
@@ -46,12 +88,28 @@ func _process(delta: float) -> void:
 		if not _player:
 			return
 
-	_despawn_distant()
+	_cleanup_invalid_instances()
 
+	if _is_world_map():
+		# Mundo aberto: população fixa por terreno, sem timer e sem despawn
+		# por distância — só limpa instâncias já mortas/capturadas (acima).
+		var zone_manager := _get_zone_manager()
+		if zone_manager:
+			var zone : Dictionary = zone_manager.get_current_zone()
+			if not zone.is_empty():
+				_populate_zone_by_terrain(zone)
+		return
+
+	# Dungeons/interiores: sistema antigo, intocado.
+	_despawn_by_distance()
 	_spawn_timer += delta
 	if _spawn_timer >= _current_spawn_interval():
 		_spawn_timer = 0.0
 		_try_spawn()
+
+func _is_world_map() -> bool:
+	var scene := get_tree().current_scene
+	return scene != null and "map_id" in scene and scene.map_id == "world_map"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Densidade por profundidade na floresta (Fase 10 do motor de combate em
@@ -144,6 +202,99 @@ func _try_spawn() -> void:
 
 	_spawn_pokemon(chosen, spawn_pos, str(zone.get("id", "")))
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Spawn fixo por terreno (mundo aberto) — ver comentário no topo do arquivo.
+# ──────────────────────────────────────────────────────────────────────────────
+## Popula uma zona UMA VEZ (marca em _populated_zones) — acha, pra cada
+## categoria de terreno, as posições candidatas dentro do tile_rect da zona e
+## nasce até SPAWNS_PER_CATEGORY por categoria encontrada.
+func _populate_zone_by_terrain(zone: Dictionary) -> void:
+	var zone_id : String = str(zone.get("id", ""))
+	if zone_id.is_empty() or zone_id in _populated_zones:
+		return
+	_populated_zones.append(zone_id)
+
+	var layout : Dictionary = MapLayouts.get_layout("world_map")
+	var tiles  : Array = layout.get("tiles", [])
+	var rect   : Dictionary = zone.get("tile_rect", {})
+	var x0 : int = int(rect.get("x", 0))
+	var y0 : int = int(rect.get("y", 0))
+	var w  : int = int(rect.get("w", 0))
+	var h  : int = int(rect.get("h", 0))
+	if w <= 0 or h <= 0 or tiles.is_empty():
+		return
+
+	for category in TERRAIN_SPECIES.keys():
+		var info : Dictionary = TERRAIN_SPECIES[category]
+		var candidatos : Array = _find_terrain_positions(tiles, x0, y0, w, h, info)
+		if candidatos.is_empty():
+			continue
+		candidatos.shuffle()
+		var especies : Array = info.get("species", [])
+		if especies.is_empty():
+			continue
+		var quantos : int = mini(SPAWNS_PER_CATEGORY, candidatos.size())
+		for i in quantos:
+			if _wild_instances.size() >= MAX_WILD_INSTANCES:
+				return
+			var tile_pos   : Vector2i = candidatos[i]
+			var species_id : int = especies[RNGManager.randi_range(0, especies.size() - 1)]
+			var level      : int = RNGManager.randi_range(LEVEL_MIN_TERRAIN, LEVEL_MAX_TERRAIN)
+			var world_pos  : Vector2 = Vector2((tile_pos.x + 0.5) * TILE_SIZE, (tile_pos.y + 0.5) * TILE_SIZE)
+			_spawn_terrain_pokemon(species_id, level, world_pos, zone_id)
+
+## Varre o retângulo (x0,y0,w,h) do grid de tiles cru (o MESMO texto usado
+## pra pintar o mapa, não o TileMap já renderizado) procurando tiles que
+## batam com a categoria — "tiles" nasce em cima, "adjacent_to" nasce num
+## vizinho livre (o obstáculo em si nunca é uma posição válida).
+func _find_terrain_positions(tiles: Array, x0: int, y0: int, w: int, h: int, info: Dictionary) -> Array:
+	var out    : Array = []
+	var height : int = tiles.size()
+	var y_fim  : int = mini(y0 + h, height)
+	for ty in range(maxi(y0, 0), y_fim):
+		var row    : String = tiles[ty]
+		var width  : int = row.length()
+		var x_fim  : int = mini(x0 + w, width)
+		for tx in range(maxi(x0, 0), x_fim):
+			var ch : String = row[tx]
+			if info.has("tiles"):
+				if ch in info["tiles"]:
+					out.append(Vector2i(tx, ty))
+			elif info.has("adjacent_to"):
+				if ch in BLOCKED_TILE_CHARS:
+					continue  # o próprio tile é obstáculo — não nasce em cima
+				if _tem_vizinho_obstaculo(tiles, tx, ty, info["adjacent_to"]):
+					out.append(Vector2i(tx, ty))
+	return out
+
+func _tem_vizinho_obstaculo(tiles: Array, tx: int, ty: int, chars: Array) -> bool:
+	for dy in range(-NEIGHBOR_RADIUS, NEIGHBOR_RADIUS + 1):
+		var ny : int = ty + dy
+		if ny < 0 or ny >= tiles.size():
+			continue
+		var row : String = tiles[ny]
+		for dx in range(-NEIGHBOR_RADIUS, NEIGHBOR_RADIUS + 1):
+			var nx : int = tx + dx
+			if nx < 0 or nx >= row.length():
+				continue
+			if row[nx] in chars:
+				return true
+	return false
+
+## Igual _spawn_pokemon() — WildPokemon já guarda `_spawn_pos` sozinho no
+## próprio _ready() (existia, nunca era usado); só precisou ensinar
+## _pick_patrol_dir() a respeitar essa "casa" (ver WildPokemon.gd).
+func _spawn_terrain_pokemon(species_id: int, level: int, pos: Vector2, zone_id: String) -> void:
+	var instance := _wild_scene.instantiate()
+	if not instance:
+		return
+	instance.global_position = pos
+	if instance.has_method("initialize"):
+		instance.initialize(species_id, level, "neutral", zone_id)
+	_spawn_parent.add_child(instance)
+	_wild_instances.append(instance)
+	EventBus.wild_pokemon_spawned.emit(instance)
+
 func _spawn_pokemon(entry: Dictionary, pos: Vector2, zone_id: String = "") -> void:
 	var instance := _wild_scene.instantiate()
 	if not instance:
@@ -200,7 +351,20 @@ func _random_spawn_pos() -> Vector2:
 # ──────────────────────────────────────────────────────────────────────────────
 # Lógica de despawn
 # ──────────────────────────────────────────────────────────────────────────────
-func _despawn_distant() -> void:
+## Só limpa a LISTA (instâncias já mortas/capturadas/liberadas por fora) —
+## nunca derruba um Pokémon vivo. Roda sempre, mundo aberto ou dungeon.
+func _cleanup_invalid_instances() -> void:
+	var to_remove : Array = []
+	for inst in _wild_instances:
+		if not is_instance_valid(inst):
+			to_remove.append(inst)
+	for inst in to_remove:
+		_wild_instances.erase(inst)
+
+## Despawn por distância — só pras dungeons/interiores (sistema antigo). O
+## mundo aberto (03/09) NUNCA usa isto: terreno alargado é pra ficar visível
+## de verdade, não sumir quando o jogador se afasta.
+func _despawn_by_distance() -> void:
 	if not _player:
 		return
 
@@ -209,7 +373,6 @@ func _despawn_distant() -> void:
 
 	for inst in _wild_instances:
 		if not is_instance_valid(inst):
-			to_remove.append(inst)
 			continue
 		var dist : float = _player.global_position.distance_to(inst.global_position)
 		if dist > despawn_px:

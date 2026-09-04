@@ -524,10 +524,22 @@ func _tick_patrol(delta: float) -> void:
 	velocity = _patrol_dir * move_speed
 	move_and_slide()
 
+## Coleira (03/09, spawn fixo por terreno): sem isso, um passeio 100%
+## aleatório pode, com tempo suficiente, sair da própria área de terreno
+## (um Oddish saindo da grama pro meio da estrada). Fora do raio, a direção
+## sorteada vira "de volta pra casa" (com uma variação, pra não parecer um
+## trilho reto) em vez de mais uma direção qualquer.
+const LEASH_RADIUS_TILES : float = 6.0
+
 func _pick_patrol_dir() -> void:
 	_patrol_timer = RNGManager.randf_range(PATROL_INTERVAL_MIN, PATROL_INTERVAL_MAX)
-	var angle     := RNGManager.randf_range(0.0, TAU)
-	_patrol_dir   = Vector2(cos(angle), sin(angle))
+	var leash_px : float = LEASH_RADIUS_TILES * 128.0
+	if _spawn_pos != Vector2.ZERO and global_position.distance_to(_spawn_pos) > leash_px:
+		var para_casa := (_spawn_pos - global_position).normalized()
+		_patrol_dir = para_casa.rotated(RNGManager.randf_range(-0.6, 0.6))
+	else:
+		var angle := RNGManager.randf_range(0.0, TAU)
+		_patrol_dir = Vector2(cos(angle), sin(angle))
 
 func _flee_from_target() -> void:
 	if not target:
