@@ -24,6 +24,23 @@ const MAX_SCALE          : float = 2.2
 
 const HEIGHTS_PATH : String = "res://data/pokemon/heights.json"
 
+## Geometria do sprite dentro do frame de 128px, garantida pelo pipeline de arte
+## (tools/alinhar_pe_pokemon.py): TODA espécie tem o pé na mesma linha e a mesma
+## altura nominal de corpo — a diferença de tamanho entre espécies vem daqui
+## (get_visual_scale), não do tamanho do PNG. Quem precisa saber "onde termina o
+## corpo" (ex: pôr a barra de vida logo acima da cabeça) usa topo_do_corpo() em
+## vez de chutar um deslocamento fixo: era um -160 cravado que deixava a barra
+## boiando longe dos Pokémon pequenos (achado em jogo, 04/09).
+const LINHA_PE_FRAME : float = 120.0
+const ALTURA_CORPO   : float = 75.0
+const FRAME          : float = 128.0
+
+## Y (local à entidade) do topo do corpo, já considerando a escala da espécie.
+## base_offset_y: o mesmo que a entidade passa pra anchor_sprite_bottom().
+static func topo_do_corpo(base_offset_y: float, escala: float) -> float:
+	var pe_y : float = base_offset_y + FRAME / 2.0 - (FRAME - LINHA_PE_FRAME) * escala
+	return pe_y - ALTURA_CORPO * escala
+
 static var _heights : Dictionary = {}
 static var _loaded  : bool = false
 

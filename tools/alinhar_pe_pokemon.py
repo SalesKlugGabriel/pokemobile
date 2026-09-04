@@ -47,6 +47,7 @@ def alinhar(origem, destino):
     img = Image.open(origem).convert("RGBA")
     fw, fh = img.size[0] // 3, img.size[1] // 4
     saida = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    maior = 0
     for r in range(4):
         for c in range(3):
             fr = img.crop((c * fw, r * fh, (c + 1) * fw, (r + 1) * fh))
@@ -63,7 +64,9 @@ def alinhar(origem, destino):
             dy = LINHA_PE - conteudo.size[1]                  # base do conteúdo na linha do pé
             dy = max(0, min(dy, fh - conteudo.size[1]))
             saida.paste(conteudo, (c * fw + dx, r * fh + dy), conteudo)
+            maior = max(maior, conteudo.size[1])
     saida.save(destino)
+    return maior
 
 
 def main():
@@ -76,7 +79,7 @@ def main():
         # nativo da PokeAPI (desfaz a normalização de escala que eu tinha
         # aplicado antes de descobrir o PokemonScale) e só o pé é ajustado.
         alinhar(bkp, arq)
-    print(f"{len(arquivos)} sprites com o pé alinhado em f={LINHA_PE} (tamanho nativo preservado)")
+    print(f"{len(arquivos)} sprites com o pé alinhado em f={LINHA_PE}, altura nominal {ALTURA_NOMINAL}")
 
 
 if __name__ == "__main__":

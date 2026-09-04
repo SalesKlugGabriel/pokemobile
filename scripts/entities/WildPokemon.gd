@@ -194,11 +194,19 @@ const HP_BAR_WIDTH  : float = 160.0  # migração tile128 (03/09): era 40
 const HP_BAR_HEIGHT : float = 20.0   # migração tile128 (03/09): era 5
 const HP_BAR_Y      : float = -160.0  # migração tile128 (03/09): era -40
 
+## Y da barra de vida: logo ACIMA da cabeça, calculado a partir da escala da
+## espécie. Antes era HP_BAR_Y fixo (-160), calibrado quando todo Pokémon
+## preenchia o frame inteiro — com escala por espécie e pé alinhado, a barra
+## ficava boiando bem longe dos pequenos (visto em jogo, 04/09).
+func _y_da_barra() -> float:
+	var escala : float = PokemonScale.get_visual_scale(species_id)
+	return PokemonScale.topo_do_corpo(SPRITE_BASE_OFFSET_Y, escala) - 14.0
+
 func _build_health_bar() -> void:
 	_hp_bar_bg = ColorRect.new()
 	_hp_bar_bg.color = Color(0.1, 0.1, 0.1, 0.8)
 	_hp_bar_bg.size = Vector2(HP_BAR_WIDTH, HP_BAR_HEIGHT)
-	_hp_bar_bg.position = Vector2(-HP_BAR_WIDTH / 2.0, HP_BAR_Y)
+	_hp_bar_bg.position = Vector2(-HP_BAR_WIDTH / 2.0, _y_da_barra())
 	add_child(_hp_bar_bg)
 
 	_hp_bar_fill = ColorRect.new()
@@ -209,7 +217,7 @@ func _build_health_bar() -> void:
 	_level_label = Label.new()
 	_level_label.text = "Lv.%d" % wild_level
 	_level_label.add_theme_font_size_override("font_size", 10)
-	_level_label.position = Vector2(-HP_BAR_WIDTH / 2.0, HP_BAR_Y - 56.0)
+	_level_label.position = Vector2(-HP_BAR_WIDTH / 2.0, _y_da_barra() - 34.0)
 	add_child(_level_label)
 
 	# Status persistente (03/09) — abreviação (BRN/PSN/PAR/SLP/FRZ), igual
@@ -217,7 +225,7 @@ func _build_health_bar() -> void:
 	_status_label = Label.new()
 	_status_label.add_theme_font_size_override("font_size", 10)
 	_status_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
-	_status_label.position = Vector2(HP_BAR_WIDTH / 2.0 - 36.0, HP_BAR_Y - 56.0)
+	_status_label.position = Vector2(HP_BAR_WIDTH / 2.0 - 36.0, _y_da_barra() - 34.0)
 	add_child(_status_label)
 
 	_update_health_bar()

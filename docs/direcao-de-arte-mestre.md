@@ -60,6 +60,31 @@ Preservar: boné vermelho e corpo azul do personagem, função e posição da cr
 
 Mesmo ciclo de qualidade da Fase B (criar → integrar → rodar → comparar → corrigir).
 
+### Regra obrigatória 1 — Todo objeto/tile deve estar centralizado e completo dentro do seu próprio quadro
+
+Problema real já encontrado: árvores, arbustos e canteiros de flores foram gerados descentralizados dentro do quadro (tile), mostrando só um pedaço do objeto e invadindo visualmente o quadro vizinho.
+
+- Cada tile de objeto (árvore, arbusto, flor, pedra, tronco) deve ter o objeto inteiro e centralizado dentro da própria célula da grade — nada pode ultrapassar a borda do quadro nem aparecer cortado.
+- Testar isolando o tile sozinho (fundo transparente, sem vizinhos) antes de colocá-lo lado a lado com outros — se o objeto já parece cortado sozinho, ele está errado.
+- Depois de integrado no mapa, verificar visualmente que nenhum objeto "vaza" para cima do tile ao lado.
+
+### Regra obrigatória 2 — Estruturas (casas) precisam ser um kit modular completo, não uma faixa horizontal única
+
+Problema real já encontrado: as estruturas atuais só têm uma faixa de telhado e uma faixa de parede empilhadas horizontalmente — sem paredes laterais. Isso só permite construir uma fachada reta infinita, nunca uma casa fechada de verdade.
+
+- Telhado: centro, borda superior, borda inferior, borda esquerda, borda direita, e os 4 cantos (TL/TR/BL/BR).
+- Parede: parede frontal (com variações de porta e janela), parede de fundo (se visível), parede lateral esquerda e parede lateral direita — essas duas são as que estão faltando hoje — e os 4 cantos da parede.
+- Com esse kit, uma casa deve poder ser "montada" como um retângulo fechado visto de cima, não só como uma tira horizontal repetida.
+- Testar montando pelo menos 1 casa completa (com os 4 lados) antes de aceitar o lote como pronto.
+
+### Regra obrigatória 3 — Nenhum tile pode ter texto, número ou artefato de UI desenhado dentro da arte
+
+Problema real já encontrado: apareceu um "1" solto desenhado dentro de tiles de flor/arbusto, visível várias vezes no mapa (não é uma etiqueta do jogo — está preso na imagem do tile).
+
+- Depois de gerar cada tile, inspecionar a imagem isolada (zoom) e confirmar que não existe nenhum número, letra ou ícone de interface desenhado dentro dela.
+- Isso já havia acontecido antes no tileset de chão (texto de depuração em 2 tiles) — tratar como um erro recorrente do processo de geração, não um acidente isolado, e adicionar essa checagem como etapa padrão de todo lote de tile daqui em diante.
+
+
 ---
 
 ## FASE D — Pokémon (sprites de batalha)
@@ -97,6 +122,9 @@ São 151 espécies (Kanto, já decidido). **Não reconstruir todos de uma vez.**
 - [ ] Novos elementos combinam visualmente com os das fases anteriores
 - [ ] Tiles não têm costura visível nem repetição óbvia
 - [ ] Todos os sprites têm o pivô (ponto de ancoragem) correto
+- [ ] Nenhum objeto/tile aparece cortado, descentralizado ou vazando para o quadro vizinho
+- [ ] Estruturas têm paredes laterais e cantos — testadas como uma casa fechada, não só fachada reta
+- [ ] Nenhum tile tem texto, número ou artefato de UI desenhado dentro da arte
 
 ---
 
