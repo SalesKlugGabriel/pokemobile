@@ -125,6 +125,10 @@ open_pokedex={
 
 gdscript/warnings/untyped_declaration=0
 
+[gui]
+
+theme/custom="res://assets/ui/theme/pokemobile_theme.tres"
+
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
