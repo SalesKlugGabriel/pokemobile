@@ -47,6 +47,43 @@ antigo (podem ganhar o mesmo tratamento depois, se ele quiser).
 
 ---
 
+## Fase B (parte 1) — personagem e NPCs em pixel art de verdade (2026-09-04)
+
+**Primeira arte da nova direção visual, no ar.** O Gabriel dispensou o Aseprite e delegou 100% das
+decisões, então escolhi o caminho que não depende de ferramenta paga nem de cota de IA: os sprites
+são desenhados **por código, pixel a pixel** (`tools/gerar_sprites_personagem.py`). Esse script é o
+arquivo-fonte editável que a Art Bible exigia no lugar do `.aseprite` — dá pra regerar qualquer
+frame ou trocar uma cor da paleta sem redesenhar nada à mão.
+
+**O que mudou:** Treinador + 3 NPCs (genérico, enfermeira, Prof. Carvalho) saíram de blocos de cor
+chapados (sem sombra, sem contorno, andar quase imperceptível) para pixel art com volume, contorno
+derivado da cor do próprio material, luz única de cima-esquerda e passada legível nas 4 direções.
+Identidade preservada por decisão: boné vermelho, macacão azul, calça roxa e sapato escuro são as
+cores EXATAS extraídas do sprite antigo. Grade lógica 32×64 escalada 4× = os mesmos 128×256 por
+frame que o jogo já esperava — **zero mudança de código**.
+
+**4 ciclos de revisão** (o plano do Gabriel exige iterar, não aceitar a 1ª versão): (1) costas com
+pele aparecendo onde devia ser nuca; (2) braço em perfil flutuando no meio do tronco; (3) as duas
+pernas em perfil virando um bloco roxo único — linha de separação **não** resolveu; (4) resolvido
+fazendo a perna de trás levantar o pé, que é como pixel art de verdade conta uma passada lateral.
+
+**Achado que só apareceu testando NO JOGO:** sombra dupla — o motor já desenha sombra de contato
+por código e eu tinha assado outra no sprite; juntas viravam um borrão. Virou regra na Art Bible:
+sombra é do motor, o sprite entrega só o personagem recortado.
+
+**Também nesta leva, uma correção de rumo:** eu tinha recomendado na auditoria ligar escala
+inteira (`scale_mode=integer`) pra matar o sub-pixel. Testei ao vivo em 3 tamanhos de janela antes
+de publicar e o efeito colateral era pior que o problema — em qualquer janela menor que 1280×720
+(comum em celular) o Godot corta a tela em vez de encolher. Revertido e documentado.
+
+Testado: suíte inteira (60 arquivos) 0 falhas + navegador real (novo jogo, andando nas 4 direções)
+sem erro de script. Publicado. Backup do que foi substituído em `assets/old/`.
+
+**Próxima fase recomendada:** Fase C (tiles/estruturas) ou Fase E (HUD) — o HUD hoje ainda é
+controle padrão do Godot, é o próximo elo visivelmente fora da direção de arte.
+
+---
+
 ## Voar/Surfar por espécie + primeiras 3 estradas alargadas (2026-09-03)
 
 **Voar e Surfar agora exigem TER o Pokémon certo no time** (Fearow/Pidgeot/Aerodactyl/Dragonite/
