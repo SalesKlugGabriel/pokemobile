@@ -44,10 +44,12 @@ func _ready() -> void:
 func open() -> void:
 	_set_mode("buy")
 	panel.show()
+	UIStack.empilhar(self, close)
 	AudioManager.play_sfx("menu_open")
 
 func close() -> void:
 	panel.hide()
+	UIStack.desempilhar(self)
 	AudioManager.play_sfx("cancel")
 	closed_by_user.emit()
 

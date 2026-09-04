@@ -83,7 +83,13 @@ func _on_follower_changed(pokemon_data: Dictionary) -> void:
 	for i in _skill_buttons.size():
 		var move_id : String = str(moves[i]) if i < moves.size() else ""
 		if move_id.is_empty():
-			_skill_buttons[i].text = "—"
+			# 04/09: era "—", que lê como defeito ("por que dois botões estão
+			# com um risquinho?"). Agora diz que o slot ainda VAI abrir, e em
+			# que nível — vira objetivo em vez de erro.
+			var nivel := _nivel_do_proximo_golpe(pokemon_data, i)
+			_skill_buttons[i].text = ("Nv.%d" % nivel) if nivel > 0 else "vazio"
+			_skill_buttons[i].tooltip_text = ("Este espaço abre no nível %d." % nivel) \
+				if nivel > 0 else "Este Pokémon não aprende mais golpes por nível."
 			_skill_buttons[i].disabled = true
 		else:
 			var move_data : Dictionary = GameData.get_move(move_id)
@@ -272,3 +278,34 @@ func _on_zone_changed(zone_name: String) -> void:
 		label_zone.modulate.a = 1.0
 		label_zone.hide()
 	)
+
+## Em que nível o Pokémon abre o slot `indice` (0-3). Lê a tabela de aprendizado
+## da própria espécie — não é número inventado; se a espécie não aprende mais
+## nada por nível, devolve 0 e o botão diz "vazio" em vez de mentir um nível.
+func _nivel_do_proximo_golpe(pokemon_data: Dictionary, indice: int) -> int:
+	var species_id : int = int(pokemon_data.get("species_id", 0))
+	if species_id <= 0:
+		return 0
+	# learnsets.json é um arquivo à parte do species.json — [{level, move}, ...]
+	var aprendizado : Array = GameData.learnsets.get(str(species_id), [])
+	var nivel_atual : int = int(pokemon_data.get("level", 1))
+	var futuros : Array[int] = []
+	for entrada in aprendizado:
+		if not (entrada is Dictionary):
+			continue
+		var n : int = int(entrada.get("level", 0))
+		if n > nivel_atual and not futuros.has(n):
+			futuros.append(n)
+	futuros.sort()
+	# Conta só os golpes DE VERDADE: a lista vem com 4 posições e as vazias são
+	# string vazia, não ausência. Contar o tamanho da lista dava sempre 4 e o
+	# botão caía em "vazio" mesmo quando havia golpe pra aprender (visto em
+	# tela: Bulbasaur Nv.5 aprende Leech Seed no 7 e mostrava "vazio").
+	var golpes_reais : int = 0
+	for m in pokemon_data.get("moves", []):
+		if str(m) != "":
+			golpes_reais += 1
+	var quantos_faltam : int = indice - golpes_reais
+	if quantos_faltam < 0 or quantos_faltam >= futuros.size():
+		return 0
+	return futuros[quantos_faltam]

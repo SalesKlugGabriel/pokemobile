@@ -3241,3 +3241,78 @@ minimapa, (4) transições de terreno grama-areia-agua.
 
 **Precisa de decisão do Gabriel?** Não pra começar — o Lote 1 é conserto de bug,
 sigo direto. Vale ele olhar o relatório e dizer se concorda com a ordem.
+
+---
+
+## 04/09/2026 (mais tarde) — Ajustes de mapa, telas e movimento pra criança de 12 anos
+
+**O que eu fiz:** apliquei o plano do relatório de playtest, em 4 frentes.
+
+**Destravar (o que prendia o jogador).** Criei uma PILHA DE TELAS
+(`UIStack.gd`): agora Esc fecha o painel de cima, sempre, e só abre a Pausa
+quando não há nada aberto. Antes cada painel cuidava da própria tecla e ninguém
+sabia o que mais estava aberto — por isso a Pokédex prendia e a Pausa abria por
+cima do Time. A Pokédex voltou a mostrar as 151 espécies: ela usava
+`mon_001.png` como ícone, mas esse arquivo é a FOLHA DE ANIMAÇÃO inteira
+(384x512); criei `PokemonIcon.gd`, que recorta o quadro parado. A tecla M
+deixou de ter dois donos. Novo Jogo e Título aceitam Enter.
+
+**Parecer Pokémon.** O jogo tem SOM agora — 6 trilhas e 14 efeitos, gerados por
+síntese (`tools/gerar_audio.py`), sem depender de licença de terceiros; o
+`AudioManager` já estava pronto e chamando, só não havia nada pra tocar. Trilha
+sem tema próprio cai no tema de mundo em vez de virar silêncio. Tela de título
+ganhou uma paisagem montada com os TILES DO PRÓPRIO JOGO
+(`tools/gerar_fundo_titulo.py`) e os três iniciais lado a lado. A escolha do
+inicial mostra os sprites. E existe uma faixa de OBJETIVO no alto da tela, com
+seta e distância em passos — o `QuestHUD` existia mas nunca tinha sido colocado
+em cena nenhuma, e ainda lia um campo que não existe no quests.json.
+
+**O mapa.** O jogador nascia no meio da estrada de terra, a 15 tiles do prédio
+mais próximo — agora nasce na porta de casa. A estrada principal caiu de 13 pra
+9 tiles (o pedido era 6 a 10). As flores saíam em LINHAS DIAGONAIS perfeitas
+porque a regra era `(c*3 + r*7) % 13 == 5`, uma equação linear — e equação
+linear desenha reta. Troquei por hash de avalanche; a primeira tentativa ainda
+tinha o mesmo defeito escondido (só saíam valores pares), achado medindo a
+distribuição, não deduzindo. Pallet ganhou duas manchas de mato alto (onde de
+fato aparecem Pokémon, mesmo char que o SpawnManager usa), árvores fechando a
+borda da cidade, e a costa ganhou 8 tiles de BEIRA com espuma — antes areia e
+mar se encontravam numa linha reta ("parece uma bandeira"). A areia teve o
+contraste reduzido pra matar a repetição visível. Também: toda parede da frente
+de prédio era o tile COM JANELA, então a fachada de todo prédio do jogo era uma
+fileira de janelas — agora é parede lisa com janela a cada 4 tiles.
+
+**Movimento e informação.** Segurando a direção, o boneco voltava pra "parado"
+a cada tile e reiniciava a caminhada — era a maior parte da sensação de
+movimento duro. Somei também um buffer de 160ms pra tecla apertada no meio do
+passo não ser jogada fora. O minimapa era um retângulo verde liso: tinha
+`MAP_W = 100` cravado de quando o mundo todo tinha esse tamanho (hoje são ~940
+tiles), então o ponto do jogador caía sempre fora — reescrito como minimapa
+LOCAL, lendo os tiles de verdade e pintando por tipo de terreno. A tela do Time
+foi reescrita (estava em inglês, com os golpes saindo como "?" porque lia
+`move_id` e o save grava `id`, e com dois filhos diretos num PanelContainer,
+que só aceita um — por isso o título flutuava no meio). Os botões de golpe
+vazios diziam "—"; agora dizem em que nível abrem.
+
+**🔴 Dois erros meus no caminho, os dois achados e corrigidos:**
+1. Uma edição no `project.godot` deixou um "}" solto e a ação `pause` virou
+   `}pause`. O jogo abriu normal, a suíte inteira passou, e só o navegador
+   denunciou (Esc parou de funcionar em tudo). A existência de cada ação virou
+   conferência de teste.
+2. Gravei os tiles de beira na linha 9 do atlas, que "parecia livre" e é do KIT
+   DA CASA — apaguei o kit inteiro. Restaurado do backup e movido pra uma linha
+   nova; o teste agora confere que os dois convivem. E o próprio teste tinha um
+   furo: conferia se a coordenada cabia na IMAGEM, não se o tile existia no
+   TILESET — passou verde enquanto o jogo publicado desenhava buraco.
+
+**Testado:** 64 arquivos de teste, 0 falhas (3 arquivos novos:
+`teste_pilha_de_telas.gd`, `teste_beira_da_praia.gd`, mais conferências em
+`teste_qa_tiles.gd` e `teste_npcs_em_tile_valido.gd`). Conferido no navegador
+de verdade, duas partidas, console limpo (zero erro de script, zero áudio
+faltando).
+
+**Próximo passo:** o que ficou do relatório é conteúdo, não conserto — decorar
+as estradas largas (placas, cercas, postes), e uma fala de abertura depois de
+escolher o inicial.
+
+**Precisa de decisão do Gabriel?** Não. Vale ele jogar e dizer o que ainda
+incomoda.

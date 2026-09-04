@@ -44,12 +44,16 @@ func open() -> void:
 	_is_open = true
 	_populate()
 	panel.show()
+	UIStack.empilhar(self, close)
 	AudioManager.play_sfx("menu_open")
 	get_viewport().set_input_as_handled()
 
 func close() -> void:
+	if not _is_open:
+		return
 	_is_open = false
 	panel.hide()
+	UIStack.desempilhar(self)
 	AudioManager.play_sfx("menu_close")
 	closed_by_user.emit()
 
@@ -89,15 +93,18 @@ func _make_row(species_id: int, is_seen: bool, is_caught: bool) -> HBoxContainer
 	num.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 	row.add_child(num)
 
-	# Sprite pequeno (se visto)
-	var sprite_rect := TextureRect.new()
-	sprite_rect.custom_minimum_size = Vector2(20, 20)
-	sprite_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	# Sprite pequeno (se visto).
+	# 🔴 04/09: aqui estava o bug das "12 cópias do Bulbasaur". mon_XXX.png é a
+	# FOLHA DE ANIMAÇÃO (384x512 = 3 colunas x 4 direções), não um ícone. Sem
+	# expand_mode o TextureRect desenhava a folha inteira, cada linha da lista
+	# ficava com 512px de altura e só a espécie #001 cabia na tela. PokemonIcon
+	# recorta o quadro parado com AtlasTexture.
 	if is_seen:
-		var tex_path := "res://assets/sprites/pokemon/mon_%03d.png" % species_id
-		if ResourceLoader.exists(tex_path):
-			sprite_rect.texture = load(tex_path)
-	row.add_child(sprite_rect)
+		row.add_child(PokemonIcon.criar(species_id, 24))
+	else:
+		var vazio := Control.new()
+		vazio.custom_minimum_size = Vector2(24, 24)
+		row.add_child(vazio)
 
 	# Nome (oculto se não visto)
 	var name_label := Label.new()

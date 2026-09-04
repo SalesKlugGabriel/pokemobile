@@ -52,6 +52,10 @@ const CHAR_MAP : Dictionary = {
 	# como se fossem apenas janelas"). Gerada a partir da faixa limpa do próprio
 	# "W", então casa perfeitamente com ele — ver tools/ (parede lisa em (4,8)).
 	"w": Vector2i(4, 8),
+	# Beira da praia (04/09): o encontro areia/mar, que não existia — a costa era
+	# uma linha reta ("parece uma bandeira"). Nome = de que lado fica a AREIA.
+	"1": Vector2i(0, 10), "2": Vector2i(1, 10), "3": Vector2i(2, 10), "4": Vector2i(3, 10),
+	"5": Vector2i(4, 10), "6": Vector2i(5, 10), "7": Vector2i(6, 10), "8": Vector2i(7, 10),
 	# ── KIT MODULAR DE CASA (04/09, regra obrigatória 2 do Gabriel) ──
 	# Antes só existia telhado central + parede frontal, o que só permitia
 	# fachada reta infinita — nunca uma casa fechada vista de cima. Estas peças
@@ -443,11 +447,11 @@ static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
 	var casa_col_inicio := RAMO_NORTE_COL_FIM + 4
 	var casa_col_fim    := RAMO_NORTE_COL_FIM + 12
 	if fb >= 3 and fb <= 9 and c >= casa_col_inicio and c <= casa_col_fim:
-		if c == casa_col_inicio or c == casa_col_fim: return "W"
+		if c == casa_col_inicio or c == casa_col_fim: return _parede_frontal(c, r)
 		if fb == 3: return "H"
 		if fb == 9:
 			if c >= casa_col_inicio + 3 and c <= casa_col_inicio + 5: return "d"  # porta
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 	# ── Trecho ligando a porta da Casa do Bill até o corredor principal ──
 	if fb >= 9 and fb <= 10 and c >= RAMO_NORTE_COL_FIM and c <= casa_col_inicio + 4:
@@ -574,7 +578,7 @@ static func _saffron_cell(cc: int, r: int) -> String:
 		if r == 6: return "H"
 		if r == 14:
 			if cc >= 15 and cc <= 17: return "P"
-			return "W"
+			return _parede_frontal(cc, r)
 		return "I"
 	if r >= 14 and r <= 16 and cc >= 15 and cc <= 17:
 		return "P"
@@ -584,7 +588,7 @@ static func _saffron_cell(cc: int, r: int) -> String:
 		if r == 6: return "H"
 		if r == 14:
 			if cc >= 40 and cc <= 42: return "P"
-			return "W"
+			return _parede_frontal(cc, r)
 		return "I"
 	if r >= 14 and r <= 16 and cc >= 40 and cc <= 42:
 		return "P"
@@ -595,7 +599,7 @@ static func _saffron_cell(cc: int, r: int) -> String:
 		if r == 4: return "H"
 		if r == 14:
 			if cc >= 53 and cc <= 55: return "P"
-			return "W"
+			return _parede_frontal(cc, r)
 		return "I"
 	if r >= 14 and r <= 16 and cc >= 53 and cc <= 55:
 		return "P"
@@ -612,7 +616,7 @@ static func _vermilion_cell(cc: int, r: int) -> String:
 		if r == 6: return "H"
 		if r == 14:
 			if cc >= 15 and cc <= 17: return "P"
-			return "W"
+			return _parede_frontal(cc, r)
 		return "I"
 	if r >= 14 and r <= 16 and cc >= 15 and cc <= 17:
 		return "P"
@@ -622,7 +626,7 @@ static func _vermilion_cell(cc: int, r: int) -> String:
 		if r == 6: return "H"
 		if r == 14:
 			if cc >= 40 and cc <= 42: return "P"
-			return "W"
+			return _parede_frontal(cc, r)
 		return "I"
 	if r >= 14 and r <= 16 and cc >= 40 and cc <= 42:
 		return "P"
@@ -633,7 +637,7 @@ static func _vermilion_cell(cc: int, r: int) -> String:
 		if r == 22: return "H"
 		if r == 32:
 			if cc >= 7 and cc <= 9: return "P"
-			return "W"
+			return _parede_frontal(cc, r)
 		return "I"
 	if r >= 32 and r <= 34 and cc >= 7 and cc <= 9:
 		return "P"
@@ -668,7 +672,7 @@ static func _celadon_cell(ce: int, r: int) -> String:
 		if r == 6: return "H"
 		if r == 14:
 			if ce >= 15 and ce <= 17: return "P"
-			return "W"
+			return _parede_frontal(ce, r)
 		return "I"
 	if r >= 14 and r <= 16 and ce >= 15 and ce <= 17:
 		return "P"
@@ -678,7 +682,7 @@ static func _celadon_cell(ce: int, r: int) -> String:
 		if r == 6: return "H"
 		if r == 14:
 			if ce >= 40 and ce <= 42: return "P"
-			return "W"
+			return _parede_frontal(ce, r)
 		return "I"
 	if r >= 14 and r <= 16 and ce >= 40 and ce <= 42:
 		return "P"
@@ -689,7 +693,7 @@ static func _celadon_cell(ce: int, r: int) -> String:
 		if r == 8: return "H"
 		if r == 14:
 			if ce >= 53 and ce <= 55: return "P"
-			return "W"
+			return _parede_frontal(ce, r)
 		return "I"
 	if r >= 14 and r <= 16 and ce >= 53 and ce <= 55:
 		return "P"
@@ -702,7 +706,7 @@ static func _celadon_cell(ce: int, r: int) -> String:
 		if r == 21: return "H"
 		if r == 28:
 			if ce >= 5 and ce <= 6: return "P"
-			return "W"
+			return _parede_frontal(ce, r)
 		return "I"
 	if r >= 28 and r <= 30 and ce >= 5 and ce <= 6:
 		return "P"
@@ -713,7 +717,7 @@ static func _celadon_cell(ce: int, r: int) -> String:
 		if r == 21: return "H"
 		if r == 28:
 			if ce >= 27 and ce <= 28: return "P"
-			return "W"
+			return _parede_frontal(ce, r)
 		return "I"
 	if r >= 28 and r <= 30 and ce >= 27 and ce <= 28:
 		return "P"
@@ -760,21 +764,21 @@ static func _route8_cell(dist: int, r: int) -> String:
 ## sempre. Fica a LESTE de Saffron; ao SUL (nova rota) fica Fuchsia.
 static func _lavender_cell(lv: int, r: int) -> String:
 	if lv >= 10 and lv <= 22 and r >= 4 and r <= 14:
-		if lv == 10 or lv == 22: return "W"
+		if lv == 10 or lv == 22: return _parede_frontal(lv, r)
 		if r == 4: return "H"
 		if r == 14:
 			if lv >= 15 and lv <= 17: return "P"
-			return "W"
+			return _parede_frontal(lv, r)
 		return "I"
 	if r >= 14 and r <= 16 and lv >= 15 and lv <= 17:
 		return "P"
 
 	if lv >= 35 and lv <= 47 and r >= 6 and r <= 14:
-		if lv == 35 or lv == 47: return "W"
+		if lv == 35 or lv == 47: return _parede_frontal(lv, r)
 		if r == 6: return "H"
 		if r == 14:
 			if lv >= 40 and lv <= 42: return "P"
-			return "W"
+			return _parede_frontal(lv, r)
 		return "I"
 	if r >= 14 and r <= 16 and lv >= 40 and lv <= 42:
 		return "P"
@@ -785,21 +789,21 @@ static func _lavender_cell(lv: int, r: int) -> String:
 ## como sempre. Fica embaixo de Lavender.
 static func _fuchsia_cell(fc: int, r: int) -> String:
 	if fc >= 10 and fc <= 22 and r >= 6 and r <= 14:
-		if fc == 10 or fc == 22: return "W"
+		if fc == 10 or fc == 22: return _parede_frontal(fc, r)
 		if r == 6: return "H"
 		if r == 14:
 			if fc >= 15 and fc <= 17: return "P"
-			return "W"
+			return _parede_frontal(fc, r)
 		return "I"
 	if r >= 14 and r <= 16 and fc >= 15 and fc <= 17:
 		return "P"
 
 	if fc >= 35 and fc <= 47 and r >= 6 and r <= 14:
-		if fc == 35 or fc == 47: return "W"
+		if fc == 35 or fc == 47: return _parede_frontal(fc, r)
 		if r == 6: return "H"
 		if r == 14:
 			if fc >= 40 and fc <= 42: return "P"
-			return "W"
+			return _parede_frontal(fc, r)
 		return "I"
 	if r >= 14 and r <= 16 and fc >= 40 and fc <= 42:
 		return "P"
@@ -865,24 +869,24 @@ static func _oeste_de_viridian_cell(j: int, lr: int) -> String:
 	# qualquer treinador (NpcEntity → BattleResolver → EventBus.battle_ended
 	# → QuestManager), só que em 5 andares (ELITE4-01..04 + CHAMPION-01).
 	if ip >= 10 and ip <= 22 and lr >= 6 and lr <= 14:
-		if ip == 10 or ip == 22: return "W"
+		if ip == 10 or ip == 22: return _parede_frontal(j, lr)
 		if lr == 6: return "H"
 		if _liga_liberada():
 			if lr == 14:
 				if ip >= 15 and ip <= 17: return "P"
-				return "W"
+				return _parede_frontal(j, lr)
 			return "I"
 		if lr == 14:
-			return "W"  # porta bloqueada (faltam insígnias)
-		return "W"  # interior inacessível
+			return _parede_frontal(j, lr)  # porta bloqueada (faltam insígnias)
+		return _parede_frontal(j, lr)  # interior inacessível
 
 	# ── Centro Pokémon de Indigo Plateau ── ip 25-37, lr 6-14 ──────────────
 	if ip >= 25 and ip <= 37 and lr >= 6 and lr <= 14:
-		if ip == 25 or ip == 37: return "W"
+		if ip == 25 or ip == 37: return _parede_frontal(j, lr)
 		if lr == 6: return "H"
 		if lr == 14:
 			if ip >= 30 and ip <= 32: return "P"
-			return "W"
+			return _parede_frontal(j, lr)
 		return "I"
 	if lr >= 14 and lr <= 16 and ip >= 30 and ip <= 32:
 		return "P"
@@ -1036,11 +1040,11 @@ static func _powerplant_cell(c: int, cr: int, W: int) -> String:
 
 	# ── Prédio da usina — cols 20-35, rows 8-20 (dentro da ilha) ──────────
 	if vc >= 20 and vc <= 35 and cr >= 8 and cr <= 20:
-		if vc == 20 or vc == 35: return "W"
+		if vc == 20 or vc == 35: return _parede_frontal(c, cr)
 		if cr == 8: return "H"
 		if cr == 20:
 			if vc >= 26 and vc <= 28: return "P"
-			return "W"
+			return _parede_frontal(c, cr)
 		return "I"
 	if cr >= 20 and cr <= 22 and vc >= 26 and vc <= 28:
 		return "P"
@@ -1102,7 +1106,7 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 		if r == 6: return "H"
 		if r == 14:
 			if cc >= 15 and cc <= 17: return "d"  # porta
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 	if r >= 14 and r <= 16 and cc >= 15 and cc <= 17:
 		return "P"
@@ -1113,7 +1117,7 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 		if r == 6: return "H"
 		if r == 14:
 			if cc >= 40 and cc <= 42: return "d"  # porta
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 	if r >= 14 and r <= 16 and cc >= 40 and cc <= 42:
 		return "P"
@@ -1156,7 +1160,7 @@ static func _pewter_cell(c: int, r: int, W: int) -> String:
 		if r == 6: return "H"
 		if r == 18:
 			if c >= 25 and c <= 27: return "d"  # porta
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 	# ── Caminho Ginásio → corredor ── row 18-19, cols 34-44
 	if r >= 18 and r <= 19 and c >= 34 and c <= 44:
@@ -1168,7 +1172,7 @@ static func _pewter_cell(c: int, r: int, W: int) -> String:
 		if r == 6: return "H"
 		if r == 14:
 			if c >= 75 and c <= 77: return "d"  # porta (warp aqui)
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 	# ── Caminho PokéCenter → corredor ── row 14-15, cols 56-77
 	if r >= 14 and r <= 15 and c >= 56 and c <= 77:
@@ -1258,8 +1262,10 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 	if c <= 2:
 		return "T"
 
-	# ── Corredor norte-sul principal ── cols 44-56
-	if c >= 44 and c <= 56 and r >= 80 and r <= 115:
+	# ── Corredor norte-sul principal ── cols 46-54 (9 tiles)
+	# Era 44-56 = 13 tiles. O Gabriel pediu 6 a 10; 13 fazia a cidade inteira
+	# virar uma faixa de terra e o jogador nascia dentro dela sem ver nada.
+	if c >= 46 and c <= 54 and r >= 80 and r <= 115:
 		return "P"
 
 	# ── Laboratório do Prof. Carvalho ── cols 18-34, rows 82-90
@@ -1268,13 +1274,13 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 		if r == 82: return "H"
 		if r == 90:
 			if c >= 25 and c <= 27: return "d"  # porta
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 
 	# ── Caminho do lab até corredor ── row 90, cols 27-44
-	if r == 90 and c >= 27 and c <= 44:
+	if r == 90 and c >= 27 and c <= 46:
 		return "P"
-	if r == 91 and c >= 27 and c <= 44:
+	if r == 91 and c >= 27 and c <= 46:
 		return "P"
 
 	# ── PokéCenter de Pallet ── cols 70-82, rows 82-90
@@ -1283,11 +1289,11 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 		if r == 82: return "H"
 		if r == 90:
 			if c >= 75 and c <= 77: return "d"  # porta (warp aqui)
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 
 	# ── Caminho do pokécenter até corredor ── row 90-91, cols 56-77
-	if r >= 90 and r <= 91 and c >= 56 and c <= 77:
+	if r >= 90 and r <= 91 and c >= 54 and c <= 77:
 		return "P"
 
 	# ── Casa 1 ── cols 8-16, rows 97-105
@@ -1296,13 +1302,13 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 		if r == 97: return "H"
 		if r == 105:
 			if c == 12: return "P"
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 
 	# ── Caminho casa 1 ── col 12, rows 105-110
 	if c == 12 and r >= 105 and r <= 112:
 		return "P"
-	if r == 110 and c >= 12 and c <= 44:
+	if r == 110 and c >= 12 and c <= 46:
 		return "P"
 
 	# ── Casa 2 ── cols 58-66, rows 97-105
@@ -1311,13 +1317,13 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 		if r == 97: return "H"
 		if r == 105:
 			if c == 62: return "P"
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 
 	# ── Caminho casa 2 ── col 62, rows 105-110
 	if c == 62 and r >= 105 and r <= 110:
 		return "P"
-	if r == 110 and c >= 56 and c <= 62:
+	if r == 110 and c >= 54 and c <= 62:
 		return "P"
 
 	# ── Casa 3 ── cols 84-92, rows 97-105
@@ -1326,14 +1332,132 @@ static func _pallet_cell(c: int, r: int, W: int) -> String:
 		if r == 97: return "H"
 		if r == 105:
 			if c == 88: return "P"
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 
-	# ── Flores esparsas ──
-	if (c * 3 + r * 7) % 13 == 5 and r >= 92 and r <= 115 and c >= 5 and c <= 94:
-		return "F"
+	# ── Mato alto: onde se pega o primeiro Pokémon ────────────────────────────
+	# 04/09: Pallet não tinha NENHUM lugar pra encontrar Pokémon. A criança que
+	# testou o jogo andou pela cidade inteira sem nada acontecer. Duas manchas
+	# de mato alto, uma de cada lado do corredor principal, logo abaixo das
+	# casas — perto o bastante pra ser achado nos primeiros passos, e fora do
+	# caminho de quem só quer ir pro Laboratório.
+	# "A" é o mato alto (conferido tile a tile no atlas antes de usar — "G" é
+	# grama comum e "M" é TAPETE VERMELHO de interior, os dois pareciam
+	# candidatos plausíveis pelo nome e não são). É o mesmo char que o
+	# SpawnManager usa como terreno "tall_grass" (Ekans/Arbok/Kakuna/Beedrill),
+	# então a mancha vira encontro de Pokémon de verdade, não só enfeite.
+	if _mancha_de_mato(c, r, 26, 113, 7, 3) or _mancha_de_mato(c, r, 74, 113, 8, 3):
+		return "A"
+
+	# ── Decoração espalhada ───────────────────────────────────────────────────
+	# 🔴 04/09: a regra antiga era `(c * 3 + r * 7) % 13 == 5`, uma equação
+	# LINEAR — e equação linear em duas variáveis desenha RETAS. O resultado, no
+	# mapa, eram flores em linhas diagonais perfeitas de ponta a ponta da
+	# cidade, que lêem como defeito de renderização, não como jardim.
+	# `_espalhar` usa hash (multiplicação por primos grandes + XOR), o mesmo
+	# método já usado pelas variantes de terreno — dá o mesmo mapa toda vez,
+	# sem alinhar nada.
+	if r >= 92 and r <= 115 and c >= 5 and c <= 94:
+		var d := _espalhar(c, r)
+		if d < 2:
+			return "F"      # canteiro de flores (~10% — dá jardim sem virar tapete)
+		# Árvores só na BORDA da cidade: fecham o horizonte sem entupir a praça,
+		# e dão a silhueta de "cidade cercada de mata" do jogo original. Três
+		# espécies pra não virar uma fileira do mesmo desenho.
+		if c <= 9 or c >= 90:
+			if d < 8:
+				return _forest_variant(c, r)
+		elif r >= 113 and d < 5:
+			return _forest_variant(c, r)
 
 	return "."
+
+## Mancha de mato alto arredondada em torno de um centro. Retângulo puro daria
+## uma placa de grama perfeitamente quadrada no meio da cidade.
+static func _mancha_de_mato(c: int, r: int, cc: int, cr: int, raio_x: int, raio_y: int) -> bool:
+	var dx := float(c - cc) / float(raio_x)
+	var dy := float(r - cr) / float(raio_y)
+	if dx * dx + dy * dy > 1.0:
+		return false
+	# borda irregular: sem isso a mancha vira uma elipse desenhada a compasso
+	return _espalhar(c, r) != 7
+
+## Parede da frente de um prédio (04/09).
+##
+## Antes toda parede era o char "W", que no atlas é a parede COM JANELA — a
+## fachada inteira virava uma fileira ininterrupta de janelas, exatamente o que
+## o Gabriel apontou ("casas e prédios com paredes como janelas"). Agora o
+## padrão é a parede LISA ("w") e a janela aparece a cada ~4 tiles, alinhada
+## sempre no mesmo passo pra parecer construção e não sorteio.
+## Coordenadas de atlas da beira da praia. São ÁGUA pra toda regra do jogo
+## (surf, pesca, colisão) — só desenham a areia entrando por um dos lados.
+const COSTA_ATLAS : Array[Vector2i] = [
+	Vector2i(0, 10), Vector2i(1, 10), Vector2i(2, 10), Vector2i(3, 10),
+	Vector2i(4, 10), Vector2i(5, 10), Vector2i(6, 10), Vector2i(7, 10),
+]
+
+## Char de beira pelo lado em que há AREIA. Chaves: "n","s","o","l" e os cantos.
+const COSTA_CHAR := {
+	"n": "1", "s": "2", "o": "3", "l": "4",
+	"no": "5", "nl": "6", "so": "7", "sl": "8",
+}
+
+## Pós-passada da pintura: todo tile de ÁGUA encostado em terra vira o tile de
+## beira correspondente. Feito aqui, depois de tudo pintado, em vez de dentro de
+## cada gerador de cidade/rota — são ~30 geradores, e a costa é uma propriedade
+## do mapa PRONTO, não de cada pedaço isolado.
+static func costurar_costa(tilemap: TileMap) -> void:
+	var agua : Vector2i = CHAR_MAP["~"]
+	var trocas := {}
+	for celula in tilemap.get_used_cells(0):
+		if tilemap.get_cell_atlas_coords(0, celula) != agua:
+			continue
+		var norte := _e_terra(tilemap, Vector2i(celula.x, celula.y - 1), agua)
+		var sul   := _e_terra(tilemap, Vector2i(celula.x, celula.y + 1), agua)
+		var oeste := _e_terra(tilemap, Vector2i(celula.x - 1, celula.y), agua)
+		var leste := _e_terra(tilemap, Vector2i(celula.x + 1, celula.y), agua)
+		var lado := ""
+		if norte and oeste:   lado = "no"
+		elif norte and leste: lado = "nl"
+		elif sul and oeste:   lado = "so"
+		elif sul and leste:   lado = "sl"
+		elif norte:           lado = "n"
+		elif sul:             lado = "s"
+		elif oeste:           lado = "o"
+		elif leste:           lado = "l"
+		if lado != "":
+			trocas[celula] = CHAR_MAP[COSTA_CHAR[lado]]
+	for celula in trocas:
+		tilemap.set_cell(0, celula, 0, trocas[celula])
+
+## Terra = tile pintado que não é água nem beira. Beira conta como água, senão
+## dois tiles de beira vizinhos ficariam se marcando um ao outro.
+static func _e_terra(tilemap: TileMap, celula: Vector2i, agua: Vector2i) -> bool:
+	if tilemap.get_cell_source_id(0, celula) == -1:
+		return false
+	var co := tilemap.get_cell_atlas_coords(0, celula)
+	return co != agua and not (co in COSTA_ATLAS)
+
+static func _parede_frontal(c: int, r: int) -> String:
+	return "W" if (c % 4 == 1) else "w"
+
+## Espalhamento determinístico 0..19. Mesmo (c,r) sempre dá o mesmo valor (o
+## mapa não "pisca" ao repintar), mas sem alinhar em retas como a conta antiga.
+##
+## A primeira versão desta função ainda tinha o mesmo defeito de raiz, só mais
+## escondido: `c*A ^ r*B ^ (c+r)*C` tem o bit 0 SEMPRE zero (porque
+## c₀ ^ r₀ ^ (c₀^r₀) = 0), então só saíam valores pares — metade dos 20 casos
+## nunca acontecia, e "d < 1" cobria 15% do mapa em vez de 5%. Medido, não
+## deduzido: contei a distribuição sobre a área real da cidade.
+##
+## A versão abaixo é um hash de avalanche (multiplicação + deslocamento +
+## multiplicação), que espalha os bits de entrada por todos os bits de saída.
+## Medido na mesma área: cada valor entre 4,2% e 6,2%.
+static func _espalhar(c: int, r: int) -> int:
+	var h : int = ((c * 0x9E3779B1) ^ (r * 0x85EBCA77)) & 0xFFFFFFFF
+	h = ((h ^ (h >> 15)) * 0xC2B2AE3D) & 0xFFFFFFFF
+	h = (h ^ (h >> 13)) & 0xFFFFFFFF
+	return h % 20
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Rota 1 — rows 39-79, corredor cols 44-56, árvores nas bordas
@@ -1461,11 +1585,11 @@ static func _viridian_cell(c: int, r: int, W: int) -> String:
 		if _giovanni_liberado():
 			if r == 18:
 				if c >= 25 and c <= 27: return "P"
-				return "W"
+				return _parede_frontal(c, r)
 			return "I"
 		if r == 18:
-			return "W"  # porta bloqueada (ginásio fechado)
-		return "W"  # interior inacessível
+			return _parede_frontal(c, r)  # porta bloqueada (ginásio fechado)
+		return _parede_frontal(c, r)  # interior inacessível
 
 	# ── PokéCenter Viridian ── cols 70-82, rows 6-14
 	if c >= 70 and c <= 82 and r >= 6 and r <= 14:
@@ -1473,7 +1597,7 @@ static func _viridian_cell(c: int, r: int, W: int) -> String:
 		if r == 6: return "H"
 		if r == 14:
 			if c >= 75 and c <= 77: return "P"
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 
 	# ── Caminho PokéCenter Viridian → corredor ── row 14-15, cols 56-77
@@ -1490,7 +1614,7 @@ static func _viridian_cell(c: int, r: int, W: int) -> String:
 		if r == 8: return "H"
 		if r == 16:
 			if c == 55: return "P"
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 
 	# ── Caminho loja → corredor ── col 55, rows 16-28
@@ -1544,13 +1668,13 @@ static func _gen_mtmoon() -> Array:
 
 static func _mtmoon_cell(c: int, r: int, W: int, H: int) -> String:
 	if c == 0 or c == W - 1:
-		return "W"
+		return _parede_frontal(c, r)
 	if r == 0:
 		if c >= 9 and c <= 10: return "P"  # saída (Rota 4)
-		return "W"
+		return _parede_frontal(c, r)
 	if r == H - 1:
 		if c >= 9 and c <= 10: return "P"  # entrada (Rota 3)
-		return "W"
+		return _parede_frontal(c, r)
 	# Rochas espalhadas — nunca nas colunas 9-10 (mantém sempre um caminho
 	# reto entrada→saída, mesmo que sinuoso pelas rochas ao redor)
 	if (c + r * 2) % 7 == 0 and (c < 8 or c > 11):
@@ -1581,13 +1705,13 @@ static func _gen_cerulean_cave_floor(floor_n: int, tem_saida_norte: bool) -> Arr
 
 static func _cerulean_cave_cell(c: int, r: int, W: int, H: int, floor_n: int, tem_saida_norte: bool) -> String:
 	if c == 0 or c == W - 1:
-		return "W"
+		return _parede_frontal(c, r)
 	if r == 0:
 		if tem_saida_norte and c >= 9 and c <= 10: return "P"
-		return "W"
+		return _parede_frontal(c, r)
 	if r == H - 1:
 		if c >= 9 and c <= 10: return "P"
-		return "W"
+		return _parede_frontal(c, r)
 	# Densidade de rocha cresce com a profundidade (divisor menor = mais
 	# rocha) — anda de 7 (andar 1, igual ao Mt Moon) até 4 (andar 7).
 	var divisor := maxi(4, 7 - floor_n / 2)
@@ -1783,7 +1907,7 @@ static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 		if r == 10: return "H"
 		if r == 18:
 			if c >= 15 and c <= 17: return "P"
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 	if r >= 18 and r <= 19 and c >= 15 and c <= 17:
 		return "P"
@@ -1794,7 +1918,7 @@ static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 		if r == 10: return "H"
 		if r == 18:
 			if c >= 28 and c <= 29: return "P"
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 	if r >= 18 and r <= 19 and c >= 28 and c <= 29:
 		return "P"
@@ -1806,7 +1930,7 @@ static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 		if r == 22: return "H"
 		if r == 28:
 			if c >= 19 and c <= 21: return "P"
-			return "W"
+			return _parede_frontal(c, r)
 		return "I"
 	if r >= 28 and r <= 29 and c >= 19 and c <= 21:
 		return "P"
@@ -1903,14 +2027,14 @@ static func _rockethideout_cell(c: int, r: int, W: int, H: int) -> String:
 	if r == 0:
 		return "H"
 	if r == 1:
-		return "W"
+		return _parede_frontal(c, r)
 	if r == H - 1:
 		return "T"
 	if r == H - 2:
 		if c >= 8 and c <= 9: return "P"
-		return "W"
+		return _parede_frontal(c, r)
 	if c == 0 or c == W - 1:
-		return "W"
+		return _parede_frontal(c, r)
 	return "I"
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -1936,14 +2060,14 @@ static func _andar_estrutura_cell(c: int, r: int, W: int, H: int, escada_cima: b
 		return "H"
 	if r == 1:
 		if escada_cima and c >= 8 and c <= 9: return "P"
-		return "W"
+		return _parede_frontal(c, r)
 	if r == H - 1:
 		return "T"
 	if r == H - 2:
 		if c >= 8 and c <= 9: return "P"
-		return "W"
+		return _parede_frontal(c, r)
 	if c == 0 or c == W - 1:
-		return "W"
+		return _parede_frontal(c, r)
 	return "I"
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -2184,6 +2308,11 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 				var atlas : Vector2i = _variety_atlas(ch, c, r)
 				var alt  : int = _variety_alt(ch, c, r)
 				tilemap.set_cell(0, Vector2i(c, r), 0, atlas, alt)
+
+	# Beira da praia: por último, com o mapa inteiro já pintado (inclusive os
+	# ramos em linha/coluna negativa acima) — a costa depende de quem é vizinho
+	# de quem, então não dá pra decidir tile a tile na hora de pintar.
+	costurar_costa(tilemap)
 
 ## Espelha horizontal/vertical/os dois de forma determinística (mesmo tile
 ## sempre dá a mesma variação — mapa continua reproduzível, sem RNG), só pra

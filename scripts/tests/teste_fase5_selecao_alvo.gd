@@ -45,7 +45,12 @@ func _process(_delta: float) -> bool:
 	_assert(wild.sprite.modulate != Color(1, 1, 1), "Pokémon selecionado ganha destaque visual")
 
 	# --- barra de vida/nível ---
-	_assert(wild._level_label.text == "Lv.7", "nível exibido bate com wild_level")
+	# 04/09: o rótulo passou a trazer o NOME junto ("Pidgey  Nv.7"). Sem o nome,
+	# a criança que testou via só "Lv.6" e não sabia de quem era aquela barra.
+	_assert(wild._level_label.text.ends_with("Nv.7"), "nível exibido bate com wild_level")
+	_assert(wild._level_label.text.length() > 5, "rótulo traz o nome da espécie junto do nível")
+	_assert(wild._level_label.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER,
+		"rótulo é centralizado sobre o Pokémon, não ancorado na ponta da barra")
 	var largura_antes : float = wild._hp_bar_fill.size.x
 	wild.take_damage(int(wild.max_hp / 2))
 	_assert(wild._hp_bar_fill.size.x < largura_antes, "barra de vida encolhe com dano de verdade")

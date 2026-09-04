@@ -84,13 +84,16 @@ func _ready() -> void:
 	slider_sfx.value_changed.connect(func(v): AudioManager.set_sfx_volume(v))
 	set_process_unhandled_input(true)
 
+## Esc é o "voltar" do jogo inteiro, não só do menu de Pausa: ele fecha o
+## painel que está POR CIMA (Pokédex, Time, Loja...) e só abre a Pausa quando
+## não há nada aberto. Antes, Esc abria a Pausa em cima do painel aberto e o
+## jogador ficava com duas janelas empilhadas (achado no teste de 04/09).
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):
 		get_viewport().set_input_as_handled()
-		if _open:
-			_on_resume()
-		else:
-			_open_menu()
+		if UIStack.fechar_topo():
+			return
+		_open_menu()
 	elif event.is_action_pressed("menu_bag") and not get_tree().paused:
 		get_viewport().set_input_as_handled()
 		_on_bag()
@@ -107,12 +110,14 @@ func _open_menu() -> void:
 	btn_fly.visible = SaveManager.team_has_move_of_type("teleport", "Psychic")
 	panel.show()
 	get_tree().paused = true
+	UIStack.empilhar(self, _on_resume)
 
 func _on_resume() -> void:
 	AudioManager.play_sfx("cancel")
 	_open = false
 	panel.hide()
 	get_tree().paused = false
+	UIStack.desempilhar(self)
 
 func _on_team() -> void:
 	AudioManager.play_sfx("confirm")

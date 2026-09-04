@@ -305,11 +305,48 @@ func _emit_mode_if_changed() -> void:
 ## Prioridade fixa quando mais de uma tecla está pressionada (sem diagonal —
 ## o grid e os sprites do jogo são só 4 direções, igual Poketibia clássico).
 func _read_direction() -> int:
+	var segurada := _direcao_segurada()
+	if segurada != -1:
+		return segurada
+	# Buffer de entrada: uma tecla apertada no meio do passo anterior não pode
+	# ser jogada fora. Sem isto, quem toca a direção no ritmo do passo (que é o
+	# ritmo natural de quem está jogando) perde uma tecla sim, outra não, e a
+	# sensação é de controle que "não obedece".
+	if _dir_bufferizada != -1 and Time.get_ticks_msec() - _ms_do_buffer < BUFFER_MS:
+		var d := _dir_bufferizada
+		_dir_bufferizada = -1
+		return d
+	return -1
+
+## Quanto tempo uma direção apertada "fora de hora" continua valendo.
+const BUFFER_MS : int = 160
+var _dir_bufferizada : int = -1
+var _ms_do_buffer    : int = 0
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if _input_locked or not event.is_pressed() or event.is_echo():
+		return
+	for acao in [["move_down", Direction.DOWN], ["move_up", Direction.UP],
+			["move_left", Direction.LEFT], ["move_right", Direction.RIGHT]]:
+		if event.is_action_pressed(str(acao[0])):
+			_dir_bufferizada = int(acao[1])
+			_ms_do_buffer = Time.get_ticks_msec()
+			return
+
+## Direção atualmente SEGURADA, sem tocar no buffer. Separado de
+## _read_direction() de propósito: aquela consome o buffer, e chamá-la só pra
+## decidir a animação gastaria a tecla bufferizada sem dar o passo.
+func _direcao_segurada() -> int:
 	if Input.is_action_pressed("move_down"):  return Direction.DOWN
 	if Input.is_action_pressed("move_up"):    return Direction.UP
 	if Input.is_action_pressed("move_left"):  return Direction.LEFT
 	if Input.is_action_pressed("move_right"): return Direction.RIGHT
 	return -1
+
+## Segurando uma direção, o passo seguinte já está decidido — usado pra não
+## piscar a animação de parado entre um tile e outro (ver BaseEntity).
+func _vai_continuar_andando() -> bool:
+	return not _input_locked and _direcao_segurada() != -1
 
 ## Só o jogador entra na água — sobrescreve a checagem herdada de BaseEntity
 ## (que bloqueia água pra todo mundo, NPC incluso, de propósito). Permite o

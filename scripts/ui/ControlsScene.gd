@@ -25,11 +25,13 @@ func open() -> void:
 	status_label.text = ""
 	_populate()
 	panel.show()
+	UIStack.empilhar(self, close)
 	AudioManager.play_sfx("menu_open")
 
 func close() -> void:
 	_waiting_for_action = ""
 	panel.hide()
+	UIStack.desempilhar(self)
 	AudioManager.play_sfx("cancel")
 	closed_by_user.emit()
 

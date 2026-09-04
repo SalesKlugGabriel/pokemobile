@@ -68,10 +68,20 @@ func play_bgm(track: String) -> void:
 		return
 	_current_bgm = track
 	var path := BGM_PATH + track + ".ogg"
+	# Nem toda zona tem tema próprio (o mapa pede "pallet_town", "viridian"...).
+	# Antes isso virava silêncio + aviso no console; agora cai no tema de mundo,
+	# que é o certo pra qualquer lugar que ainda não ganhou trilha própria.
 	if not ResourceLoader.exists(path):
-		push_warning("AudioManager: BGM não encontrado: %s" % path)
-		return
+		var alternativa := BGM_PATH + "overworld.ogg"
+		if track == "overworld" or not ResourceLoader.exists(alternativa):
+			push_warning("AudioManager: BGM não encontrado: %s" % path)
+			return
+		path = alternativa
 	var stream : AudioStream = load(path)
+	# Trilha de fundo tem que repetir. O importador do Godot não liga o loop
+	# sozinho, então a faixa tocava uma vez e o jogo voltava a ficar mudo.
+	if stream is AudioStreamOggVorbis:
+		(stream as AudioStreamOggVorbis).loop = true
 	# Crossfade: novo player entra, antigo sai
 	var next := _bgm_b if _bgm_active == _bgm_a else _bgm_a
 	next.stream = stream

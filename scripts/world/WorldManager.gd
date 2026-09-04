@@ -181,7 +181,11 @@ func is_water_tile(tile: Vector2i) -> bool:
 		return false
 	# Camada do chão só, pelo mesmo motivo de is_tile_walkable: camadas acima
 	# são decoração e não definem o terreno.
-	return (tilemap as TileMap).get_cell_atlas_coords(CAMADA_CHAO, tile) == WATER_ATLAS_COORDS
+	var co := (tilemap as TileMap).get_cell_atlas_coords(CAMADA_CHAO, tile)
+	# Os tiles de BEIRA (04/09) desenham a areia entrando de um lado, mas são
+	# água pra toda regra do jogo. Sem isto, Surf e pesca parariam de funcionar
+	# exatamente na primeira fileira de mar — que é onde o jogador chega.
+	return co == WATER_ATLAS_COORDS or co in MapLayouts.COSTA_ATLAS
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Conexão de sinais de entidades

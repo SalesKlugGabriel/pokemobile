@@ -59,11 +59,25 @@ func _process(_delta: float) -> bool:
 		var vazio : bool = tm.get_cell_source_id(0, t) == -1
 		var bloqueado : bool = td != null and td.get_custom_data("blocked")
 		var agua : bool = tm.get_cell_atlas_coords(0, t) == AGUA
-		if vazio or bloqueado or agua:
-			var motivo := "fora do mapa" if vazio else ("água" if agua else "bloqueado")
+		# Porta/entrada: tile ANDÁVEL, então a checagem acima o aprova — mas um
+		# NPC parado ali tranca o prédio pra sempre. Achado em tela em 04/09:
+		# a "Moradora2" estava exatamente no vão da porta da casa inicial, o
+		# primeiro prédio que o jogador tenta entrar no jogo inteiro.
+		var ch_aqui : String = _char_do_tile(tm, t)
+		var na_porta : bool = ch_aqui != "" and (MapLayouts.e_porta(ch_aqui) or _entre_paredes(tm, t))
+		if vazio or bloqueado or agua or na_porta:
+			var motivo := "fora do mapa" if vazio else ("água" if agua else (
+				"bloqueado" if bloqueado else "em cima da PORTA"))
 			ruins.append("%s em %s (%s)" % [no.name, t, motivo])
 
 	_assert(total >= 30, "achou os NPCs do mundo pra conferir (%d)" % total)
+	# Conferência do próprio detector: sem isto o teste passaria mesmo se
+	# `_entre_paredes` nunca reconhecesse porta nenhuma (falso "tudo ok").
+	# (62,177) é o vão da casa inicial — o mesmo tile onde a Moradora2 estava.
+	_assert(_entre_paredes(tm, Vector2i(62, 177)),
+		"o detector reconhece o vão da casa inicial como porta")
+	_assert(not _entre_paredes(tm, Vector2i(62, 180)),
+		"e NÃO acusa porta num tile de caminho comum (sem parede dos lados)")
 	_assert(ruins.is_empty(), "nenhum NPC em árvore/parede/cerca/água — %s" % (
 		"ok" if ruins.is_empty() else str(ruins)))
 
@@ -73,6 +87,22 @@ func _process(_delta: float) -> bool:
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	quit(1 if _fail > 0 else 0)
 	return true
+
+## Char do CHAR_MAP correspondente ao tile pintado (ou "" se for variante).
+func _char_do_tile(tm: TileMap, t: Vector2i) -> String:
+	var co := tm.get_cell_atlas_coords(0, t)
+	for ch in MapLayouts.CHAR_MAP:
+		if MapLayouts.CHAR_MAP[ch] == co:
+			return str(ch)
+	return ""
+
+## Vão de entrada: tile andável com PAREDE dos dois lados. É a assinatura de
+## porta das casas que usam o char de caminho no meio da parede, em vez do char
+## de porta — as duas formas existem no mapa e as duas trancam igual.
+func _entre_paredes(tm: TileMap, t: Vector2i) -> bool:
+	var esq := _char_do_tile(tm, Vector2i(t.x - 1, t.y))
+	var dir := _char_do_tile(tm, Vector2i(t.x + 1, t.y))
+	return MapLayouts.e_parede(esq) and MapLayouts.e_parede(dir)
 
 func _assert(cond: bool, msg: String) -> void:
 	if cond:

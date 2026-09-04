@@ -79,9 +79,21 @@ func _get_move_duration() -> float:
 
 func _on_move_complete() -> void:
 	is_moving = false
-	_play_anim("idle")
+	# Só volta a "parado" se a entidade NÃO vai continuar andando neste mesmo
+	# quadro. Antes, todo passo terminava em idle e o passo seguinte reiniciava
+	# a caminhada: segurando a direção, o ciclo de andar nunca passava do
+	# primeiro quadro e o boneco "tremia" a cada tile. É a maior parte da
+	# sensação de movimento duro relatada no teste de 04/09.
+	if not _vai_continuar_andando():
+		_play_anim("idle")
 	move_finished.emit()
 	_on_tile_entered(grid_pos)
+
+## Hook: a entidade já sabe que vai dar outro passo agora? TrainerEntity
+## responde olhando o teclado; NPC e selvagem não sobrescrevem (mantêm o
+## comportamento de sempre).
+func _vai_continuar_andando() -> bool:
+	return false
 
 ## Hook chamado toda vez que a entidade chega a um novo tile
 func _on_tile_entered(_tile: Vector2i) -> void:

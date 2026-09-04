@@ -202,22 +202,37 @@ func _y_da_barra() -> float:
 	var escala : float = PokemonScale.get_visual_scale(species_id)
 	return PokemonScale.topo_do_corpo(SPRITE_BASE_OFFSET_Y, escala) - 14.0
 
+## Largura da barra acompanha o TAMANHO do Pokémon (04/09). Era fixa em 160px —
+## mais larga que um tile inteiro. Num Slowpoke pequeno a barra passava dos dois
+## lados do bicho e, com o jogador ao lado, ia parar visualmente sobre a cabeça
+## do TREINADOR: no teste em tela parecia a vida do jogador, não a do selvagem.
+func _largura_da_barra() -> float:
+	var escala : float = PokemonScale.get_visual_scale(species_id)
+	return clampf(96.0 * escala, 64.0, 160.0)
+
 func _build_health_bar() -> void:
+	var larg := _largura_da_barra()
 	_hp_bar_bg = ColorRect.new()
 	_hp_bar_bg.color = Color(0.1, 0.1, 0.1, 0.8)
-	_hp_bar_bg.size = Vector2(HP_BAR_WIDTH, HP_BAR_HEIGHT)
-	_hp_bar_bg.position = Vector2(-HP_BAR_WIDTH / 2.0, _y_da_barra())
+	_hp_bar_bg.size = Vector2(larg, HP_BAR_HEIGHT)
+	_hp_bar_bg.position = Vector2(-larg / 2.0, _y_da_barra())
 	add_child(_hp_bar_bg)
 
 	_hp_bar_fill = ColorRect.new()
 	_hp_bar_fill.color = Color(0.2, 0.85, 0.2)
-	_hp_bar_fill.size = Vector2(HP_BAR_WIDTH, HP_BAR_HEIGHT)
+	_hp_bar_fill.size = Vector2(larg, HP_BAR_HEIGHT)
 	_hp_bar_bg.add_child(_hp_bar_fill)
 
+	# Nome + nível: sem o NOME, a criança via "Lv.6" e não sabia de quem era.
 	_level_label = Label.new()
-	_level_label.text = "Lv.%d" % wild_level
-	_level_label.add_theme_font_size_override("font_size", 10)
-	_level_label.position = Vector2(-HP_BAR_WIDTH / 2.0, _y_da_barra() - 34.0)
+	_level_label.text = "%s  Nv.%d" % [_nome_da_especie(), wild_level]
+	_level_label.add_theme_font_size_override("font_size", 12)
+	_level_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_level_label.add_theme_constant_override("outline_size", 4)
+	# centralizado sobre o BICHO, não ancorado na ponta esquerda da barra
+	_level_label.size = Vector2(larg * 2.0, 18)
+	_level_label.position = Vector2(-larg, _y_da_barra() - 30.0)
+	_level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_level_label)
 
 	# Status persistente (03/09) — abreviação (BRN/PSN/PAR/SLP/FRZ), igual
@@ -225,7 +240,7 @@ func _build_health_bar() -> void:
 	_status_label = Label.new()
 	_status_label.add_theme_font_size_override("font_size", 10)
 	_status_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
-	_status_label.position = Vector2(HP_BAR_WIDTH / 2.0 - 36.0, _y_da_barra() - 34.0)
+	_status_label.position = Vector2(_largura_da_barra() / 2.0 - 36.0, _y_da_barra() - 48.0)
 	add_child(_status_label)
 
 	_update_health_bar()
@@ -244,7 +259,7 @@ func _update_health_bar() -> void:
 	if not _hp_bar_fill or max_hp <= 0:
 		return
 	var ratio : float = clampf(float(current_hp) / float(max_hp), 0.0, 1.0)
-	_hp_bar_fill.size.x = HP_BAR_WIDTH * ratio
+	_hp_bar_fill.size.x = _largura_da_barra() * ratio
 	# Verde -> amarelo -> vermelho, igual convenção clássica de barra de vida.
 	if ratio > 0.5:
 		_hp_bar_fill.color = Color(0.2, 0.85, 0.2)
@@ -761,3 +776,8 @@ func _set_state(new_state: State) -> void:
 func _get_move_speed() -> float:
 	var speed := BASE_MOVE_SPEED + (speed_stat * 0.8)
 	return speed * StatusEffectController.speed_multiplier(current_status)
+
+## Nome da espécie pro rótulo acima da barra de vida.
+func _nome_da_especie() -> String:
+	var dados : Dictionary = GameData.get_species(species_id)
+	return str(dados.get("name", "?"))

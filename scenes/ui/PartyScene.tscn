@@ -36,26 +36,30 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_1")
 
-[node name="Header" type="HBoxContainer" parent="Panel"]
+[node name="Coluna" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="Panel/Coluna"]
 layout_mode = 2
 
-[node name="LabelTitle" type="Label" parent="Panel/Header"]
+[node name="LabelTitle" type="Label" parent="Panel/Coluna/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "PARTY"
+text = "MEU TIME"
 theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
 
-[node name="BtnClose" type="Button" parent="Panel/Header"]
+[node name="BtnClose" type="Button" parent="Panel/Coluna/Header"]
 layout_mode = 2
-text = "✕"
+text = "X"
 theme_override_font_sizes/font_size = 14
 
-[node name="Scroll" type="ScrollContainer" parent="Panel"]
+[node name="Scroll" type="ScrollContainer" parent="Panel/Coluna"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 360)
 
-[node name="List" type="VBoxContainer" parent="Panel/Scroll"]
+[node name="List" type="VBoxContainer" parent="Panel/Coluna/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8

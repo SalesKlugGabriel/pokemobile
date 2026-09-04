@@ -56,7 +56,14 @@ func _process(_delta: float) -> bool:
 	_assert(not hud._skill_buttons[0].disabled, "slot com golpe fica habilitado")
 	_assert(hud._skill_buttons[0].text != "—", "slot com golpe mostra o nome, não o traço")
 	_assert(hud._skill_buttons[1].disabled, "slot vazio (\"\") continua desabilitado")
-	_assert(hud._skill_buttons[1].text == "—", "slot vazio mostra o traço")
+	# 04/09: era `text == "—"`. O traço lia como defeito no teste de gameplay
+	# ("por que dois botões estão com um risquinho?"); agora o slot diz em que
+	# NÍVEL abre, que é informação em vez de erro. O que importa travar é que
+	# ele continua desabilitado e NÃO mostra nome de golpe.
+	_assert(hud._skill_buttons[1].text != "—", "slot vazio não usa mais o traço")
+	_assert(hud._skill_buttons[1].text.begins_with("Nv.") or hud._skill_buttons[1].text == "vazio",
+		"slot vazio diz em que nível abre (ou 'vazio' se a espécie não aprende mais)")
+	_assert(hud._skill_buttons[1].tooltip_text != "", "slot vazio explica o que é ao passar o mouse")
 
 	# ---- tocar o botão chama use_skill() no Follower ativo, sem quebrar ----
 	# (a lógica de use_skill() em si — cooldown/alvo/área — já é coberta a

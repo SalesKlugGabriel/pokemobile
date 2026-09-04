@@ -18,15 +18,39 @@ func _ready() -> void:
 	_build_starter_cards()
 	btn_confirm.pressed.connect(_on_confirm)
 	_select(0)
+	set_process_unhandled_input(true)
+
+## Caminho de teclado completo. No teste de 04/09 o jogo "travou" nesta tela: o
+## clique caiu 26px acima do botão e não existia NENHUMA outra forma de seguir —
+## Enter não fazia nada. Com o jogo mudo, um clique que erra é indistinguível de
+## um jogo quebrado.
+func _unhandled_input(event: InputEvent) -> void:
+	if name_input.has_focus() and event is InputEventKey and event.keycode not in [KEY_ENTER, KEY_KP_ENTER]:
+		return
+	if event.is_action_pressed("interact") or (event is InputEventKey and event.pressed \
+			and event.keycode in [KEY_ENTER, KEY_KP_ENTER]):
+		get_viewport().set_input_as_handled()
+		_on_confirm()
+	elif event.is_action_pressed("move_right"):
+		get_viewport().set_input_as_handled()
+		_select((_selected_index + 1) % STARTERS.size())
+	elif event.is_action_pressed("move_left"):
+		get_viewport().set_input_as_handled()
+		_select((_selected_index - 1 + STARTERS.size()) % STARTERS.size())
 
 func _build_starter_cards() -> void:
 	for i in STARTERS.size():
 		var idx := i
 		var data : Dictionary = STARTERS[i]
 		var card := PanelContainer.new()
-		card.custom_minimum_size = Vector2(200, 160)
+		card.custom_minimum_size = Vector2(200, 250)
 		var vb := VBoxContainer.new()
 		vb.add_theme_constant_override("separation", 6)
+
+		# O sprite do inicial. Sem ele a escolha mais icônica da franquia virava
+		# uma lista de texto (achado no teste de gameplay de 04/09).
+		var sprite := PokemonIcon.criar(int(data["species_id"]), 96)
+		sprite.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 
 		var lbl_name := Label.new()
 		lbl_name.text = data["name"]
@@ -50,6 +74,7 @@ func _build_starter_cards() -> void:
 		btn.text = "Escolher"
 		btn.pressed.connect(func(): _select(idx))
 
+		vb.add_child(sprite)
 		vb.add_child(lbl_name)
 		vb.add_child(lbl_type)
 		vb.add_child(lbl_desc)

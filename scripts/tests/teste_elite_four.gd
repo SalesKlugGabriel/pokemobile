@@ -46,15 +46,21 @@ func _process(_delta: float) -> bool:
 	# ---- Porta da Liga: fechada sem as 8 insígnias, aberta com todas ----
 	var j_porta := 16 + ROUTE22_COLS   # ip=16 (centro do vão 15-17)
 	var j_interior := 12 + ROUTE22_COLS # ip=12, bem dentro do prédio (10-22)
-	_assert(MapLayouts._oeste_de_viridian_cell(j_porta, 14) == "W",
+	# 04/09: era comparação com o literal "W". A parede da frente dos prédios
+	# passou a alternar entre lisa ("w") e com janela ("W") — antes TODA parede
+	# era janela, e a fachada de todo prédio do jogo era uma fileira de janelas.
+	# O que este teste quer garantir é que o vão está FECHADO, não qual desenho
+	# de parede ele usa: pergunta semântica, igual `atlas_e_do_char` faz com
+	# terreno.
+	_assert(MapLayouts.e_parede(MapLayouts._oeste_de_viridian_cell(j_porta, 14)),
 		"porta da Liga FECHADA sem nenhuma insígnia")
-	_assert(MapLayouts._oeste_de_viridian_cell(j_interior, 10) == "W",
+	_assert(MapLayouts.e_parede(MapLayouts._oeste_de_viridian_cell(j_interior, 10)),
 		"interior da Liga inacessível sem nenhuma insígnia")
 
 	for badge in ["boulder_badge", "cascade_badge", "thunder_badge", "rainbow_badge",
 			"soul_badge", "marsh_badge", "volcano_badge"]:
 		SaveManager.award_badge(badge)
-	_assert(MapLayouts._oeste_de_viridian_cell(j_porta, 14) == "W",
+	_assert(MapLayouts.e_parede(MapLayouts._oeste_de_viridian_cell(j_porta, 14)),
 		"com só 7 das 8 insígnias, a porta AINDA está fechada")
 
 	SaveManager.award_badge("earth_badge")  # a 8ª e última

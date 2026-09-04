@@ -93,7 +93,7 @@ format = 2
 [node name="NPCs" type="Node2D" parent="Entities"]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(6400, 23296)
+position = Vector2(7936, 22784)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
@@ -120,7 +120,7 @@ dialog_id = "pallet_resident_1"
 is_patrolling = false
 
 [node name="Moradora2" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(7936, 22656)
+position = Vector2(7552, 22912)
 npc_name = "Moradora"
 dialog_id = "pallet_resident_2"
 is_patrolling = false
