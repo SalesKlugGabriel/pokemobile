@@ -31,6 +31,56 @@ const COR_POR_CHAR := {
 	"I": Color(0.45, 0.36, 0.26),   # piso interno
 	"d": Color(0.92, 0.78, 0.30),   # porta — o que a criança está procurando
 	"R": Color(0.45, 0.45, 0.48),   # rocha
+	# ── Biomas da Fase 2 (05/09) ────────────────────────────────────────────
+	"z": Color(0.34, 0.38, 0.22), "!": Color(0.50, 0.74, 0.24),
+	"0": Color(0.29, 0.38, 0.31), "(": Color(0.38, 0.46, 0.20),
+	")": Color(0.33, 0.27, 0.20),
+	"^": Color(0.50, 0.46, 0.41), "/": Color(0.34, 0.31, 0.27),
+	"<": Color(0.66, 0.64, 0.60), ">": Color(0.45, 0.41, 0.37),
+	":": Color(0.63, 0.54, 0.41),
+	"_": Color(0.84, 0.72, 0.48), "'": Color(0.88, 0.78, 0.56),
+	"*": Color(0.29, 0.52, 0.27), ";": Color(0.93, 0.91, 0.84),
+	"+": Color(0.78, 0.66, 0.42),
+	"%": Color(0.73, 0.66, 0.54), "[": Color(0.55, 0.48, 0.38),
+	"|": Color(0.67, 0.62, 0.52), "]": Color(0.60, 0.55, 0.45),
+	"=": Color(0.68, 0.62, 0.50),
+	"&": Color(0.36, 0.28, 0.22), "{": Color(0.34, 0.31, 0.30),
+	"}": Color(0.20, 0.22, 0.30), "$": Color(0.46, 0.38, 0.29),
+	"@": Color(0.55, 0.55, 0.56),
+	"9": Color(0.14, 0.23, 0.13), "?": Color(0.47, 0.88, 0.77),
+	"`": Color(0.23, 0.17, 0.12),
+	"#": Color(0.57, 0.42, 0.24), "-": Color(0.57, 0.42, 0.24),
+	# Cores derivadas da COR MÉDIA do próprio tile no atlas, com a saturação
+	# puxada — a média de um tile sai sempre mais apagada que ele. Geradas
+	# assim, e não escolhidas a olho, porque 27 terrenos estavam caindo no
+	# verde genérico do fallback e o mapa mentia sobre eles.
+	".": Color(0.36, 0.63, 0.05),
+	"D": Color(0.56, 0.38, 0.15),
+	"M": Color(0.65, 0.13, 0.03),
+	"E": Color(0.38, 0.55, 0.05),
+	"X": Color(0.25, 0.50, 0.05),
+	"B": Color(0.03, 0.37, 0.59),
+	"C": Color(0.33, 0.72, 0.94),
+	"J": Color(0.22, 0.64, 0.90),
+	"L": Color(0.36, 0.32, 0.25),
+	"Q": Color(0.21, 0.19, 0.14),
+	"U": Color(0.08, 0.53, 0.73),
+	"V": Color(0.27, 0.03, 0.30),
+	"Y": Color(0.37, 0.22, 0.09),
+	"Z": Color(0.29, 0.17, 0.07),
+	"b": Color(0.33, 0.29, 0.27),
+	"c": Color(0.24, 0.14, 0.10),
+	"e": Color(0.35, 0.24, 0.14),
+	"f": Color(0.40, 0.37, 0.33),
+	"g": Color(0.49, 0.45, 0.38),
+	"h": Color(0.37, 0.35, 0.24),
+	"i": Color(0.34, 0.54, 0.04),
+	"j": Color(0.36, 0.41, 0.00),
+	"k": Color(0.07, 0.31, 0.33),
+	"l": Color(0.41, 0.33, 0.26),
+	"m": Color(0.60, 0.22, 0.10),
+	"n": Color(0.40, 0.52, 0.05),
+	"o": Color(0.07, 0.03, 0.01),
 }
 const COR_GRAMA := Color(0.26, 0.52, 0.24)
 const COR_FORA  := Color(0.06, 0.07, 0.06)

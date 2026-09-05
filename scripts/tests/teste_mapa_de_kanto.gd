@@ -96,6 +96,25 @@ func _process(_delta: float) -> bool:
 	_assert(desconhecidas.is_empty(),
 		"todo tile do mundo tem cor no mapa — %s" % (
 			"ok" if desconhecidas.is_empty() else str(desconhecidas.keys())))
+
+	# ---- 5. E a cor é EXPLÍCITA, não o verde genérico -----------------------
+	# 🔴 Furo real, achado em tela: os 6 biomas novos entraram no CHAR_MAP, então
+	# a conferência acima passou — mas nenhum deles estava na tabela de cores do
+	# mapa, e todos caíam no fallback de grama. A Ilha do Deserto inteira
+	# aparecia VERDE no mapa de Kanto. Conferir "o char existe" não é o mesmo que
+	# conferir "o mapa sabe desenhá-lo".
+	var fonte_mapa := FileAccess.get_file_as_string("res://scripts/ui/MapaMundi.gd")
+	var sem_cor : Array[String] = []
+	for ch in MapLayouts.CHAR_MAP:
+		# peças de kit (telhado/parede laterais) herdam a cor de parede/telhado
+		if ch in ["q", "r", "s", "t", "u", "v", "x", "y", "a", "p",
+				"1", "2", "3", "4", "5", "6", "7", "8"]:
+			continue
+		if not fonte_mapa.contains('"%s": Color(' % ch):
+			sem_cor.append(str(ch))
+	_assert(sem_cor.is_empty(),
+		"todo terreno tem cor PRÓPRIA no mapa (não cai no verde genérico) — %s" % (
+			"ok" if sem_cor.is_empty() else str(sem_cor)))
 	tm.free()
 
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
