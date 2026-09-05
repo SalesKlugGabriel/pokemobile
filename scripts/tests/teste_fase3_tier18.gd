@@ -64,7 +64,11 @@ func _teste_geral() -> void:
 	# ---- 5. Indigo Plateau: Liga Pokémon fechada + Centro Pokémon funcional ----
 	# Liga: ip10-22 → j70-82 → c=-70..-82 (col de teste: ip16 → c=-76)
 	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -76, 88), "H"), "Indigo Plateau: telhado da Liga existe")
-	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -76, 96), "W"), "Indigo Plateau: porta da Liga é parede (fechada, bloqueada por história)")
+	# 05/09: a parede alterna lisa/janela, então comparar com "W" reprova um mapa
+	# correto. O que importa é que o vão está FECHADO.
+	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -76, 96), "W")
+		or MapLayouts.atlas_e_do_char(_atlas_at(tm, -76, 96), "w"),
+		"Indigo Plateau: porta da Liga é parede (fechada, bloqueada por história)")
 	# Centro: ip25-37 → j85-97 → c=-85..-97 (col de teste: ip31 → c=-91)
 	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -91, 88), "H"), "Indigo Plateau: telhado do Centro Pokémon existe")
 	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, -91, 92), "I"), "Indigo Plateau: interior do Centro Pokémon é piso")

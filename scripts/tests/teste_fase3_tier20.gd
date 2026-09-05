@@ -40,7 +40,10 @@ func _teste_geral() -> void:
 	_assert(tiles[row_ini + 8][col_ini + 27] == "H", "Power Plant: telhado do prédio existe")
 	_assert(tiles[row_ini + 12][col_ini + 27] == "I", "Power Plant: interior é piso")
 	_assert(tiles[row_ini + 20][col_ini + 27] == "P", "Power Plant: porta existe")
-	_assert(tiles[row_ini + 15][col_ini + 20] == "W" or tiles[row_ini + 15][col_ini + 20] == "I" or tiles[row_ini + 15][col_ini + 20] == "S",
+	# 05/09: a lista enumerava W/I/S como "sólido" e esquecia a grama — quando o
+	# amaciamento de bordas trocou o terreno em volta do prédio, o teste reprovou
+	# um mapa correto. O rótulo já dizia a pergunta certa: "não mar".
+	_assert(tiles[row_ini + 15][col_ini + 20] != "~",
 		"Power Plant: ilha ao redor do prédio é sólida (não mar)")
 	_assert(tiles[row_ini + 15][col_ini + 2] == "~", "fora da ilha (dentro da faixa de Vermilion, mas longe do centro) é mar aberto")
 	_assert(tiles[row_ini + 15][col_ini + 55] == "~", "fora da ilha (bem a leste) é mar aberto")

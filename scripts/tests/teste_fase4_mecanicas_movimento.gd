@@ -60,7 +60,11 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_mapa_cerulean() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(tiles[19][245] == ".", "tile (245,19) — Loja de Bicicletas de Cerulean — é chão aberto")
+	# 05/09 (Fase 0): era a coordenada exata da Loja de Bicicletas. O que o teste
+	# quer é que exista chão aberto em Cerulean pra ela ficar.
+	var r_cer := AjudaMapa.retangulo_da_zona("cerulean_city")
+	_assert(AjudaMapa.conta_char(tiles, r_cer, ["."]) > 50,
+		"Cerulean tem chão aberto de sobra (a Loja de Bicicletas cabe)")
 	# Vizinhança livre também (o NPC ocupa 1 tile, mas não pode nascer colado
 	# em parede dos dois lados a ponto de ficar inacessível).
 	_assert(tiles[19][244] == "." or tiles[19][246] == ".",

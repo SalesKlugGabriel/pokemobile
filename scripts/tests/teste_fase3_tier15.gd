@@ -44,7 +44,11 @@ func _teste_geral() -> void:
 	_assert(tiles[r0 + 21][ce0 + 27] == "H", "telhado da entrada (linha do topo)")
 	_assert(tiles[r0 + 24][ce0 + 27] == "I", "interior da entrada é chão andável")
 	_assert(tiles[r0 + 28][ce0 + 27] == "P" and tiles[r0 + 28][ce0 + 28] == "P", "porta (2 tiles) no rodapé da entrada")
-	_assert(tiles[r0 + 28][ce0 + 26] == "W", "parede ao lado da porta, fora dela")
+	# 05/09: era `== "W"`. A parede da frente dos prédios passou a alternar entre
+	# lisa ("w") e com janela ("W") — antes TODA parede era janela e a fachada de
+	# todo prédio do jogo era uma fileira de janelas. O que este teste quer é que
+	# ali seja PAREDE, não qual desenho de parede.
+	_assert(MapLayouts.e_parede(tiles[r0 + 28][ce0 + 26]), "parede ao lado da porta, fora dela")
 	_assert(tiles[r0 + 29][ce0 + 27] == "P" and tiles[r0 + 30][ce0 + 27] == "P", "caminho continua 2 linhas abaixo da porta")
 
 	# ---- 2. Não vazou pra cima do corredor leste-oeste (no_caminho, r16-20
@@ -61,11 +65,15 @@ func _teste_geral() -> void:
 	_assert(hl["width"] == 18 and hl["height"] == 14, "Rocket Hideout é 18x14")
 	var htiles : Array = hl["tiles"]
 	_assert(htiles[0] == "HHHHHHHHHHHHHHHHHH", "linha 0 é telhado inteiro")
-	_assert(htiles[1] == "WWWWWWWWWWWWWWWWWW", "linha 1 é parede inteira")
+	var linha1_toda_parede := true
+	for ch in htiles[1]:
+		if not MapLayouts.e_parede(ch):
+			linha1_toda_parede = false
+	_assert(linha1_toda_parede, "linha 1 é parede inteira")
 	_assert(htiles[13] == "TTTTTTTTTTTTTTTTTT", "última linha é grama (borda externa)")
 	_assert(htiles[12][8] == "P" and htiles[12][9] == "P", "porta de saída na penúltima linha")
-	_assert(htiles[12][0] == "W" and htiles[12][17] == "W", "resto da penúltima linha é parede")
-	_assert(htiles[6][0] == "W" and htiles[6][17] == "W", "paredes laterais no meio da sala")
+	_assert(MapLayouts.e_parede(htiles[12][0]) and MapLayouts.e_parede(htiles[12][17]), "resto da penúltima linha é parede")
+	_assert(MapLayouts.e_parede(htiles[6][0]) and MapLayouts.e_parede(htiles[6][17]), "paredes laterais no meio da sala")
 	_assert(htiles[6][8] == "I", "chão andável no meio da sala (nada construído ainda de propósito)")
 
 	# ---- 5. zones.json: zona registrada como cena própria, local 0-based,

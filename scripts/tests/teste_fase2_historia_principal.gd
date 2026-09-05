@@ -100,7 +100,12 @@ func _teste_conteudo_novo() -> void:
 func _teste_giovanni_tile_bloqueado() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(tiles[90][26] == "W", "porta do Ginásio de Viridian começa FECHADA (MAIN-08 não completa)")
+	# 05/09 (Fase 0): era `tiles[90][26]`. O Ginásio de Viridian é o ÚNICO tile
+	# do mapa que muda com o estado do save, então o teste tem que achar a porta
+	# em vez de decorar onde ela fica.
+	var r_vir := AjudaMapa.retangulo_da_zona("viridian_city")
+	_assert(not AjudaMapa.tem_porta(tiles, Rect2i(r_vir.position.x + 20, r_vir.position.y + 12, 14, 8)),
+		"porta do Ginásio de Viridian começa FECHADA (MAIN-08 não completa)")
 
 # ── 3. Cascata MAIN-01 → MAIN-09: cada conclusão auto-inicia a próxima ──
 func _teste_cascata_main() -> void:
@@ -170,5 +175,9 @@ func _teste_cascata_main() -> void:
 func _teste_giovanni_tile_liberado() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(tiles[90][26] == "P", "porta do Ginásio de Viridian agora está ABERTA (MAIN-08 completa)")
-	_assert(tiles[80][26] == "I", "interior do Ginásio agora é andável (Giovanni pode ser desafiado)")
+	var r_vir2 := AjudaMapa.retangulo_da_zona("viridian_city")
+	var recorte_ginasio := Rect2i(r_vir2.position.x + 20, r_vir2.position.y + 12, 14, 8)
+	_assert(AjudaMapa.conta_char(tiles, recorte_ginasio, ["P"]) > 0,
+		"porta do Ginásio de Viridian agora está ABERTA (MAIN-08 completa)")
+	_assert(AjudaMapa.conta_char(tiles, Rect2i(r_vir2.position.x + 20, r_vir2.position.y + 2, 14, 12), ["I"]) > 0,
+		"interior do Ginásio agora é andável (Giovanni pode ser desafiado)")

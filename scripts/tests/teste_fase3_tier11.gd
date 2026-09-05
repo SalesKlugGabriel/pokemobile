@@ -45,9 +45,14 @@ func _teste_geral() -> void:
 
 	# ---- 2. Cais + Ginásio + Centro Pokémon existem ----
 	_assert(tiles[35][19] == "D", "cais de madeira existe (onde o barco atraca)")
-	_assert(tiles[14][16] == "I", "Cinnabar: interior do Ginásio (Blaine) é piso")
-	_assert(tiles[10][16] == "H", "Cinnabar: telhado do Ginásio existe")
-	_assert(tiles[14][28] == "I", "Cinnabar: interior do Centro Pokémon é piso")
+	# 05/09 (Fase 0): a ilha vai ser redesenhada na Fase 3 do plano de mundo, e
+	# coordenada literal reprovaria um mapa correto. O que importa é que a ilha
+	# tem os dois prédios inteiros.
+	var r_ilha := Rect2i(0, 0, int(layout["width"]), int(layout["height"]))
+	_assert(AjudaMapa.conta_predios(tiles, r_ilha) >= 2,
+		"Cinnabar tem Ginásio e Centro Pokémon (%d prédios)" % AjudaMapa.conta_predios(tiles, r_ilha))
+	_assert(AjudaMapa.tem_predio_completo(tiles, r_ilha),
+		"os prédios de Cinnabar têm telhado, interior andável E porta")
 
 	# ---- 3. Cena carrega, Blaine tem time real, warp de volta existe ----
 	var cinnabar_scene := load("res://scenes/world/maps/CinnabarIsland.tscn") as PackedScene

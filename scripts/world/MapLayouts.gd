@@ -2549,6 +2549,20 @@ static func peca_de_telhado(celula: Vector2i, conjunto: Dictionary) -> String:
 static func e_porta(ch: String) -> bool:
 	return ch == "d"
 
+## "Esta coordenada de atlas é MATA?" — inclui as árvores grandes de 2x3.
+##
+## Necessário desde 05/09: as árvores pequenas viraram árvores de 6 tiles, e
+## `atlas_e_do_char(coord, "T")` passou a dizer NÃO para uma floresta que está
+## ali, perfeita. Quem quer saber "isto é mata" tem que perguntar por aqui.
+static func e_atlas_de_mata(coord: Vector2i) -> bool:
+	for ch in CHARS_MATA:
+		if atlas_e_do_char(coord, ch):
+			return true
+	for lista in ARVORES_GRANDES:
+		if coord in lista:
+			return true
+	return false
+
 static func e_parede(ch: String) -> bool:
 	return ch == "W" or ch == "w"
 

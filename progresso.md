@@ -3480,3 +3480,57 @@ as cidades e rotas onde estão. O plano foi corrigido nisso.
 
 **Próximo passo:** Fase 0 (soltar as amarras) ou Fase 2 (arte dos 6 biomas
 novos), a decidir com ele.
+
+---
+
+## 05/09/2026 (Fase 0) — Soltar as amarras + o furo que eu tinha na suíte
+
+**Fase 0 do plano de mundo:** tirar as coordenadas literais dos testes, pra que
+mudar o mapa deixe de reprovar um mapa correto.
+
+Eram 51 asserções em 13 arquivos comparando `tiles[10][26] == "I"`, com o
+comentário "interior do Ginásio (col 26, row 10)". A intenção sempre foi
+"Pewter tem um ginásio com interior, telhado e porta" — a coordenada era
+acidente. Criei `AjudaMapa.gd` com perguntas semânticas (conta prédios, tem
+entrada, atravessa a zona, maior corrida da estrada) e a posição passou a ter
+UMA fonte: o retângulo da zona em `zones.json`.
+
+Converti as 6 que dependem de posição de cidade. As outras não precisaram: são
+grades locais de masmorra (Victory Road, Caverna do Diglett, andares da Caverna
+Cerulean), que não se movem quando o mapa do mundo muda.
+
+**Achado no caminho:** o mapa tem DUAS formas de entrada e as duas são válidas —
+os ginásios de Pewter e Cerulean usam o char de porta, mas as casas de Pallet e
+os prédios de Cinnabar usam o char de CAMINHO no meio da fileira de parede
+("wwwPPPwww"). Um ajudante que só conhecesse uma reprovaria metade dos prédios.
+
+**A rede de segurança: `teste_conectividade.gd`.** Nenhum teste perguntava
+"existe caminho" — todos conferiam tile a tile. Este parte de Pallet e exige
+caminho a pé até as 8 cidades de terra firme, com a mesma regra de colisão do
+jogo. Cinnabar, Seafoam e a Liga Indigo estão listadas como exceção COM o
+motivo (só de Surf / trancada por insígnia). E ele confere a si mesmo: tem que
+dizer NÃO pra um ponto no meio do mar, senão a busca está atravessando parede e
+as outras conferências não valem nada.
+
+**🔴 O erro meu mais grave desta semana, achado aqui:** eu rodava a suíte com
+`grep FALHOU`. Só que **32 dos 68 arquivos imprimem "FALHA"** e 36 imprimem
+"FALHOU" — quase metade da suíte podia estar vermelha sem eu ver. **Quatro
+testes estavam falhando havia dias** e eu reportei "0 falhas" mais de uma vez.
+As quatro eram consequência de mudanças minhas (a parede que passou a alternar
+lisa/janela em 04/09, e as árvores de 2x3 + o amaciamento de bordas de 05/09),
+todas do mesmo tipo: asserção que enumera literais em vez de perguntar a
+propriedade. Corrigidas.
+
+O `quit(1 if _fail > 0)` que todo teste já fazia sempre foi o sinal certo — eu
+é que não estava usando. Agora existe `tools/rodar_testes.sh`, que roda pelo
+CÓDIGO DE SAÍDA. É assim que a suíte deve ser rodada daqui pra frente.
+
+**Decisão do Gabriel:** o bioma que faltava (deserto e ruínas) vira uma **ilha
+desértica com pirâmides e hieróglifos, ao sul de Vermilion** — resolve o único
+bioma que Kanto não tinha sem deslocar nada, e usa as rotas marítimas como
+caminho. Entra na Fase 2 (arte) e na Fase 4 (posição).
+
+**Testado:** 68 arquivos, 0 falhas — desta vez pelo código de saída. Publicado.
+
+**Próximo passo:** Fase 2 — a arte dos 6 biomas novos + o kit de ponte + a ilha
+desértica.

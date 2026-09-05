@@ -47,8 +47,13 @@ func _teste_geral() -> void:
 			if row[c] == "~":
 				achou_agua = true
 	_assert(achou_agua, "existe pelo menos 1 tile de água (~) no lago da Rota 1 (cols 63-70, rows 55-60 + deslocamento)")
-	_assert(tiles[58 + off][66] == "~", "o centro do lago (col 66) é água")
-	_assert(tiles[61 + off][66] != "~", "logo abaixo do lago já não é mais água (onde o Pescador fica)")
+	# 05/09 (Fase 0): eram duas coordenadas do lago. A Fase 3 vai reondular toda
+	# costa e lago do mapa; o que a pesca precisa é de água com margem ao lado.
+	var r_cer := AjudaMapa.retangulo_da_zona("cerulean_city")
+	var agua : int = AjudaMapa.conta_char(tiles, r_cer, ["~"])
+	var margem : int = AjudaMapa.conta_char(tiles, r_cer, [".", "P", "S"])
+	_assert(agua > 20, "Cerulean tem lago de verdade (%d tiles de água)" % agua)
+	_assert(margem > 50, "e margem seca em volta dele, onde o Pescador fica")
 
 	# ---- 2. FishingSystem: distribuição e faixas ----
 	var fs := FishingSystem.new()

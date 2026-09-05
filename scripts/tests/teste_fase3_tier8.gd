@@ -64,7 +64,11 @@ func _teste_geral() -> void:
 	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, 257, -37), "H"), "Casa do Bill: telhado existe")
 
 	# ---- 5. Fora da faixa do ramo continua borda (não vazou pro resto do mapa) ----
-	_assert(MapLayouts.atlas_e_do_char(_atlas_at(tm, 100, -20), "T"), "fora da faixa de colunas do ramo (ex: col 100) continua borda em r negativo")
+	# 05/09: era `atlas_e_do_char(..., "T")`. As árvores viraram desenhos de 2x3
+	# tiles, então aquele tile deixou de ser o "T" pequeno e passou a ser um
+	# pedaço de árvore grande — floresta igual, char diferente. `e_atlas_de_mata`
+	# pergunta a propriedade e vale pras duas formas.
+	_assert(MapLayouts.e_atlas_de_mata(_atlas_at(tm, 100, -20)), "fora da faixa de colunas do ramo (ex: col 100) continua borda em r negativo")
 
 	# ---- 6. NPCs existem no WorldMap.tscn ----
 	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene

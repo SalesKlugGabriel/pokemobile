@@ -38,12 +38,19 @@ func _teste_geral() -> void:
 	# esta fase (Pewter+Rota2, ao norte) realmente controla.
 	_assert(H == 330, "world_map tem 192 de altura (Pewter+Rota2 somaram 72 linhas)")
 
-	# ---- 1. Pewter City (linhas 1-36) ----
-	_assert(tiles[10][26] == "I", "Pewter: interior do Ginásio (col 26, row 10) é piso")
-	_assert(tiles[6][26] == "H", "Pewter: telhado do Ginásio (row 6) existe")
-	_assert(MapLayouts.e_porta(tiles[18][26]), "Pewter: porta do Ginásio (row 18) é porta")
-	_assert(tiles[10][76] == "I", "Pewter: interior do Centro Pokémon (col 76, row 10) é piso")
-	_assert(MapLayouts.e_porta(tiles[14][76]), "Pewter: porta do Centro Pokémon (row 14) é porta")
+	# ---- 1. Pewter City ----
+	# 05/09 (Fase 0 do plano de mundo): era coordenada literal —
+	# `tiles[10][26] == "I"`, com o comentário "interior do Ginásio (col 26,
+	# row 10)". A intenção sempre foi "Pewter tem prédios com interior, telhado
+	# e porta"; a coordenada era acidente, e enquanto ela estivesse escrita aqui
+	# mover a cidade um tile reprovaria um mapa correto. A posição agora tem UMA
+	# fonte — o retângulo da zona em zones.json — em vez de 51 cópias soltas.
+	var r_pewter := AjudaMapa.retangulo_da_zona("pewter_city")
+	_assert(r_pewter.size.x > 0, "Pewter está cadastrada no zones.json")
+	_assert(AjudaMapa.conta_predios(tiles, r_pewter) >= 2,
+		"Pewter tem pelo menos 2 prédios (Ginásio e Centro Pokémon) — achou %d" % AjudaMapa.conta_predios(tiles, r_pewter))
+	_assert(AjudaMapa.tem_predio_completo(tiles, r_pewter),
+		"os prédios de Pewter têm telhado, interior andável E porta")
 
 	# ---- 2. Corredor central é UM SÓ, sem quebra, de Pewter até Pallet ----
 	# (a prova de que é mundo aberto de verdade: anda reto por 190 linhas
@@ -60,16 +67,25 @@ func _teste_geral() -> void:
 		"corredor central (col 50) é caminhável do topo (Pewter) até o fim de Pallet, sem quebra (%d quebras)" % quebras)
 
 	# ---- 3. Rota 2 (linhas locais 37-72) tem grama/árvore, não é cidade ----
-	_assert(tiles[55][20] == "." or tiles[55][20] == "T" or tiles[55][20] == "F",
-		"Rota 2 (row 55, fora do corredor) é grama/árvore/flor, não prédio")
+	# Fora do corredor, a Rota 2 é campo — nunca prédio. Contado na zona
+	# inteira em vez de espiar um tile: um único tile pode estar certo por
+	# acaso num mapa errado.
+	var r_rota2 := AjudaMapa.retangulo_da_zona("route_2")
+	_assert(AjudaMapa.conta_char(tiles, r_rota2, [".", "T", "F", "N", "O", "A"]) > 200,
+		"Rota 2 é campo/mata de verdade, não cidade")
+	_assert(AjudaMapa.conta_char(tiles, r_rota2, ["I"]) < 60,
+		"Rota 2 quase não tem interior de prédio (é rota, não cidade)")
 
 	# ---- 4. Viridian/Rota 1/Pallet continuam exatamente onde sempre foram
 	# (só que 72 linhas mais pra baixo) — prova que nada do que já existia
 	# mudou de desenho, só de posição ----
-	_assert(tiles[74 + 8][26] == "W" or tiles[74 + 8][26] == "H",
-		"Ginásio de Viridian (fechado) continua existindo, só deslocado 72 linhas")
-	_assert(tiles[152 + 6][50] == "P",
-		"Corredor de Pallet continua no mesmo lugar relativo, só deslocado")
+	var r_viridian := AjudaMapa.retangulo_da_zona("viridian_city")
+	_assert(AjudaMapa.conta_predios(tiles, r_viridian) >= 2,
+		"Viridian continua com os prédios dela (%d)" % AjudaMapa.conta_predios(tiles, r_viridian))
+	var r_pallet := AjudaMapa.retangulo_da_zona("pallet_town")
+	var corrida : int = AjudaMapa.maior_corrida_vertical(tiles, r_pallet, ["P"])
+	_assert(corrida >= 30,
+		"o corredor de Pallet atravessa a cidade (%d linhas seguidas; termina na praia, de propósito)" % corrida)
 
 	# ---- 5. As cenas antigas (separadas) não existem mais ----
 	_assert(not FileAccess.file_exists("res://scenes/world/maps/Route2.tscn"),

@@ -52,9 +52,15 @@ func _teste_geral() -> void:
 	_assert(quebras2 == 0, "Rota 4 (depois da montanha) até Cerulean é contínua (%d quebras)" % quebras2)
 
 	# ---- 3. Ginásio e Centro Pokémon de Cerulean existem ----
-	_assert(tiles[10][236] == "I", "Cerulean: interior do Ginásio (Misty) é piso")
-	_assert(tiles[6][236] == "H", "Cerulean: telhado do Ginásio existe")
-	_assert(tiles[10][261] == "I", "Cerulean: interior do Centro Pokémon é piso")
+	# 05/09 (Fase 0): eram três coordenadas literais. A intenção é "Cerulean tem
+	# Ginásio e Centro Pokémon, com telhado, interior e porta" — a posição é
+	# acidente e agora vem do retângulo da zona, fonte única.
+	var r_cerulean := AjudaMapa.retangulo_da_zona("cerulean_city")
+	_assert(r_cerulean.size.x > 0, "Cerulean está cadastrada no zones.json")
+	_assert(AjudaMapa.conta_predios(tiles, r_cerulean) >= 2,
+		"Cerulean tem Ginásio e Centro Pokémon (%d prédios)" % AjudaMapa.conta_predios(tiles, r_cerulean))
+	_assert(AjudaMapa.tem_predio_completo(tiles, r_cerulean),
+		"os prédios de Cerulean têm telhado, interior andável E porta")
 
 	# ---- 4. Mt Moon é cena própria (caverna — a única exceção de warp) ----
 	var mt_layout = MapLayouts.get_layout("mt_moon")

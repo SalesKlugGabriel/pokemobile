@@ -44,8 +44,14 @@ func _teste_geral() -> void:
 	var cinnabar_layout = MapLayouts.get_layout("cinnabar_island")
 	var cinnabar_tiles : Array = cinnabar_layout["tiles"]
 	# Mansão: cols locais 14-26, rows 22-28
-	_assert(cinnabar_tiles[22][20] == "H", "Pokémon Mansion: telhado bate com a coordenada real (local a Cinnabar)")
-	_assert(cinnabar_tiles[25][20] == "I", "Pokémon Mansion: interior bate com a coordenada real")
+	# 05/09 (Fase 0): eram duas coordenadas literais dentro do layout de
+	# Cinnabar, que a Fase 3 vai redesenhar. A Mansão é o TERCEIRO prédio da
+	# ilha (além de Ginásio e Centro) — é isso que o teste quer garantir.
+	var r_cinnabar := Rect2i(0, 0, 40, 40)
+	_assert(AjudaMapa.conta_predios(cinnabar_tiles, r_cinnabar) >= 3,
+		"Cinnabar tem 3 prédios: Ginásio, Centro e a Mansão Pokémon (%d)" % AjudaMapa.conta_predios(cinnabar_tiles, r_cinnabar))
+	_assert(AjudaMapa.conta_char(cinnabar_tiles, r_cinnabar, ["H"]) > 20,
+		"há telhado suficiente na ilha pros três prédios")
 
 	var f := FileAccess.open("res://data/world/zones.json", FileAccess.READ)
 	var data = JSON.parse_string(f.get_as_text())
