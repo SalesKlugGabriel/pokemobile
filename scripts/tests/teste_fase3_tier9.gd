@@ -34,7 +34,12 @@ func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
 	_assert(layout["width"] == 465, "world_map tem 465 de largura")
-	_assert(layout["height"] == 330, "world_map tem 330 de altura")
+	# 05/09: era `height == 330` cravado. O mapa cresce quando uma região nova
+	# entra (a Ilha do Deserto somou 44 linhas), e número cravado reprova um
+	# mapa correto. A pergunta certa é se ele cobre a zona mais ao sul que
+	# existe — isso vale pra qualquer crescimento futuro.
+	_assert(AjudaMapa.altura_cobre_as_zonas(int(layout["height"])),
+		"world_map é alto o bastante pra todas as zonas (%d linhas)" % int(layout["height"]))
 
 	var col_ini : int = MapLayouts.VERMILION_COAST_COL_INICIO
 	var col_fim : int = MapLayouts.VERMILION_COAST_COL_FIM

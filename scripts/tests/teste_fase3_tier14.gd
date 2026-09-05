@@ -34,7 +34,7 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] == 465 and layout["height"] == 330,
+	_assert(int(layout["width"]) == 465 and AjudaMapa.altura_cobre_as_zonas(int(layout["height"])),
 		"world_map não mudou de tamanho (Seafoam reaproveita a faixa de colunas de Vermilion)")
 
 	var col_ini : int = MapLayouts.VERMILION_COAST_COL_INICIO

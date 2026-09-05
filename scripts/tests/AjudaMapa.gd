@@ -38,6 +38,23 @@ static func retangulo_da_zona(zone_id: String) -> Rect2i:
 		return Rect2i(0, 0, 0, 0)
 	return Rect2i(int(ret["x"]), int(ret["y"]), int(ret["w"]), int(ret["h"]))
 
+## O mapa é alto o bastante pra caber TODA zona cadastrada?
+##
+## Substitui as asserções `height == 330` espalhadas por 6 arquivos. O mapa
+## cresce quando uma região nova entra — a Ilha do Deserto somou 44 linhas em
+## 05/09 e reprovou seis testes de um mapa correto. Perguntar "cobre as zonas"
+## vale pra qualquer crescimento futuro, e ainda pega o defeito de verdade:
+## uma zona cadastrada fora do mapa, que renderiza vazio.
+static func altura_cobre_as_zonas(altura: int) -> bool:
+	retangulo_da_zona("pallet_town")   # garante o carregamento do cache
+	var mais_ao_sul := 0
+	for id in _zonas:
+		var ret : Dictionary = (_zonas[id] as Dictionary).get("tile_rect", {})
+		if ret.is_empty():
+			continue
+		mais_ao_sul = maxi(mais_ao_sul, int(ret["y"]) + int(ret["h"]))
+	return altura >= mais_ao_sul
+
 ## Quantos tiles de `chars` existem dentro do retângulo.
 static func conta_char(tiles: Array, rect: Rect2i, chars: Array) -> int:
 	var total := 0

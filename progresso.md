@@ -3534,3 +3534,54 @@ caminho. Entra na Fase 2 (arte) e na Fase 4 (posição).
 
 **Próximo passo:** Fase 2 — a arte dos 6 biomas novos + o kit de ponte + a ilha
 desértica.
+
+---
+
+## 05/09/2026 (Fase 2) — O terreno dos 6 biomas + a Ilha do Deserto
+
+**Fase 2 do plano de mundo:** os biomas saíram da Fase 1 com moradores mas sem
+chão. 19 espécies estavam etiquetadas para deserto, ruínas, casa assombrada,
+floresta fechada e glacial e não tinham onde nascer.
+
+**Desenhado (`tools/gerar_biomas.py`), 56 tiles + 3 estruturas:** pântano (chão,
+poça tóxica verde-limão, água parada, junco, tronco morto), montanha (rocha,
+falésia, cume, pedregulho, trilha), deserto (areia seca, duna, cacto, osso,
+gretas), ruínas (mosaico, parede de hieróglifos, pilar de pé, pilar caído,
+degrau), assombrado (assoalho podre, parede rachada, janela quebrada, tábua
+solta, teia), mata fechada (chão de sombra, cogumelo brilhante, raiz,
+samambaia), e o kit de ponte de madeira. Mais 3 estruturas 2x3: pirâmide
+grande, obelisco de hieróglifos e pirâmide pequena.
+
+**Os hieróglifos nunca são letras** — são formas (olho, ave, onda, sol, mão,
+bastão) sorteadas por hash. Lêem como escrita antiga sem virar texto, que é o
+que a regra obrigatória 3 proíbe dentro de tile.
+
+**🔴 Dois erros meus no caminho, os dois já conhecidos e repetidos:**
+1. O ruído do chão saía em QUADRADOS duros — eu devolvia o valor da célula sem
+   interpolar. Corrigido com curva de Perlin. Depois disso ainda quebrava,
+   porque eu passava a escala em pixels e `128/21` não é inteiro: a dobra da
+   borda caía no lugar errado. Agora quem manda é o número de células.
+2. As pirâmides apareceram como retângulos PRETOS no deserto — os tiles de
+   canto são quase todos transparentes e a camada 0 não tem nada por trás.
+   Mesmo defeito das árvores grandes, mesma correção: assar o chão atrás. E o
+   chão certo por estrutura: a pirâmide do templo leva mosaico, não areia,
+   senão fica um retalho claro no meio do piso de pedra.
+
+**A Ilha do Deserto** (decisão do Gabriel): fica no mar ao sul de Vermilion,
+depois da usina — só se alcança de Surf, e por isso não desloca nada do mapa
+canônico de Kanto. Anatomia: mar, anel de praia, deserto com dunas/cactos/ossos,
+e no coração um templo cercado por parede de hieróglifos com abertura ao sul,
+com a pirâmide grande no meio. Mais dois obeliscos e duas pirâmides pequenas na
+areia. O mundo cresceu 44 linhas (330 → 374) para caber.
+
+**Resultado medido: o jogador alcança 150 das 151 espécies.** Eram 17 antes da
+Fase 1 e 132 depois dela. Só falta Articuno, que precisa do gelo das Ilhas
+Seafoam.
+
+**Também nesta leva:** seis testes fixavam `height == 330`. Número cravado
+reprova um mapa correto sempre que uma região nova entra — viraram
+`AjudaMapa.altura_cobre_as_zonas()`, que pergunta se o mapa cobre a zona mais
+ao sul cadastrada e ainda pega o defeito de verdade (zona fora do mapa).
+
+**Testado:** 69 arquivos (`teste_ilha_do_deserto.gd` novo, 17 conferências),
+pelo código de saída. Publicado.

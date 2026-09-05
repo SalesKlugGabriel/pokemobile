@@ -146,6 +146,10 @@ func _desenhar_o_mundo() -> void:
 	for lista in MapLayouts.ARVORES_GRANDES:
 		for co in lista:
 			por_atlas[co] = COR_POR_CHAR["T"]
+	# pirâmides e obelisco da Ilha do Deserto: pedra clara no mapa
+	for lista in MapLayouts.ESTRUTURAS_DESERTO:
+		for co in lista:
+			por_atlas[co] = Color(0.78, 0.66, 0.42)
 
 	var usadas : Array = tm.get_used_cells(0)
 	if usadas.is_empty():

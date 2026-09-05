@@ -39,7 +39,12 @@ func _teste_geral() -> void:
 	# linha de NPC/warp/zona precisou mudar (garantia da arquitetura escolhida) ----
 	var layout = MapLayouts.get_layout("world_map")
 	_assert(layout["width"] == 465, "world_map continua com 940 de largura (Tier 8 não mexe na largura)")
-	_assert(layout["height"] == 330, "world_map continua com 192 de altura no array principal (ramo é pintado à parte)")
+	# 05/09: era `height == 330` cravado. O mapa cresce quando uma região nova
+	# entra (a Ilha do Deserto somou 44 linhas), e número cravado reprova um
+	# mapa correto. A pergunta certa é se ele cobre a zona mais ao sul que
+	# existe — isso vale pra qualquer crescimento futuro.
+	_assert(AjudaMapa.altura_cobre_as_zonas(int(layout["height"])),
+		"world_map é alto o bastante pra todas as zonas (%d linhas)" % int(layout["height"]))
 
 	# ---- 1. Pinta um TileMap de verdade (é assim que o jogo realmente desenha) ----
 	var tileset := load("res://assets/tilesets/overworld.tres") as TileSet

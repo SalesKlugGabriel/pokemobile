@@ -63,27 +63,31 @@ const BLOCKED_TILE_CHARS := ["W", "~", "T", "R", "E", "d", "H", "X", "N", "O", "
 ## "tiles" = nasce EM CIMA do tile. "adjacent_to" = nasce num tile livre ao
 ## lado do obstáculo (não dá pra nascer dentro de uma árvore ou de uma rocha).
 const BIOMA_POR_TERRENO := {
-	"plains":      {"tiles": ["."]},
+	"plains":      {"tiles": [".", "A"]},
 	"forest":      {"adjacent_to": ["T", "N", "O"]},
 	"beach":       {"tiles": ["S"]},
 	"underwater":  {"tiles": ["U"]},
-	"mountain":    {"adjacent_to": ["R", "L"]},
 	"cave":        {"adjacent_to": ["B"]},
 	"volcanic":    {"adjacent_to": ["c"]},
 	"power_plant": {"adjacent_to": ["E"]},
-	# O mato alto é onde o jogo clássico esconde o encontro. Sem terreno
-	# próprio ainda, ele hospeda o PÂNTANO: é o bioma de Veneno, e mato alto
-	# é onde as cobras e os insetos venenosos já estavam.
-	"swamp":       {"tiles": ["A"]},
+	# ── biomas da Fase 2 (05/09): agora têm terreno próprio ────────────────
+	# Antes, quatro deles não tinham chão nenhum e as 19 espécies etiquetadas
+	# pra eles não podiam nascer em lugar nenhum do mundo.
+	"swamp":       {"tiles": ["z", "!", "("]},
+	"mountain":    {"tiles": ["^", ":"]},
+	"desert":      {"tiles": ["_", "'", "+", ";"]},
+	"ruins":       {"tiles": ["%", "="]},
+	"haunted":     {"tiles": ["&", "$", "@"]},
+	"deep_forest": {"tiles": ["9", "?", "`"]},
 }
 
 ## Biomas SEM terreno próprio ainda — as espécies deles ficam de fora até a
 ## Fase 4 do plano desenhar as ilhas. Está escrito aqui, e não descoberto por
 ## silêncio, porque "esse Pokémon não aparece" é indistinguível de bug quando
 ## não há uma lista dizendo quais não aparecem ainda.
-const BIOMAS_SEM_TERRENO : Array[String] = [
-	"deep_forest", "desert", "ruins", "haunted", "glacial",
-]
+## Sobrou só o glacial: as Ilhas Seafoam existem no mapa, mas ainda não têm
+## terreno de gelo próprio. Entra junto com o desenho delas.
+const BIOMAS_SEM_TERRENO : Array[String] = ["glacial"]
 
 const SPAWNS_PER_CATEGORY : int = 2   # quantos de cada categoria, por zona (teto por zona)
 const LEVEL_MIN_TERRAIN   : int = 3

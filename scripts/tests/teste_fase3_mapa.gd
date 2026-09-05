@@ -36,7 +36,12 @@ func _teste_geral() -> void:
 	# largura cresce a cada tier novo (Tier 2 já somou Rota3+MtMoon+Rota4+
 	# Cerulean a leste de Pewter) — aqui só confere a ALTURA, que é o que
 	# esta fase (Pewter+Rota2, ao norte) realmente controla.
-	_assert(H == 330, "world_map tem 192 de altura (Pewter+Rota2 somaram 72 linhas)")
+	# 05/09: era `height == 330` cravado. O mapa cresce quando uma região nova
+	# entra (a Ilha do Deserto somou 44 linhas), e número cravado reprova um
+	# mapa correto. A pergunta certa é se ele cobre a zona mais ao sul que
+	# existe — isso vale pra qualquer crescimento futuro.
+	_assert(AjudaMapa.altura_cobre_as_zonas(H),
+		"world_map é alto o bastante pra todas as zonas (%d linhas)" % H)
 
 	# ---- 1. Pewter City ----
 	# 05/09 (Fase 0 do plano de mundo): era coordenada literal —

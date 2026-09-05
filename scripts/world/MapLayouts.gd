@@ -51,6 +51,47 @@ const CHAR_MAP : Dictionary = {
 	# (correção do Gabriel: "as paredes estão sendo representadas incorretamente
 	# como se fossem apenas janelas"). Gerada a partir da faixa limpa do próprio
 	# "W", então casa perfeitamente com ele — ver tools/ (parede lisa em (4,8)).
+	# ── Biomas da Fase 2 (05/09) ────────────────────────────────────────────
+	# Bases andáveis de cada bioma novo. As letras acabaram (61 dos 62 chars
+	# alfanuméricos já estavam em uso), então daqui em diante o mapa usa
+	# pontuação — com mnemônico onde deu: "^" montanha, "_" deserto liso.
+	"z": Vector2i(0, 14),   # pântano — chão
+	"^": Vector2i(0, 15),   # montanha — rocha
+	"_": Vector2i(0, 16),   # deserto — areia seca
+	"%": Vector2i(0, 17),   # ruínas — mosaico
+	"&": Vector2i(0, 18),   # assombrado — assoalho podre
+	"9": Vector2i(0, 19),   # mata fechada — chão de sombra
+	# objetos de pântano
+	"!": Vector2i(4, 14),   # poça tóxica (andável, envenena — Fase 6)
+	"0": Vector2i(5, 14),   # água parada (bloqueia)
+	"(": Vector2i(6, 14),   # junco
+	")": Vector2i(7, 14),   # tronco morto (bloqueia)
+	# montanha
+	"/": Vector2i(4, 15),   # falésia (bloqueia)
+	"<": Vector2i(5, 15),   # cume (bloqueia)
+	">": Vector2i(6, 15),   # pedregulho (bloqueia)
+	":": Vector2i(7, 15),   # trilha
+	# deserto
+	"'": Vector2i(4, 16),   # duna
+	"*": Vector2i(5, 16),   # cacto (bloqueia)
+	";": Vector2i(6, 16),   # osso
+	"+": Vector2i(7, 16),   # gretas
+	# ruínas
+	"[": Vector2i(4, 17),   # parede de hieróglifos (bloqueia)
+	"|": Vector2i(5, 17),   # pilar de pé (bloqueia)
+	"]": Vector2i(6, 17),   # pilar caído (bloqueia)
+	"=": Vector2i(7, 17),   # degrau
+	# assombrado
+	"{": Vector2i(4, 18),   # parede rachada (bloqueia)
+	"}": Vector2i(5, 18),   # janela quebrada (bloqueia)
+	"$": Vector2i(6, 18),   # tábua solta
+	"@": Vector2i(7, 18),   # teia
+	# mata fechada
+	"?": Vector2i(4, 19),   # cogumelo brilhante
+	"`": Vector2i(5, 19),   # raiz
+	# ponte (as pontas são escolhidas por pós-passada, ver `costurar_pontes`)
+	"#": Vector2i(0, 20),   # ponte horizontal
+	"-": Vector2i(3, 20),   # ponte vertical
 	"w": Vector2i(4, 8),
 	# Beira da praia (04/09): o encontro areia/mar, que não existia — a costa era
 	# uma linha reta ("parece uma bandeira"). Nome = de que lado fica a AREIA.
@@ -161,7 +202,10 @@ const ROUTE11_LESTE_COLS : int = 30
 const ROUTE11_COL_INICIO : int = SPINE_COL_INICIO + CERULEAN_COLS  # 280
 
 const W_TOTAL : int = LAVENDER_COL_INICIO + LAVENDER_COLS + 5   # 465 (margem de borda)
-const H_TOTAL : int = 330   # cobre Cerulean→Saffron→Vermilion→costa→Power Plant + margem
+## +44 em 05/09: a Ilha do Deserto (pedido do Gabriel) fica no mar ao sul da
+## usina, e sem esta margem o mapa acabava antes dela — a faixa era gerada e o
+## array de linhas nem chegava lá.
+const H_TOTAL : int = 374   # Cerulean→Saffron→Vermilion→costa→usina→Ilha do Deserto
 
 # Tier 8 (01/09): Rota 24 → Rota 25 → Casa do Bill — desvio ao NORTE de
 # Cerulean (não é continuar pra leste). Diferente de Pewter/Rota 2 (que
@@ -227,6 +271,11 @@ const SEAFOAM_ROWS : int = 40
 # artificial pequena com um PRÉDIO (fachada, mesmo padrão de Silph Co./
 # Torre Pokémon) — usina elétrica, não bioma.
 const POWERPLANT_ROWS : int = 30
+## Ilha do Deserto (05/09) — a decisão do Gabriel sobre o único bioma que Kanto
+## não tinha. Fica no mar ao SUL de Vermilion, depois da usina: só se alcança de
+## Surf, e por isso não desloca nada do mapa canônico. É onde ficam as pirâmides,
+## os hieróglifos e os Pokémon Psíquicos.
+const ILHA_DESERTO_ROWS : int = 44
 
 # Tier 18 (01/09): Rota 22 → Victory Road (caverna, opcional/lateral, mesmo
 # padrão do Mt Moon/Rock Tunnel — não bloqueia, dá pra contornar) → Indigo
@@ -344,6 +393,8 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 			return _seafoam_cell(c, r - VERMILION_COAST_ROW_INICIO - COASTLINE_ROWS - ARQUIPELAGO_ROWS, W)
 		if r < VERMILION_COAST_ROW_INICIO + COASTLINE_ROWS + ARQUIPELAGO_ROWS + SEAFOAM_ROWS + POWERPLANT_ROWS:
 			return _powerplant_cell(c, r - VERMILION_COAST_ROW_INICIO - COASTLINE_ROWS - ARQUIPELAGO_ROWS - SEAFOAM_ROWS, W)
+		if r < VERMILION_COAST_ROW_INICIO + COASTLINE_ROWS + ARQUIPELAGO_ROWS + SEAFOAM_ROWS + POWERPLANT_ROWS + ILHA_DESERTO_ROWS:
+			return _ilha_deserto_cell(c, r - VERMILION_COAST_ROW_INICIO - COASTLINE_ROWS - ARQUIPELAGO_ROWS - SEAFOAM_ROWS - POWERPLANT_ROWS, W)
 
 	# ── Rota 11 → Diglett's Cave, a LESTE de Vermilion (reorganização de
 	# 02/09) — mesma faixa de linhas de Vermilion ─────────────────────────
@@ -938,6 +989,90 @@ static func _vermilion_coastline_cell(c: int, cr: int, W: int) -> String:
 # palmeira ainda. SEM prédio, SEM NPC — ilhas "cruas", prontas pra quando
 # Surf/Fly destravar o acesso; não faz sentido povoar antes disso.
 # ──────────────────────────────────────────────────────────────────────────────
+## Ilha do Deserto — pirâmides, obelisco e ruínas (05/09).
+##
+## Pedido do Gabriel: "uma ilha desértica com pirâmides e hieróglifos abaixo de
+## Vermilion". Resolve o único bioma que Kanto não tem (deserto e ruínas, casa
+## dos 14 Pokémon Psíquicos) sem tirar nada do lugar — é mar novo ao sul, e
+## chega-se de Surf.
+##
+## Anatomia, de fora pra dentro: mar, anel de praia, deserto com dunas e
+## cactos, e no coração um recinto de ruínas cercado por parede de hieróglifos,
+## com a pirâmide grande no meio. As estruturas 2x3 são plantadas por
+## `plantar_estruturas_deserto`, uma pós-passada — do mesmo jeito que as árvores
+## grandes —, porque uma estrutura de 6 tiles não cabe numa decisão tile a tile.
+static func _ilha_deserto_cell(c: int, cr: int, W: int) -> String:
+	var vc := c - VERMILION_COAST_COL_INICIO
+	var dx := float(vc - 30)
+	var dy := float(cr - 22)
+	var ang := atan2(dy, dx)
+	var dist := sqrt(dx * dx + dy * dy)
+	# contorno irregular: três senoides, pra ilha não sair como um disco
+	var raio := 25.0 + 3.5 * sin(ang * 3.0) + 2.0 * sin(ang * 5.0) + 1.5 * sin(ang * 7.0)
+
+	if dist >= raio:
+		return "~"
+	if dist >= raio - 3.0:
+		return "S"                       # anel de praia
+
+	# ── recinto das ruínas, no coração da ilha ──
+	var rx : int = absi(vc - 30)
+	var ry : int = absi(cr - 22)
+	# 05/09: o recinto era 23x17 e lia como estacionamento de mosaico. Menor,
+	# ele vira o que devia ser — um templo cercado, não uma praça.
+	if rx <= 8 and ry <= 6:
+		if rx == 8 or ry == 6:
+			# parede de hieróglifos, com uma abertura ao sul pra entrar
+			if ry == 6 and dy > 0 and rx <= 2:
+				return "%"
+			return "["
+		# piso do templo com degraus perto da parede, mosaico no miolo
+		if rx >= 7 or ry >= 5:
+			return "="
+		return "%"
+
+	# ── deserto ──
+	var d := _espalhar_sal(vc, cr, 880)
+	if d < 2:
+		return "*"                       # cacto
+	if d < 4:
+		return "'"                       # duna
+	if d < 5:
+		return ";"                       # osso
+	if d < 7:
+		return "+"                       # gretas
+	return "_"
+
+## Planta as estruturas 2x3 do deserto: a pirâmide grande no centro do recinto
+## de ruínas, o obelisco e a pirâmide pequena espalhados pela areia.
+##
+## Pós-passada pelo mesmo motivo das árvores grandes: uma estrutura de 6 tiles
+## não cabe numa decisão célula a célula, e desenhá-la tile a tile é o que
+## produziu as árvores cortadas ao meio corrigidas em 04/09.
+static func plantar_estruturas_deserto(tilemap: TileMap) -> void:
+	var base_r : int = (VERMILION_COAST_ROW_INICIO + COASTLINE_ROWS + ARQUIPELAGO_ROWS
+		+ SEAFOAM_ROWS + POWERPLANT_ROWS)
+	var base_c : int = VERMILION_COAST_COL_INICIO
+	# (coluna local, linha local, índice da estrutura)
+	# Posições conferidas contra o contorno da ilha e contra o recinto: as duas
+	# pirâmides pequenas e os dois obeliscos ficam FORA da parede (na primeira
+	# versão um obelisco caiu em cima da própria parede do templo), e a grande
+	# fica no centro do recinto, que é o motivo de o recinto existir.
+	var plantio : Array = [
+		[29, 19, 0],   # pirâmide grande — centro do templo
+		[14, 10, 1],   # obelisco — noroeste, na areia
+		[44, 10, 1],   # obelisco — nordeste, na areia
+		[18, 32, 2],   # pirâmide pequena — sudoeste
+		[40, 32, 2],   # pirâmide pequena — sudeste
+	]
+	for item in plantio:
+		var ancora := Vector2i(base_c + int(item[0]), base_r + int(item[1]))
+		var pedacos : Array = ESTRUTURAS_DESERTO[int(item[2])]
+		for lin in 3:
+			for col in 2:
+				tilemap.set_cell(0, Vector2i(ancora.x + col, ancora.y + lin), 0,
+					pedacos[lin * 2 + col])
+
 static func _arquipelago_tropical_cell(c: int, cr: int, W: int) -> String:
 	var vc := c - VERMILION_COAST_COL_INICIO
 
@@ -1467,6 +1602,15 @@ static func amaciar_bordas(tilemap: TileMap, passadas: int = 3) -> void:
 ## e sem fundo abririam buraco no mapa (a camada 0 não tem nada por trás). Como
 ## consequência, duas árvores grandes não podem se sobrepor — o tile de cima de
 ## uma apagaria a copa da outra. Por isso o plantio usa uma grade fixa.
+## Estruturas 2x3 do deserto (Fase 2, 05/09) — pirâmide grande, obelisco de
+## hieróglifos e pirâmide pequena. Mesmo princípio das árvores: cada uma é UM
+## desenho de 256x384 fatiado em 6 tiles, então a silhueta é contínua entre eles.
+const ESTRUTURAS_DESERTO : Array = [
+	[Vector2i(0, 21), Vector2i(1, 21), Vector2i(0, 22), Vector2i(1, 22), Vector2i(0, 23), Vector2i(1, 23)],  # pirâmide grande
+	[Vector2i(2, 21), Vector2i(3, 21), Vector2i(2, 22), Vector2i(3, 22), Vector2i(2, 23), Vector2i(3, 23)],  # obelisco
+	[Vector2i(4, 21), Vector2i(5, 21), Vector2i(4, 22), Vector2i(5, 22), Vector2i(4, 23), Vector2i(5, 23)],  # pirâmide pequena
+]
+
 const ARVORES_GRANDES : Array = [
 	[Vector2i(0, 11), Vector2i(1, 11), Vector2i(0, 12), Vector2i(1, 12), Vector2i(0, 13), Vector2i(1, 13)],  # carvalho
 	[Vector2i(2, 11), Vector2i(3, 11), Vector2i(2, 12), Vector2i(3, 12), Vector2i(2, 13), Vector2i(3, 13)],  # pinheiro
@@ -2476,6 +2620,14 @@ const VARIANTES_TERRENO : Dictionary = {
 	"P": [Vector2i(1, 0), Vector2i(3, 7), Vector2i(4, 7), Vector2i(5, 7)],
 	"G": [Vector2i(4, 0), Vector2i(6, 7), Vector2i(7, 7), Vector2i(0, 8)],
 	"S": [Vector2i(3, 0), Vector2i(1, 8), Vector2i(2, 8), Vector2i(3, 8)],
+	# Biomas da Fase 2: base + 3 variantes cada, geradas com sal diferente.
+	# Sem elas, uma ilha inteira de deserto seria o mesmo tile repetido 900 vezes.
+	"z": [Vector2i(0, 14), Vector2i(1, 14), Vector2i(2, 14), Vector2i(3, 14)],
+	"^": [Vector2i(0, 15), Vector2i(1, 15), Vector2i(2, 15), Vector2i(3, 15)],
+	"_": [Vector2i(0, 16), Vector2i(1, 16), Vector2i(2, 16), Vector2i(3, 16)],
+	"%": [Vector2i(0, 17), Vector2i(1, 17), Vector2i(2, 17), Vector2i(3, 17)],
+	"&": [Vector2i(0, 18), Vector2i(1, 18), Vector2i(2, 18), Vector2i(3, 18)],
+	"9": [Vector2i(0, 19), Vector2i(1, 19), Vector2i(2, 19), Vector2i(3, 19)],
 }
 
 ## Agrupa as células de PISO INTERNO em prédios separados (regiões conectadas).
@@ -2642,6 +2794,7 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 	# Árvores grandes por último entre as passadas de terreno: elas leem a mata
 	# JÁ amaciada, então a floresta grande segue a silhueta orgânica nova.
 	plantar_arvores_grandes(tilemap)
+	plantar_estruturas_deserto(tilemap)
 	# Beira da praia: por último, com o mapa inteiro já pintado (inclusive os
 	# ramos em linha/coluna negativa acima) — a costa depende de quem é vizinho
 	# de quem, então não dá pra decidir tile a tile na hora de pintar.

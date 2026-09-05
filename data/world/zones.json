@@ -251,6 +251,20 @@
       "npcs": []
     },
     {
+      "id": "ilha_do_deserto",
+      "name": "Ilha do Deserto",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 220,
+        "y": 319,
+        "w": 62,
+        "h": 44
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [],
+      "npcs": []
+    },
+    {
       "id": "lavender_town",
       "name": "Lavender Town",
       "region": "kanto",
@@ -1686,12 +1700,35 @@
       "name": "Caverna de Cerulean - 1º Andar",
       "region": "kanto",
       "map_id": "cerulean_cave_f1",
-      "tile_rect": { "x": 0, "y": 0, "w": 20, "h": 30 },
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 20,
+        "h": 30
+      },
       "bgm": "mt_moon",
       "wild_pokemon": [
-        { "id": 74, "name": "Geodude", "level_min": 46, "level_max": 48, "weight": 35 },
-        { "id": 63, "name": "Abra", "level_min": 46, "level_max": 48, "weight": 35 },
-        { "id": 41, "name": "Zubat", "level_min": 46, "level_max": 48, "weight": 30 }
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 46,
+          "level_max": 48,
+          "weight": 35
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 46,
+          "level_max": 48,
+          "weight": 35
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 46,
+          "level_max": 48,
+          "weight": 30
+        }
       ],
       "npcs": [],
       "notes": "Cena própria (CeruleanCave_Fx.tscn, 03/09) — 7 andares no total, molde do Mt Moon (retângulo + rochas espalhadas, corredor central sempre livre). MAIN-10 (traverse_floors=7) só dispara floor_reached de verdade no 7º andar (mesmo padrão de Pokémon Tower/Silph Co: só o andar mais fundo tem structure_id/floor_number, reach_floor já usa o MAIOR andar visto)."
@@ -1701,12 +1738,35 @@
       "name": "Caverna de Cerulean - 2º Andar",
       "region": "kanto",
       "map_id": "cerulean_cave_f2",
-      "tile_rect": { "x": 0, "y": 0, "w": 20, "h": 30 },
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 20,
+        "h": 30
+      },
       "bgm": "mt_moon",
       "wild_pokemon": [
-        { "id": 74, "name": "Geodude", "level_min": 47, "level_max": 49, "weight": 35 },
-        { "id": 63, "name": "Abra", "level_min": 47, "level_max": 49, "weight": 35 },
-        { "id": 41, "name": "Zubat", "level_min": 47, "level_max": 49, "weight": 30 }
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 47,
+          "level_max": 49,
+          "weight": 35
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 47,
+          "level_max": 49,
+          "weight": 35
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 47,
+          "level_max": 49,
+          "weight": 30
+        }
       ],
       "npcs": []
     },
@@ -1715,12 +1775,35 @@
       "name": "Caverna de Cerulean - 3º Andar",
       "region": "kanto",
       "map_id": "cerulean_cave_f3",
-      "tile_rect": { "x": 0, "y": 0, "w": 20, "h": 30 },
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 20,
+        "h": 30
+      },
       "bgm": "mt_moon",
       "wild_pokemon": [
-        { "id": 75, "name": "Graveler", "level_min": 48, "level_max": 50, "weight": 35 },
-        { "id": 63, "name": "Abra", "level_min": 48, "level_max": 50, "weight": 35 },
-        { "id": 41, "name": "Zubat", "level_min": 48, "level_max": 50, "weight": 30 }
+        {
+          "id": 75,
+          "name": "Graveler",
+          "level_min": 48,
+          "level_max": 50,
+          "weight": 35
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 48,
+          "level_max": 50,
+          "weight": 35
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 48,
+          "level_max": 50,
+          "weight": 30
+        }
       ],
       "npcs": []
     },
@@ -1729,12 +1812,35 @@
       "name": "Caverna de Cerulean - 4º Andar",
       "region": "kanto",
       "map_id": "cerulean_cave_f4",
-      "tile_rect": { "x": 0, "y": 0, "w": 20, "h": 30 },
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 20,
+        "h": 30
+      },
       "bgm": "mt_moon",
       "wild_pokemon": [
-        { "id": 75, "name": "Graveler", "level_min": 49, "level_max": 52, "weight": 40 },
-        { "id": 41, "name": "Zubat", "level_min": 49, "level_max": 52, "weight": 30 },
-        { "id": 63, "name": "Abra", "level_min": 49, "level_max": 52, "weight": 30 }
+        {
+          "id": 75,
+          "name": "Graveler",
+          "level_min": 49,
+          "level_max": 52,
+          "weight": 40
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 49,
+          "level_max": 52,
+          "weight": 30
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 49,
+          "level_max": 52,
+          "weight": 30
+        }
       ],
       "npcs": []
     },
@@ -1743,12 +1849,35 @@
       "name": "Caverna de Cerulean - 5º Andar",
       "region": "kanto",
       "map_id": "cerulean_cave_f5",
-      "tile_rect": { "x": 0, "y": 0, "w": 20, "h": 30 },
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 20,
+        "h": 30
+      },
       "bgm": "mt_moon",
       "wild_pokemon": [
-        { "id": 75, "name": "Graveler", "level_min": 51, "level_max": 53, "weight": 40 },
-        { "id": 41, "name": "Zubat", "level_min": 51, "level_max": 53, "weight": 30 },
-        { "id": 63, "name": "Abra", "level_min": 51, "level_max": 53, "weight": 30 }
+        {
+          "id": 75,
+          "name": "Graveler",
+          "level_min": 51,
+          "level_max": 53,
+          "weight": 40
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 51,
+          "level_max": 53,
+          "weight": 30
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 51,
+          "level_max": 53,
+          "weight": 30
+        }
       ],
       "npcs": []
     },
@@ -1757,12 +1886,35 @@
       "name": "Caverna de Cerulean - 6º Andar",
       "region": "kanto",
       "map_id": "cerulean_cave_f6",
-      "tile_rect": { "x": 0, "y": 0, "w": 20, "h": 30 },
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 20,
+        "h": 30
+      },
       "bgm": "mt_moon",
       "wild_pokemon": [
-        { "id": 75, "name": "Graveler", "level_min": 53, "level_max": 55, "weight": 40 },
-        { "id": 41, "name": "Zubat", "level_min": 53, "level_max": 55, "weight": 30 },
-        { "id": 63, "name": "Abra", "level_min": 53, "level_max": 55, "weight": 30 }
+        {
+          "id": 75,
+          "name": "Graveler",
+          "level_min": 53,
+          "level_max": 55,
+          "weight": 40
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 53,
+          "level_max": 55,
+          "weight": 30
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 53,
+          "level_max": 55,
+          "weight": 30
+        }
       ],
       "npcs": []
     },
@@ -1771,7 +1923,12 @@
       "name": "Caverna de Cerulean - 7º Andar (Mewtwo)",
       "region": "kanto",
       "map_id": "cerulean_cave_f7",
-      "tile_rect": { "x": 0, "y": 0, "w": 20, "h": 30 },
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 20,
+        "h": 30
+      },
       "bgm": "mt_moon",
       "wild_pokemon": [],
       "npcs": [],

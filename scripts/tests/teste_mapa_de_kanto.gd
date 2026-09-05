@@ -84,6 +84,9 @@ func _process(_delta: float) -> bool:
 	for lista in MapLayouts.ARVORES_GRANDES:
 		for co in lista:
 			conhecidas[co] = true
+	for lista in MapLayouts.ESTRUTURAS_DESERTO:
+		for co in lista:
+			conhecidas[co] = true
 
 	var desconhecidas := {}
 	for celula in tm.get_used_cells(0):

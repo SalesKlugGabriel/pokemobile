@@ -33,7 +33,7 @@ func _assert(cond: bool, label: String) -> void:
 func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] == 465 and layout["height"] == 330,
+	_assert(int(layout["width"]) == 465 and AjudaMapa.altura_cobre_as_zonas(int(layout["height"])),
 		"world_map não mudou de tamanho (Rocket Hideout é só uma porta nova em Celadon)")
 
 	# ---- 1. A entrada existe nos globais certos (ce24-31 dentro de Celadon —
