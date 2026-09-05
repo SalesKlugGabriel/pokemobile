@@ -189,6 +189,14 @@ func _ponte_de_feedback() -> void:
 	# faz achar o problema.
 	for campo in ["mapa", "tile", "fps", "pokemon"]:
 		_assert(fonte.contains("\"%s\"" % campo), "o recado leva o contexto '%s' automaticamente" % campo)
+	# O primeiro recado real que a ponte entregou chegou com "versao": "" e
+	# "pokemon": "" — `get(chave, padrão)` só usa o padrão quando a chave NÃO
+	# EXISTE, e as duas existem vazias. Campo vazio é pior que campo ausente:
+	# parece que o dado foi coletado.
+	_assert(fonte.contains("if versao.strip_edges() == \"\":"),
+		"versão vazia vira 'dev' em vez de string vazia")
+	_assert(fonte.contains("if nome.strip_edges() == \"\":"),
+		"Pokémon sem apelido cai pro nome da espécie, não fica vazio")
 	_assert(FileAccess.get_file_as_string("res://project.godot").contains("PonteDeFeedback="),
 		"a ponte está registrada como autoload")
 

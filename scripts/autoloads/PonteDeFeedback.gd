@@ -210,8 +210,15 @@ func _enviar() -> void:
 ## Público e sem efeito colateral pra dar pra testar headless: é o dado que ele
 ## nunca ia digitar à mão e que é o que de fato me faz achar o problema.
 func coletar_contexto() -> Dictionary:
+	# `get_setting(chave, padrão)` só usa o padrão quando a chave NÃO EXISTE —
+	# aqui ela existe e é vazia, então o padrão nunca entrava e o recado
+	# chegava com "versao": "". Achado no primeiro recado real que a ponte
+	# entregou, não a olho no código.
+	var versao := str(ProjectSettings.get_setting("application/config/version", ""))
+	if versao.strip_edges() == "":
+		versao = "dev"
 	var ctx := {
-		"versao": ProjectSettings.get_setting("application/config/version", "dev"),
+		"versao": versao,
 		"fps": Engine.get_frames_per_second(),
 		"tela": "%dx%d" % [get_viewport().get_visible_rect().size.x, get_viewport().get_visible_rect().size.y],
 	}
@@ -230,7 +237,17 @@ func coletar_contexto() -> Dictionary:
 		var time : Array = salvar.get_team()
 		if not time.is_empty() and time[0] is Dictionary:
 			var ativo : Dictionary = time[0]
-			ctx["pokemon"] = str(ativo.get("nickname", ativo.get("species_id", "?")))
+			# Mesma armadilha do campo de versão: `nickname` EXISTE e é vazio
+			# quando o Pokémon não foi apelidado, então o padrão do `get()`
+			# nunca entrava. Cai pro nome da espécie, e só depois pro número.
+			var nome := str(ativo.get("nickname", ""))
+			if nome.strip_edges() == "":
+				var id_especie : int = int(ativo.get("species_id", 0))
+				var dados := GameData.get_species(id_especie) if id_especie > 0 else {}
+				nome = str(dados.get("name", "")) if not dados.is_empty() else ""
+				if nome == "":
+					nome = "#%d" % id_especie
+			ctx["pokemon"] = nome
 			ctx["nivel"] = int(ativo.get("level", 0))
 	return ctx
 
