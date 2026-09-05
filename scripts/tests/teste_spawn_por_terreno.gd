@@ -55,10 +55,16 @@ func _process(_delta: float) -> bool:
 	_assert(Vector2i(0, 0) in pos_rochoso, "rochoso: vizinho a 2 tiles de distância (raio 2) também conta")
 	_assert(Vector2i(0, 4) not in pos_rochoso, "rochoso: tile longe demais de qualquer pedra (fora do raio 2 das duas) não conta")
 
-	# ---- 3. Todas as categorias têm pelo menos 1 espécie cadastrada ----
-	for cat in mgr.TERRAIN_SPECIES.keys():
-		var info : Dictionary = mgr.TERRAIN_SPECIES[cat]
-		_assert(not info.get("species", []).is_empty(), "categoria '%s' tem espécie cadastrada" % cat)
+	# ---- 3. Todo bioma com terreno tem quem morar nele ----
+	# 05/09: era `TERRAIN_SPECIES`, tabela com as espécies cravadas no código —
+	# 17 dos 151 Pokémon, e a única das TRÊS fontes de verdade que rodava. Agora
+	# o SpawnManager pergunta ao species.json quem vive em cada bioma, então o
+	# que este teste tem que garantir mudou: não é mais "a lista não está
+	# vazia", é "o bioma tem morador de verdade nos dados do jogo".
+	for bioma in mgr.BIOMA_POR_TERRENO.keys():
+		var moradores : Array = mgr.especies_do_bioma(str(bioma))
+		_assert(not moradores.is_empty(),
+			"bioma '%s' tem %d espécies morando nele" % [bioma, moradores.size()])
 
 	# ---- 4. _populate_zone_by_terrain: nasce de verdade, na categoria certa ----
 	# Zona sintética pequena, dentro dos limites do world_map real (a função
@@ -77,8 +83,8 @@ func _process(_delta: float) -> bool:
 	# Espécie nascida bate com alguma categoria de terreno (nunca uma espécie
 	# fora da tabela — prova que a escolha veio do terreno, não de sorteio livre).
 	var todas_especies_validas : Array = []
-	for cat2 in mgr.TERRAIN_SPECIES.keys():
-		todas_especies_validas.append_array(mgr.TERRAIN_SPECIES[cat2]["species"])
+	for bioma2 in mgr.BIOMA_POR_TERRENO.keys():
+		todas_especies_validas.append_array(mgr.especies_do_bioma(str(bioma2), "teste_route1"))
 	var todos_validos := true
 	for inst in mgr._wild_instances:
 		if int(inst.species_id) not in todas_especies_validas:

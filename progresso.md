@@ -3430,3 +3430,53 @@ espalhada por ~30 funções geradoras com dezenas de testes fixando posição;
 reescrever isso é um projeto à parte, não um ajuste. O que dava pra consertar
 sem esse risco — vazios, hachura, divisas, costa, escala das árvores — está
 feito.
+
+---
+
+## 05/09/2026 (Fase 1 do plano de mundo) — Bioma virou a fonte única
+
+**O achado que reordenou o plano:** o jogo tinha TRÊS fontes de verdade sobre
+onde cada Pokémon vive, e a única ligada era a pior.
+- `species.json → biomes`: as 151 espécies, 8 biomas — **ninguém lia**.
+- `zones.json → wild_pokemon`: 56 zonas, 66 espécies — `get_spawns()` existia e
+  **nunca era chamado**.
+- `SpawnManager.TERRAIN_SPECIES`: **17 espécies cravadas no código** — era esta
+  que rodava.
+
+Ou seja: 134 Pokémon existiam nos dados e nunca apareciam no jogo.
+
+**O que eu fiz.** As 151 espécies foram re-etiquetadas pelas 10 regras do
+Gabriel (Veneno no pântano, Água na costa e submerso, Planta/Inseto na
+floresta, Pedra/Terra na montanha, Voador em floresta e montanha, Psíquico no
+deserto e ruínas, Fantasma no assombrado, Fogo no vulcão, Elétrico na usina,
+Fada na floresta fechada). 106 mudaram de bioma. Escrito como ferramenta
+(`tools/etiquetar_biomas.py`) e não à mão: as regras vão mudar de novo na Fase
+4, e 151 decisões soltas ninguém confere depois.
+
+Seis biomas novos entraram: pântano, montanha, deserto, ruínas, assombrado e
+floresta fechada. O `SpawnManager` perdeu a tabela cravada e passou a perguntar
+tile → bioma → quem vive lá, com o `zones.json` como ajuste fino por região (é
+assim que o Pikachu é comum na Floresta de Viridian).
+
+**Resultado medido: o jogador alcança 132 das 151 espécies. Eram 17.** As 19
+que faltam são as dos biomas que ainda não têm terreno próprio (deserto,
+ruínas, assombrado, floresta fechada, glacial) — entram na Fase 4. A lista está
+declarada no código (`BIOMAS_SEM_TERRENO`), não escondida: "esse Pokémon não
+aparece" é indistinguível de bug quando não há uma lista dizendo quais não
+aparecem ainda.
+
+**Decisão de design que o teste forçou:** Gastly/Haunter/Gengar são
+Fantasma/Veneno — a regra do Fantasma pede casa assombrada, a do Veneno pede
+pântano, e as duas não podem valer juntas. Fantasma manda. Escrito como
+PRECEDÊNCIA (Fantasma > Veneno, Fada > Normal, Gelo > Água) e não como três
+exceções, porque vale pra qualquer Pokémon que entre depois.
+
+**Testado:** 67 arquivos, 0 falhas (`teste_biomas.gd` novo, com 19
+conferências). Publicado.
+
+**Correção do Gabriel sobre a forma do mundo:** a referência de arquipélago que
+ele mandou é a LINGUAGEM VISUAL, não um mundo novo — Kanto continua Kanto, com
+as cidades e rotas onde estão. O plano foi corrigido nisso.
+
+**Próximo passo:** Fase 0 (soltar as amarras) ou Fase 2 (arte dos 6 biomas
+novos), a decidir com ele.

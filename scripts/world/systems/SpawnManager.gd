@@ -44,14 +44,46 @@ const BLOCKED_TILE_CHARS := ["W", "~", "T", "R", "E", "d", "H", "X", "N", "O", "
 ## category -> {"tiles": [chars onde nasce direto]} OU {"adjacent_to": [chars
 ## obstáculo, nasce num vizinho livre]}, mais "species" (lista de IDs — a
 ## mesma categoria pode sortear qualquer uma delas, sem se prender a 1 só).
-const TERRAIN_SPECIES := {
-	"grass":       {"tiles": ["."],               "species": [43, 44, 70]},        # Oddish, Gloom, Weepinbell
-	"tall_grass":  {"tiles": ["A"],                "species": [23, 24, 14, 15]},    # Ekans, Arbok, Kakuna, Beedrill
-	"beach_water": {"tiles": ["S", "U"],           "species": [7, 79, 98]},         # Squirtle, Slowpoke, Krabby
-	"rocky":       {"adjacent_to": ["R", "L"],     "species": [74, 75, 76, 111]},   # Geodude, Graveler, Golem, Rhyhorn
-	"volcanic":    {"adjacent_to": ["c"],          "species": [77, 126, 58]},       # Ponyta, Magmar, Growlithe
-	"forest":      {"adjacent_to": ["T", "N", "O"], "species": [10, 11, 16, 25]},   # Caterpie, Metapod, Pidgey, Pikachu
+## De que BIOMA é cada tile do mapa (Fase 1 do plano de mundo, 05/09).
+##
+## 🔴 O que isto substitui: `TERRAIN_SPECIES`, uma tabela com as espécies
+## CRAVADAS no código — 17 dos 151 Pokémon. Era a terceira e pior de três
+## fontes de verdade sobre onde cada Pokémon vive, e a única ligada:
+##   - `species.json → biomes` tem as 151 espécies e NINGUÉM lia;
+##   - `zones.json → wild_pokemon` tem 56 zonas e `get_spawns()` nunca era
+##     chamado;
+##   - esta tabela aqui, com 17 espécies, era o que rodava.
+## Resultado: 134 Pokémon existiam nos dados e não apareciam no jogo.
+##
+## Agora o caminho é um só: tile → bioma → quem vive nesse bioma, segundo o
+## species.json. As 10 regras do Gabriel (Veneno no pântano, Psíquico no
+## deserto e nas ruínas, Fantasma no assombrado...) moram lá, escritas por
+## `tools/etiquetar_biomas.py`.
+##
+## "tiles" = nasce EM CIMA do tile. "adjacent_to" = nasce num tile livre ao
+## lado do obstáculo (não dá pra nascer dentro de uma árvore ou de uma rocha).
+const BIOMA_POR_TERRENO := {
+	"plains":      {"tiles": ["."]},
+	"forest":      {"adjacent_to": ["T", "N", "O"]},
+	"beach":       {"tiles": ["S"]},
+	"underwater":  {"tiles": ["U"]},
+	"mountain":    {"adjacent_to": ["R", "L"]},
+	"cave":        {"adjacent_to": ["B"]},
+	"volcanic":    {"adjacent_to": ["c"]},
+	"power_plant": {"adjacent_to": ["E"]},
+	# O mato alto é onde o jogo clássico esconde o encontro. Sem terreno
+	# próprio ainda, ele hospeda o PÂNTANO: é o bioma de Veneno, e mato alto
+	# é onde as cobras e os insetos venenosos já estavam.
+	"swamp":       {"tiles": ["A"]},
 }
+
+## Biomas SEM terreno próprio ainda — as espécies deles ficam de fora até a
+## Fase 4 do plano desenhar as ilhas. Está escrito aqui, e não descoberto por
+## silêncio, porque "esse Pokémon não aparece" é indistinguível de bug quando
+## não há uma lista dizendo quais não aparecem ainda.
+const BIOMAS_SEM_TERRENO : Array[String] = [
+	"deep_forest", "desert", "ruins", "haunted", "glacial",
+]
 
 const SPAWNS_PER_CATEGORY : int = 2   # quantos de cada categoria, por zona (teto por zona)
 const LEVEL_MIN_TERRAIN   : int = 3
@@ -224,13 +256,13 @@ func _populate_zone_by_terrain(zone: Dictionary) -> void:
 	if w <= 0 or h <= 0 or tiles.is_empty():
 		return
 
-	for category in TERRAIN_SPECIES.keys():
-		var info : Dictionary = TERRAIN_SPECIES[category]
+	for bioma in BIOMA_POR_TERRENO.keys():
+		var info : Dictionary = BIOMA_POR_TERRENO[bioma]
 		var candidatos : Array = _find_terrain_positions(tiles, x0, y0, w, h, info)
 		if candidatos.is_empty():
 			continue
 		candidatos.shuffle()
-		var especies : Array = info.get("species", [])
+		var especies : Array = especies_do_bioma(bioma, zone_id)
 		if especies.is_empty():
 			continue
 		var quantos : int = mini(SPAWNS_PER_CATEGORY, candidatos.size())
@@ -242,6 +274,26 @@ func _populate_zone_by_terrain(zone: Dictionary) -> void:
 			var level      : int = RNGManager.randi_range(LEVEL_MIN_TERRAIN, LEVEL_MAX_TERRAIN)
 			var world_pos  : Vector2 = Vector2((tile_pos.x + 0.5) * TILE_SIZE, (tile_pos.y + 0.5) * TILE_SIZE)
 			_spawn_terrain_pokemon(species_id, level, world_pos, zone_id)
+
+## Quem pode aparecer neste bioma, nesta zona.
+##
+## Duas camadas, de propósito:
+##   1. o BIOMA diz quem cabe no lugar (a regra geral, do species.json);
+##   2. a ZONA afina por região (`zones.json → wild_pokemon`), que é como o
+##      Pikachu é comum na Floresta de Viridian e raro em qualquer outra mata.
+## A lista da zona só ENTRA no bolo — nunca substitui o bioma —, senão uma zona
+## sem lista ficaria vazia e o mundo voltaria a ter buracos sem ninguém notar.
+func especies_do_bioma(bioma: String, zone_id: String = "") -> Array:
+	var saida : Array = []
+	for chave in GameData.species:
+		var esp : Dictionary = GameData.species[chave]
+		if bioma in esp.get("biomes", []):
+			saida.append(int(esp.get("id", 0)))
+	for entrada in GameData.get_spawns(zone_id):
+		var ident : int = int(entrada.get("id", 0))
+		if ident > 0 and not saida.has(ident):
+			saida.append(ident)
+	return saida
 
 ## Varre o retângulo (x0,y0,w,h) do grid de tiles cru (o MESMO texto usado
 ## pra pintar o mapa, não o TileMap já renderizado) procurando tiles que
