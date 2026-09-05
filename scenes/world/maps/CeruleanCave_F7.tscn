@@ -42,7 +42,7 @@ limit_left = 0
 limit_top = 0
 limit_right = 2560
 limit_bottom = 3840
-zoom = Vector2(1, 1)
+zoom = Vector2(0.5, 0.5)
 
 [node name="Mewtwo" parent="Entities/WildPokemons" instance=ExtResource("11_wild")]
 position = Vector2(1344, 1984)

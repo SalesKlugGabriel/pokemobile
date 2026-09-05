@@ -43,7 +43,7 @@ signal capture_success(pokemon_data: Dictionary)
 signal capture_failed(pokemon_data: Dictionary)
 
 # --- COMBATE ---
-signal damage_dealt(target: Node, amount: int, is_critical: bool)
+signal damage_dealt(target: Node, amount: int, is_critical: bool, attacker: Node)
 signal status_applied(target: Node, status_id: String)
 signal battle_started()
 signal battle_ended(result: Dictionary)

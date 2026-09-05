@@ -104,7 +104,7 @@ limit_left = 0
 limit_top = 0
 limit_right = 120320
 limit_bottom = 24576
-zoom = Vector2(1, 1)
+zoom = Vector2(0.5, 0.5)
 
 [node name="ProfCarvalho" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(3328, 20352)

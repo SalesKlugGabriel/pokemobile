@@ -35,6 +35,8 @@ CaptureSystem="*res://scripts/combat/CaptureSystem.gd"
 MapOverrides="*res://scripts/autoloads/MapOverrides.gd"
 UIStack="*res://scripts/autoloads/UIStack.gd"
 SpriteOverrides="*res://scripts/autoloads/SpriteOverrides.gd"
+FeedbackDeImpacto="*res://scripts/combat/FeedbackDeImpacto.gd"
+PonteDeFeedback="*res://scripts/autoloads/PonteDeFeedback.gd"
 GlobalUI="*res://scenes/ui/GlobalUI.tscn"
 
 [application]

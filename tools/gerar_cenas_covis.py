@@ -65,7 +65,7 @@ limit_left = 0
 limit_top = 0
 limit_right = {limite_x}
 limit_bottom = {limite_y}
-zoom = Vector2(1, 1)
+zoom = Vector2(0.5, 0.5)
 
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("3_zm")

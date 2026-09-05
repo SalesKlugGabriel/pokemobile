@@ -215,7 +215,7 @@ func _fire_passive_drain() -> void:
 			var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
 			a.take_damage(dmg, self)
 			total_dealt += dmg
-			FloatingText.show_text(get_tree().current_scene, a.global_position + Vector2(0, -184), "%s -%d" % [nome, dmg], Color(0.6, 1.0, 0.4))
+			FloatingText.show_text(get_tree().current_scene, a.global_position + Vector2(0, -184), nome, Color(0.6, 1.0, 0.4))
 	if total_dealt > 0:
 		current_hp = mini(max_hp, current_hp + total_dealt)
 		EventBus.follower_hp_changed.emit(current_hp, max_hp)
@@ -227,7 +227,7 @@ func _fire_passive_reflect() -> void:
 	var alvo = _recent_attackers[_recent_attackers.size() - 1]
 	if is_instance_valid(alvo) and alvo.has_method("take_damage"):
 		alvo.take_damage(_passive_dmg_since, self)
-		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -184), "Reflexo! -%d" % _passive_dmg_since, Color(0.8, 0.6, 1.0))
+		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -184), "Reflexo!", Color(0.8, 0.6, 1.0))
 
 func _load_move_slots() -> void:
 	var learnable : Array = GameData.get_learnable_moves(pokemon_species_id, pokemon_level)
@@ -441,9 +441,21 @@ func _attacker_stats() -> Dictionary:
 ## current_target, mira a partir da própria posição do Follower.
 func _apply_damage_area(move_data: Dictionary) -> void:
 	var radius : float = move_data.get("radius", 0.0)
-	var alvos : Array = AreaTargeting.find_targets_in_radius(global_position, radius, "wild_pokemon")
-	var attacker_stats := _attacker_stats()
 	var nome : String = move_data.get("name", "")
+	var cena := get_tree().current_scene
+
+	# Telegraph (05/09) — o mesmo aviso vale pro SEU golpe: o círculo mostra
+	# o alcance real antes de cair, então dá pra posicionar pra pegar três
+	# inimigos em vez de um. Mira quem está dentro na hora do impacto.
+	var centro := global_position
+	TelegraphDeArea.disparar(cena, centro, radius, TelegraphDeArea.cor_do_tipo(move_data.get("type", "normal")), self)
+	FloatingText.show_text(cena, global_position + Vector2(0, -184), nome + "!", Color(1.0, 0.9, 0.4))
+	await get_tree().create_timer(TelegraphDeArea.ATE_O_DANO).timeout
+	if not is_instance_valid(self) or _is_fainted:
+		return
+
+	var alvos : Array = AreaTargeting.find_targets_in_radius(centro, radius, "wild_pokemon")
+	var attacker_stats := _attacker_stats()
 	var is_status_move : bool = move_data.get("category", "physical") == "status"
 	for alvo in alvos:
 		if not alvo.has_method("take_damage"):
@@ -452,7 +464,6 @@ func _apply_damage_area(move_data: Dictionary) -> void:
 			var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
 			var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
 			alvo.take_damage(dmg, self)
-			FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -184), "%s -%d" % [nome, dmg], Color(1.0, 0.6, 0.2))
 		StatusEffectController.try_apply(alvo, move_data)
 
 func _apply_damage_direct(move_data: Dictionary) -> void:
@@ -467,7 +478,7 @@ func _apply_damage_direct(move_data: Dictionary) -> void:
 	if move_data.get("category", "physical") != "status":
 		var damage := DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
 		current_target.take_damage(damage, self)
-		FloatingText.show_text(get_tree().current_scene, current_target.global_position + Vector2(0, -184), "%s -%d" % [move_data.get("name", ""), damage], Color(1.0, 0.9, 0.3))
+		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184), str(move_data.get("name", "")), Color(1.0, 0.9, 0.3))
 	StatusEffectController.try_apply(current_target, move_data)
 
 func _spawn_projectile(move_data: Dictionary) -> void:
@@ -545,7 +556,7 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 		return
 	current_hp = max(0, current_hp - amount)
 	EventBus.follower_hp_changed.emit(current_hp, max_hp)
-	EventBus.damage_dealt.emit(self, amount, false)
+	EventBus.damage_dealt.emit(self, amount, false, attacker)
 	if attacker and not _recent_attackers.has(attacker):
 		_recent_attackers.append(attacker)
 	_passive_dmg_since += amount

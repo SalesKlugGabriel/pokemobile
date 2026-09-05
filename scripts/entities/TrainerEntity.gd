@@ -88,10 +88,32 @@ const SURF_SPECIES : Array[int] = [
 ]
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Câmera — o campo de visão do jogo inteiro sai daqui
+# ──────────────────────────────────────────────────────────────────────────────
+## Pesquisa do Tibia/PokeXGames (05/09): a tela de lá mostra 15×11 = 165 tiles;
+## a nossa mostrava ~10×5,6 = 56. Um combate em tempo real com golpe de área não
+## cabe em 56 tiles — o jogador não vê o que está vindo, e o telegraph do golpe
+## fica fora da tela. Com zoom 0,5 passamos a ~20×11 = 225 tiles.
+##
+## 0,5 e não 0,6 porque o tile tem 128px: 128×0,5 = 64px exatos na tela, sem
+## meio pixel — pixel art em fração quebrada vira borrão.
+##
+## Fica NO CÓDIGO, e não nas 77 cenas, por causa da regra de fonte de verdade
+## única: cada cena de mapa tem seu próprio Camera2D, e uma cena nova (as 36 de
+## covil são geradas por script) já nasce certa em vez de nascer esquecida.
+const ZOOM_CAMERA : Vector2 = Vector2(0.5, 0.5)
+
+func _ajustar_camera() -> void:
+	var cam := get_node_or_null("Camera2D") as Camera2D
+	if cam != null:
+		cam.zoom = ZOOM_CAMERA
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Inicialização
 # ──────────────────────────────────────────────────────────────────────────────
 func _on_ready() -> void:
 	add_to_group("player")
+	_ajustar_camera()
 	EventBus.dialog_started.connect(_on_dialog_started)
 	EventBus.dialog_ended.connect(_on_dialog_ended)
 	EventBus.dialogue_ended.connect(_on_dialog_ended)
@@ -567,12 +589,12 @@ func _init_hp() -> void:
 func get_combat_stats() -> Dictionary:
 	return { "def": 50, "types": [] }
 
-func take_damage(amount: int, _attacker: Node = null) -> void:
+func take_damage(amount: int, attacker: Node = null) -> void:
 	if current_hp <= 0:
 		return
 	current_hp = max(0, current_hp - amount)
 	EventBus.trainer_hp_changed.emit(current_hp, max_hp)
-	EventBus.damage_dealt.emit(self, amount, false)
+	EventBus.damage_dealt.emit(self, amount, false, attacker)
 	if current_hp <= 0:
 		_faint()
 

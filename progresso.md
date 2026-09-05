@@ -9,6 +9,107 @@
 
 ---
 
+## MVP do combate: o jogo responde + ponte de feedback (2026-09-05)
+
+**Primeira leva do plano das Dungeons Elementais, na ordem que eu tinha proposto:
+gameplay → sensação de combate. Mais um pedido novo do Gabriel no meio: uma
+ponte pra ele mandar recado de dentro do jogo enquanto joga.**
+
+### 1. Campo de visão (a régua de tudo o que vem depois)
+
+A câmera mostrava ~10×5,6 = **56 tiles**. A pesquisa de PokeXGames/Tibia que
+sustenta o plano mostra 15×11 = **165**. Um combate em tempo real com golpe de
+área simplesmente não cabe em 56 tiles: o aviso do golpe nasce fora da tela.
+Zoom passou pra **0,5** → ~20×11 = **225 tiles**.
+
+0,5 e não 0,6 porque o tile tem 128px: 128×0,5 = 64px exatos, sem meio pixel —
+pixel art em fração quebrada vira borrão.
+
+O valor vive **no código** (`TrainerEntity.ZOOM_CAMERA`), não nas 77 cenas: cada
+mapa tem seu próprio Camera2D e 36 das cenas são geradas por script, então uma
+cena nova nasceria esquecida. As cenas foram alinhadas ao mesmo número e um
+teste impede que voltem a divergir.
+
+### 2. Sensação de impacto (cinco camadas, zero arte nova)
+
+O dano já era calculado certo, mas na tela não acontecia nada — dois bonecos
+encostados e uma barrinha diminuindo. Agora: **recuo** (diz de onde veio),
+**piscar branco de 0,1s** (separa dois golpes seguidos), **número de dano**,
+**tremor de câmera** e **hitstop de 60 ms**.
+
+Os dois últimos são caros em atenção, então só saem em golpe crítico ou que
+tire ≥18% da vida — se todo Rattata sacudisse a tela, o tremor pararia de
+significar perigo.
+
+Achado que definiu a arquitetura: os três lugares que causam dano já emitiam
+`EventBus.damage_dealt`, **e ninguém escutava**. Então a camada visual inteira é
+um ouvinte só, sem encostar na lógica de combate — e qualquer fonte de dano
+nova já nasce com impacto de graça. O sinal ganhou um campo (quem atacou), sem
+quebrar ninguém, justamente por não ter ouvintes.
+
+### 3. Telegraph de área (o que separa "difícil" de "injusto")
+
+Golpe de área acontecia no mesmo instante da decisão: dano do nada, impossível
+de evitar. Isso não é dificuldade, é sorte. Agora tem **4 fases** — carga 0,30s,
+aviso 0,90s (círculo enchendo no chão), impacto 0,15s, rescaldo 0,60s — e o dano
+só sai na terceira, mirando **quem está dentro naquele instante**. É isso que
+faz desviar funcionar. Cor por tipo do golpe: o jogador não lê o nome no meio da
+briga, ele lê a cor.
+
+Desenhado abaixo das entidades, pra não tapar justamente o Pokémon que avisa.
+
+### 4. Ponte de feedback (pedido novo do Gabriel)
+
+"Uma ponte de conexão com o servidor enquanto refinamos o game, onde eu possa
+dar feedback enquanto jogo." **Viável e barata**: pendurada no serviço do editor
+que já estava no ar — nenhum container, domínio, porta ou firewall novo.
+
+Dentro do jogo: **F2** (ou o botão 💬 no canto, que funciona no celular). O que
+faz a diferença entre caixa de texto e ferramenta de verdade:
+- **a print vai junto, tirada ANTES do painel abrir** — senão eu recebo a foto
+  do painel, não a do problema;
+- **o contexto é automático** (mapa, tile, FPS, Pokémon ativo) — é o dado que
+  ele nunca ia digitar e é o que me faz achar o problema;
+- **recado não se perde**: sem internet, vai pra uma fila em disco e é reenviado
+  quando o jogo liga de novo. Só sai da fila quando o servidor confirmou.
+
+Pra ele reler: `poke.workprog.pro/editor/feedback.html`. Pra mim:
+`/root/pokemobile-editor-data/feedback.jsonl`. Append-only — o que ele escreveu
+nunca é reescrito; o estado (novo/visto/feito) mora em arquivo separado.
+
+### 🔴 O erro do dia, e a rede que ele criou
+
+Criei a classe `TelegraphDeArea` e a usei nos dois arquivos mais importantes do
+combate. Um `class_name` novo só existe depois que o Godot reescaneia o projeto
+— até lá **WildPokemon.gd e FollowerPokemon.gd não compilavam**. E a suíte
+passou: *"70 arquivos, 0 com falha"*. Passou porque cada teste roda a própria
+árvore e só reprova nas próprias conferências: um arquivo que nem carrega não
+reprova nada, ele só não participa.
+
+É a mesma família do erro de ler a suíte com `grep FALHOU` em vez do código de
+saída — a conferência existia, só não era capaz de ver o problema. Virou
+`teste_tudo_compila.gd`: todo .gd do jogo carrega, e todo `class_name` está no
+cache global.
+
+**E a primeira versão dessa rede também era inútil**: `load()` NÃO devolve null
+num arquivo quebrado, devolve o script assim mesmo. Descobri quebrando dois
+arquivos de propósito pra ver o teste reprovar — e ele não reprovou. Quem
+denuncia é `can_instantiate()`. Só depois disso a rede pega de verdade
+(conferido: reprova com os arquivos quebrados, volta ao verde sem eles).
+
+**Outro bug real achado por teste, não a olho:** o `moves.json` grava o tipo
+capitalizado ("Fire") e minha tabela de cores é minúscula — **todo** golpe de
+área sairia com a cor padrão laranja. A leitura por cor existiria no código e
+não na tela.
+
+**Testado:** 72 arquivos de teste, 0 falhas (2 novos: sensação de combate e
+compilação). **Falta jogar no navegador** — o zoom novo quadruplica a área
+desenhada e isso é questão de FPS, que só se mede jogando.
+
+**Próximo passo (Etapa 2 do plano):** a primeira dungeon completa — Gelo,
+reaproveitando os 15 andares já provados, mochila selada, cooldown de cura,
+teto de nível e o Articuno com repertório de 6 funções.
+
 ## Spawn fixo por terreno (2026-09-03, continuação)
 
 **Fecha o pedido "Pokémon selvagem sempre visível, spawn fixo por tipo de terreno".** O sistema
