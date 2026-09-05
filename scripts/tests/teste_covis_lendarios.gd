@@ -205,6 +205,35 @@ func _testar_corrente_de_cenas() -> void:
 	_assert(mundo.contains("IlhaGelida_F1.tscn"),
 		"o mapa do mundo tem a boca da montanha que leva ao covil")
 
+	# ── E QUEM SAI DO COVIL CAI EM CHÃO FIRME ──────────────────────────────
+	# 🔴 Achado ao conferir: a coordenada de volta era um chute, e caiu dentro
+	# de um bloco de gelo — quem saísse do covil apareceria entalado numa
+	# parede. Nenhum teste de layout pegaria isso: o mapa está certo, quem
+	# estava errada era a coordenada de destino do warp. Esta conferência vale
+	# pra TODA saída de covil que apontar pro mapa do mundo.
+	var tm_mundo := TileMap.new()
+	tm_mundo.tile_set = load("res://assets/tilesets/overworld.tres") as TileSet
+	MapLayouts.paint(tm_mundo, "world_map")
+	var ruins : Array[String] = []
+	for nome in ["IlhaGelida_F1", "Usina_S1"]:
+		var texto := FileAccess.get_file_as_string("res://scenes/world/dungeons/%s.tscn" % nome)
+		var i := texto.find("WorldMap.tscn")
+		if i < 0:
+			continue
+		var trecho := texto.substr(i, 120)
+		var j := trecho.find("Vector2i(")
+		if j < 0:
+			continue
+		var dentro := trecho.substr(j + 9, trecho.find(")", j) - j - 9)
+		var partes := dentro.split(",")
+		var alvo := Vector2i(int(partes[0].strip_edges()), int(partes[1].strip_edges()))
+		var td : TileData = tm_mundo.get_cell_tile_data(0, alvo)
+		if td == null or td.get_custom_data("blocked"):
+			ruins.append("%s volta pra %s, que é parede" % [nome, alvo])
+	_assert(ruins.is_empty(), "sair de um covil devolve o jogador em chão andável — %s" % (
+		"ok" if ruins.is_empty() else str(ruins)))
+	tm_mundo.free()
+
 func _testar_ninhos() -> void:
 	var ts := load("res://assets/tilesets/overworld.tres") as TileSet
 	for map_id in CovisLendarios.NINHOS:

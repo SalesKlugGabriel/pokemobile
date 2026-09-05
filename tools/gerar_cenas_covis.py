@@ -132,12 +132,18 @@ def main():
         warps = []
         # descida (volta): o primeiro andar sai pro mundo, os outros pro anterior
         if i == 0:
-            # Volta pra Ilha Gélida no mapa do mundo, 3 tiles ao sul da boca da
-            # montanha (250,-60) — não em cima dela, senão o jogador reentraria
-            # no covil no mesmo passo em que sai.
+            # Volta pra Ilha Gélida no mapa do mundo. O tile (248,-62) foi
+            # ESCOLHIDO por varredura, não chutado: é o mais próximo da boca da
+            # montanha (250,-60) que é andável e fica a 2 tiles dela — longe o
+            # bastante pra não reentrar no covil no mesmo passo em que sai.
+            #
+            # 🔴 O chute anterior era (250,-57), e caiu dentro de um bloco de
+            # gelo: quem saísse do covil apareceria entalado numa parede. É o
+            # tipo de defeito que nenhum teste de layout pega, porque o mapa
+            # está certo — quem está errado é a coordenada de destino.
             warps.append({"nome": "SaidaParaOMundo", "tile": (baixo[0], A - 1),
                           "destino": "res://scenes/world/maps/WorldMap.tscn",
-                          "spawn": (250, -57)})
+                          "spawn": (248, -62)})
         else:
             warps.append({"nome": "Descer", "tile": (baixo[0], A - 1),
                           "destino": caminho(andares[i - 1]), "spawn": cima})

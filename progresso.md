@@ -3640,3 +3640,33 @@ segunda, na frase da usina com Pokémon elétricos, é o **Zapdos** — usina +
 elétrico + labirinto não é o pássaro de fogo. Construí como Zapdos.
 
 **Testado:** `teste_covis_lendarios.gd`, 18 conferências, todas passando.
+
+**Correções depois da suíte (mesma leva):** a suíte reprovou 10 arquivos e um
+era **regressão de verdade** — esticar o mapa 40 linhas pro norte arrastou junto
+a Rota 24, a Rota 25, a Ponte Nugget e a Casa do Bill, porque
+`_norte_de_cerulean_cell` media a partir da BORDA do mapa e não de Cerulean.
+Enquanto a borda ficou parada os dois valores eram iguais e ninguém via.
+Ancorado em `ROTAS_NORTE_ROWS`.
+
+Os outros 9 eram consequência esperada: 7 testes proíbem warp de cidade/rota no
+mapa do mundo e o covil precisava entrar na lista de exceções (é caverna, como
+Mt Moon), um convertia a faixa da ponte com a âncora antiga, e o mapa de Kanto
+não tinha cor pro gelo.
+
+**Erro meu no próprio teste:** a conferência "todo terreno tem cor própria"
+acusava o bloco de gelo. Ele TINHA cor — o char é `"` e aparece escapado no
+código-fonte, e a busca do teste não escapava.
+
+**E um achado que nenhum teste de layout pegaria:** a coordenada de volta do
+covil pro mundo era um chute meu, e caía dentro de um bloco de gelo — quem
+saísse apareceria entalado numa parede. O mapa estava certo; errada estava a
+coordenada de destino do warp. Achada por varredura, e virou conferência:
+"sair de um covil devolve o jogador em chão andável".
+
+**70 arquivos de teste, 0 falhas.** Publicado. A Ilha Gélida e a Ilha do Deserto
+aparecem no mapa de Kanto.
+
+**Ainda não verificado:** jogar os covis no navegador. A matemática dos 31
+andares está provada e o deslize do jogo bate com o do gerador em 1.340 pontos,
+mas a SENSAÇÃO do gelo só se julga escorregando — e chegar lá exige Surf, que um
+save novo não tem.
