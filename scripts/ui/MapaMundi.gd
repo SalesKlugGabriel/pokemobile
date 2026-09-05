@@ -52,6 +52,8 @@ const COR_POR_CHAR := {
 	"9": Color(0.14, 0.23, 0.13), "?": Color(0.47, 0.88, 0.77),
 	"`": Color(0.23, 0.17, 0.12),
 	"#": Color(0.57, 0.42, 0.24), "-": Color(0.57, 0.42, 0.24),
+	",": Color(0.86, 0.93, 0.97),   # piso de gelo
+	"\"": Color(0.62, 0.80, 0.89),  # bloco de gelo
 	# Cores derivadas da COR MÉDIA do próprio tile no atlas, com a saturação
 	# puxada — a média de um tile sai sempre mais apagada que ele. Geradas
 	# assim, e não escolhidas a olho, porque 27 terrenos estavam caindo no

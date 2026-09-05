@@ -226,7 +226,10 @@ const ROUTE25_ROWS : int = 20   # mais ao norte, termina na Casa do Bill
 ## Casa do Bill. Ao norte de Cerulean é o único lugar de Kanto que já é mar
 ## aberto do outro lado, então cabe uma ilha sem deslocar nada.
 const ILHA_GELIDA_ROWS : int = 40
-const NORTE_OFFSET : int = ROUTE24_ROWS + ROUTE25_ROWS + ILHA_GELIDA_ROWS  # 80
+## Quanto o ramo Rota 24/25 ocupa. A Rota 24/25 é ancorada NISTO, não em
+## NORTE_OFFSET — assim esticar o norte pra caber uma ilha nova não move a rota.
+const ROTAS_NORTE_ROWS : int = ROUTE24_ROWS + ROUTE25_ROWS  # 40
+const NORTE_OFFSET : int = ROTAS_NORTE_ROWS + ILHA_GELIDA_ROWS  # 80
 # Colunas globais do corredor (dentro da faixa de Cerulean: cc 27-29 local).
 const RAMO_NORTE_COL_INICIO : int = SPINE_COL_INICIO + 27
 const RAMO_NORTE_COL_FIM    : int = SPINE_COL_INICIO + 29
@@ -323,7 +326,7 @@ static func _gen_norte_de_cerulean() -> Array:
 		for c in W:
 			if r == -NORTE_OFFSET or c == 0 or c >= W - 1:
 				row += "T"
-			elif r < -(ROUTE24_ROWS + ROUTE25_ROWS):
+			elif r < -ROTAS_NORTE_ROWS:
 				row += _ilha_gelida_cell(c, r + NORTE_OFFSET, W)
 			else:
 				row += _norte_de_cerulean_cell(c, r, W)
@@ -525,7 +528,12 @@ static func _ilha_gelida_cell(c: int, gr: int, W: int) -> String:
 	return ","
 
 static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
-	var fb := r + NORTE_OFFSET
+	# 🔴 05/09: era `r + NORTE_OFFSET`. A Rota 24/25 ficava ancorada na BORDA do
+	# mapa — então, quando o norte foi esticado 40 linhas pra caber a Ilha
+	# Gélida, a rota inteira e a Casa do Bill andaram junto. Ancorada em
+	# ROTAS_NORTE_ROWS, ela fica presa a Cerulean, que é o que ela sempre quis
+	# ser: "a 40 linhas ao norte da cidade", não "a 40 linhas da borda".
+	var fb := r + ROTAS_NORTE_ROWS
 
 	# Fora da faixa de colunas do ramo (corredor + Casa do Bill ao lado):
 	# nada existe ainda nessa latitude.

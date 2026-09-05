@@ -110,7 +110,11 @@ func _process(_delta: float) -> bool:
 		if ch in ["q", "r", "s", "t", "u", "v", "x", "y", "a", "p",
 				"1", "2", "3", "4", "5", "6", "7", "8"]:
 			continue
-		if not fonte_mapa.contains('"%s": Color(' % ch):
+		# O char de aspas aparece ESCAPADO no código-fonte ("\\""), então a busca
+		# tem que escapar igual — senão o teste acusa falta de cor num terreno
+		# que está colorido, que foi o que aconteceu com o bloco de gelo.
+		var ch_fonte : String = str(ch).replace('"', '\\"')
+		if not fonte_mapa.contains('"%s": Color(' % ch_fonte):
 			sem_cor.append(str(ch))
 	_assert(sem_cor.is_empty(),
 		"todo terreno tem cor PRÓPRIA no mapa (não cai no verde genérico) — %s" % (

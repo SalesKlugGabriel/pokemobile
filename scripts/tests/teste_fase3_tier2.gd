@@ -98,11 +98,16 @@ func _teste_geral() -> void:
 				if w.target_map.contains("MtMoon"):
 					vai_pro_mtmoon = true
 				elif w.target_map != "" and not w.target_map.contains("PokemonCenter") \
-				and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone") and not w.target_map.contains("RocketHideout") and not w.target_map.contains("VictoryRoad") and not w.target_map.contains("DiglettsCave") and not w.target_map.contains("PokemonTower") and not w.target_map.contains("SilphCo") and not w.target_map.contains("GameCorner") and not w.target_map.contains("RocketHQ") and not w.target_map.contains("PokemonMansion") and not w.target_map.contains("IndigoLeague") and not w.target_map.contains("SSAnne") and not w.target_map.contains("CeruleanCave"):
+				and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone") and not w.target_map.contains("RocketHideout") and not w.target_map.contains("VictoryRoad") and not w.target_map.contains("DiglettsCave") and not w.target_map.contains("PokemonTower") and not w.target_map.contains("SilphCo") and not w.target_map.contains("GameCorner") and not w.target_map.contains("RocketHQ") and not w.target_map.contains("PokemonMansion") and not w.target_map.contains("IndigoLeague") and not w.target_map.contains("SSAnne") and not w.target_map.contains("CeruleanCave") \
+				and not w.target_map.contains("IlhaGelida"):
 					alvos_indevidos += 1
 		_assert(vai_pro_mtmoon, "existe um warp pra dentro do Mt Moon (caverna — exceção permitida)")
+		# 05/09: a Ilha Gélida entrou na lista de exceções. A regra que este teste
+		# protege é "cidade e rota se entra ANDANDO, não por warp" — a boca da
+		# montanha do covil do Articuno é a mesma exceção do Mt Moon e da Caverna
+		# Cerulean: caverna, não cidade.
 		_assert(alvos_indevidos == 0,
-			"nenhum OUTRO warp de cidade/rota sobrou — só Centro Pokémon, Mt Moon e Rock Tunnel (%d indevidos)" % alvos_indevidos)
+			"nenhum OUTRO warp de cidade/rota sobrou — só Centro Pokémon, cavernas e covis (%d indevidos)" % alvos_indevidos)
 		inst.free()
 
 	# ---- 6. zones.json: spawns reais de Rota 3/Mt Moon/Rota 4 ----

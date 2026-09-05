@@ -65,8 +65,12 @@ func _teste_geral() -> void:
 		_assert(treinador != null, "TreinadorRota24 continua existindo")
 		if treinador:
 			var tile_r := int((treinador.position.y - 64) / 128)
-			_assert(tile_r >= MapLayouts.NUGGET_BRIDGE_FB_INICIO - MapLayouts.NORTE_OFFSET
-				and tile_r <= MapLayouts.NUGGET_BRIDGE_FB_FIM - MapLayouts.NORTE_OFFSET,
+			# 05/09: era `- NORTE_OFFSET`. A Rota 24/25 passou a ser ancorada em
+			# ROTAS_NORTE_ROWS (40) e não na borda do mapa (80) — sem isso,
+			# esticar o norte pra caber a Ilha Gélida movia a rota inteira. A
+			# conversão de `fb` pra linha do mundo tem que usar a mesma âncora.
+			_assert(tile_r >= MapLayouts.NUGGET_BRIDGE_FB_INICIO - MapLayouts.ROTAS_NORTE_ROWS
+				and tile_r <= MapLayouts.NUGGET_BRIDGE_FB_FIM - MapLayouts.ROTAS_NORTE_ROWS,
 				"TreinadorRota24 fica dentro da faixa da ponte (row %d)" % tile_r)
 		inst.free()
 
