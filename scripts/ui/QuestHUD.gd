@@ -14,6 +14,7 @@
 ##
 ## Vive no GlobalUI (autoload), não em cada mapa — assim vale em todo lugar sem
 ## ninguém lembrar de arrastar a cena pra cada cena de mapa nova.
+class_name QuestHUD
 extends CanvasLayer
 
 const ORDEM_QUESTS := ["MAIN-01", "MAIN-02", "MAIN-03", "MAIN-04", "MAIN-05",

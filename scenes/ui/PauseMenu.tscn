@@ -72,6 +72,11 @@ layout_mode = 2
 text = "Pokédex"
 theme_override_font_sizes/font_size = 14
 
+
+[node name="BtnMapa" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Mapa de Kanto"
+
 [node name="BtnFly" type="Button" parent="Panel/VBox"]
 visible = false
 layout_mode = 2

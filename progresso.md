@@ -3361,3 +3361,72 @@ verdade, do título até entrar no mundo, console limpo.
 
 **Próximo passo:** decorar as estradas largas (placas, cercas, postes) e uma
 fala de abertura ao chegar no mundo.
+
+---
+
+## 05/09/2026 (mais tarde) — Árvores 2x3, conserto do formato do mapa, mapa de Kanto
+
+**Pedido do Gabriel:** ajustar todas as árvores podendo usar até 2x3 tiles,
+consertar o mapa "que está em um formato ridículo", e fazer um minimapa real.
+
+**Antes de mexer, renderizei o mundo inteiro como imagem (1 pixel por tile).**
+Sem isso eu estaria adivinhando o que "formato ridículo" quer dizer. O que a
+imagem mostrou, e que eu não teria achado jogando:
+1. Um buraco PRETO de 100 colunas por 370 linhas na esquerda — 16% da caixa do
+   mapa nunca era pintada (o ramo da Rota 22 ocupa só uma faixa estreita).
+2. Hachurado diagonal no verde inteiro: **48 condições** do tipo
+   `(c + r * 2) % 9 == 3` espalhadas pelos geradores. Equação linear em duas
+   variáveis é constante ao longo de uma reta — cada uma dessas contas
+   desenhava uma faixa diagonal atravessando a rota. É o mesmo defeito que eu
+   já tinha corrigido em Pallet, repetido em todo gerador.
+3. Toda divisa entre mata e campo era uma reta perfeita, e a costa sul era uma
+   reta de 565 tiles.
+
+**Consertado:** as 48 contas viraram hash com sal (um padrão por local de uso);
+os vazios são preenchidos copiando o vizinho pintado mais próximo da mesma
+linha (o oeste virou floresta densa, o sul continuou oceano, sem ninguém
+decidir isso à mão); as divisas ganharam ruído grosso em duas escalas (blocos
+de ~9 e ~4 tiles decidem juntos — ruído por célula daria serrilha, que fica
+pior que a reta); a costa foi ondulada em ±4 tiles, com trava pra nunca comer a
+praia inteira, e os entalhes de 1 tile são tapados.
+
+**Árvores 2x3.** Antes uma árvore era UM tile de 128px — do tamanho da cabeça
+do jogador. Agora cada espécie é um desenho de 256x384 fatiado em 6 tiles
+(`tools/gerar_arvores_grandes.py`), com a paleta amostrada das árvores antigas
+pra encaixar no resto do mundo. 4 espécies, 10 mil árvores plantadas. A grade é
+ESCALONADA (fileiras ímpares deslocadas 1 tile) e 1 bloco em cada 6 fica sem
+árvore: em grade alinhada, 10 mil árvores idênticas lêem como pomar.
+
+**Mapa de Kanto (`MapaMundi.gd`).** Desenha o mundo inteiro lendo os tiles
+pintados de verdade, marca as 11 cidades pelo nome lendo o `zones.json` (a mesma
+fonte do resto do jogo, sem segunda lista), mostra onde você está e o objetivo
+atual, e só revela cidade já visitada — mapa que nasce aberto tira a razão de
+explorar. Três caminhos até ele: tecla M, botão no menu de Pausa, e clicar no
+minimapa de canto. A Pokédex mudou pra tecla X (M era dela).
+
+**🔴 Erros meus no caminho, todos corrigidos:**
+1. Os tiles de beira da praia foram gravados na linha 9 do atlas, que "parecia
+   livre" e é do KIT DA CASA — apaguei o kit inteiro (restaurado do backup).
+2. O plantio das árvores apagava do dicionário enquanto o percorria pra
+   "reservar" o bloco: isso interrompe a iteração em GDScript e o mundo inteiro
+   ficou com UMA árvore grande.
+3. Um teste meu conferia se o tile de beira cabia na IMAGEM, não se existia no
+   TILESET — passou verde enquanto o jogo publicado cuspia "no tile at (0,10)".
+4. A ondulação da costa comia os 3 tiles de praia em algumas colunas, deixando
+   o mar encostado na grama.
+
+**Também consertado, sem relação com o pedido:** `teste_fase5_ability_tempo_real`
+era INSTÁVEL (uma amostra de dano de cada lado podia empatar por sorteio —
+falhou uma vez em quatro). Passou a comparar a média de 40 amostras. Teste que
+falha 1 vez em N não protege nada; ele ensina a ignorar a suíte.
+
+**Testado:** 66 arquivos, 0 falhas (2 novos: `teste_arvores_grandes.gd`,
+`teste_mapa_de_kanto.gd`). Conferido no navegador: floresta, costa ondulada com
+espuma e o mapa abrindo com Pallet Town revelada e as outras cidades em "?".
+
+**O que NÃO fiz e por quê:** a estrutura macro do mundo (cada cidade e rota é um
+retângulo alinhado aos eixos, ligadas por estradas retas) continua. Ela está
+espalhada por ~30 funções geradoras com dezenas de testes fixando posição;
+reescrever isso é um projeto à parte, não um ajuste. O que dava pra consertar
+sem esse risco — vazios, hachura, divisas, costa, escala das árvores — está
+feito.

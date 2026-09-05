@@ -39,6 +39,20 @@ var _por_atlas : Dictionary = {}   # Vector2i -> Color, montado uma vez
 
 func _ready() -> void:
 	_montar_tabela()
+	# Clicar no minimapa abre o mapa da região. É o gesto natural — e o terceiro
+	# caminho até ele, junto da tecla M e do botão no menu de Pausa. Recurso com
+	# um caminho só é recurso que a maioria não acha.
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	tooltip_text = "Abrir o mapa de Kanto (M)"
+	gui_input.connect(_ao_clicar)
+
+func _ao_clicar(evento: InputEvent) -> void:
+	if not (evento is InputEventMouseButton) or not evento.pressed:
+		return
+	var mapa := get_tree().root.get_node_or_null("GlobalUI/MapaMundi")
+	if mapa and mapa.has_method("abrir"):
+		accept_event()
+		mapa.abrir()
 
 ## Traduz o CHAR_MAP (e as variantes de terreno) numa tabela coordenada→cor,
 ## resolvida UMA vez. Sem isto seria uma busca linear no CHAR_MAP por tile

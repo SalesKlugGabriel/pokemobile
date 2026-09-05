@@ -370,9 +370,9 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 		if local_lf < ROUTE_LAVENDER_FUCHSIA_ROWS:
 			if lc >= 27 and lc <= 29:
 				return "P"
-			if (lc + local_lf * 2) % 9 == 6:
+			if _espalhar_sal(c, r, 1) < 2:
 				return "T"
-			if (lc * 2 + local_lf) % 13 == 10:
+			if _espalhar_sal(c, r, 2) < 2:
 				return "F"
 			return "."
 		return _fuchsia_cell(lc, local_lf - ROUTE_LAVENDER_FUCHSIA_ROWS)
@@ -461,9 +461,9 @@ static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
 	if fb < ROUTE25_ROWS:
 		if no_corredor:
 			return "P"
-		if (c + r * 2) % 9 == 3:
+		if _espalhar_sal(c, r, 3) < 2:
 			return "T"
-		if (c * 2 + r) % 13 == 5:
+		if _espalhar_sal(c, r, 4) < 2:
 			return "F"
 		return "."
 
@@ -491,9 +491,9 @@ static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
 	# ── Rota 24 (mais perto de Cerulean, fb ROUTE25_ROWS..NORTE_OFFSET-1) ──
 	if no_corredor:
 		return "P"
-	if (c + r * 3) % 9 == 4:
+	if _espalhar_sal(c, r, 5) < 2:
 		return "T"
-	if (c + r * 2) % 13 == 6:
+	if _espalhar_sal(c, r, 6) < 2:
 		return "F"
 	return "."
 
@@ -521,9 +521,9 @@ static func _route11_digletts_cell(dist: int, vr: int) -> String:
 
 	if no_corredor:
 		return "P"
-	if (dist + vr * 2) % 9 == 5:
+	if _espalhar_sal(dist, vr, 7) < 2:
 		return "T"
-	if (dist * 2 + vr) % 13 == 9:
+	if _espalhar_sal(dist, vr, 8) < 2:
 		return "F"
 	return "."
 
@@ -542,9 +542,9 @@ static func _sul_de_cerulean_cell(cc: int, sr: int) -> String:
 	if sr < ROUTE5_SUL_ROWS:
 		if cc >= 27 and cc <= 29:
 			return "P"
-		if (cc + sr * 2) % 9 == 2:
+		if _espalhar_sal(cc, sr, 9) < 2:
 			return "T"
-		if (cc * 2 + sr) % 13 == 6:
+		if _espalhar_sal(cc, sr, 10) < 2:
 			return "F"
 		return "."
 
@@ -557,9 +557,9 @@ static func _sul_de_cerulean_cell(cc: int, sr: int) -> String:
 	if vr6 < ROUTE6_SUL_ROWS:
 		if cc >= 27 and cc <= 29:
 			return "P"
-		if (cc + vr6 * 3) % 9 == 3:
+		if _espalhar_sal(cc, sr, 11) < 2:
 			return "T"
-		if (cc + vr6 * 2) % 13 == 7:
+		if _espalhar_sal(cc, sr, 12) < 2:
 			return "F"
 		return "."
 
@@ -643,7 +643,7 @@ static func _vermilion_cell(cc: int, r: int) -> String:
 		return "P"
 
 	# Doca/porto (Vermilion é cidade portuária).
-	if (cc + r * 2) % 15 == 3 and r >= 22 and r <= 34 and cc >= 2 and cc <= 55:
+	if _espalhar_sal(cc, r, 13) < 1 and r >= 22 and r <= 34 and cc >= 2 and cc <= 55:
 		return "~"
 
 	return "."
@@ -656,9 +656,9 @@ static func _vermilion_cell(cc: int, r: int) -> String:
 static func _route7_cell(dist: int, r: int) -> String:
 	if r >= 14 and r <= 21:
 		return "P"
-	if (dist + r * 2) % 9 == 4:
+	if _espalhar_sal(dist, r, 14) < 2:
 		return "T"
-	if (dist * 2 + r) % 13 == 8:
+	if _espalhar_sal(dist, r, 15) < 2:
 		return "F"
 	return "."
 
@@ -723,7 +723,7 @@ static func _celadon_cell(ce: int, r: int) -> String:
 		return "P"
 
 	# Jardins de Celadon (o verde que dá nome à cidade).
-	if (ce + r * 3) % 11 == 4 and r >= 20 and r <= 34 and ce >= 2 and ce <= 55:
+	if _espalhar_sal(ce, r, 16) < 2 and r >= 20 and r <= 34 and ce >= 2 and ce <= 55:
 		return "F"
 
 	return "."
@@ -739,9 +739,9 @@ static func _route8_cell(dist: int, r: int) -> String:
 	if dist < ROUTE9_COLS:
 		if r >= 13 and r <= 22:
 			return "P"
-		if (dist + r * 2) % 9 == 6:
+		if _espalhar_sal(dist, r, 17) < 2:
 			return "R"  # pedregosa (leva pro Rock Tunnel no Kanto real)
-		if (dist * 2 + r) % 13 == 10:
+		if _espalhar_sal(dist, r, 18) < 2:
 			return "T"
 		return "."
 
@@ -754,9 +754,9 @@ static func _route8_cell(dist: int, r: int) -> String:
 		return "R"
 	if r >= 13 and r <= 22:
 		return "P"
-	if (r10 + r * 2) % 9 == 7:
+	if _espalhar_sal(dist, r, 19) < 2:
 		return "T"
-	if (r10 * 2 + r) % 13 == 11:
+	if _espalhar_sal(dist, r, 20) < 2:
 		return "F"
 	return "."
 
@@ -853,9 +853,9 @@ static func _oeste_de_viridian_cell(j: int, lr: int) -> String:
 			return "R"  # rochedo da montanha ao redor da boca da caverna
 		if no_corredor:
 			return "P"
-		if (j + lr * 2) % 9 == 7:
+		if _espalhar_sal(j, lr, 21) < 2:
 			return "T"
-		if (j * 2 + lr) % 13 == 11:
+		if _espalhar_sal(j, lr, 22) < 2:
 			return "F"
 		return "."
 
@@ -893,9 +893,9 @@ static func _oeste_de_viridian_cell(j: int, lr: int) -> String:
 
 	if no_corredor:
 		return "P"
-	if (j + lr * 3) % 9 == 8:
+	if _espalhar_sal(j, lr, 23) < 2:
 		return "T"
-	if (j + lr * 2) % 13 == 12:
+	if _espalhar_sal(j, lr, 24) < 2:
 		return "F"
 	return "."
 
@@ -920,7 +920,7 @@ static func _vermilion_coastline_cell(c: int, cr: int, W: int) -> String:
 	if cr < shore:
 		# ── Areia (praia) — rochedo de maré esparso, sem árvore/flor (não
 		# combina com praia) ──
-		if (vc + cr * 3) % 17 == 5:
+		if _espalhar_sal(c, cr, 25) < 1:
 			return "R"
 		return "S"
 
@@ -965,9 +965,9 @@ static func _arquipelago_tropical_cell(c: int, cr: int, W: int) -> String:
 static func _ilha_tropical_terreno(vc: int, cr: int, dist: float, raio: float) -> String:
 	if dist > raio - 2.0:
 		return "S"  # praia
-	if (vc + cr * 2) % 4 == 0:
+	if _espalhar_sal(vc, cr, 26) < 5:
 		return "T"  # vegetação densa — mais frequente que mato comum
-	if (vc * 2 + cr) % 7 == 3:
+	if _espalhar_sal(vc, cr, 27) < 3:
 		return "F"
 	return "G"
 
@@ -1017,7 +1017,7 @@ static func _seafoam_cell(c: int, cr: int, W: int) -> String:
 static func _ilhota_seafoam_terreno(vc: int, cr: int, dist: float, raio: float) -> String:
 	if dist > raio - 1.5:
 		return "S"  # praia pálida/gelada
-	if (vc + cr * 3) % 9 == 0:
+	if _espalhar_sal(vc, cr, 28) < 2:
 		return "R"  # rochedo / boca de gruta esparsa
 	return "D"  # piso escuro rochoso — interior de ilhota-gruta
 
@@ -1074,9 +1074,9 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 	if c < ROUTE3_COLS:
 		if no_caminho:
 			return "P"
-		if (c + r * 2) % 9 == 0:
+		if _espalhar_sal(c, r, 29) < 2:
 			return "T"
-		if (c * 2 + r) % 13 == 4:
+		if _espalhar_sal(c, r, 30) < 2:
 			return "F"
 		return "."
 
@@ -1091,9 +1091,9 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 	if c < ROUTE3_COLS + ROUTE4_COLS:
 		if no_caminho:
 			return "P"
-		if (c + r * 3) % 9 == 1:
+		if _espalhar_sal(c, r, 31) < 2:
 			return "T"
-		if (c + r * 2) % 13 == 5:
+		if _espalhar_sal(c, r, 32) < 2:
 			return "S"  # Rota 4 é mais arenosa (perto de Cerulean/Celadon)
 		return "."
 
@@ -1123,7 +1123,7 @@ static func _leste_de_pewter_cell(c: int, r: int) -> String:
 		return "P"
 
 	# ── Rio/lago decorativo (Cerulean é a "Cidade Azulada") ──
-	if (cc + r * 3) % 19 == 6 and r >= 22 and r <= 34 and cc >= 2 and cc <= 55:
+	if _espalhar_sal(c, r, 33) < 1 and r >= 22 and r <= 34 and cc >= 2 and cc <= 55:
 		return "~"
 
 	# ── Cerulean só vai até CERULEAN_COLS; dali pra leste é Tier 3 ──────────
@@ -1179,7 +1179,7 @@ static func _pewter_cell(c: int, r: int, W: int) -> String:
 		return "P"
 
 	# ── Pedras decorativas (Cidade das Pedras) ──
-	if (c + r * 3) % 17 == 5 and r >= 20 and r <= 34 and c >= 4 and c <= 93:
+	if _espalhar_sal(c, r, 34) < 1 and r >= 20 and r <= 34 and c >= 4 and c <= 93:
 		return "R"
 
 	return "."
@@ -1197,17 +1197,17 @@ static func _route2_cell(c: int, r: int, W: int) -> String:
 	if c <= 43:
 		if c <= 8 or c >= 40:
 			return "T"
-		if (c + r * 2) % 8 == 0:
+		if _espalhar_sal(c, r, 35) < 2:
 			return "T"
-		if (c * 2 + r) % 11 == 3:
+		if _espalhar_sal(c, r, 36) < 2:
 			return "F"
 		return "."
 	if c >= 57:
 		if c <= 60 or c >= 91:
 			return "T"
-		if (c + r * 3) % 8 == 2:
+		if _espalhar_sal(c, r, 37) < 2:
 			return "T"
-		if (c + r * 2) % 11 == 3:
+		if _espalhar_sal(c, r, 38) < 2:
 			return "F"
 		return "."
 	return "."
@@ -1389,6 +1389,296 @@ static func _mancha_de_mato(c: int, r: int, cc: int, cr: int, raio_x: int, raio_
 ## o Gabriel apontou ("casas e prédios com paredes como janelas"). Agora o
 ## padrão é a parede LISA ("w") e a janela aparece a cada ~4 tiles, alinhada
 ## sempre no mesmo passo pra parecer construção e não sorteio.
+## Chars que contam como MATA (bloqueiam e desenham vegetação alta).
+const CHARS_MATA : Array[String] = ["T", "N", "O", "K"]
+## Chars que contam como CAMPO ABERTO (andável, sem construção nem estrada).
+const CHARS_CAMPO : Array[String] = [".", "F"]
+
+## Quebra as bordas retas do mundo (05/09).
+##
+## Visto de cima, o mapa parecia planta baixa: cada cidade e cada rota é gerada
+## como um RETÂNGULO alinhado aos eixos, então toda divisa entre mata e campo
+## era uma reta perfeita de dezenas de tiles. Nenhum lugar do mundo real, nem do
+## jogo original, tem essa cara.
+##
+## O que faz: onde mata encosta em campo, troca um pelo outro seguindo um ruído
+## GROSSO — o hash usa as coordenadas divididas por 6, então blocos inteiros de
+## ~6 tiles decidem juntos. Isso é o que dá enseada e península; ruído por
+## célula daria uma serrilha pontilhada, que fica pior que a reta.
+##
+## Trava de segurança: só troca entre mata e campo. Estrada, prédio, porta,
+## areia, água, mato alto e beira ficam intocados — são eles que carregam
+## caminho e jogabilidade. E a erosão só age em célula com pelo menos 4 vizinhos
+## de campo (ponta de mata), nunca no meio de uma barreira: assim a mudança não
+## abre atalho por dentro de uma parede de árvores.
+static func amaciar_bordas(tilemap: TileMap, passadas: int = 3) -> void:
+	var atlas_mata := {}
+	for ch in CHARS_MATA:
+		atlas_mata[CHAR_MAP[ch]] = true
+	var atlas_campo := {}
+	for ch in CHARS_CAMPO:
+		atlas_campo[CHAR_MAP[ch]] = true
+	for co in VARIANTES_TERRENO.get(".", []):
+		atlas_campo[co] = true
+
+	var vizinhos : Array[Vector2i] = [
+		Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
+		Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)]
+
+	for passada in passadas:
+		var trocas := {}
+		for celula in tilemap.get_used_cells(0):
+			var co := tilemap.get_cell_atlas_coords(0, celula)
+			var e_mata : bool = atlas_mata.has(co)
+			var e_campo : bool = atlas_campo.has(co)
+			if not e_mata and not e_campo:
+				continue
+			var qtd_mata := 0
+			var qtd_campo := 0
+			for d in vizinhos:
+				var cv := tilemap.get_cell_atlas_coords(0, celula + d)
+				if atlas_mata.has(cv):
+					qtd_mata += 1
+				elif atlas_campo.has(cv):
+					qtd_campo += 1
+			if qtd_mata == 0 or qtd_campo == 0:
+				continue    # não está numa divisa: nada a amaciar
+			# ruído grosso: blocos de ~6 tiles decidem juntos
+			# duas escalas somadas: a grossa (÷9) faz a enseada, a média (÷4)
+			# quebra a curva pra não virar um arco liso de compasso
+			var onda := (_espalhar_sal(celula.x / 9, celula.y / 9, 900 + passada)
+				+ _espalhar_sal(celula.x / 4, celula.y / 4, 950 + passada)) / 2
+			if e_mata and qtd_campo >= 3 and onda < 10:
+				trocas[celula] = CHAR_MAP["."]
+			elif e_campo and qtd_mata >= 4 and onda >= 13:
+				trocas[celula] = CHAR_MAP[_forest_variant(celula.x, celula.y)]
+		for celula in trocas:
+			tilemap.set_cell(0, celula, 0, trocas[celula])
+
+## Árvores de 2x3 tiles (05/09) — coordenadas no atlas, por espécie.
+##
+## Pedido do Gabriel: "pode usar até 2x3 (LxA) para todas as árvores". Cada
+## espécie é UM desenho de 256x384 fatiado em 6 tiles (tools/
+## gerar_arvores_grandes.py), então a copa é contínua entre eles — fatiar um
+## desenho inteiro é o oposto de desenhar tile a tile, que foi o que produziu
+## as árvores cortadas ao meio corrigidas em 04/09.
+##
+## A grama vai ASSADA em cada tile: os dois tiles de baixo são quase só tronco,
+## e sem fundo abririam buraco no mapa (a camada 0 não tem nada por trás). Como
+## consequência, duas árvores grandes não podem se sobrepor — o tile de cima de
+## uma apagaria a copa da outra. Por isso o plantio usa uma grade fixa.
+const ARVORES_GRANDES : Array = [
+	[Vector2i(0, 11), Vector2i(1, 11), Vector2i(0, 12), Vector2i(1, 12), Vector2i(0, 13), Vector2i(1, 13)],  # carvalho
+	[Vector2i(2, 11), Vector2i(3, 11), Vector2i(2, 12), Vector2i(3, 12), Vector2i(2, 13), Vector2i(3, 13)],  # pinheiro
+	[Vector2i(4, 11), Vector2i(5, 11), Vector2i(4, 12), Vector2i(5, 12), Vector2i(4, 13), Vector2i(5, 13)],  # outono
+	[Vector2i(6, 11), Vector2i(7, 11), Vector2i(6, 12), Vector2i(7, 12), Vector2i(6, 13), Vector2i(7, 13)],  # frondosa
+]
+
+## Planta as árvores grandes por cima da mata já pintada.
+##
+## Antes, uma árvore era UM tile de 128px — do tamanho da cabeça do jogador,
+## que ocupa 1x2 tiles. Uma floresta era uma grade de bolinhas verdes iguais e o
+## treinador parecia um gigante. Agora a árvore tem 2x3 tiles e fica mais alta
+## que ele, que é a proporção do jogo original.
+##
+## Como escolhe onde plantar: percorre uma GRADE fixa de 2x3 (âncoras em x par e
+## y múltiplo de 3) e só planta onde os 6 tiles do bloco já são mata. Assim
+## nenhuma árvore grande se sobrepõe a outra, e nenhuma invade estrada, prédio,
+## água ou campo aberto — a silhueta da floresta continua exatamente a mesma que
+## o mapa já definia. As sobras (mata que não fecha um bloco de 6) ficam com o
+## tile pequeno, que na borda da mata lê como arbusto e ajuda a fazer a
+## transição.
+static func plantar_arvores_grandes(tilemap: TileMap) -> void:
+	var e_mata := {}
+	for ch in CHARS_MATA:
+		e_mata[CHAR_MAP[ch]] = true
+
+	var mata := {}
+	for celula in tilemap.get_used_cells(0):
+		if e_mata.has(tilemap.get_cell_atlas_coords(0, celula)):
+			mata[celula] = true
+	if mata.is_empty():
+		return
+
+	# Âncoras únicas da grade 2x3. Como a grade é FIXA (x par, y múltiplo de 3),
+	# dois blocos nunca se sobrepõem — não é preciso marcar célula usada.
+	#
+	# 🔴 A primeira versão apagava as células do próprio dicionário enquanto o
+	# percorria, pra "reservar" o bloco. Isso interrompe a iteração em GDScript:
+	# o mundo inteiro ficou com UMA árvore grande. Coletar as âncoras antes e
+	# plantar depois resolve e ainda deixa a intenção explícita.
+	# Grade ESCALONADA: as fileiras ímpares saem 1 tile pra direita. Numa grade
+	# alinhada, 12 mil árvores idênticas em linha e coluna lêem como POMAR, não
+	# como mata — e escalonar é o que os jogos de tile fazem pra quebrar isso
+	# sem precisar de posição livre. Fileiras diferentes ocupam faixas de y
+	# diferentes, então nada se sobrepõe.
+	var ancoras := {}
+	for celula in mata:
+		var fileira : int = floori(celula.y / 3.0)
+		var desloc : int = fileira % 2
+		var ax : int = floori((celula.x - desloc) / 2.0) * 2 + desloc
+		ancoras[Vector2i(ax, fileira * 3)] = true
+
+	for ancora in ancoras:
+		# ~1 bloco em cada 6 fica sem árvore grande: são as clareiras e o
+		# mato rasteiro que fazem a mata respirar. As sobras continuam com o
+		# tile pequeno, que ali lê como arbusto.
+		if _espalhar_sal(ancora.x, ancora.y, 654) < 3:
+			continue
+		var completo := true
+		for lin in 3:
+			for col in 2:
+				if not mata.has(Vector2i(ancora.x + col, ancora.y + lin)):
+					completo = false
+					break
+			if not completo:
+				break
+		if not completo:
+			continue
+		var especie : int = _espalhar_sal(ancora.x, ancora.y, 321) % ARVORES_GRANDES.size()
+		var pedacos : Array = ARVORES_GRANDES[especie]
+		for lin in 3:
+			for col in 2:
+				tilemap.set_cell(0, Vector2i(ancora.x + col, ancora.y + lin), 0,
+					pedacos[lin * 2 + col])
+
+## Fecha os vazios do mapa (05/09).
+##
+## Visto de cima, o mundo tinha um buraco PRETO de 100 colunas por 370 linhas na
+## esquerda: o ramo da Rota 22 / Victory Road é pintado em colunas negativas e
+## ocupa só uma faixa estreita — todo o resto daquele retângulo nunca era
+## pintado. Na tela isso é o vazio absoluto atrás da borda do mapa, e é a maior
+## parte do "formato ridículo" que o Gabriel apontou.
+##
+## O preenchimento não inventa geografia: cada célula vazia copia o VIZINHO
+## PINTADO mais próximo na mesma linha. Se o que existe ali do lado é mar, vira
+## mar; se é terra, vira mata fechada. Assim o oeste do mapa vira floresta densa
+## (que é o que Victory Road atravessa) e o sul continua oceano, sem ninguém ter
+## que decidir isso à mão região por região.
+static func preencher_vazios(tilemap: TileMap) -> void:
+	var usadas := tilemap.get_used_cells(0)
+	if usadas.is_empty():
+		return
+	var x0 := 999999
+	var y0 := 999999
+	var x1 := -999999
+	var y1 := -999999
+	var pintado := {}
+	for c in usadas:
+		pintado[c] = true
+		x0 = mini(x0, c.x); y0 = mini(y0, c.y)
+		x1 = maxi(x1, c.x); y1 = maxi(y1, c.y)
+
+	var agua : Vector2i = CHAR_MAP["~"]
+	for y in range(y0, y1 + 1):
+		# primeira célula pintada da linha, varrendo da esquerda pra direita
+		var referencia := ""
+		for x in range(x0, x1 + 1):
+			var c := Vector2i(x, y)
+			if pintado.has(c):
+				referencia = "~" if tilemap.get_cell_atlas_coords(0, c) == agua else "T"
+				break
+		if referencia == "":
+			referencia = "~"   # linha inteira vazia: está na faixa do oceano
+		# preenche os buracos com a mata/mar certo, variando a espécie de árvore
+		for x in range(x0, x1 + 1):
+			var c := Vector2i(x, y)
+			if pintado.has(c):
+				continue
+			var ch := referencia
+			if ch == "T":
+				ch = _forest_variant(x, y)
+			tilemap.set_cell(0, c, 0, CHAR_MAP[ch])
+
+## Ondula a linha da costa (05/09).
+##
+## A costa sul do mundo era uma reta perfeita de 565 tiles: terra até uma linha,
+## mar depois dela, sem uma enseada sequer. Junto com as divisas retas de mata,
+## era o que fazia o mapa visto de cima parecer planta baixa em vez de região.
+##
+## Como funciona: para cada coluna, calcula um deslocamento de -4 a +4 tiles a
+## partir de um ruído grosso (blocos de ~10 colunas decidem juntos, senão a
+## costa vira dente de serra) e empurra a linha terra/mar por esse tanto. Só
+## troca AREIA por ÁGUA e vice-versa — nada de prédio, estrada ou mata entra na
+## conta, então nenhuma cidade cai no mar.
+static func ondular_costa(tilemap: TileMap) -> void:
+	var agua : Vector2i = CHAR_MAP["~"]
+	var areia : Vector2i = CHAR_MAP["S"]
+	var variantes_areia : Array = VARIANTES_TERRENO.get("S", [])
+	var e_areia := {areia: true}
+	for co in variantes_areia:
+		e_areia[co] = true
+
+	var usadas := tilemap.get_used_cells(0)
+	var colunas := {}          # x -> menor y de água (o topo do mar naquela coluna)
+	for c in usadas:
+		if tilemap.get_cell_atlas_coords(0, c) != agua:
+			continue
+		if not colunas.has(c.x) or c.y < colunas[c.x]:
+			colunas[c.x] = c.y
+
+	for x in colunas:
+		var topo : int = colunas[x]
+		# -4..+4, coerente ao longo de ~10 colunas
+		var desloc : int = _espalhar_sal(int(x) / 10, 0, 777) % 9 - 4
+		if desloc == 0:
+			continue
+		if desloc > 0:
+			# mar recua: as primeiras linhas de água viram areia (a praia avança)
+			for k in range(desloc):
+				var c := Vector2i(int(x), topo + k)
+				if tilemap.get_cell_atlas_coords(0, c) == agua:
+					tilemap.set_cell(0, c, 0, areia)
+		else:
+			# Mar avança — mas a praia NUNCA some. Achado ao construir: a faixa
+			# de areia de Pallet tem 3 tiles, e um deslocamento de -4 comia os
+			# três, deixando o mar encostado na grama e sem praia andável
+			# naquela coluna. Conta quantos tiles de areia existem e só avança
+			# enquanto sobrarem pelo menos 2.
+			var faixa := 0
+			while e_areia.has(tilemap.get_cell_atlas_coords(0, Vector2i(int(x), topo - 1 - faixa))):
+				faixa += 1
+			var pode : int = maxi(0, faixa - 2)
+			for k in range(mini(-desloc, pode)):
+				var c := Vector2i(int(x), topo - 1 - k)
+				if e_areia.has(tilemap.get_cell_atlas_coords(0, c)):
+					tilemap.set_cell(0, c, 0, agua)
+
+## Tira os entalhes de 1 tile da costa (05/09).
+##
+## A ondulação deixa, aqui e ali, uma célula de mar cercada de terra em 3 lados
+## (ou o contrário). Sozinha, ela vira um quadradinho azul de canto vivo no meio
+## da praia — visto em tela e mais feio que a reta que a ondulação veio
+## corrigir, porque ninguém desenha uma enseada de um tile.
+static func limpar_entalhes_da_costa(tilemap: TileMap) -> void:
+	var agua : Vector2i = CHAR_MAP["~"]
+	var areia : Vector2i = CHAR_MAP["S"]
+	var e_areia := {areia: true}
+	for co in VARIANTES_TERRENO.get("S", []):
+		e_areia[co] = true
+	var lados : Array[Vector2i] = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+
+	var trocas := {}
+	for celula in tilemap.get_used_cells(0):
+		var co := tilemap.get_cell_atlas_coords(0, celula)
+		var e_agua : bool = co == agua
+		if not e_agua and not e_areia.has(co):
+			continue
+		var vizinha_agua := 0
+		var vizinha_areia := 0
+		for d in lados:
+			var cv := tilemap.get_cell_atlas_coords(0, celula + d)
+			if cv == agua:
+				vizinha_agua += 1
+			elif e_areia.has(cv):
+				vizinha_areia += 1
+		if e_agua and vizinha_areia >= 3:
+			trocas[celula] = areia
+		elif not e_agua and vizinha_agua >= 3:
+			trocas[celula] = agua
+	for celula in trocas:
+		tilemap.set_cell(0, celula, 0, trocas[celula])
+
 ## Coordenadas de atlas da beira da praia. São ÁGUA pra toda regra do jogo
 ## (surf, pesca, colisão) — só desenham a areia entrando por um dos lados.
 const COSTA_ATLAS : Array[Vector2i] = [
@@ -1453,6 +1743,25 @@ static func _parede_frontal(c: int, r: int) -> String:
 ## A versão abaixo é um hash de avalanche (multiplicação + deslocamento +
 ## multiplicação), que espalha os bits de entrada por todos os bits de saída.
 ## Medido na mesma área: cada valor entre 4,2% e 6,2%.
+## Mesma ideia de `_espalhar`, com um SAL por local de uso.
+##
+## Por que o sal existe: cada rota/cidade tinha duas decorações (árvore e flor)
+## decididas por duas contas diferentes. Se as duas usassem o mesmo hash, a flor
+## cairia sempre no mesmo lugar da árvore e a segunda nunca apareceria. O sal
+## dá a cada ponto de decisão um padrão próprio, sem precisar de RNG (o mapa
+## continua idêntico a cada partida).
+##
+## 🔴 O que isto substitui: 48 condições do tipo `(c + r * 2) % 9 == 3`. Toda
+## equação LINEAR em duas variáveis é constante ao longo de uma reta — então
+## cada uma dessas contas desenhava uma faixa diagonal de árvores atravessando
+## a rota inteira. Visto de cima, o mapa do mundo virava um hachurado. Era o
+## mesmo defeito já corrigido em Pallet, repetido em todo gerador.
+static func _espalhar_sal(c: int, r: int, sal: int) -> int:
+	var h : int = ((c * 0x9E3779B1) ^ (r * 0x85EBCA77) ^ (sal * 0xC2B2AE35)) & 0xFFFFFFFF
+	h = ((h ^ (h >> 15)) * 0xC2B2AE3D) & 0xFFFFFFFF
+	h = (h ^ (h >> 13)) & 0xFFFFFFFF
+	return h % 20
+
 static func _espalhar(c: int, r: int) -> int:
 	var h : int = ((c * 0x9E3779B1) ^ (r * 0x85EBCA77)) & 0xFFFFFFFF
 	h = ((h ^ (h >> 15)) * 0xC2B2AE3D) & 0xFFFFFFFF
@@ -1492,9 +1801,9 @@ static func _route1_cell(c: int, r: int, W: int) -> String:
 	if c <= 43:
 		if c <= 8 or c >= 40:
 			return _forest_variant(c, r)  # bordas internas também são árvore
-		if (c + r * 2) % 7 == 0:
+		if _espalhar_sal(c, r, 39) < 3:
 			return _forest_variant(c, r)
-		if (c * 2 + r) % 9 == 3:
+		if _espalhar_sal(c, r, 40) < 2:
 			return "F"
 		return "."
 	# Lado leste: cols 57-94 — grama com árvores esparsas
@@ -1505,9 +1814,9 @@ static func _route1_cell(c: int, r: int, W: int) -> String:
 		# em algum lugar do mapa; não existia nenhum tile "~" no jogo antes).
 		if c >= 63 and c <= 70 and r >= 55 and r <= 60:
 			return "~"
-		if (c + r * 3) % 7 == 1:
+		if _espalhar_sal(c, r, 41) < 3:
 			return _forest_variant(c, r)
-		if (c + r * 2) % 11 == 4:
+		if _espalhar_sal(c, r, 42) < 2:
 			return "F"
 		return "."
 	return "."
@@ -1622,9 +1931,9 @@ static func _viridian_cell(c: int, r: int, W: int) -> String:
 		return "P"
 
 	# ── Árvores e flores decorativas ──
-	if (c + r * 5) % 11 == 2 and r >= 20 and r <= 36 and c >= 6 and c <= 92:
+	if _espalhar_sal(c, r, 43) < 2 and r >= 20 and r <= 36 and c >= 6 and c <= 92:
 		return "T"
-	if (c * 2 + r * 3) % 13 == 4 and r >= 20 and r <= 36 and c >= 6 and c <= 92:
+	if _espalhar_sal(c, r, 44) < 2 and r >= 20 and r <= 36 and c >= 6 and c <= 92:
 		return "F"
 
 	return "."
@@ -1677,7 +1986,7 @@ static func _mtmoon_cell(c: int, r: int, W: int, H: int) -> String:
 		return _parede_frontal(c, r)
 	# Rochas espalhadas — nunca nas colunas 9-10 (mantém sempre um caminho
 	# reto entrada→saída, mesmo que sinuoso pelas rochas ao redor)
-	if (c + r * 2) % 7 == 0 and (c < 8 or c > 11):
+	if _espalhar_sal(c, r, 45) < 3 and (c < 8 or c > 11):
 		return "R"
 	return "I"
 
@@ -1943,7 +2252,7 @@ static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 	# 02/09: usava rocha genérica "R" apesar do comentário já pedir "vulcânica"
 	# desde antes — agora usa o tile de verdade ("c", categoria Terrenos
 	# especiais), sem mudar nem a posição nem a lógica de geração.
-	if (c + r * 3) % 11 == 4:
+	if _espalhar_sal(c, r, 46) < 2:
 		return "c"
 	return "."
 
@@ -1998,9 +2307,9 @@ static func _safarizone_cell(c: int, r: int, W: int, H: int) -> String:
 
 	# Mato alto esparso (usa "G" — grama diferente da "." padrão do resto do
 	# jogo, pra dar identidade própria de reserva/mato fechado) ──
-	if (c + r * 2) % 5 == 0:
+	if _espalhar_sal(c, r, 47) < 4:
 		return "G"
-	if (c * 2 + r) % 17 == 3:
+	if _espalhar_sal(c, r, 48) < 1:
 		return "T"
 	return "."
 
@@ -2309,6 +2618,16 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 				var alt  : int = _variety_alt(ch, c, r)
 				tilemap.set_cell(0, Vector2i(c, r), 0, atlas, alt)
 
+	# Fecha os vazios ANTES da costa: a beira depende de quem é vizinho de quem,
+	# e um buraco não pintado ao lado do mar contaria como "terra".
+	preencher_vazios(tilemap)
+	# Bordas orgânicas antes da costa, pela mesma razão da ordem acima.
+	amaciar_bordas(tilemap)
+	ondular_costa(tilemap)
+	limpar_entalhes_da_costa(tilemap)
+	# Árvores grandes por último entre as passadas de terreno: elas leem a mata
+	# JÁ amaciada, então a floresta grande segue a silhueta orgânica nova.
+	plantar_arvores_grandes(tilemap)
 	# Beira da praia: por último, com o mapa inteiro já pintado (inclusive os
 	# ramos em linha/coluna negativa acima) — a costa depende de quem é vizinho
 	# de quem, então não dá pra decidir tile a tile na hora de pintar.

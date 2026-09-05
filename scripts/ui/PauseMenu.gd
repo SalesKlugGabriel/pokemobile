@@ -41,6 +41,7 @@ const FLY_DESTINATIONS := {
 @onready var btn_bag     : Button         = $Panel/VBox/BtnBag
 @onready var btn_shop    : Button         = $Panel/VBox/BtnShop
 @onready var btn_pokedex : Button         = $Panel/VBox/BtnPokedex
+@onready var btn_mapa    : Button         = $Panel/VBox/BtnMapa
 @onready var btn_fly     : Button         = $Panel/VBox/BtnFly
 @onready var btn_help     : Button        = $Panel/VBox/BtnHelp
 @onready var btn_controls : Button        = $Panel/VBox/BtnControls
@@ -74,6 +75,7 @@ func _ready() -> void:
 	btn_bag.pressed.connect(_on_bag)
 	btn_shop.pressed.connect(_on_shop)
 	btn_pokedex.pressed.connect(_on_pokedex)
+	btn_mapa.pressed.connect(_on_mapa)
 	btn_fly.pressed.connect(_on_fly)
 	btn_help.pressed.connect(_on_help)
 	btn_controls.pressed.connect(_on_controls)
@@ -123,6 +125,16 @@ func _on_team() -> void:
 	AudioManager.play_sfx("confirm")
 	_on_resume()
 	EventBus.party_opened.emit()
+
+## Mapa de Kanto pelo menu — o caminho descoberto por quem não sabe que existe
+## a tecla M. Um recurso que só abre por atalho é um recurso que a maioria nunca
+## acha.
+func _on_mapa() -> void:
+	AudioManager.play_sfx("confirm")
+	_on_resume()
+	var mapa := get_tree().root.get_node_or_null("GlobalUI/MapaMundi")
+	if mapa and mapa.has_method("abrir"):
+		mapa.abrir()
 
 func _on_fly() -> void:
 	AudioManager.play_sfx("confirm")

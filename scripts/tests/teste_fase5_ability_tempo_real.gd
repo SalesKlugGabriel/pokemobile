@@ -34,12 +34,25 @@ func _process(_delta: float) -> bool:
 	# ---- calculate_damage() aplica o multiplicador de ability de ponta a ponta ----
 	var move_data := { "power": 40, "type": "Fire", "category": "special" }
 	var defender_stats := { "def": 50, "types": ["Normal"] }
-	var dano_hp_cheio := DamageCalculator.calculate_damage(
-		move_data, { "atk": 50, "ability": "Blaze", "hp_ratio": 0.9 }, defender_stats)
-	var dano_hp_baixo := DamageCalculator.calculate_damage(
-		move_data, { "atk": 50, "ability": "Blaze", "hp_ratio": 0.2 }, defender_stats)
+	# 🔴 05/09: esta conferência era INSTÁVEL. `calculate_damage()` tem o sorteio
+	# de 85%-100% do jogo dentro dela, então uma única amostra de cada lado podia
+	# empatar (visto em produção: "40 > 40" numa rodada, verde nas três
+	# seguintes). Teste que falha 1 vez em N não protege nada — ele só ensina a
+	# ignorar a suíte. Agora compara a MÉDIA de 40 amostras, onde o sorteio se
+	# cancela e o que sobra é o multiplicador que se quer medir.
+	var amostras := 40
+	var soma_cheio := 0
+	var soma_baixo := 0
+	for i in amostras:
+		soma_cheio += DamageCalculator.calculate_damage(
+			move_data, { "atk": 50, "ability": "Blaze", "hp_ratio": 0.9 }, defender_stats)
+		soma_baixo += DamageCalculator.calculate_damage(
+			move_data, { "atk": 50, "ability": "Blaze", "hp_ratio": 0.2 }, defender_stats)
+	var dano_hp_cheio : float = float(soma_cheio) / amostras
+	var dano_hp_baixo : float = float(soma_baixo) / amostras
 	_assert(dano_hp_baixo > dano_hp_cheio,
-		"calculate_damage() dá mais dano com Blaze + HP baixo (%d > %d)" % [dano_hp_baixo, dano_hp_cheio])
+		"calculate_damage() dá mais dano com Blaze + HP baixo (%.1f > %.1f, média de %d)" % [
+			dano_hp_baixo, dano_hp_cheio, amostras])
 	# Fator crítico/aleatório do próprio DamageCalculator tem variação — margem generosa,
 	# só confirmando que bate perto de 1.5x, não exatamente por causa do RNG interno.
 	_assert(float(dano_hp_baixo) >= float(dano_hp_cheio) * 1.3,

@@ -41,9 +41,18 @@ func _process(_delta: float) -> bool:
 	tm.tile_set = ts
 	MapLayouts.paint(tm, "world_map")
 
-	var tile_areia := Vector2i(col, 189)
-	var tile_mar   := Vector2i(col, 200)
-	_assert(MapLayouts.atlas_e_do_char(tm.get_cell_atlas_coords(0, tile_areia), "S"), "tile de praia é areia mesmo")
+	# 05/09: a linha da praia deixou de ser fixa. A costa passou a ser ONDULADA
+	# (`MapLayouts.ondular_costa`) — era uma reta perfeita de 565 tiles, o que
+	# fazia o mapa visto de cima parecer planta baixa. Fixar "praia = linha 189"
+	# passou a estar errado por design; o teste procura a praia em vez de supor
+	# onde ela está, que é o que ele sempre quis conferir.
+	var tile_areia := Vector2i(col, -1)
+	for r in range(180, 210):
+		if MapLayouts.atlas_e_do_char(tm.get_cell_atlas_coords(0, Vector2i(col, r)), "S"):
+			tile_areia = Vector2i(col, r)
+			break
+	var tile_mar   := Vector2i(col, 210)
+	_assert(tile_areia.y >= 0, "existe praia nesta coluna (achada na linha %d)" % tile_areia.y)
 	_assert(tm.get_cell_atlas_coords(0, tile_mar) == MapLayouts.CHAR_MAP["~"], "tile de mar é água mesma")
 
 	var td_areia : TileData = tm.get_cell_tile_data(0, tile_areia)

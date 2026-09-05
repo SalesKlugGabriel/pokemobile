@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/ui/GameOverScene.tscn" id="1_gameover"]
 [ext_resource type="PackedScene" path="res://scenes/ui/PokedexScene.tscn" id="2_pokedex"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CreditsScene.tscn" id="3_credits"]
 [ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="4_touch"]
 [ext_resource type="PackedScene" path="res://scenes/ui/QuestHUD.tscn" id="5_quest"]
+[ext_resource type="PackedScene" path="res://scenes/ui/MapaMundi.tscn" id="6_mapa"]
 
 [node name="GlobalUI" type="Node"]
 
@@ -17,3 +18,5 @@
 [node name="TouchControls" parent="." instance=ExtResource("4_touch")]
 
 [node name="QuestHUD" parent="." instance=ExtResource("5_quest")]
+
+[node name="MapaMundi" parent="." instance=ExtResource("6_mapa")]
