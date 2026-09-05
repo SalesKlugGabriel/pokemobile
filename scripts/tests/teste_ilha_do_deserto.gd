@@ -44,9 +44,13 @@ func _process(_delta: float) -> bool:
 	_assert(cantos_secos == 0, "os quatro cantos são mar — é ilha, não pedaço de continente")
 
 	# ---- 2. O recinto de ruínas, com parede de hieróglifos e entrada -----
-	var mosaico : int = AjudaMapa.conta_char(tiles, ret, ["%"])
+	# 05/09: era `mosaico > 300`, calibrado no recinto de 23x17 da primeira
+	# versão. O templo encolheu de propósito (lia como estacionamento) e ganhou
+	# um anel de degraus junto à parede — número cravado reprovaria a melhoria.
+	# Mosaico e degrau são os dois o PISO do templo; é a área andável que importa.
+	var piso : int = AjudaMapa.conta_char(tiles, ret, ["%", "="])
 	var parede : int = AjudaMapa.conta_char(tiles, ret, ["["])
-	_assert(mosaico > 300, "o recinto de ruínas tem piso de mosaico (%d tiles)" % mosaico)
+	_assert(piso > 120, "o templo tem piso de pedra pra andar dentro (%d tiles)" % piso)
 	_assert(parede > 50, "cercado por parede de hieróglifos (%d tiles)" % parede)
 	# a parede tem que ter uma abertura — recinto lacrado é conteúdo inalcançável
 	var linha_sul : String = ""
