@@ -3585,3 +3585,58 @@ ao sul cadastrada e ainda pega o defeito de verdade (zona fora do mapa).
 
 **Testado:** 69 arquivos (`teste_ilha_do_deserto.gd` novo, 17 conferências),
 pelo código de saída. Publicado.
+
+---
+
+## 05/09/2026 — Os três covis lendários
+
+**Pedido do Gabriel:** Articuno numa ilha congelada ao norte de Cerulean, com
+montanha de 10 andares infestada de Água/Gelo, e ao chegar no topo descer por
+dentro da ilha até o subterrâneo; a mesma ideia pro Moltres; e uma usina com
+labirinto e Pokémon elétricos. "Pense em um minigame semelhante para cada
+encontro com Pokémon lendário, eles devem ser incrivelmente difíceis de
+alcançar."
+
+**Um minigame por lendário, cada um quebrando uma regra de movimento:**
+- **Articuno — Ilha Gélida.** GELO ESCORREGADIO: pisar não anda um tile, desliza
+  até bater. 10 andares de montanha + 5 de caverna descendo por dentro da ilha,
+  até o ninho.
+- **Moltres — Cratera do Vulcão.** PISO QUEBRADIÇO: a pedra pisada vira lava
+  atrás de você. Não existe voltar; entrar num beco custa o andar. 10 andares.
+- **Zapdos — Usina.** PORTÕES ELÉTRICOS: cada alavanca inverte TODOS os portões.
+  Abrir um caminho fecha outro. 6 setores.
+
+**A regra que rege a peça: todo andar é gerado E PROVADO.** Um andar de gelo mal
+sorteado simplesmente não tem saída — e isso não é "difícil", é um jogo quebrado
+que só aparece pra quem já subiu catorze andares. O gerador confere e conserta.
+
+**🔴 Erro meu, achado pela própria prova:** a primeira versão só conferia se
+havia solução, e o andar 1 saía com solução de UM movimento — desliza pra cima e
+acabou, porque a coluna da entrada estava limpa até a escada. Solucionável e
+trivial ao mesmo tempo. Passou a medir a DIFICULDADE também: o caminho mais
+curto precisa de pelo menos `4 + andar` deslizes, e o gerador bloqueia atalhos
+até chegar lá. Hoje vai de 5 (andar 1) a 15 (andar 10) escolhas certas seguidas.
+Segundo erro na mesma função: ela desistia no primeiro corte que fechava o andar,
+em vez de tentar outro — três dos dez andares saíam bem abaixo do mínimo.
+
+**A conferência mais importante do arquivo de teste** não é nenhuma dessas: é
+que `EfeitosDeTerreno.destino_do_deslize` (o jogo) e `CovisLendarios._deslizar`
+(o gerador) concordam. Se discordassem num único caso, o andar provado
+solucionável deixaria de ser — e o jogador ficaria trancado quinze andares
+dentro do covil. São comparadas em 1.340 pontos.
+
+**Também construído:** arte de gelo (piso rachado, bloco com brilho, neve,
+estalactite, água congelada); a Ilha Gélida no mapa do mundo ao norte da Casa do
+Bill, alcançável só de Surf; 31 cenas de andar geradas por script
+(`tools/gerar_cenas_covis.py` — 31 arquivos à mão são 31 chances de digitar o
+warp errado, e warp errado num covil de 15 andares só aparece lá dentro); 32
+zonas com os Pokémon que o Gabriel pediu (Shellder, Cloyster, Dewgong, Lapras,
+Jynx no gelo; Growlithe/Ponyta/Magmar na cratera; Voltorb/Magnemite/Electabuzz
+na usina); e o `NinhoLendario`, que põe o lendário nível 50 sozinho no último
+andar — e nunca mais, se ele for derrotado sem captura (gravado no save).
+
+**Leitura que fiz do pedido:** o Gabriel escreveu "moltres" duas vezes; a
+segunda, na frase da usina com Pokémon elétricos, é o **Zapdos** — usina +
+elétrico + labirinto não é o pássaro de fogo. Construí como Zapdos.
+
+**Testado:** `teste_covis_lendarios.gd`, 18 conferências, todas passando.

@@ -264,6 +264,10 @@ func _spawn_follower() -> void:
 func _process(_delta: float) -> void:
 	if _input_locked:
 		return
+	# No gelo o jogador não escolhe: escorrega até bater. É a regra que faz o
+	# covil do Articuno ser um quebra-cabeça e não um corredor.
+	if _deslizando:
+		return
 
 	var dir := _read_direction()
 	if dir != -1:
@@ -369,6 +373,56 @@ func _on_tile_entered(tile: Vector2i) -> void:
 	is_flying  = na_agua and _pode_voar()
 	is_surfing = na_agua and not is_flying and _pode_surfar()
 	EventBus.player_tile_entered.emit(tile)
+	_aplicar_efeito_de_terreno(tile)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Terreno com efeito — os minigames dos covis lendários (05/09)
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Tile de onde o jogador acabou de sair, pra saber o que desmoronar atrás dele.
+var _tile_anterior : Vector2i = Vector2i(-99999, -99999)
+## True enquanto ele escorrega: durante o deslize o controle não obedece, e é
+## justamente isso que faz o gelo ser um quebra-cabeça e não uma caminhada.
+var _deslizando : bool = false
+
+func _aplicar_efeito_de_terreno(tile: Vector2i) -> void:
+	var tm = WorldManager.tilemap
+	if tm == null:
+		return
+
+	# ── Cratera do Moltres: a pedra rachada vira lava ATRÁS do jogador ──
+	# Desmorona o tile de onde ele SAIU, nunca o que ele pisou — senão ele
+	# cairia no próprio passo e o andar seria impossível, não difícil.
+	if _tile_anterior.x != -99999 and _tile_anterior != tile:
+		EfeitosDeTerreno.desmoronar(tm, _tile_anterior)
+	_tile_anterior = tile
+
+	# ── Usina do Zapdos: pisar na alavanca inverte todos os portões ──
+	if EfeitosDeTerreno.e_alavanca(tm, tile):
+		var trocados := EfeitosDeTerreno.inverter_portoes(tm)
+		if trocados > 0:
+			AudioManager.play_sfx("confirm")
+
+	# ── Ilha Gélida do Articuno: continua escorregando na mesma direção ──
+	if EfeitosDeTerreno.e_gelo(tm, tile):
+		_deslizar_no_gelo()
+	else:
+		_deslizando = false
+
+## Dá o próximo passo do deslize. Um passo por vez, e não um salto até o fim,
+## porque o jogador precisa VER o boneco atravessar a pista — é o que torna o
+## erro legível ("passei do ponto") em vez de teletransporte.
+func _deslizar_no_gelo() -> void:
+	var tm = WorldManager.tilemap
+	if tm == null:
+		return
+	var d := _dir_to_vec(facing)
+	var proximo : Vector2i = grid_pos + d
+	if not _is_tile_walkable(proximo):
+		_deslizando = false      # bateu: o jogador reassume o controle
+		return
+	_deslizando = true
+	try_move(facing)
 
 ## Correção 03/09 (pedido do Gabriel): era "qualquer Pokémon sabendo o golpe
 ## Surfar/Voar", virou "TER um dos Pokémon de verdade capazes disso no

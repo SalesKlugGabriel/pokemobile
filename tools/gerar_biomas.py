@@ -38,7 +38,7 @@ from PIL import Image, ImageDraw, ImageFilter
 ATLAS = "assets/tilesets/overworld.png"
 T = 128
 COLS = 8
-LINHAS_TOTAIS = 24          # o atlas cresce até aqui
+LINHAS_TOTAIS = 25          # o atlas cresce até aqui
 
 LINHA_PANTANO = 14
 LINHA_MONTANHA = 15
@@ -48,6 +48,7 @@ LINHA_ASSOMBRADO = 18
 LINHA_MATA_FECHADA = 19
 LINHA_PONTE = 20
 LINHA_ESTRUTURAS = 21       # ocupa 21, 22 e 23
+LINHA_GELO = 24             # covil do Articuno + bioma glacial
 
 
 # ── ruído ───────────────────────────────────────────────────────────────────
@@ -527,6 +528,75 @@ def mata_samambaia():
     return img
 
 
+# ── 24. GELO (covil do Articuno / bioma glacial) ────────────────────────────
+G_BASE, G_CLARO, G_ESCURO = (198, 224, 236), (232, 245, 252), (156, 190, 210)
+G_BLOCO, G_BLOCO_LUZ, G_BLOCO_ESC, G_CONT = (150, 200, 224), (206, 236, 250), (96, 148, 182), (54, 96, 128)
+
+
+def gelo_chao(sal=1):
+    """Piso de gelo. Claro e frio de propósito: é o chão em que o jogador
+    DESLIZA, e ele precisa distinguir isso da pedra num relance — a mecânica do
+    covil inteiro depende de essa leitura ser instantânea."""
+    img = _chao(G_BASE, G_CLARO, G_ESCURO, 900 + sal, celulas=8, forca=0.4, granulado=0.16)
+    d = ImageDraw.Draw(img, "RGBA")
+    # rachaduras finas, o traço que diz "isto é gelo, não pedra clara"
+    for i in range(4):
+        x0 = (_hash(i, 3, 900 + sal) % T)
+        pontos = [(x0, 0)]
+        for k in range(1, 7):
+            x0 = max(2, min(T - 2, x0 + (_hash(i, k, 901 + sal) % 25) - 12))
+            pontos.append((x0, k * 21))
+        d.line(pontos, fill=(178, 208, 226, 190), width=2)
+    return img
+
+
+def gelo_bloco():
+    """Bloco de gelo: é ele que segura o deslize. Volume forte e brilho
+    especular no alto-esquerda pra ler como obstáculo à distância."""
+    img = gelo_chao(5)
+    img = _sombra(img, 64, 116, 44, alpha=80)
+    d = ImageDraw.Draw(img, "RGBA")
+    d.polygon([(14, 40), (64, 12), (114, 40), (114, 100), (64, 122), (14, 100)],
+              fill=G_BLOCO, outline=G_CONT, width=4)
+    d.polygon([(14, 40), (64, 12), (64, 66), (14, 92)], fill=G_BLOCO_LUZ)
+    d.polygon([(64, 66), (114, 40), (114, 100), (64, 122)], fill=G_BLOCO_ESC)
+    d.line([(24, 52), (46, 38)], fill=(255, 255, 255, 220), width=5)
+    d.line([(30, 66), (40, 58)], fill=(255, 255, 255, 170), width=3)
+    return img
+
+
+def gelo_neve():
+    img = _chao((238, 244, 250), (252, 254, 255), (208, 220, 234), 930,
+                celulas=8, forca=0.3, granulado=0.12)
+    d = ImageDraw.Draw(img, "RGBA")
+    for i in range(26):
+        x = _hash(i, 1, 931) % T
+        y = _hash(i, 2, 931) % T
+        d.ellipse((x - 2, y - 2, x + 2, y + 2), fill=(255, 255, 255, 230))
+    return img
+
+
+def gelo_estalactite():
+    img = gelo_chao(6)
+    d = ImageDraw.Draw(img, "RGBA")
+    for i in range(5):
+        x = 14 + i * 25 + (_hash(i, 4, 940) % 6)
+        alt = 40 + (_hash(i, 5, 940) % 40)
+        d.polygon([(x - 9, 0), (x + 9, 0), (x, alt)], fill=G_BLOCO, outline=G_CONT)
+        d.polygon([(x - 9, 0), (x - 1, 0), (x - 3, alt * 0.7)], fill=G_BLOCO_LUZ)
+    return img
+
+
+def gelo_agua_congelada():
+    img = _chao((120, 172, 206), (156, 204, 232), (84, 132, 172), 950,
+                celulas=4, forca=0.5)
+    d = ImageDraw.Draw(img, "RGBA")
+    for i in range(6):
+        y = 10 + i * 21
+        d.line([(0, y), (T, y + (_hash(i, 6, 951) % 9) - 4)], fill=(198, 230, 246, 130), width=3)
+    return img
+
+
 # ── 20. PONTE ───────────────────────────────────────────────────────────────
 PT_BASE, PT_LUZ, PT_ESC, PT_CONT = (146, 106, 62), (182, 140, 88), (104, 72, 40), (58, 38, 20)
 
@@ -699,6 +769,8 @@ def main():
                             [mata_cogumelo(), mata_raiz(), mata_samambaia(), mata_chao(9)],
         LINHA_PONTE: [ponte_h_meio(), ponte_h_esq(), ponte_h_dir(), ponte_v_meio(),
                       ponte_v_topo(), ponte_v_base(), ponte_poste(), ponte_encosto()],
+        LINHA_GELO: [gelo_chao(1)] + _variantes(gelo_chao) +
+                    [gelo_bloco(), gelo_neve(), gelo_estalactite(), gelo_agua_congelada()],
     }
     for linha, tiles in linhas.items():
         for c, t in enumerate(tiles[:COLS]):

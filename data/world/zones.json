@@ -2547,6 +2547,1904 @@
         }
       ],
       "notes": "Cena própria (CeladonGameCorner.tscn, 02/09, MAIN-06) — cassino fachada da Equipe Rocket, com o Quartel General escondido embaixo (mesma cena, warp adicional)."
+    },
+    {
+      "id": "ilha_gelida_f1",
+      "name": "Ilha Gélida 1F",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_f2",
+      "name": "Ilha Gélida 2F",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_f3",
+      "name": "Ilha Gélida 3F",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_f4",
+      "name": "Ilha Gélida 4F",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_f5",
+      "name": "Ilha Gélida 5F",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_f6",
+      "name": "Ilha Gélida 6F",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_f7",
+      "name": "Ilha Gélida 7F",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_f8",
+      "name": "Ilha Gélida 8F",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_f9",
+      "name": "Ilha Gélida 9F",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_f10",
+      "name": "Ilha Gélida 10F",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_b1",
+      "name": "Caverna Gélida B1",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_b2",
+      "name": "Caverna Gélida B2",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_b3",
+      "name": "Caverna Gélida B3",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_b4",
+      "name": "Caverna Gélida B4",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida_b5",
+      "name": "Caverna Gélida B5",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 21,
+        "h": 21
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [],
+      "npcs": []
+    },
+    {
+      "id": "cratera_b1",
+      "name": "Cratera do Vulcão B1",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 19,
+        "h": 19
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 22
+        },
+        {
+          "id": 59,
+          "name": "Arcanine",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 6
+        },
+        {
+          "id": 77,
+          "name": "Ponyta",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 78,
+          "name": "Rapidash",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 8
+        },
+        {
+          "id": 126,
+          "name": "Magmar",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 18
+        },
+        {
+          "id": 37,
+          "name": "Vulpix",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 14
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 8
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "cratera_b2",
+      "name": "Cratera do Vulcão B2",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 19,
+        "h": 19
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 22
+        },
+        {
+          "id": 59,
+          "name": "Arcanine",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 6
+        },
+        {
+          "id": 77,
+          "name": "Ponyta",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 78,
+          "name": "Rapidash",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 8
+        },
+        {
+          "id": 126,
+          "name": "Magmar",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 18
+        },
+        {
+          "id": 37,
+          "name": "Vulpix",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 14
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 8
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "cratera_b3",
+      "name": "Cratera do Vulcão B3",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 19,
+        "h": 19
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 22
+        },
+        {
+          "id": 59,
+          "name": "Arcanine",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 6
+        },
+        {
+          "id": 77,
+          "name": "Ponyta",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 78,
+          "name": "Rapidash",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 8
+        },
+        {
+          "id": 126,
+          "name": "Magmar",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 18
+        },
+        {
+          "id": 37,
+          "name": "Vulpix",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 14
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 8
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "cratera_b4",
+      "name": "Cratera do Vulcão B4",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 19,
+        "h": 19
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 22
+        },
+        {
+          "id": 59,
+          "name": "Arcanine",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 6
+        },
+        {
+          "id": 77,
+          "name": "Ponyta",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 78,
+          "name": "Rapidash",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 8
+        },
+        {
+          "id": 126,
+          "name": "Magmar",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 18
+        },
+        {
+          "id": 37,
+          "name": "Vulpix",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 14
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 8
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "cratera_b5",
+      "name": "Cratera do Vulcão B5",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 19,
+        "h": 19
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 22
+        },
+        {
+          "id": 59,
+          "name": "Arcanine",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 6
+        },
+        {
+          "id": 77,
+          "name": "Ponyta",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 78,
+          "name": "Rapidash",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 8
+        },
+        {
+          "id": 126,
+          "name": "Magmar",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 18
+        },
+        {
+          "id": 37,
+          "name": "Vulpix",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 14
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 8
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "cratera_b6",
+      "name": "Cratera do Vulcão B6",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 19,
+        "h": 19
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 22
+        },
+        {
+          "id": 59,
+          "name": "Arcanine",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 6
+        },
+        {
+          "id": 77,
+          "name": "Ponyta",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 78,
+          "name": "Rapidash",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 8
+        },
+        {
+          "id": 126,
+          "name": "Magmar",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 18
+        },
+        {
+          "id": 37,
+          "name": "Vulpix",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 14
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 8
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "cratera_b7",
+      "name": "Cratera do Vulcão B7",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 19,
+        "h": 19
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 22
+        },
+        {
+          "id": 59,
+          "name": "Arcanine",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 6
+        },
+        {
+          "id": 77,
+          "name": "Ponyta",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 78,
+          "name": "Rapidash",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 8
+        },
+        {
+          "id": 126,
+          "name": "Magmar",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 18
+        },
+        {
+          "id": 37,
+          "name": "Vulpix",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 14
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 8
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "cratera_b8",
+      "name": "Cratera do Vulcão B8",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 19,
+        "h": 19
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 22
+        },
+        {
+          "id": 59,
+          "name": "Arcanine",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 6
+        },
+        {
+          "id": 77,
+          "name": "Ponyta",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 78,
+          "name": "Rapidash",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 8
+        },
+        {
+          "id": 126,
+          "name": "Magmar",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 18
+        },
+        {
+          "id": 37,
+          "name": "Vulpix",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 14
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 8
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "cratera_b9",
+      "name": "Cratera do Vulcão B9",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 19,
+        "h": 19
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 22
+        },
+        {
+          "id": 59,
+          "name": "Arcanine",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 6
+        },
+        {
+          "id": 77,
+          "name": "Ponyta",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 78,
+          "name": "Rapidash",
+          "level_min": 42,
+          "level_max": 50,
+          "weight": 8
+        },
+        {
+          "id": 126,
+          "name": "Magmar",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 18
+        },
+        {
+          "id": 37,
+          "name": "Vulpix",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 14
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 8
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "cratera_b10",
+      "name": "Cratera do Vulcão B10",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 19,
+        "h": 19
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [],
+      "npcs": []
+    },
+    {
+      "id": "usina_s1",
+      "name": "Usina — Setor 1",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 25,
+        "h": 25
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 100,
+          "name": "Voltorb",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 26
+        },
+        {
+          "id": 101,
+          "name": "Electrode",
+          "level_min": 40,
+          "level_max": 48,
+          "weight": 12
+        },
+        {
+          "id": 81,
+          "name": "Magnemite",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 82,
+          "name": "Magneton",
+          "level_min": 40,
+          "level_max": 48,
+          "weight": 12
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 16
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level_min": 40,
+          "level_max": 46,
+          "weight": 6
+        },
+        {
+          "id": 125,
+          "name": "Electabuzz",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 4
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "usina_s2",
+      "name": "Usina — Setor 2",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 25,
+        "h": 25
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 100,
+          "name": "Voltorb",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 26
+        },
+        {
+          "id": 101,
+          "name": "Electrode",
+          "level_min": 40,
+          "level_max": 48,
+          "weight": 12
+        },
+        {
+          "id": 81,
+          "name": "Magnemite",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 82,
+          "name": "Magneton",
+          "level_min": 40,
+          "level_max": 48,
+          "weight": 12
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 16
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level_min": 40,
+          "level_max": 46,
+          "weight": 6
+        },
+        {
+          "id": 125,
+          "name": "Electabuzz",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 4
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "usina_s3",
+      "name": "Usina — Setor 3",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 25,
+        "h": 25
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 100,
+          "name": "Voltorb",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 26
+        },
+        {
+          "id": 101,
+          "name": "Electrode",
+          "level_min": 40,
+          "level_max": 48,
+          "weight": 12
+        },
+        {
+          "id": 81,
+          "name": "Magnemite",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 82,
+          "name": "Magneton",
+          "level_min": 40,
+          "level_max": 48,
+          "weight": 12
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 16
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level_min": 40,
+          "level_max": 46,
+          "weight": 6
+        },
+        {
+          "id": 125,
+          "name": "Electabuzz",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 4
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "usina_s4",
+      "name": "Usina — Setor 4",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 25,
+        "h": 25
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 100,
+          "name": "Voltorb",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 26
+        },
+        {
+          "id": 101,
+          "name": "Electrode",
+          "level_min": 40,
+          "level_max": 48,
+          "weight": 12
+        },
+        {
+          "id": 81,
+          "name": "Magnemite",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 82,
+          "name": "Magneton",
+          "level_min": 40,
+          "level_max": 48,
+          "weight": 12
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 16
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level_min": 40,
+          "level_max": 46,
+          "weight": 6
+        },
+        {
+          "id": 125,
+          "name": "Electabuzz",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 4
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "usina_s5",
+      "name": "Usina — Setor 5",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 25,
+        "h": 25
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 100,
+          "name": "Voltorb",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 26
+        },
+        {
+          "id": 101,
+          "name": "Electrode",
+          "level_min": 40,
+          "level_max": 48,
+          "weight": 12
+        },
+        {
+          "id": 81,
+          "name": "Magnemite",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 24
+        },
+        {
+          "id": 82,
+          "name": "Magneton",
+          "level_min": 40,
+          "level_max": 48,
+          "weight": 12
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 16
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level_min": 40,
+          "level_max": 46,
+          "weight": 6
+        },
+        {
+          "id": 125,
+          "name": "Electabuzz",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 4
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "usina_s6",
+      "name": "Usina — Setor 6",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 25,
+        "h": 25
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [],
+      "npcs": []
+    },
+    {
+      "id": "ilha_gelida",
+      "name": "Ilha Gélida",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 228,
+        "y": -80,
+        "w": 46,
+        "h": 40
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 10
+        },
+        {
+          "id": 86,
+          "name": "Seel",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
+        },
+        {
+          "id": 87,
+          "name": "Dewgong",
+          "level_min": 38,
+          "level_max": 46,
+          "weight": 12
+        },
+        {
+          "id": 124,
+          "name": "Jynx",
+          "level_min": 34,
+          "level_max": 42,
+          "weight": 13
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 5
+        },
+        {
+          "id": 55,
+          "name": "Golduck",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 5
+        }
+      ],
+      "npcs": []
     }
   ]
 }

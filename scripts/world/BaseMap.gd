@@ -36,6 +36,9 @@ func _ready() -> void:
 	if structure_id != "" and floor_number > 0:
 		EventBus.floor_reached.emit(structure_id, floor_number)
 	_setup_world_systems()
+	# Lendário do ninho, se este mapa for o fim de um covil (05/09). Depois de
+	# `_setup_world_systems` de propósito: precisa do SpawnManager já ligado.
+	NinhoLendario.povoar(self, map_id)
 	# O mundo aberto tem UM tile condicionado a estado de save (a porta do
 	# Ginásio de Viridian, que só abre depois de MAIN-08) — repinta se uma
 	# quest completar enquanto o mapa já está carregado, senão o jogador só

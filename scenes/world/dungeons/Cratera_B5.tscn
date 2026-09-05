@@ -1,0 +1,75 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
+[ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
+[ext_resource type="Script" path="res://scripts/world/systems/ZoneManager.gd" id="3_zm"]
+[ext_resource type="Script" path="res://scripts/world/systems/SpawnManager.gd" id="4_sm"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld.tres" id="5_tileset"]
+[ext_resource type="PackedScene" path="res://scenes/ui/DialogBox.tscn" id="6_dialog"]
+[ext_resource type="PackedScene" path="res://scenes/ui/OverworldHUD.tscn" id="7_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="8_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PartyScene.tscn" id="9_party"]
+[ext_resource type="PackedScene" path="res://scenes/world/WarpZone.tscn" id="10_warpzone"]
+
+[sub_resource type="RectangleShape2D" id="Shape_warp"]
+size = Vector2(128, 128)
+
+[node name="Cratera_B5" type="Node2D"]
+script = ExtResource("1_basemap")
+map_id = "cratera_b5"
+structure_id = "cratera"
+floor_number = 5
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = ExtResource("5_tileset")
+format = 2
+
+[node name="Entities" type="Node2D" parent="."]
+
+[node name="WildPokemons" type="Node2D" parent="Entities"]
+
+[node name="NPCs" type="Node2D" parent="Entities"]
+
+[node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
+position = Vector2(1216, 192)
+
+[node name="Camera2D" type="Camera2D" parent="Entities/Player"]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+limit_left = 0
+limit_top = 0
+limit_right = 2432
+limit_bottom = 2432
+zoom = Vector2(1, 1)
+
+[node name="ZoneManager" type="Node" parent="."]
+script = ExtResource("3_zm")
+
+[node name="SpawnManager" type="Node" parent="."]
+script = ExtResource("4_sm")
+
+[node name="WarpZones" type="Node2D" parent="."]
+
+[node name="Subir" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(1216, 64)
+target_map = "res://scenes/world/dungeons/Cratera_B4.tscn"
+spawn_tile = Vector2i(9, 17)
+
+[node name="CollisionShape2D" parent="WarpZones/Subir"]
+shape = SubResource("Shape_warp")
+
+[node name="Descer" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(1216, 2240)
+target_map = "res://scenes/world/dungeons/Cratera_B6.tscn"
+spawn_tile = Vector2i(9, 1)
+
+[node name="CollisionShape2D" parent="WarpZones/Descer"]
+shape = SubResource("Shape_warp")
+
+[node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
+
+[node name="OverworldHUD" parent="." instance=ExtResource("7_hud")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("8_pause")]
+
+[node name="PartyScene" parent="." instance=ExtResource("9_party")]

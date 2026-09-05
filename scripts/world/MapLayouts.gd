@@ -90,6 +90,9 @@ const CHAR_MAP : Dictionary = {
 	"?": Vector2i(4, 19),   # cogumelo brilhante
 	"`": Vector2i(5, 19),   # raiz
 	# ponte (as pontas são escolhidas por pós-passada, ver `costurar_pontes`)
+	# ── Gelo (covil do Articuno / bioma glacial) ────────────────────────────
+	",": Vector2i(0, 24),   # piso de gelo — é nele que o jogador DESLIZA
+	"\"": Vector2i(4, 24),  # bloco de gelo (bloqueia; é o que segura o deslize)
 	"#": Vector2i(0, 20),   # ponte horizontal
 	"-": Vector2i(3, 20),   # ponte vertical
 	"w": Vector2i(4, 8),
@@ -219,7 +222,11 @@ const H_TOTAL : int = 374   # Cerulean→Saffron→Vermilion→costa→usina→I
 # negativa de verdade (testado) — só a pintura (`paint()`) sabe do ramo.
 const ROUTE24_ROWS : int = 20   # mais perto de Cerulean
 const ROUTE25_ROWS : int = 20   # mais ao norte, termina na Casa do Bill
-const NORTE_OFFSET : int = ROUTE24_ROWS + ROUTE25_ROWS  # 40
+## +40 em 05/09: a ILHA GÉLIDA (covil do Articuno) fica no mar ao norte da
+## Casa do Bill. Ao norte de Cerulean é o único lugar de Kanto que já é mar
+## aberto do outro lado, então cabe uma ilha sem deslocar nada.
+const ILHA_GELIDA_ROWS : int = 40
+const NORTE_OFFSET : int = ROUTE24_ROWS + ROUTE25_ROWS + ILHA_GELIDA_ROWS  # 80
 # Colunas globais do corredor (dentro da faixa de Cerulean: cc 27-29 local).
 const RAMO_NORTE_COL_INICIO : int = SPINE_COL_INICIO + 27
 const RAMO_NORTE_COL_FIM    : int = SPINE_COL_INICIO + 29
@@ -316,6 +323,8 @@ static func _gen_norte_de_cerulean() -> Array:
 		for c in W:
 			if r == -NORTE_OFFSET or c == 0 or c >= W - 1:
 				row += "T"
+			elif r < -(ROUTE24_ROWS + ROUTE25_ROWS):
+				row += _ilha_gelida_cell(c, r + NORTE_OFFSET, W)
 			else:
 				row += _norte_de_cerulean_cell(c, r, W)
 		grid.append(row)
@@ -482,6 +491,39 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 # mais perto de Cerulean — só pra deixar a aritmética legível, igual ao
 # resto do arquivo usa números pequenos crescendo "pra dentro" da cidade.
 # ──────────────────────────────────────────────────────────────────────────────
+## A Ilha Gélida — covil do Articuno (05/09).
+##
+## Fica no mar ao norte da Casa do Bill: mar, anel de praia congelada, encosta
+## de gelo e, no centro, a boca da montanha por onde se sobe os 10 andares. É
+## alcançável só de Surf, então não desloca nada do Kanto canônico — mesma
+## solução da Ilha do Deserto.
+##
+## `gr` é a linha local dentro da faixa da ilha (0 = a mais ao norte).
+static func _ilha_gelida_cell(c: int, gr: int, W: int) -> String:
+	var centro_x : int = 250
+	var centro_y : int = ILHA_GELIDA_ROWS / 2
+	var dx := float(c - centro_x)
+	var dy := float(gr - centro_y)
+	var ang := atan2(dy, dx)
+	var dist := sqrt(dx * dx + dy * dy)
+	var raio := 17.0 + 2.5 * sin(ang * 3.0) + 1.5 * sin(ang * 5.0)
+
+	if dist >= raio:
+		return "~"
+	if dist >= raio - 2.0:
+		return "S"                       # praia congelada
+	if dist >= raio - 5.0:
+		return ","                       # anel de gelo
+	# encosta: blocos de gelo espalhados, com a boca da montanha no centro
+	if absi(c - centro_x) <= 1 and absi(gr - centro_y) <= 1:
+		return "D"                       # entrada da montanha (warp pra F1)
+	var d := _espalhar_sal(c, gr, 970)
+	if d < 4:
+		return "\""                      # bloco de gelo
+	if d < 6:
+		return "^"                       # rocha exposta
+	return ","
+
 static func _norte_de_cerulean_cell(c: int, r: int, W: int) -> String:
 	var fb := r + NORTE_OFFSET
 
@@ -2588,6 +2630,42 @@ static func get_layout(map_id: String) -> Dictionary:
 			return {"tiles": _gen_cerulean_cave_floor(n, true), "width": 20, "height": 30}
 		"cerulean_cave_f7":
 			return {"tiles": _gen_cerulean_cave_floor(7, false), "width": 20, "height": 30}
+		# ── Covis lendários (05/09) ─────────────────────────────────────────
+		# Cada andar é gerado E PROVADO por `CovisLendarios`: o gerador confere
+		# que existe caminho da entrada até a saída e que ele exige um número
+		# mínimo de jogadas certas. Andar sem solução não seria "difícil" —
+		# seria um jogo quebrado que só aparece pra quem já chegou lá.
+		"ilha_gelida_f1", "ilha_gelida_f2", "ilha_gelida_f3", "ilha_gelida_f4", \
+		"ilha_gelida_f5", "ilha_gelida_f6", "ilha_gelida_f7", "ilha_gelida_f8", \
+		"ilha_gelida_f9":
+			var ng := int(map_id.substr(map_id.length() - 1))
+			return {"tiles": CovisLendarios.gerar_andar_gelo(ng, true),
+				"width": CovisLendarios.GELO_L, "height": CovisLendarios.GELO_A}
+		"ilha_gelida_f10":
+			return {"tiles": CovisLendarios.gerar_andar_gelo(10, false),
+				"width": CovisLendarios.GELO_L, "height": CovisLendarios.GELO_A}
+		"ilha_gelida_b1", "ilha_gelida_b2", "ilha_gelida_b3", "ilha_gelida_b4":
+			var nb := int(map_id.substr(map_id.length() - 1))
+			return {"tiles": CovisLendarios.gerar_caverna_gelo(nb, true),
+				"width": CovisLendarios.GELO_L, "height": CovisLendarios.GELO_A}
+		"ilha_gelida_b5":
+			return {"tiles": CovisLendarios.gerar_caverna_gelo(5, false),
+				"width": CovisLendarios.GELO_L, "height": CovisLendarios.GELO_A}
+		"cratera_b1", "cratera_b2", "cratera_b3", "cratera_b4", "cratera_b5", \
+		"cratera_b6", "cratera_b7", "cratera_b8", "cratera_b9":
+			var nl := int(map_id.substr(map_id.length() - 1))
+			return {"tiles": CovisLendarios.gerar_andar_lava(nl, true),
+				"width": CovisLendarios.LAVA_L, "height": CovisLendarios.LAVA_A}
+		"cratera_b10":
+			return {"tiles": CovisLendarios.gerar_andar_lava(10, false),
+				"width": CovisLendarios.LAVA_L, "height": CovisLendarios.LAVA_A}
+		"usina_s1", "usina_s2", "usina_s3", "usina_s4", "usina_s5":
+			var nu := int(map_id.substr(map_id.length() - 1))
+			return {"tiles": CovisLendarios.gerar_setor_usina(nu, true),
+				"width": CovisLendarios.USINA_L, "height": CovisLendarios.USINA_A}
+		"usina_s6":
+			return {"tiles": CovisLendarios.gerar_setor_usina(6, false),
+				"width": CovisLendarios.USINA_L, "height": CovisLendarios.USINA_A}
 		_:
 			return {}
 
@@ -2628,6 +2706,7 @@ const VARIANTES_TERRENO : Dictionary = {
 	"%": [Vector2i(0, 17), Vector2i(1, 17), Vector2i(2, 17), Vector2i(3, 17)],
 	"&": [Vector2i(0, 18), Vector2i(1, 18), Vector2i(2, 18), Vector2i(3, 18)],
 	"9": [Vector2i(0, 19), Vector2i(1, 19), Vector2i(2, 19), Vector2i(3, 19)],
+	",": [Vector2i(0, 24), Vector2i(1, 24), Vector2i(2, 24), Vector2i(3, 24)],
 }
 
 ## Agrupa as células de PISO INTERNO em prédios separados (regiões conectadas).

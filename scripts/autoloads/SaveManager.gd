@@ -32,6 +32,10 @@ var save_data: Dictionary = {
 		"current_map": "world_map",
 		"last_pokemon_center": "world_map",
 		"visited_maps": [],
+		# Lendários já derrotados SEM captura — o ninho deles fica vazio pro
+		# resto da partida (05/09). No save, não em memória: sair do jogo não
+		# pode dar outra chance.
+		"lendarios_derrotados": [],
 		"defeated_alphas": [],
 		"alpha_respawn_timers": {},
 		"defeated_trainers": []
@@ -123,6 +127,7 @@ func new_game(trainer_name: String, starter_species_id: int) -> void:
 	save_data["world"]["current_map"]          = "world_map"
 	save_data["world"]["last_pokemon_center"]  = "world_map"
 	save_data["world"]["visited_maps"]         = []
+	save_data["world"]["lendarios_derrotados"] = []
 	save_data["world"]["defeated_alphas"]      = []
 	save_data["world"]["alpha_respawn_timers"] = {}
 	save_data["world"]["defeated_trainers"]    = []

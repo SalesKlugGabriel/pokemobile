@@ -91,3 +91,8 @@ signal zone_changed(zone_name: String)
 ## escolheu uma das opções, QuestManager fecha a quest de verdade.
 signal mewtwo_choice_requested()
 signal quest_choice_made(quest_id: String, option: String)
+
+## Um lendário nasceu no ninho dele (05/09). Emitido por `NinhoLendario` quando
+## o jogador chega no último andar de um covil — serve pra quem quiser reagir
+## (música, aviso na tela, quest) sem acoplar no spawn.
+signal legendary_encountered(species_id: int, nome: String)
