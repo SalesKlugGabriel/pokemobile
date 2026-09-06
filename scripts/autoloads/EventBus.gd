@@ -106,5 +106,8 @@ signal legendary_encountered(species_id: int, nome: String)
 ## dentro do BattleScene. Ganhar uma pedra de evolução em silêncio é o mesmo
 ## que não ganhar.
 signal notification_requested(texto: String)
+## O selvagem foi derrotado e caiu no chão — é a janela em que a Pokébola
+## funciona (06/09, regra do Gabriel: captura só depois de vencer).
+signal wild_pokemon_desmaiado(pokemon: Node)
 ## O jogador cruzou o santuário antes da arena do chefe.
 signal dungeon_santuario(covil: String)

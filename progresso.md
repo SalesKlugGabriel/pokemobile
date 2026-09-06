@@ -9,6 +9,43 @@
 
 ---
 
+## Captura só depois de derrotar (2026-09-06)
+
+**Regra nova do Gabriel, valendo no jogo inteiro:** *"a captura deve acontecer
+depois de derrotar o Pokémon selvagem, aparecer uma sprite do Pokémon derrotado
+desmaiado e então usar a pokebola para tentar capturar"*.
+
+Isso muda o **significado** da captura. Antes ela era acertar uma bola num bicho
+que corria — quem tinha mais bolas ganhava. Agora ela é o **prêmio de ter
+vencido a luta**, o que casa com o que ele pediu no mesmo dia: vencer por
+habilidade, pela melhor combinação de elemento e efeitos.
+
+### Como ficou
+
+- Derrotar um selvagem **não o apaga mais**: ele desmaia e fica caído no chão.
+- Sem arte nova: o sprite **deita e perde a cor** — é a leitura universal de
+  "nocauteado", e vale pros 151 de uma vez. Aparece "Desmaiado! Jogue uma
+  Pokébola" em cima dele, pro jogador não ter que adivinhar o que fazer.
+- A Pokébola agora **procura o corpo caído mais perto**, não o selvagem mais
+  perto. Se houver um de pé por perto e nenhum caído, o jogo explica: *"Derrote-o
+  primeiro"* — em vez de gastar a bola à toa.
+- O corpo tem **prazo de 25 segundos**: dá tempo de chegar perto e tentar mais de
+  uma vez, mas a decisão pesa. Passou o prazo, ele se recupera e vai embora.
+- Pokémon de treinador é a única exceção: aquele não é selvagem, não se captura,
+  e some ao cair como sempre.
+
+### O que a regra consertou de graça
+
+**A contradição do lendário.** Até ontem, derrotar um lendário *gastava* a chance
+da partida (a regra "nasce uma vez só") — ou seja, o jeito de conseguir o
+Articuno era não vencê-lo direito. Com a regra nova isso se inverte sozinho:
+derrotar é o **caminho até** a captura. A chance só se perde se o corpo expirar
+sem a Pokébola. Vencer o chefe continua pagando a MT exclusiva de qualquer jeito.
+
+**Testado:** 36 conferências em `teste_sem_turno_e_captura.gd` (que já é a
+segunda geração do mesmo arquivo — nasceu provando que a Safari tinha regra
+própria e foi reescrito quando essa regra deixou de existir).
+
 ## O combate por turno foi APAGADO do jogo (2026-09-06)
 
 **Pedido direto do Gabriel:** *"não quero esse modo de batalha em nenhum lugar
@@ -30,22 +67,18 @@ criava `PokemonEntity`, que disparava a batalha por turno. Ou seja: mesmo depois
 do corte de 02/09, o modo antigo continuava alcançável logo na saída de casa.
 Os três arquivos e os nós nas cenas foram removidos.
 
-### A Safari em tempo real
+### A Safari (construída e desfeita no mesmo dia)
 
-O que a Safari é, em qualquer Pokémon: **o lugar onde você não luta.** Não é uma
-tela diferente, é uma regra diferente — e agora é exatamente isso:
+Primeiro portei a mecânica clássica pro tempo real: ninguém ataca lá, 30 Bolas
+Safari por visita, isca acalma, pedra irrita, e o Pokémon decide ir embora
+sozinho — a tensão saindo de gastar *tempo* em vez de gastar *turnos*.
 
-- seu Pokémon **não ataca** lá (nem no automático, nem por botão), e o selvagem
-  também não;
-- **30 Bolas Safari por visita**, repostas a cada entrada;
-- **isca (C)** acalma — ele foge menos e fica mais difícil de capturar;
-- **pedra (V)** irrita — ele foge mais e fica mais fácil de capturar;
-- ele **decide ir embora** a cada poucos segundos.
-
-A tensão da Safari clássica vinha de gastar *turnos* escolhendo entre isca e
-pedra. Aqui vem de gastar **tempo**: o Pokémon está indo embora enquanto você
-decide. É a mesma decisão, medida por um relógio em vez de por rodadas — sem
-trazer o turno de volta.
+**O Gabriel então corrigiu o rumo: "Safari também vai ser combate puro."** A
+exceção inteira foi apagada (arquivo de regras, teclas de isca/pedra, e as
+consultas de "posso lutar aqui?"). A Zona Safari virou uma zona como outra
+qualquer. Um lugar do mapa com regra de combate própria era justamente o que ele
+não queria — e ele estava certo: eu tinha portado a mecânica em vez de perguntar
+se ela ainda fazia sentido no jogo que ele está descrevendo.
 
 ### 🔴 O que quase se perdeu junto
 

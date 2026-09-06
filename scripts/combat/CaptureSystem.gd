@@ -184,26 +184,17 @@ func attempt_capture(target: WildPokemon, pokeball_type: String) -> bool:
 	if target.is_trainer_owned:
 		return false
 
-	# ZONA SAFARI (06/09) — a mecânica veio do motor por turno, que foi apagado
-	# do jogo. Aqui só valem as 30 Bolas Safari da visita, e a chance é a de
-	# sempre ajustada por isca/pedra: isca acalma (foge menos, captura pior),
-	# pedra irrita (foge mais, captura melhor).
-	if RegrasSafari.e_safari(str(target.zone_id)):
-		if not RegrasSafari.gastar_bola():
-			EventBus.notification_requested.emit("Acabaram as Bolas Safari desta visita.")
-			return false
-		var chance_safari : float = clampf(
-			calculate_catch_chance(target, 0.0, "pokeball") * RegrasSafari.mult_captura(target),
-			0.0, 1.0)
-		EventBus.notification_requested.emit("Bolas Safari: %d" % RegrasSafari.bolas)
-		if not RNGManager.chance(chance_safari):
-			return false
-		var dados_safari := _build_pokemon_data(target)
-		SaveManager.add_pokemon(dados_safari)
-		SaveManager.mark_caught(target.species_id)
-		RegrasSafari.esquecer(target)
-		EventBus.capture_success.emit(dados_safari)
-		return true
+	# 🔴 REGRA DO JOGO INTEIRO (06/09, pedido do Gabriel): **só se captura um
+	# Pokémon DERROTADO**. A bola não funciona em bicho de pé — nem aqui, nem na
+	# Safari (que deixou de ter regra própria: lá também é combate puro).
+	#
+	# Isso muda o significado da captura: ela deixa de ser "acertar uma bola num
+	# alvo que corre" e vira o prêmio de ter vencido a luta. E resolve sozinha a
+	# contradição que existia com os lendários — antes, derrotar GASTAVA a
+	# chance de capturar; agora derrotar é o caminho até ela.
+	if not (target.has_method("esta_desmaiado") and target.esta_desmaiado()):
+		EventBus.notification_requested.emit("Derrote o Pokémon primeiro — a bola só funciona em quem já caiu.")
+		return false
 
 	_find_trainer_stats()
 	var master_pts : float = float(trainer_stats.get_master_capture_points()) if trainer_stats else 0.0

@@ -28,11 +28,6 @@ func _ready() -> void:
 	# Se isto rodasse depois, o Pokémon entraria com o nível cheio no primeiro
 	# andar — que é justamente o que o teto existe pra impedir.
 	RegrasDeCovil.atualizar(map_id)
-	# Cada visita à Zona Safari repõe as 30 bolas, igual ao jogo original.
-	if RegrasSafari.e_safari(map_id):
-		RegrasSafari.ao_entrar_na_zona()
-	else:
-		RegrasSafari.ao_sair_da_zona()
 	_paint_tiles()
 	if not MapOverrides.overrides_loaded.is_connected(_on_map_overrides_loaded):
 		MapOverrides.overrides_loaded.connect(_on_map_overrides_loaded)

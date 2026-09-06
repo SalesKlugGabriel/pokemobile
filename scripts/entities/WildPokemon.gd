@@ -423,14 +423,6 @@ func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
 
-	# ZONA SAFARI (06/09): aqui ninguém luta — nem ele, nem você. O que ele faz
-	# é DECIDIR IR EMBORA a cada poucos segundos, e é esse relógio que substitui
-	# a pressão do turno sem trazer o turno de volta: você está escolhendo entre
-	# isca, pedra e bola enquanto ele está indo.
-	if RegrasSafari.e_safari(zone_id):
-		_tick_safari(delta)
-		return
-
 	_find_target()
 	_attack_cd = max(0.0, _attack_cd - delta)
 	_tick_passive(delta)
@@ -632,24 +624,6 @@ func _tick_attack() -> void:
 	if _attack_cd <= 0.0:
 		_perform_attack()
 
-## O relógio da Safari. Ele patrulha normalmente (dá pra correr atrás), mas a
-## cada janela decide se vai embora — com a chance ajustada pela isca (fica
-## mais) ou pela pedra (vai mais rápido).
-var _safari_timer : float = 0.0
-
-func _tick_safari(delta: float) -> void:
-	_tick_patrol(delta)
-	move_and_slide()
-	_safari_timer += delta
-	if _safari_timer < RegrasSafari.INTERVALO_FUGA:
-		return
-	_safari_timer = 0.0
-	if RNGManager.chance(RegrasSafari.chance_de_fuga(self)):
-		EventBus.notification_requested.emit("%s fugiu!" % str(species_data.get("name", "O Pokémon")))
-		RegrasSafari.esquecer(self)
-		EventBus.wild_pokemon_fainted.emit(self)
-		queue_free()
-
 func _perform_attack() -> void:
 	var base_cd : float = default_move.get("cooldown", 2.0)
 	var spd_reduc : float = speed_stat / 500.0
@@ -760,16 +734,85 @@ func _die() -> void:
 			trainer_npc._on_trainer_pokemon_defeated()
 	else:
 		BattleResolver.resolve_wild_defeat(species_id, wild_level, species_data.get("name", ""))
-		# 🔴 Achado em 06/09: `NinhoLendario.marcar_derrotado` existia desde
-		# 05/09 e NINGUÉM chamava — ou seja, a regra "o lendário nasce uma vez
-		# só por partida" (a que faz a Pokébola pesar) nunca valeu de verdade:
-		# bastava sair e voltar no ninho pra ele reaparecer. Aqui é o único
-		# lugar por onde um lendário derrotado sem captura passa.
+		# Vencer o chefe paga a recompensa (MT exclusiva, contagem de limpezas)
+		# — vitória é vitória. O que NÃO acontece mais aqui é gastar a chance da
+		# partida: com a regra nova, derrotar é o caminho ATÉ a captura, não o
+		# oposto dela. A chance só se perde se o corpo expirar sem a Pokébola
+		# (ver _process, mais abaixo).
 		if get_node_or_null("ChefeLendario") != null:
-			NinhoLendario.marcar_derrotado(species_id)
 			RecompensasDeCovil.ao_vencer_chefe(species_id)
 	EventBus.wild_pokemon_died.emit(self, [])
 	EventBus.wild_pokemon_fainted.emit(self)
+	# 06/09 — REGRA NOVA DO GABRIEL, vale no jogo inteiro: derrotar não faz o
+	# Pokémon sumir. Ele DESMAIA e fica caído no chão, e é só aí que a Pokébola
+	# funciona. Capturar deixou de ser "acertar uma bola num bicho correndo" e
+	# virou o prêmio de ter vencido a luta.
+	#
+	# Pokémon de treinador é a exceção: aquele não é selvagem, não se captura, e
+	# some como sempre — deixar o corpo dele no chão só atrapalharia a fila da
+	# equipe do NPC.
+	if is_trainer_owned:
+		queue_free()
+	else:
+		_ficar_desmaiado()
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Desmaiado — a janela em que a captura acontece (06/09)
+# ──────────────────────────────────────────────────────────────────────────────
+## Quanto tempo o corpo fica no chão antes de o Pokémon se recuperar e ir
+## embora. Curto o bastante pra a decisão pesar (qual bola? tenho bola?), longo
+## o bastante pra dar pra chegar perto e tentar mais de uma vez.
+const SEGUNDOS_DESMAIADO : float = 25.0
+
+var _desmaiado : bool = false
+var _desmaiado_ate_msec : int = 0
+
+func esta_desmaiado() -> bool:
+	return _desmaiado
+
+func _ficar_desmaiado() -> void:
+	_desmaiado = true
+	_desmaiado_ate_msec = Time.get_ticks_msec() + int(SEGUNDOS_DESMAIADO * 1000.0)
+	velocity = Vector2.ZERO
+	set_physics_process(false)
+	# Não bate mais e não apanha mais: está fora de combate. A HurtBox continua
+	# clicável de propósito — é nela que o jogador mira a Pokébola.
+	if hitbox:
+		hitbox.set_deferred("monitoring", false)
+	# Sem arte nova: deitar o sprite e apagar a cor é a leitura universal de
+	# "nocauteado", e funciona pros 151 de uma vez.
+	if sprite:
+		sprite.rotation = -PI / 2.0
+		sprite.modulate = Color(0.65, 0.65, 0.72, 1.0)
+		sprite.stop()
+	if _hp_bar_bg:
+		_hp_bar_bg.visible = false
+	EventBus.wild_pokemon_desmaiado.emit(self)
+	_avisar_captura()
+
+func _avisar_captura() -> void:
+	var cena := get_tree().current_scene if get_tree() else null
+	if cena == null:
+		return
+	FloatingText.show_text(cena, global_position + Vector2(0, -160),
+		"Desmaiado! Jogue uma Pokébola", Color(1.0, 0.95, 0.5))
+
+## O corpo tem prazo. Rodado pelo _process (não pelo _physics_process, que foi
+## desligado ao desmaiar).
+func _process(_delta: float) -> void:
+	if not _desmaiado:
+		return
+	if Time.get_ticks_msec() < _desmaiado_ate_msec:
+		return
+	# Acordou e foi embora. Um lendário que escapa assim gasta a chance da
+	# partida — é aqui que "nasce uma vez só" passa a valer, e não mais na
+	# derrota (derrotar agora é o caminho PARA capturar, não o oposto dela).
+	if get_node_or_null("ChefeLendario") != null:
+		NinhoLendario.marcar_derrotado(species_id)
+	var cena := get_tree().current_scene if get_tree() else null
+	if cena != null:
+		FloatingText.show_text(cena, global_position + Vector2(0, -160),
+			"%s se recuperou e fugiu!" % str(species_data.get("name", "")), Color(0.8, 0.8, 0.9))
 	queue_free()
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -807,10 +850,10 @@ func _set_state(new_state: State) -> void:
 	# take_damage, sem trocar de tela).
 	#
 	# 06/09 — pedido do Gabriel: *"não quero esse modo de batalha em nenhum
-	# lugar do jogo"*. A Zona Safari era a última exceção que ainda abria a tela
-	# por turno; a mecânica dela (isca/pedra/bolas limitadas) foi portada pra
-	# `RegrasSafari` e o motor por turno foi APAGADO do projeto. Não existe mais
-	# sinal nenhum que troque de tela pra lutar.
+	# lugar do jogo"*, e logo depois: *"Safari também vai ser combate puro"*. O
+	# motor por turno foi APAGADO do projeto e a Zona Safari deixou de ter regra
+	# própria — lá se luta como em qualquer outro lugar. Não existe mais sinal
+	# nenhum que troque de tela pra lutar.
 	# wild_pokemon_engaged é só cosmético (câmera/SFX), pra QUALQUER encontro.
 	if new_state == State.ATTACK and prev != State.ATTACK and not _encounter_triggered:
 		_encounter_triggered = true

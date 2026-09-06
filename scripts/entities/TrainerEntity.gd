@@ -317,15 +317,6 @@ func _process(_delta: float) -> void:
 		if not interact():
 			_try_fish()
 
-	# ZONA SAFARI (06/09): isca e pedra, as duas ações que substituem "lutar"
-	# num lugar onde não se luta. Portadas do motor por turno, que foi apagado.
-	if Input.is_action_just_pressed("safari_isca"):
-		_acao_safari(true)
-		return
-	if Input.is_action_just_pressed("safari_pedra"):
-		_acao_safari(false)
-		return
-
 	if Input.is_action_just_pressed("pokeball"):
 		_try_throw_pokeball()
 
@@ -488,35 +479,6 @@ func _get_move_duration() -> float:
 		base *= FATOR_LENTIDAO
 	return base
 
-## Isca ou pedra no selvagem mais próximo. A tensão da Safari clássica vinha de
-## gastar TURNOS decidindo entre as duas; aqui vem de gastar TEMPO — o Pokémon
-## está fugindo enquanto você pensa. É a mesma decisão, medida por um relógio.
-func _acao_safari(e_isca: bool) -> void:
-	if not RegrasSafari.e_safari(WorldManager.current_map_id):
-		return
-	var alvo := _selvagem_mais_perto()
-	if alvo == null:
-		return
-	if e_isca:
-		RegrasSafari.jogar_isca(alvo)
-		EventBus.notification_requested.emit("Você jogou isca — ele está mais calmo, e mais difícil de capturar.")
-	else:
-		RegrasSafari.jogar_pedra(alvo)
-		EventBus.notification_requested.emit("Você jogou uma pedra — ele está nervoso, e mais fácil de capturar.")
-	AudioManager.play_sfx("catch_throw")
-
-func _selvagem_mais_perto() -> Node2D:
-	var melhor : Node2D = null
-	var dist := INF
-	for w in get_tree().get_nodes_in_group("wild_pokemon"):
-		if not is_instance_valid(w) or not (w is Node2D):
-			continue
-		var d : float = global_position.distance_squared_to((w as Node2D).global_position)
-		if d < dist:
-			dist = d
-			melhor = w
-	return melhor
-
 ## Deixa o jogador lento por N segundos. Usado pelo chefe lendário — a função
 ## que pune "não guardar movimento pra fugir da área".
 const FATOR_LENTIDAO : float = 2.2
@@ -601,9 +563,15 @@ func _show_system_message(dialog_id: String) -> void:
 # ──────────────────────────────────────────────────────────────────────────────
 
 func _try_throw_pokeball() -> void:
-	var alvo := _find_nearest_wild_pokemon()
+	# 06/09: a bola procura o Pokémon DESMAIADO mais perto, não o selvagem mais
+	# perto. Mirar num bicho de pé enquanto há um caído do lado seria gastar a
+	# bola à toa — e o jogo diz isso em vez de deixar o jogador adivinhar.
+	var alvo := _corpo_desmaiado_perto()
 	if not alvo:
-		_show_system_message("no_wild_nearby")
+		if _find_nearest_wild_pokemon() != null:
+			_avisar("Derrote-o primeiro — a Pokébola só funciona em quem já caiu.")
+		else:
+			_show_system_message("no_wild_nearby")
 		return
 
 	var ball_id := CaptureSystem.pick_best_owned_ball(alvo)
@@ -613,6 +581,24 @@ func _try_throw_pokeball() -> void:
 
 	SaveManager.remove_item(ball_id, 1)
 	CaptureSystem.throw_pokeball(alvo, ball_id)
+
+## O corpo caído mais perto, dentro do mesmo alcance curto de sempre.
+func _corpo_desmaiado_perto() -> Node2D:
+	var melhor : Node2D = null
+	var melhor_dist : float = INF
+	for c in get_tree().get_nodes_in_group("wild_pokemon"):
+		if not is_instance_valid(c) or not (c is Node2D):
+			continue
+		if not (c.has_method("esta_desmaiado") and c.esta_desmaiado()):
+			continue
+		var d : float = global_position.distance_to((c as Node2D).global_position)
+		if d < melhor_dist:
+			melhor_dist = d
+			melhor = c
+	return melhor if (melhor != null and melhor_dist <= TILE_SIZE * 2.0) else null
+
+func _avisar(texto: String) -> void:
+	EventBus.notification_requested.emit(texto)
 
 ## Só permite arremesso dentro de alcance curto (2 tiles) — evita capturar
 ## um selvagem do outro lado da tela sem nem chegar perto dele.

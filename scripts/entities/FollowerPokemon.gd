@@ -390,27 +390,12 @@ func _handle_skill_input() -> void:
 			use_skill(i)
 
 ## Executa a skill do slot indicado (0-3). Chamável externamente também.
-## Zona onde este Pokémon está agora — usada só pra saber se é Safari. A Zona
-## Safari é uma cena própria (`map_id = "safari_zone"`), então o mapa atual já
-## responde a pergunta inteira.
-func _zona_atual() -> String:
-	var mundo := get_node_or_null("/root/WorldManager")
-	if mundo != null and ("current_map_id" in mundo):
-		return str(mundo.current_map_id)
-	return ""
-
 func use_skill(slot: int) -> void:
 	if slot < 0 or slot >= 4:
 		return
 	if move_slots[slot].is_empty():
 		return
 	if _cooldowns[slot] > 0.0:
-		return
-	# ZONA SAFARI (06/09): aqui não se luta — é a regra que define o lugar, em
-	# qualquer versão de Pokémon. Antes isso era garantido por a Safari abrir
-	# outra tela (o combate por turno); agora que o turno não existe mais em
-	# lugar nenhum do jogo, a regra vive aqui.
-	if not RegrasSafari.pode_lutar(_zona_atual()):
 		return
 	# Sono/congelado: nem tenta agir (03/09) — diferente de paralisia/confusão
 	# abaixo, que ainda "gastam a tentativa" (cooldown corre, mas o golpe falha).
