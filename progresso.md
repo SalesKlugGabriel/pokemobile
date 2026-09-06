@@ -9,6 +9,71 @@
 
 ---
 
+## O combate por turno foi APAGADO do jogo (2026-09-06)
+
+**Pedido direto do Gabriel:** *"não quero esse modo de batalha em nenhum lugar
+do jogo, 100% player vs npc/Pokémon duelando sem turnos, quem usar a melhor
+combinação de elemento / efeitos / combos vai vencer por pura habilidade"*.
+
+A Zona Safari era a última exceção que ainda abria a tela por turno — ela
+existia porque isca/pedra/bolas limitadas nunca tinham sido portadas. Agora
+foram, e o motor antigo saiu do projeto: `BattleManager.gd` (1.181 linhas),
+`BattleScene.gd`, `BattleScene.tscn`, o autoload e o sinal
+`wild_encounter_started` (removido, não só desconectado — sinal órfão é convite
+pra alguém religar).
+
+### 🔴 Achado grande: existia um SEGUNDO caminho pro turno, no começo do jogo
+
+`PokemonSpawner` (sistema legado, anterior ao `SpawnManager` atual) estava vivo
+nas cenas de **Pallet Town, Rota 1 e Viridian** — as três primeiras do jogo. Ele
+criava `PokemonEntity`, que disparava a batalha por turno. Ou seja: mesmo depois
+do corte de 02/09, o modo antigo continuava alcançável logo na saída de casa.
+Os três arquivos e os nós nas cenas foram removidos.
+
+### A Safari em tempo real
+
+O que a Safari é, em qualquer Pokémon: **o lugar onde você não luta.** Não é uma
+tela diferente, é uma regra diferente — e agora é exatamente isso:
+
+- seu Pokémon **não ataca** lá (nem no automático, nem por botão), e o selvagem
+  também não;
+- **30 Bolas Safari por visita**, repostas a cada entrada;
+- **isca (C)** acalma — ele foge menos e fica mais difícil de capturar;
+- **pedra (V)** irrita — ele foge mais e fica mais fácil de capturar;
+- ele **decide ir embora** a cada poucos segundos.
+
+A tensão da Safari clássica vinha de gastar *turnos* escolhendo entre isca e
+pedra. Aqui vem de gastar **tempo**: o Pokémon está indo embora enquanto você
+decide. É a mesma decisão, medida por um relógio em vez de por rodadas — sem
+trazer o turno de volta.
+
+### 🔴 O que quase se perdeu junto
+
+Apagar o motor por turno quase levou uma mecânica que não tinha nada a ver com
+turno: **o item equipado dava +20% de dano do tipo dele, e essa regra só existia
+lá dentro** — ou seja, equipar item nunca fez efeito nenhum no combate de
+verdade. Achado ao consertar um teste que citava a função apagada; a regra foi
+trazida pro `DamageCalculator`, que é o cálculo que o jogo usa. (É de quebra a
+peça "itens equipáveis" da Etapa 3 do plano de dungeons.)
+
+### 🔴 E o mesmo ponto cego de sempre, numa forma nova
+
+Ao apagar o motor, **três testes que o citavam pararam de compilar — e a suíte
+disse "73 arquivos, 0 com falha"**. Um teste que morre antes de rodar sai com
+código 0 e não imprime resultado nenhum: ele não reprova, ele só não participa.
+É exatamente o buraco que `teste_tudo_compila.gd` fechou pro código do jogo
+ontem, e que continuava aberto pros próprios testes.
+
+`rodar_testes.sh` agora exige as **duas** coisas: código de saída 0 **e** a linha
+de resultado impressa. Silêncio deixou de ser aprovação.
+
+Os dois testes que provavam o desenho antigo (*"a Safari continua por turno de
+propósito"*) não foram consertados — foram **aposentados** e substituídos por
+`teste_sem_turno_e_safari.gd`, que prova o contrário: os arquivos não existem
+mais, nenhum código ou cena viva os chama, e a Safari funciona em tempo real.
+
+**Testado:** 39 conferências novas + suíte inteira.
+
 ## Etapa 2: a primeira dungeon inteira — Covil Gelado (2026-09-06)
 
 **A dungeon de Gelo ponta a ponta: cinco anéis, teto de nível, as três travas

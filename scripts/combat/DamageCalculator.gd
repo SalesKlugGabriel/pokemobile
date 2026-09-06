@@ -144,7 +144,28 @@ static func calculate_damage(
 	if atk_status == "burn" and move_data.get("category", "physical") != "special":
 		dano_efet *= 0.5
 
+	# ITEM EQUIPADO (+20% no dano do tipo dele). Esta regra existia SÓ dentro do
+	# motor por turno, que foi apagado em 06/09 a pedido do Gabriel — ou seja,
+	# equipar um item não fazia nada no combate de verdade, que é o único que
+	# existe agora. Trazida pra cá, o vetor de preparação passa a valer no jogo
+	# inteiro (é a peça de "itens equipáveis" da Etapa 3 do plano de dungeons).
+	dano_efet *= multiplicador_de_item_equipado(str(attacker_stats.get("held_item", "")), mv_type)
+
 	return max(1, int(floor(dano_efet)))
+
+## +20% (ou o que o item disser) quando o tipo do golpe bate com o do item.
+## Item vazio, desconhecido ou de outro tipo = 1.0, sem efeito.
+static func multiplicador_de_item_equipado(held_item: String, move_type: String) -> float:
+	if held_item.is_empty():
+		return 1.0
+	var raiz = Engine.get_main_loop().root if Engine.get_main_loop() else null
+	var dados = raiz.get_node_or_null("GameData") if raiz else null
+	if dados == null:
+		return 1.0
+	var item : Dictionary = dados.get_item(held_item)
+	if item.get("category", "") == "held" and str(item.get("boost_type", "")) == move_type:
+		return float(item.get("boost_mult", 1.0))
+	return 1.0
 
 ## Mesma regra de BattleManager._ability_damage_multiplier(), só que recebendo
 ## primitivos em vez de um BattlePokemon — pra funcionar tanto no combate por

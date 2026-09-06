@@ -184,6 +184,27 @@ func attempt_capture(target: WildPokemon, pokeball_type: String) -> bool:
 	if target.is_trainer_owned:
 		return false
 
+	# ZONA SAFARI (06/09) — a mecânica veio do motor por turno, que foi apagado
+	# do jogo. Aqui só valem as 30 Bolas Safari da visita, e a chance é a de
+	# sempre ajustada por isca/pedra: isca acalma (foge menos, captura pior),
+	# pedra irrita (foge mais, captura melhor).
+	if RegrasSafari.e_safari(str(target.zone_id)):
+		if not RegrasSafari.gastar_bola():
+			EventBus.notification_requested.emit("Acabaram as Bolas Safari desta visita.")
+			return false
+		var chance_safari : float = clampf(
+			calculate_catch_chance(target, 0.0, "pokeball") * RegrasSafari.mult_captura(target),
+			0.0, 1.0)
+		EventBus.notification_requested.emit("Bolas Safari: %d" % RegrasSafari.bolas)
+		if not RNGManager.chance(chance_safari):
+			return false
+		var dados_safari := _build_pokemon_data(target)
+		SaveManager.add_pokemon(dados_safari)
+		SaveManager.mark_caught(target.species_id)
+		RegrasSafari.esquecer(target)
+		EventBus.capture_success.emit(dados_safari)
+		return true
+
 	_find_trainer_stats()
 	var master_pts : float = float(trainer_stats.get_master_capture_points()) if trainer_stats else 0.0
 	var chance     : float = calculate_catch_chance(target, master_pts, pokeball_type)

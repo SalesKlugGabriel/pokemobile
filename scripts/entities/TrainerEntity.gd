@@ -317,6 +317,15 @@ func _process(_delta: float) -> void:
 		if not interact():
 			_try_fish()
 
+	# ZONA SAFARI (06/09): isca e pedra, as duas ações que substituem "lutar"
+	# num lugar onde não se luta. Portadas do motor por turno, que foi apagado.
+	if Input.is_action_just_pressed("safari_isca"):
+		_acao_safari(true)
+		return
+	if Input.is_action_just_pressed("safari_pedra"):
+		_acao_safari(false)
+		return
+
 	if Input.is_action_just_pressed("pokeball"):
 		_try_throw_pokeball()
 
@@ -478,6 +487,35 @@ func _get_move_duration() -> float:
 	if Time.get_ticks_msec() < _lentidao_ate_msec:
 		base *= FATOR_LENTIDAO
 	return base
+
+## Isca ou pedra no selvagem mais próximo. A tensão da Safari clássica vinha de
+## gastar TURNOS decidindo entre as duas; aqui vem de gastar TEMPO — o Pokémon
+## está fugindo enquanto você pensa. É a mesma decisão, medida por um relógio.
+func _acao_safari(e_isca: bool) -> void:
+	if not RegrasSafari.e_safari(WorldManager.current_map_id):
+		return
+	var alvo := _selvagem_mais_perto()
+	if alvo == null:
+		return
+	if e_isca:
+		RegrasSafari.jogar_isca(alvo)
+		EventBus.notification_requested.emit("Você jogou isca — ele está mais calmo, e mais difícil de capturar.")
+	else:
+		RegrasSafari.jogar_pedra(alvo)
+		EventBus.notification_requested.emit("Você jogou uma pedra — ele está nervoso, e mais fácil de capturar.")
+	AudioManager.play_sfx("catch_throw")
+
+func _selvagem_mais_perto() -> Node2D:
+	var melhor : Node2D = null
+	var dist := INF
+	for w in get_tree().get_nodes_in_group("wild_pokemon"):
+		if not is_instance_valid(w) or not (w is Node2D):
+			continue
+		var d : float = global_position.distance_squared_to((w as Node2D).global_position)
+		if d < dist:
+			dist = d
+			melhor = w
+	return melhor
 
 ## Deixa o jogador lento por N segundos. Usado pelo chefe lendário — a função
 ## que pune "não guardar movimento pra fugir da área".

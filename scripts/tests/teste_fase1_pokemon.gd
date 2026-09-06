@@ -9,13 +9,11 @@ var _rodou := false
 
 var SaveManager   : Node
 var GameData      : Node
-var BattleManager  : Node
 
 func _initialize() -> void:
 	print("=== Teste Fase 1 (Pokémon de verdade) ===")
 	SaveManager   = root.get_node("SaveManager")
 	GameData      = root.get_node("GameData")
-	BattleManager = root.get_node("BattleManager")
 
 func _process(_delta: float) -> bool:
 	if _rodou:
@@ -63,29 +61,29 @@ func _teste_geral() -> void:
 
 	# ---- 4. Multiplicador de dano por ability (Blaze: +50% Fogo com HP <= 1/3) ----
 	charmander.hp = charmander.max_hp  # HP cheio: Blaze não deveria ativar
-	_assert(BattleManager._ability_damage_multiplier(charmander, "Fire", false) == 1.0,
+	_assert(DamageCalculator.ability_damage_multiplier(charmander.ability, "Fire", false, float(charmander.hp) / float(charmander.max_hp), "none") == 1.0,
 		"Blaze não ativa com HP cheio")
 	charmander.hp = int(charmander.max_hp * 0.3)  # abaixo de 1/3
-	_assert(BattleManager._ability_damage_multiplier(charmander, "Fire", false) == 1.5,
+	_assert(DamageCalculator.ability_damage_multiplier(charmander.ability, "Fire", false, float(charmander.hp) / float(charmander.max_hp), "none") == 1.5,
 		"Blaze dá +50% em golpe de Fogo com HP <= 1/3")
-	_assert(BattleManager._ability_damage_multiplier(charmander, "Water", false) == 1.0,
+	_assert(DamageCalculator.ability_damage_multiplier(charmander.ability, "Water", false, float(charmander.hp) / float(charmander.max_hp), "none") == 1.0,
 		"Blaze não afeta golpe de tipo diferente (Água)")
 
 	# ---- 5. Guts (status + físico) ----
 	var rattata = BattlePokemon.create(19, 30, false)
 	_assert(rattata.ability == "Guts", "Rattata (id 19) tem ability 'Guts'")
 	rattata.status = BattlePokemon.Status.BURN
-	_assert(BattleManager._ability_damage_multiplier(rattata, "Normal", false) == 1.5,
+	_assert(DamageCalculator.ability_damage_multiplier(rattata.ability, "Normal", false, 1.0, "burn") == 1.5,
 		"Guts dá +50% em golpe físico quando statusado")
-	_assert(BattleManager._ability_damage_multiplier(rattata, "Normal", true) == 1.0,
+	_assert(DamageCalculator.ability_damage_multiplier(rattata.ability, "Normal", true, 1.0, "burn") == 1.0,
 		"Guts não afeta golpe especial")
 
 	# ---- 6. Item segurado ----
 	var equipado = BattlePokemon.create(4, 50, false)
 	equipado.held_item = "charcoal"
-	_assert(BattleManager._held_item_damage_multiplier(equipado, "Fire") == 1.2,
+	_assert(DamageCalculator.multiplicador_de_item_equipado(equipado.held_item, "Fire") == 1.2,
 		"Charcoal dá +20% em golpe de Fogo")
-	_assert(BattleManager._held_item_damage_multiplier(equipado, "Water") == 1.0,
+	_assert(DamageCalculator.multiplicador_de_item_equipado(equipado.held_item, "Water") == 1.0,
 		"Charcoal não afeta golpe de tipo diferente")
 
 	# ---- 7. from_save() carrega nature/ability/held_item do save ----

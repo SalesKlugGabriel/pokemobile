@@ -390,12 +390,27 @@ func _handle_skill_input() -> void:
 			use_skill(i)
 
 ## Executa a skill do slot indicado (0-3). Chamável externamente também.
+## Zona onde este Pokémon está agora — usada só pra saber se é Safari. A Zona
+## Safari é uma cena própria (`map_id = "safari_zone"`), então o mapa atual já
+## responde a pergunta inteira.
+func _zona_atual() -> String:
+	var mundo := get_node_or_null("/root/WorldManager")
+	if mundo != null and ("current_map_id" in mundo):
+		return str(mundo.current_map_id)
+	return ""
+
 func use_skill(slot: int) -> void:
 	if slot < 0 or slot >= 4:
 		return
 	if move_slots[slot].is_empty():
 		return
 	if _cooldowns[slot] > 0.0:
+		return
+	# ZONA SAFARI (06/09): aqui não se luta — é a regra que define o lugar, em
+	# qualquer versão de Pokémon. Antes isso era garantido por a Safari abrir
+	# outra tela (o combate por turno); agora que o turno não existe mais em
+	# lugar nenhum do jogo, a regra vive aqui.
+	if not RegrasSafari.pode_lutar(_zona_atual()):
 		return
 	# Sono/congelado: nem tenta agir (03/09) — diferente de paralisia/confusão
 	# abaixo, que ainda "gastam a tentativa" (cooldown corre, mas o golpe falha).
@@ -454,7 +469,21 @@ func _attacker_stats() -> Dictionary:
 		"ability": species_data.get("ability", ""),
 		"hp_ratio": float(current_hp) / float(max_hp) if max_hp > 0 else 1.0,
 		"status": current_status,
+		# Item equipado (06/09): o bônus de +20% por tipo só valia dentro do
+		# motor por turno, que não existe mais. Sem esta linha, equipar um item
+		# continuaria não fazendo nada no combate de verdade.
+		"held_item": _item_equipado(),
 	}
+
+## O item que o Pokémon do slot 0 está segurando, direto do save.
+func _item_equipado() -> String:
+	var salvar := get_node_or_null("/root/SaveManager")
+	if salvar == null or not salvar.has_method("get_pokemon_at"):
+		return ""
+	var lider : Dictionary = salvar.get_pokemon_at(0)
+	if lider.is_empty() or int(lider.get("species_id", -1)) != pokemon_species_id:
+		return ""
+	return str(lider.get("held_item", ""))
 
 ## Golpe de área: bate em todo `wild_pokemon` no raio, nunca no próprio time
 ## (sem fogo amigo, decisão confirmada com o Gabriel) — não depende de

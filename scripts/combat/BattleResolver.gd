@@ -2,7 +2,8 @@
 ## (Fase 5 do motor novo, 02/09) — porta XP/level-up/loot/Pokédex/sinal de
 ## quest de BattleManager._end_battle() (linhas 1035-1094) pra fora da
 ## máquina de turno, chamável direto quando um Pokémon selvagem morre em
-## tempo real. Reaproveita BattleManager._get_base_exp() (static, mesma
+## tempo real. A tabela de EXP mora AQUI desde 06/09 (era a última função que
+## este arquivo ainda puxava do motor por turno, que foi apagado do jogo
 ## fórmula, sem duplicar) e emite EventBus.battle_ended no MESMO formato que
 ## QuestManager._on_battle_ended() já espera — quest de "derrote 5 Rattata"
 ## continua funcionando sem tocar QuestManager.gd.
@@ -40,7 +41,7 @@ func _grant_exp_and_signal(species_id: int, level: int, species_name: String, is
 		return -1
 	var old_level : int = int(old_poke.get("level", 1))
 
-	var base_exp   : int = BattleManager._get_base_exp(species_id)
+	var base_exp   : int = _exp_base(species_id)
 	var exp_gained : int = maxi(1, roundi(base_exp * level / 7.0))
 	var new_level  : int = SaveManager.add_exp_with_share(player_save_index, exp_gained)
 
@@ -59,3 +60,10 @@ func _grant_exp_and_signal(species_id: int, level: int, species_name: String, is
 		EventBus.pokemon_level_up.emit(SaveManager.get_pokemon_at(player_save_index), new_level)
 
 	return new_level
+
+
+## EXP base por espécie. Veio do motor por turno quando ele foi apagado (06/09)
+## — é a mesma aproximação de sempre, agora na casa de quem a usa: iniciais
+## ~64, evoluções ~100-200.
+static func _exp_base(species_id: int) -> int:
+	return mini(250, 50 + roundi(species_id * 0.8))

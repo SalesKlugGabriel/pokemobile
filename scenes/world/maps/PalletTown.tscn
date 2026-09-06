@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
 [ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
 [ext_resource type="PackedScene" path="res://scenes/entities/NpcEntity.tscn" id="3_npc"]
-[ext_resource type="Script" path="res://scripts/world/PokemonSpawner.gd" id="4_spawner"]
 [ext_resource type="TileSet" path="res://assets/tilesets/overworld.tres" id="5_tileset"]
 [ext_resource type="PackedScene" path="res://scenes/ui/DialogBox.tscn" id="6_dialog"]
 [ext_resource type="PackedScene" path="res://scenes/ui/OverworldHUD.tscn" id="7_hud"]
@@ -58,13 +57,6 @@ position = Vector2(2560, 2176)
 npc_name = "Moradora"
 dialog_id = "pallet_resident_2"
 is_patrolling = false
-
-[node name="PokemonSpawner" type="Node2D" parent="."]
-position = Vector2(3200, 3200)
-script = ExtResource("4_spawner")
-biome_id = "plains"
-max_spawns = 6
-spawn_radius = 15
 
 [node name="WarpZones" type="Node2D" parent="."]
 

@@ -25,7 +25,10 @@ signal follower_skill_cooldown_updated(slot: int, progress: float)
 signal wild_pokemon_spawned(pokemon: Node)
 signal wild_pokemon_died(pokemon: Node, loot: Array)
 signal wild_pokemon_fainted(pokemon: Node)
-signal wild_encounter_started(pokemon: Node)   # SÓ Zona Safari a partir da Fase 7 (02/09) — todo
+## wild_encounter_started foi APAGADO em 06/09 junto com o motor por turno
+## inteiro (BattleManager/BattleScene). Pedido do Gabriel: nenhum modo de
+## batalha por turno em lugar nenhum do jogo. Removido em vez de só
+## desconectado, de propósito — sinal órfão é convite pra alguém religar.
                                                  # outro encontro vira combate em tempo real direto,
                                                  # sem passar pelo BattleManager/BattleScene.
 ## Cosmético (câmera/SFX) pra QUALQUER encontro selvagem "esquentar" (ATTACK),

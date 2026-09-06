@@ -26,7 +26,7 @@ const WATER_ATLAS_COORDS    : Vector2i = Vector2i(1, 1)
 # Inicialização
 # ──────────────────────────────────────────────────────────────────────────────
 func _ready() -> void:
-	EventBus.wild_pokemon_engaged.connect(_on_wild_encounter_started)
+	EventBus.wild_pokemon_engaged.connect(_ao_engajar_selvagem)
 	EventBus.zone_changed.connect(_on_zone_changed)
 
 func _on_zone_changed(zone_id: String) -> void:
@@ -259,7 +259,7 @@ func apply_pending_spawn() -> void:
 # ──────────────────────────────────────────────────────────────────────────────
 # Encontros selvagens
 # ──────────────────────────────────────────────────────────────────────────────
-func _on_wild_encounter_started(_pokemon: Node) -> void:
+func _ao_engajar_selvagem(_pokemon: Node) -> void:
 	_shake_camera()
 	AudioManager.play_sfx("encounter")
 

@@ -423,6 +423,14 @@ func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
 
+	# ZONA SAFARI (06/09): aqui ninguém luta — nem ele, nem você. O que ele faz
+	# é DECIDIR IR EMBORA a cada poucos segundos, e é esse relógio que substitui
+	# a pressão do turno sem trazer o turno de volta: você está escolhendo entre
+	# isca, pedra e bola enquanto ele está indo.
+	if RegrasSafari.e_safari(zone_id):
+		_tick_safari(delta)
+		return
+
 	_find_target()
 	_attack_cd = max(0.0, _attack_cd - delta)
 	_tick_passive(delta)
@@ -624,6 +632,24 @@ func _tick_attack() -> void:
 	if _attack_cd <= 0.0:
 		_perform_attack()
 
+## O relógio da Safari. Ele patrulha normalmente (dá pra correr atrás), mas a
+## cada janela decide se vai embora — com a chance ajustada pela isca (fica
+## mais) ou pela pedra (vai mais rápido).
+var _safari_timer : float = 0.0
+
+func _tick_safari(delta: float) -> void:
+	_tick_patrol(delta)
+	move_and_slide()
+	_safari_timer += delta
+	if _safari_timer < RegrasSafari.INTERVALO_FUGA:
+		return
+	_safari_timer = 0.0
+	if RNGManager.chance(RegrasSafari.chance_de_fuga(self)):
+		EventBus.notification_requested.emit("%s fugiu!" % str(species_data.get("name", "O Pokémon")))
+		RegrasSafari.esquecer(self)
+		EventBus.wild_pokemon_fainted.emit(self)
+		queue_free()
+
 func _perform_attack() -> void:
 	var base_cd : float = default_move.get("cooldown", 2.0)
 	var spd_reduc : float = speed_stat / 500.0
@@ -777,17 +803,19 @@ func _set_state(new_state: State) -> void:
 	var prev := state
 	state = new_state
 	# Fase 7 do motor de combate em tempo real (02/09): quando entra em ATTACK
-	# pela primeira vez, o combate já acontece sozinho no mapa (hitbox/hurtbox/
-	# take_damage, sem trocar de tela) — NÃO aciona mais o BattleManager, exceto
-	# na Zona Safari, que continua por turno de propósito (isca/pedra/bolas
-	# limitadas são uma mecânica só dela, ainda não portada pro tempo real).
+	# pela primeira vez, o combate acontece sozinho no mapa (hitbox/hurtbox/
+	# take_damage, sem trocar de tela).
+	#
+	# 06/09 — pedido do Gabriel: *"não quero esse modo de batalha em nenhum
+	# lugar do jogo"*. A Zona Safari era a última exceção que ainda abria a tela
+	# por turno; a mecânica dela (isca/pedra/bolas limitadas) foi portada pra
+	# `RegrasSafari` e o motor por turno foi APAGADO do projeto. Não existe mais
+	# sinal nenhum que troque de tela pra lutar.
 	# wild_pokemon_engaged é só cosmético (câmera/SFX), pra QUALQUER encontro.
 	if new_state == State.ATTACK and prev != State.ATTACK and not _encounter_triggered:
 		_encounter_triggered = true
 		engaged_at_msec = Time.get_ticks_msec()
 		EventBus.wild_pokemon_engaged.emit(self)
-		if zone_id == BattleManager.SAFARI_ZONE_ID:
-			EventBus.wild_encounter_started.emit(self)
 	# Reset do flag quando sai do ATTACK (ex: para PATROL/DEAD)
 	if prev == State.ATTACK and new_state != State.ATTACK:
 		_encounter_triggered = false

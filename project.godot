@@ -25,7 +25,6 @@ SaveManager="*res://scripts/autoloads/SaveManager.gd"
 EventBus="*res://scripts/autoloads/EventBus.gd"
 RNGManager="*res://scripts/autoloads/RNGManager.gd"
 WorldManager="*res://scripts/world/WorldManager.gd"
-BattleManager="*res://scripts/battle/BattleManager.gd"
 SceneTransition="*res://scripts/autoloads/SceneTransition.gd"
 AudioManager="*res://scripts/autoloads/AudioManager.gd"
 KeybindManager="*res://scripts/autoloads/KeybindManager.gd"
@@ -122,6 +121,14 @@ run={
 open_pokedex={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":88,"key_label":0,"unicode":120,"echo":false,"script":null)]
+}
+safari_isca={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":67,"key_label":0,"unicode":99,"echo":false,"script":null)]
+}
+safari_pedra={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":86,"key_label":0,"unicode":118,"echo":false,"script":null)]
 }
 
 
