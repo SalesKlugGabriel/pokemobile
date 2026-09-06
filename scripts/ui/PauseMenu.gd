@@ -294,6 +294,18 @@ func _on_bag_item_used(item_id: String) -> void:
 			_pending_item_id = item_id
 			_pending_action  = "vitamin"
 			_open_pokemon_picker("Usar %s em qual Pokémon?" % item.get("name", item_id))
+		"medicine":
+			# 🔴 Até 06/09 esta categoria caía no default abaixo — ou seja,
+			# NENHUM dos 17 remédios do jogo podia ser usado fora de uma
+			# batalha por turno, que desde o corte do combate por turno só
+			# existe na Zona Safari. O jogo inteiro estava sem cura.
+			var trava := RegrasDeCovil.pode_curar(item_id, RegrasDeCovil.mapa_atual())
+			if not bool(trava.get("ok", true)):
+				label_info.text = str(trava.get("motivo", ""))
+				return
+			_pending_item_id = item_id
+			_pending_action  = "curar"
+			_open_pokemon_picker("Usar %s em qual Pokémon?" % item.get("name", item_id))
 		_:
 			label_info.text = "%s só pode ser usado numa batalha por enquanto." % item.get("name", item_id)
 
@@ -375,6 +387,23 @@ func _on_picker_target(index: int) -> void:
 		else:
 			_pending_target = index
 			_open_move_replace_picker(index)
+	elif _pending_action == "curar":
+		var mapa := RegrasDeCovil.mapa_atual()
+		# Confere de novo aqui: entre escolher o item e escolher o Pokémon o
+		# jogador pode ter levado dano, e a espera pode ter começado.
+		var trava := RegrasDeCovil.pode_curar(_pending_item_id, mapa)
+		if not bool(trava.get("ok", true)):
+			label_info.text = str(trava.get("motivo", ""))
+			_close_bag_flow()
+			return
+		var r := CuraDeCampo.aplicar(_pending_item_id, index)
+		if bool(r.get("ok", false)):
+			SaveManager.remove_item(_pending_item_id, 1)
+			SaveManager.save_game()
+			RegrasDeCovil.registrar_cura(_pending_item_id, mapa)
+			AudioManager.play_sfx("heal")
+		label_info.text = str(r.get("texto", ""))
+		_close_bag_flow()
 	elif _pending_action == "vitamin":
 		var item := GameData.get_item(_pending_item_id)
 		# PP Up (03/09) precisa de um segundo pick (QUAL golpe), diferente das

@@ -96,3 +96,12 @@ signal quest_choice_made(quest_id: String, option: String)
 ## o jogador chega no último andar de um covil — serve pra quem quiser reagir
 ## (música, aviso na tela, quest) sem acoplar no spawn.
 signal legendary_encountered(species_id: int, nome: String)
+
+## Aviso curto na tela, fora de batalha (06/09). Achado ao construir as
+## recompensas de covil: o jogo NÃO TINHA canal nenhum pra dizer "você
+## encontrou X" fora da tela de batalha — a única mensagem do tipo morava
+## dentro do BattleScene. Ganhar uma pedra de evolução em silêncio é o mesmo
+## que não ganhar.
+signal notification_requested(texto: String)
+## O jogador cruzou o santuário antes da arena do chefe.
+signal dungeon_santuario(covil: String)

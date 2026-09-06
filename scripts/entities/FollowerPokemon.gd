@@ -15,6 +15,16 @@ extends CharacterBody2D
 ## resultado que já foi decidido quando o Pokémon nasceu selvagem/foi
 ## capturado (ver WildPokemon._load_species() e CaptureSystem).
 @export var pokemon_is_shiny   : bool = false
+## HP com que ele entra em cena, vindo do save (`hp_current`). -1 = "não
+## informado", e aí nasce cheio — ver _load_species_data().
+@export var hp_inicial         : int  = -1
+## Nível verdadeiro do Pokémon no save. Só difere de `pokemon_level` quando o
+## teto de nível de uma dungeon rebaixou ele — e aí a tela mostra os dois, pro
+## jogador entender por que o bicho dele está mais fraco aqui dentro.
+@export var nivel_real         : int  = -1
+
+func esta_rebaixado() -> bool:
+	return nivel_real > 0 and nivel_real > pokemon_level
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Constantes
@@ -163,8 +173,18 @@ func _load_species_data() -> void:
 	atk_stat    = DamageCalculator.calculate_stat(base.get("attack", 45), pokemon_level)
 	def_stat    = DamageCalculator.calculate_stat(base.get("defense", 45), pokemon_level)
 	speed_stat  = DamageCalculator.calculate_stat(base.get("speed", 45),  pokemon_level)
-	current_hp  = max_hp
+	# HP QUE PERSISTE (06/09). Antes daqui o Follower SEMPRE nascia com vida
+	# cheia e nunca gravava nada de volta: o dano sumia a cada troca de mapa, e
+	# "risco" não existia — nem o de uma dungeon, nem o de andar no mato. Agora
+	# o HP vem do save e volta pro save.
+	#
+	# `hp_inicial < 0` significa "não me disseram, então cheio" — é o que
+	# mantém funcionando quem instancia um Follower sem passar pelo save
+	# (testes, cenas soltas).
+	current_hp = max_hp if hp_inicial < 0 else clampi(hp_inicial, 0, max_hp)
 	EventBus.follower_hp_changed.emit(current_hp, max_hp)
+	if current_hp <= 0:
+		_faint()
 	_passive_data = species_data.get("passive", {})
 	if not _passive_data.is_empty():
 		_reroll_passive_timer()
@@ -557,6 +577,7 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 	current_hp = max(0, current_hp - amount)
 	EventBus.follower_hp_changed.emit(current_hp, max_hp)
 	EventBus.damage_dealt.emit(self, amount, false, attacker)
+	_gravar_hp_no_save()
 	if attacker and not _recent_attackers.has(attacker):
 		_recent_attackers.append(attacker)
 	_passive_dmg_since += amount
@@ -564,9 +585,27 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 	if current_hp <= 0:
 		_faint()
 
+## O Follower é o Pokémon do slot 0 do time — é ESSE que ele representa no
+## mapa. Gravar aqui (e não só ao trocar de mapa) é o que faz o dano
+## sobreviver a fechar o jogo no meio de uma dungeon.
+func _gravar_hp_no_save() -> void:
+	var salvar := get_node_or_null("/root/SaveManager")
+	if salvar == null or not salvar.has_method("get_pokemon_at"):
+		return
+	var lider : Dictionary = salvar.get_pokemon_at(0)
+	if lider.is_empty():
+		return
+	# Só grava se for o mesmo bicho: um Follower de teste/cena solta não pode
+	# sobrescrever o Pokémon de verdade do jogador.
+	if int(lider.get("species_id", -1)) != pokemon_species_id:
+		return
+	lider["hp_current"] = current_hp
+	salvar.update_team_pokemon(0, lider)
+
 func _faint() -> void:
 	_is_fainted     = true
 	velocity        = Vector2.ZERO
+	_gravar_hp_no_save()
 	current_status  = "none"   # desmaiado não carrega status (igual troca de Pokémon no combate por turno)
 	_confused       = false
 	EventBus.follower_fainted.emit(_build_pokemon_data())

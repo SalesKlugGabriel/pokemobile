@@ -273,8 +273,17 @@ func _spawn_follower() -> void:
 
 	var f : Node2D = FOLLOWER_SCENE.instantiate()
 	f.pokemon_species_id = int(lead.get("species_id", 1))
-	f.pokemon_level      = int(lead.get("level", 5))
+	# TETO DE NÍVEL (06/09): numa dungeon com teto, um Pokémon acima dele entra
+	# REBAIXADO — stats recalculados, não só o número na tela. É o que impede
+	# vencer a dungeon por excesso de nível em vez de estratégia. O nível real
+	# no save não muda; isto é só o nível com que ele luta aqui dentro.
+	var nivel_real : int = int(lead.get("level", 5))
+	f.pokemon_level      = RegrasDeCovil.nivel_efetivo(nivel_real, WorldManager.current_map_id)
+	f.nivel_real         = nivel_real
 	f.pokemon_is_shiny   = bool(lead.get("is_shiny", false))
+	# Carrega o HP de verdade (06/09): antes o Follower nascia sempre cheio,
+	# então o dano de qualquer combate sumia na primeira troca de mapa.
+	f.hp_inicial         = int(lead.get("hp_current", -1))
 	get_parent().add_child(f)
 	f.global_position = global_position
 	f.set_trainer(self)
@@ -458,10 +467,28 @@ func _pode_voar() -> bool:
 ## Escolhe a marcha mais rápida disponível no momento — sobrescreve o hook
 ## de BaseEntity (que só tem Andar/Correr). Nenhuma marcha empilha com outra.
 func _get_move_duration() -> float:
-	if is_flying:  return FLY_DURATION
-	if is_mounted: return MOUNT_DURATION
-	if is_running: return RUN_DURATION   # Bicicleta
-	return MOVE_DURATION                 # Andar (e Surfar, mesma velocidade)
+	var base := MOVE_DURATION            # Andar (e Surfar, mesma velocidade)
+	if is_flying:      base = FLY_DURATION
+	elif is_mounted:   base = MOUNT_DURATION
+	elif is_running:   base = RUN_DURATION   # Bicicleta
+	# Lentidão (06/09) — a função "controle" do repertório do chefe lendário.
+	# Multiplica a marcha ATUAL em vez de cravar um valor: quem está de
+	# bicicleta continua mais rápido que quem está a pé, só que os dois ficam
+	# lentos. Cravar um número faria a lentidão ACELERAR quem estava andando.
+	if Time.get_ticks_msec() < _lentidao_ate_msec:
+		base *= FATOR_LENTIDAO
+	return base
+
+## Deixa o jogador lento por N segundos. Usado pelo chefe lendário — a função
+## que pune "não guardar movimento pra fugir da área".
+const FATOR_LENTIDAO : float = 2.2
+var _lentidao_ate_msec : int = 0
+
+func aplicar_lentidao(segundos: float) -> void:
+	_lentidao_ate_msec = maxi(_lentidao_ate_msec, Time.get_ticks_msec() + int(segundos * 1000.0))
+
+func esta_lento() -> bool:
+	return Time.get_ticks_msec() < _lentidao_ate_msec
 
 ## Usado pelo FollowerPokemon pra saber em qual quadro cardeal (nunca diagonal)
 ## ficar de repouso — sempre o oposto de pra onde o Treinador está olhando.

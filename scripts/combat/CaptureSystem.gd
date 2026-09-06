@@ -198,6 +198,11 @@ func attempt_capture(target: WildPokemon, pokeball_type: String) -> bool:
 			pokemon_data["status"]     = "none"
 		SaveManager.add_pokemon(pokemon_data)
 		SaveManager.mark_caught(target.species_id)
+		# Capturar o chefe também é vencer a dungeon: a MT exclusiva sai igual,
+		# e a contagem de limpezas sobe. Sem isto, quem gastasse a Pokébola —
+		# o caminho mais difícil — ganharia MENOS que quem só derrubou.
+		if target.get_node_or_null("ChefeLendario") != null:
+			RecompensasDeCovil.ao_vencer_chefe(target.species_id)
 		EventBus.capture_success.emit(pokemon_data)
 		return true
 

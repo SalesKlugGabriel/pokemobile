@@ -1,122 +1,933 @@
 {
-  "pokeball":        {"id":"pokeball",        "name":"Poké Ball",        "category":"ball",       "catch_rate_mult":1.0,   "price":200,  "description":"A device for catching wild Pokémon."},
-  "great_ball":      {"id":"great_ball",      "name":"Great Ball",       "category":"ball",       "catch_rate_mult":1.5,   "price":600,  "description":"A higher-grade ball with a better catch rate."},
-  "ultra_ball":      {"id":"ultra_ball",      "name":"Ultra Ball",       "category":"ball",       "catch_rate_mult":2.0,   "price":1200, "description":"An ultra-grade ball with an even better catch rate."},
-  "master_ball":     {"id":"master_ball",     "name":"Master Ball",      "category":"ball",       "catch_rate_mult":255.0, "price":0,    "description":"The best ball. Catches any wild Pokémon without fail."},
-
-  "net_ball":        {"id":"net_ball",        "name":"Net Ball",         "category":"ball",       "catch_rate_mult":1.0, "catch_bonus":"water_bug",     "catch_bonus_mult":3.0, "price":1000, "description":"A ball for catching Water- and Bug-type Pokémon more easily."},
-  "dusk_ball":       {"id":"dusk_ball",       "name":"Dusk Ball",        "category":"ball",       "catch_rate_mult":1.0, "catch_bonus":"dark_cave",     "catch_bonus_mult":3.0, "price":1000, "description":"A ball that works better on Pokémon encountered in dark caves."},
-  "quick_ball":      {"id":"quick_ball",      "name":"Quick Ball",       "category":"ball",       "catch_rate_mult":1.0, "catch_bonus":"quick_throw",   "catch_bonus_mult":5.0, "price":1000, "description":"A ball with a better catch rate if used at the very start of an encounter."},
-  "timer_ball":      {"id":"timer_ball",      "name":"Timer Ball",       "category":"ball",       "catch_rate_mult":1.0, "catch_bonus":"battle_length", "catch_bonus_mult":4.0, "price":1000, "description":"A ball that becomes more effective the longer a battle drags on."},
-  "heal_ball":       {"id":"heal_ball",       "name":"Heal Ball",        "category":"ball",       "catch_rate_mult":1.0, "heals_on_catch":true,                                  "price":300,  "description":"A ball that fully heals and cures the status of the Pokémon caught with it."},
-
-  "potion":          {"id":"potion",          "name":"Potion",           "category":"medicine",   "heal_hp":20,   "price":300,  "target":"pokemon", "description":"Restores 20 HP to one Pokémon."},
-  "super_potion":    {"id":"super_potion",    "name":"Super Potion",     "category":"medicine",   "heal_hp":50,   "price":700,  "target":"pokemon", "description":"Restores 50 HP to one Pokémon."},
-  "hyper_potion":    {"id":"hyper_potion",    "name":"Hyper Potion",     "category":"medicine",   "heal_hp":200,  "price":1200, "target":"pokemon", "description":"Restores 200 HP to one Pokémon."},
-  "max_potion":      {"id":"max_potion",      "name":"Max Potion",       "category":"medicine",   "heal_hp":-1,   "price":2500, "target":"pokemon", "description":"Fully restores HP of one Pokémon."},
-  "full_restore":    {"id":"full_restore",    "name":"Full Restore",     "category":"medicine",   "heal_hp":-1,   "price":3000, "target":"pokemon", "heal_status":true, "description":"Fully restores HP and cures all status conditions."},
-  "antidote":        {"id":"antidote",        "name":"Antidote",         "category":"medicine",   "cures":["poison"], "price":100, "target":"pokemon", "description":"Cures poison."},
-  "burn_heal":       {"id":"burn_heal",       "name":"Burn Heal",        "category":"medicine",   "cures":["burn"],   "price":250, "target":"pokemon", "description":"Cures a burn."},
-  "ice_heal":        {"id":"ice_heal",        "name":"Ice Heal",         "category":"medicine",   "cures":["frozen"], "price":250, "target":"pokemon", "description":"Cures being frozen."},
-  "awakening":       {"id":"awakening",       "name":"Awakening",        "category":"medicine",   "cures":["sleep"],  "price":250, "target":"pokemon", "description":"Wakes a sleeping Pokémon."},
-  "parlyz_heal":     {"id":"parlyz_heal",     "name":"Parlyz Heal",      "category":"medicine",   "cures":["paralysis"],"price":200,"target":"pokemon","description":"Cures paralysis."},
-  "full_heal":       {"id":"full_heal",       "name":"Full Heal",        "category":"medicine",   "cures":["all"],    "price":600, "target":"pokemon", "description":"Cures all status conditions."},
-  "revive":          {"id":"revive",          "name":"Revive",           "category":"medicine",   "revive_hp":0.5,    "price":1500,"target":"pokemon", "description":"Revives a fainted Pokémon with half its HP."},
-  "max_revive":      {"id":"max_revive",      "name":"Max Revive",       "category":"medicine",   "revive_hp":-1,     "price":0,   "target":"pokemon", "description":"Revives a fainted Pokémon with full HP."},
-  "ether":           {"id":"ether",           "name":"Ether",            "category":"medicine",   "restore_pp":10,    "price":1200,"target":"move",    "description":"Restores 10 PP to one move."},
-  "max_ether":       {"id":"max_ether",       "name":"Max Ether",        "category":"medicine",   "restore_pp":-1,    "price":0,   "target":"move",    "description":"Fully restores PP of one move."},
-  "elixir":          {"id":"elixir",          "name":"Elixir",           "category":"medicine",   "restore_pp":10,    "price":0,   "target":"all_moves","description":"Restores 10 PP to all moves."},
-  "max_elixir":      {"id":"max_elixir",      "name":"Max Elixir",       "category":"medicine",   "restore_pp":-1,    "price":0,   "target":"all_moves","description":"Fully restores PP of all moves."},
-
-  "fire_stone":      {"id":"fire_stone",      "name":"Fire Stone",       "category":"stone",      "price":2100, "description":"Evolves certain Fire-type Pokémon."},
-  "water_stone":     {"id":"water_stone",     "name":"Water Stone",      "category":"stone",      "price":2100, "description":"Evolves certain Water-type Pokémon."},
-  "thunder_stone":   {"id":"thunder_stone",   "name":"Thunder Stone",    "category":"stone",      "price":2100, "description":"Evolves certain Electric-type Pokémon."},
-  "leaf_stone":      {"id":"leaf_stone",      "name":"Leaf Stone",       "category":"stone",      "price":2100, "description":"Evolves certain Grass-type Pokémon."},
-  "moon_stone":      {"id":"moon_stone",      "name":"Moon Stone",       "category":"stone",      "price":0,    "description":"Evolves certain Pokémon."},
-
-  "repel":           {"id":"repel",           "name":"Repel",            "category":"field",      "steps":100, "price":350,  "description":"Repels weak Pokémon for 100 steps."},
-  "super_repel":     {"id":"super_repel",     "name":"Super Repel",      "category":"field",      "steps":200, "price":500,  "description":"Repels weak Pokémon for 200 steps."},
-  "max_repel":       {"id":"max_repel",       "name":"Max Repel",        "category":"field",      "steps":250, "price":700,  "description":"Repels weak Pokémon for 250 steps."},
-  "escape_rope":     {"id":"escape_rope",     "name":"Escape Rope",      "category":"field",      "price":550, "effect":"escape_dungeon", "description":"Escapes instantly from a cave."},
-  "poke_flute":      {"id":"poke_flute",      "name":"Poké Flute",       "category":"key",        "price":0,   "effect":"wake_snorlax",   "description":"Wakes sleeping Pokémon."},
-  "bicycle":         {"id":"bicycle",         "name":"Bicycle",          "category":"key",        "price":0,   "effect":"fast_travel",    "description":"Allows faster movement."},
-  "old_rod":         {"id":"old_rod",         "name":"Old Rod",          "category":"key",        "price":0,   "effect":"fish_common",    "description":"A fishing rod for common Pokémon."},
-  "good_rod":        {"id":"good_rod",        "name":"Good Rod",         "category":"key",        "price":0,   "effect":"fish_good",      "description":"A better fishing rod."},
-  "super_rod":       {"id":"super_rod",       "name":"Super Rod",        "category":"key",        "price":0,   "effect":"fish_rare",      "description":"The best fishing rod."},
-  "town_map":        {"id":"town_map",        "name":"Town Map",         "category":"key",        "price":0,   "effect":"open_map",       "description":"Shows the world map."},
-
-  "x_attack":        {"id":"x_attack",        "name":"X Attack",         "category":"battle",     "stat":"attack",   "stages":1, "price":500,  "target":"self", "description":"Raises Attack by 1 stage in battle."},
-  "x_defense":       {"id":"x_defense",       "name":"X Defense",        "category":"battle",     "stat":"defense",  "stages":1, "price":550,  "target":"self", "description":"Raises Defense by 1 stage in battle."},
-  "x_speed":         {"id":"x_speed",         "name":"X Speed",          "category":"battle",     "stat":"speed",    "stages":1, "price":350,  "target":"self", "description":"Raises Speed by 1 stage in battle."},
-  "x_accuracy":      {"id":"x_accuracy",      "name":"X Accuracy",       "category":"battle",     "stat":"accuracy", "stages":1, "price":950,  "target":"self", "description":"Raises Accuracy by 1 stage in battle."},
-  "x_sp_atk":        {"id":"x_sp_atk",        "name":"X Sp. Atk",        "category":"battle",     "stat":"sp_atk",   "stages":1, "price":350,  "target":"self", "description":"Raises Sp. Atk by 1 stage in battle."},
-  "guard_spec":      {"id":"guard_spec",       "name":"Guard Spec.",       "category":"battle",     "effect":"mist",   "turns":5,  "price":700,  "target":"self", "description":"Prevents stat reduction for 5 turns."},
-  "dire_hit":        {"id":"dire_hit",         "name":"Dire Hit",          "category":"battle",     "effect":"focus_energy","price":650,"target":"self","description":"Greatly raises critical-hit ratio."},
-
-  "hp_up":           {"id":"hp_up",           "name":"HP Up",            "category":"vitamin",    "ev_stat":"hp",      "ev_amount":10, "price":9800, "description":"Raises HP EVs."},
-  "protein":         {"id":"protein",         "name":"Protein",          "category":"vitamin",    "ev_stat":"attack",  "ev_amount":10, "price":9800, "description":"Raises Attack EVs."},
-  "iron":            {"id":"iron",            "name":"Iron",             "category":"vitamin",    "ev_stat":"defense", "ev_amount":10, "price":9800, "description":"Raises Defense EVs."},
-  "carbos":          {"id":"carbos",          "name":"Carbos",           "category":"vitamin",    "ev_stat":"speed",   "ev_amount":10, "price":9800, "description":"Raises Speed EVs."},
-  "calcium":         {"id":"calcium",         "name":"Calcium",          "category":"vitamin",    "ev_stat":"sp_atk",  "ev_amount":10, "price":9800, "description":"Raises Sp. Atk EVs."},
-  "zinc":            {"id":"zinc",            "name":"Zinc",             "category":"vitamin",    "ev_stat":"sp_def",  "ev_amount":10, "price":9800, "description":"Raises Sp. Def EVs."},
-  "rare_candy":      {"id":"rare_candy",      "name":"Rare Candy",       "category":"vitamin",    "effect":"level_up", "price":0,    "description":"Raises level by 1."},
-  "pp_up":           {"id":"pp_up",           "name":"PP Up",            "category":"vitamin",    "effect":"pp_up",   "price":9800, "description":"Aumenta o PP máximo de um golpe em 1/5 do valor base. Até 3 usos por golpe."},
-
-  "tm01": {"id":"tm01", "name":"MT01 Corte Duplo",   "category":"tm_hm", "teaches":"swords_dance", "price":1000, "single_use":true, "description":"Ensina Corte Duplo (aumenta o próprio Ataque)."},
-  "tm02": {"id":"tm02", "name":"MT02 Terremoto",     "category":"tm_hm", "teaches":"earthquake",   "price":3000, "single_use":true, "description":"Ensina Terremoto (Terra, dano forte)."},
-  "tm03": {"id":"tm03", "name":"MT03 Investida",     "category":"tm_hm", "teaches":"body_slam",    "price":1500, "single_use":true, "description":"Ensina Investida (pode paralisar)."},
-  "tm04": {"id":"tm04", "name":"MT04 Fúria",         "category":"tm_hm", "teaches":"double_edge",  "price":1500, "single_use":true, "description":"Ensina Fúria (dano altíssimo, com recuo)."},
-  "tm05": {"id":"tm05", "name":"MT05 Veneno-X",      "category":"tm_hm", "teaches":"toxic",        "price":2000, "single_use":true, "description":"Ensina Veneno-X (envenenamento grave garantido)."},
-  "tm06": {"id":"tm06", "name":"MT06 Onda de Choque","category":"tm_hm", "teaches":"thunder_wave", "price":2000, "single_use":true, "description":"Ensina Onda de Choque (paralisa o oponente)."},
-  "tm07": {"id":"tm07", "name":"MT07 Descanso",      "category":"tm_hm", "teaches":"rest",         "price":2500, "single_use":true, "description":"Ensina Descanso (cura tudo e dorme)."},
-  "tm08": {"id":"tm08", "name":"MT08 Raio Solar",    "category":"tm_hm", "teaches":"solar_beam",   "price":3500, "single_use":true, "description":"Ensina Raio Solar (Planta, dano altíssimo)."},
-  "tm09": {"id":"tm09", "name":"MT09 Lança-Chamas",  "category":"tm_hm", "teaches":"flamethrower", "price":3500, "single_use":true, "description":"Ensina Lança-Chamas (Fogo, pode queimar)."},
-  "tm10": {"id":"tm10", "name":"MT10 Raio",          "category":"tm_hm", "teaches":"thunderbolt",  "price":3500, "single_use":true, "description":"Ensina Raio (Elétrico, pode paralisar)."},
-  "tm11": {"id":"tm11", "name":"MT11 Surfar",        "category":"tm_hm", "teaches":"surf",         "price":3500, "single_use":true, "description":"Ensina Surfar (Água, dano forte)."},
-  "tm12": {"id":"tm12", "name":"MT12 Psíquico",      "category":"tm_hm", "teaches":"psychic",      "price":3500, "single_use":true, "description":"Ensina Psíquico (Psíquico, pode baixar Def. Esp.)."},
-  "hm01": {"id":"hm01", "name":"MO01 Cortar",        "category":"tm_hm", "teaches":"cut",          "price":0,    "single_use":false, "description":"Ensina Cortar. Não pode ser apagado."},
-  "hm02": {"id":"hm02", "name":"MO02 Voar",          "category":"tm_hm", "teaches":"fly",          "price":0,    "single_use":false, "description":"Ensina Voar. Não pode ser apagado."},
-  "hm03": {"id":"hm03", "name":"MO03 Força",         "category":"tm_hm", "teaches":"strength",     "price":0,    "single_use":false, "description":"Ensina Força. Não pode ser apagado."},
-
-  "tm13": {"id":"tm13", "name":"MT13 Rocha Explosiva", "category":"tm_hm", "teaches":"rock_slide", "price":3500, "single_use":true, "description":"Ensina Rocha Explosiva (Pedra, pode hesitar o oponente)."},
-  "tm14": {"id":"tm14", "name":"MT14 Absorver Folha",  "category":"tm_hm", "teaches":"mega_drain", "price":2500, "single_use":true, "description":"Ensina Absorver Folha (Planta, drena metade do dano como HP)."},
-  "tm15": {"id":"tm15", "name":"MT15 Explosão de Fogo","category":"tm_hm", "teaches":"fire_blast", "price":4000, "single_use":true, "description":"Ensina Explosão de Fogo (Fogo, dano altíssimo, pode queimar)."},
-  "tm16": {"id":"tm16", "name":"MT16 Hiper Raio",      "category":"tm_hm", "teaches":"hyper_beam", "price":4500, "single_use":true, "description":"Ensina Hiper Raio (dano devastador, precisa recarregar depois)."},
-
-  "gold_tm01": {"id":"gold_tm01", "name":"MT Ouro 01 Corte Duplo", "category":"tm_hm", "teaches":"swords_dance", "price":3000, "single_use":false, "description":"Versão dourada de uso infinito de MT01 (aumenta o próprio Ataque)."},
-  "gold_tm02": {"id":"gold_tm02", "name":"MT Ouro 02 Terremoto", "category":"tm_hm", "teaches":"earthquake", "price":9000, "single_use":false, "description":"Versão dourada de uso infinito de MT02 (Terra, dano forte)."},
-  "gold_tm03": {"id":"gold_tm03", "name":"MT Ouro 03 Investida", "category":"tm_hm", "teaches":"body_slam", "price":4500, "single_use":false, "description":"Versão dourada de uso infinito de MT03 (pode paralisar)."},
-  "gold_tm04": {"id":"gold_tm04", "name":"MT Ouro 04 Fúria", "category":"tm_hm", "teaches":"double_edge", "price":4500, "single_use":false, "description":"Versão dourada de uso infinito de MT04 (dano altíssimo, com recuo)."},
-  "gold_tm05": {"id":"gold_tm05", "name":"MT Ouro 05 Veneno-X", "category":"tm_hm", "teaches":"toxic", "price":6000, "single_use":false, "description":"Versão dourada de uso infinito de MT05 (envenenamento grave garantido)."},
-  "gold_tm06": {"id":"gold_tm06", "name":"MT Ouro 06 Onda de Choque", "category":"tm_hm", "teaches":"thunder_wave", "price":6000, "single_use":false, "description":"Versão dourada de uso infinito de MT06 (paralisa o oponente)."},
-  "gold_tm07": {"id":"gold_tm07", "name":"MT Ouro 07 Descanso", "category":"tm_hm", "teaches":"rest", "price":7500, "single_use":false, "description":"Versão dourada de uso infinito de MT07 (cura tudo e dorme)."},
-  "gold_tm08": {"id":"gold_tm08", "name":"MT Ouro 08 Raio Solar", "category":"tm_hm", "teaches":"solar_beam", "price":10500, "single_use":false, "description":"Versão dourada de uso infinito de MT08 (Planta, dano altíssimo)."},
-  "gold_tm09": {"id":"gold_tm09", "name":"MT Ouro 09 Lança-Chamas", "category":"tm_hm", "teaches":"flamethrower", "price":10500, "single_use":false, "description":"Versão dourada de uso infinito de MT09 (Fogo, pode queimar)."},
-  "gold_tm10": {"id":"gold_tm10", "name":"MT Ouro 10 Raio", "category":"tm_hm", "teaches":"thunderbolt", "price":10500, "single_use":false, "description":"Versão dourada de uso infinito de MT10 (Elétrico, pode paralisar)."},
-  "gold_tm11": {"id":"gold_tm11", "name":"MT Ouro 11 Surfar", "category":"tm_hm", "teaches":"surf", "price":10500, "single_use":false, "description":"Versão dourada de uso infinito de MT11 (Água, dano forte)."},
-  "gold_tm12": {"id":"gold_tm12", "name":"MT Ouro 12 Psíquico", "category":"tm_hm", "teaches":"psychic", "price":10500, "single_use":false, "description":"Versão dourada de uso infinito de MT12 (Psíquico, pode baixar Def. Esp.)."},
-
-  "charcoal":     {"id":"charcoal",     "name":"Charcoal",     "category":"held", "boost_type":"Fire",     "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes de Fogo em 20%."},
-  "mystic_water":  {"id":"mystic_water", "name":"Mystic Water", "category":"held", "boost_type":"Water",    "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes de Água em 20%."},
-  "miracle_seed": {"id":"miracle_seed", "name":"Miracle Seed", "category":"held", "boost_type":"Grass",    "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes de Planta em 20%."},
-  "magnet":       {"id":"magnet",       "name":"Magnet",       "category":"held", "boost_type":"Electric", "boost_mult":1.2, "price":2000, "description":"Item segurado. Aumenta o dano de golpes Elétricos em 20%."},
-
-  "trofeu_campeao": {"id":"trofeu_campeao", "name":"Troféu de Campeão", "category":"key", "price":0, "description":"Prova de que você derrotou a Elite Four e se tornou Campeão de Kanto."},
-
-  "diario_1": {"id":"diario_1", "name":"Diário — Página 1", "category":"key", "price":0, "description":"Página de diário, letra apressada: 'Dia 12. As bússolas dos treinadores perto da Floresta de Viridian andam malucas sem explicação nenhuma. O Professor Carvalho acha que é magnetismo natural. Eu não tenho tanta certeza — não é magnetismo nenhum que eu já vi antes.'"},
-  "diario_2": {"id":"diario_2", "name":"Diário — Página 2", "category":"key", "price":0, "description":"Página de diário: 'Dia 34, Pewter. Achei uma rocha no museu que nenhum aparelho consegue datar — mais velha que qualquer fóssil catalogado, e ainda assim vibra como se estivesse viva. Comecei a chamar o fenômeno de Fratura, por falta de nome melhor.'"},
-  "diario_3": {"id":"diario_3", "name":"Diário — Página 3", "category":"key", "price":0, "description":"Página de diário, com um mapa rabiscado ao lado: 'A Fratura não está espalhada — está CONCENTRADA, bem debaixo de Cerulean, numa caverna que ninguém nunca explorou até o fim. E não sou o único procurando: vi uniformes da Equipe Rocket rondando a entrada duas vezes essa semana.'"},
-  "diario_4": {"id":"diario_4", "name":"Diário — Página 4", "category":"key", "price":0, "description":"Página de diário, a letra mais trêmula que nas outras: 'Perdi o Renato lá embaixo. Não vou fingir que sei o que aconteceu — só sei que ele desceu comigo e voltou de lá outra pessoa, e três dias depois desapareceu de vez. Kanto nunca teve um lugar pra chorar gente que a Fratura levou sem deixar corpo. Agora tem uma torre.'"},
-  "diario_5": {"id":"diario_5", "name":"Diário — Página 5", "category":"key", "price":0, "description":"Página de diário: 'O Cassino de Celadon lava dinheiro da Equipe Rocket há anos — isso, em Kanto, todo mundo meio que sabe e finge que não. O que eu descobri é PRA ONDE esse dinheiro vai: uma escavação inteira, secreta, embaixo da cidade, cavando direto na direção da Fratura.'"},
-  "diario_6": {"id":"diario_6", "name":"Diário — Página 6", "category":"key", "price":0, "description":"A última página encontrada, queimada nas bordas: 'O incêndio na mansão não foi acidente. Tentaram estabilizar um clone usando energia extraída direto da Fratura, e alguma coisa deu terrivelmente certo — certo demais. Se estiver lendo isto e algum dia encontrar uma criatura fora de qualquer classificação que a gente conhece, corra. Ou não — talvez já seja tarde demais pros dois.'"},
-  "mapa_fratura": {"id":"mapa_fratura", "name":"Mapa da Fratura", "category":"key", "price":0, "description":"Um mapa desenhado à mão, com um X marcado bem no fundo da Caverna de Cerulean. Na margem, uma anotação apressada: 'se eu não voltar, é aqui que eu fui.'"},
-  "documento_fratura_parcial": {"id":"documento_fratura_parcial", "name":"Documento Rocket (Parcial)", "category":"key", "price":0, "description":"Um relatório interno da Equipe Rocket, rasgado ao meio. A parte legível fala em 'extração de energia dimensional' e 'aplicação em espécime sintético' — sem nome, sem local exato, mas o suficiente pra confirmar que eles sabiam exatamente o que estavam acordando."},
-  "rocket_hq_code": {"id":"rocket_hq_code", "name":"Cartão de Acesso Rocket", "category":"key", "price":0, "description":"Um cartão codificado, roubado de um agente da Equipe Rocket. Abre portas que preferiam continuar fechadas."},
-  "item_exclusive": {"id":"item_exclusive", "name":"Distintivo Confiscado", "category":"key", "price":0, "description":"Um distintivo confiscado da Equipe Rocket — prova de que você desmontou pessoalmente uma célula inteira da organização."},
-
-  "pokeradar": {"id":"pokeradar", "name":"Pokéradar", "category":"key", "price":0, "description":"Detecta padrões estatísticos raros em populações selvagens — na prática, aumenta bastante a chance de encontrar um Pokémon shiny enquanto estiver com você."},
-  "pokeradar_advanced": {"id":"pokeradar_advanced", "name":"Pokéradar Avançado", "category":"key", "price":0, "description":"Versão recalibrada do Pokéradar, a partir de dados de centenas de encontros. Aumenta a chance de Pokémon shiny ainda mais que o modelo comum."},
-  "premium_pokeball": {"id":"premium_pokeball", "name":"Poké Bola Premium", "category":"ball", "catch_rate_mult":2.5, "price":0, "description":"Uma pokébola de coleção, forjada só pra quem já provou ser um treinador dedicado. Chance de captura bem acima da Great Ball."},
-
-  "exp_share": {"id":"exp_share", "name":"Repartidor de EXP", "category":"key", "price":0, "description":"Um dispositivo que reparte a experiência de cada vitória com todo o time (não só com quem lutou), enquanto estiver na sua mochila."}
+  "pokeball": {
+    "id": "pokeball",
+    "name": "Poké Ball",
+    "category": "ball",
+    "catch_rate_mult": 1.0,
+    "price": 200,
+    "description": "A device for catching wild Pokémon."
+  },
+  "great_ball": {
+    "id": "great_ball",
+    "name": "Great Ball",
+    "category": "ball",
+    "catch_rate_mult": 1.5,
+    "price": 600,
+    "description": "A higher-grade ball with a better catch rate."
+  },
+  "ultra_ball": {
+    "id": "ultra_ball",
+    "name": "Ultra Ball",
+    "category": "ball",
+    "catch_rate_mult": 2.0,
+    "price": 1200,
+    "description": "An ultra-grade ball with an even better catch rate."
+  },
+  "master_ball": {
+    "id": "master_ball",
+    "name": "Master Ball",
+    "category": "ball",
+    "catch_rate_mult": 255.0,
+    "price": 0,
+    "description": "The best ball. Catches any wild Pokémon without fail."
+  },
+  "net_ball": {
+    "id": "net_ball",
+    "name": "Net Ball",
+    "category": "ball",
+    "catch_rate_mult": 1.0,
+    "catch_bonus": "water_bug",
+    "catch_bonus_mult": 3.0,
+    "price": 1000,
+    "description": "A ball for catching Water- and Bug-type Pokémon more easily."
+  },
+  "dusk_ball": {
+    "id": "dusk_ball",
+    "name": "Dusk Ball",
+    "category": "ball",
+    "catch_rate_mult": 1.0,
+    "catch_bonus": "dark_cave",
+    "catch_bonus_mult": 3.0,
+    "price": 1000,
+    "description": "A ball that works better on Pokémon encountered in dark caves."
+  },
+  "quick_ball": {
+    "id": "quick_ball",
+    "name": "Quick Ball",
+    "category": "ball",
+    "catch_rate_mult": 1.0,
+    "catch_bonus": "quick_throw",
+    "catch_bonus_mult": 5.0,
+    "price": 1000,
+    "description": "A ball with a better catch rate if used at the very start of an encounter."
+  },
+  "timer_ball": {
+    "id": "timer_ball",
+    "name": "Timer Ball",
+    "category": "ball",
+    "catch_rate_mult": 1.0,
+    "catch_bonus": "battle_length",
+    "catch_bonus_mult": 4.0,
+    "price": 1000,
+    "description": "A ball that becomes more effective the longer a battle drags on."
+  },
+  "heal_ball": {
+    "id": "heal_ball",
+    "name": "Heal Ball",
+    "category": "ball",
+    "catch_rate_mult": 1.0,
+    "heals_on_catch": true,
+    "price": 300,
+    "description": "A ball that fully heals and cures the status of the Pokémon caught with it."
+  },
+  "potion": {
+    "id": "potion",
+    "name": "Potion",
+    "category": "medicine",
+    "heal_hp": 20,
+    "price": 300,
+    "target": "pokemon",
+    "description": "Restores 20 HP to one Pokémon."
+  },
+  "super_potion": {
+    "id": "super_potion",
+    "name": "Super Potion",
+    "category": "medicine",
+    "heal_hp": 50,
+    "price": 700,
+    "target": "pokemon",
+    "description": "Restores 50 HP to one Pokémon."
+  },
+  "hyper_potion": {
+    "id": "hyper_potion",
+    "name": "Hyper Potion",
+    "category": "medicine",
+    "heal_hp": 200,
+    "price": 1200,
+    "target": "pokemon",
+    "description": "Restores 200 HP to one Pokémon."
+  },
+  "max_potion": {
+    "id": "max_potion",
+    "name": "Max Potion",
+    "category": "medicine",
+    "heal_hp": -1,
+    "price": 2500,
+    "target": "pokemon",
+    "description": "Fully restores HP of one Pokémon."
+  },
+  "full_restore": {
+    "id": "full_restore",
+    "name": "Full Restore",
+    "category": "medicine",
+    "heal_hp": -1,
+    "price": 3000,
+    "target": "pokemon",
+    "heal_status": true,
+    "description": "Fully restores HP and cures all status conditions."
+  },
+  "antidote": {
+    "id": "antidote",
+    "name": "Antidote",
+    "category": "medicine",
+    "cures": [
+      "poison"
+    ],
+    "price": 100,
+    "target": "pokemon",
+    "description": "Cures poison."
+  },
+  "burn_heal": {
+    "id": "burn_heal",
+    "name": "Burn Heal",
+    "category": "medicine",
+    "cures": [
+      "burn"
+    ],
+    "price": 250,
+    "target": "pokemon",
+    "description": "Cures a burn."
+  },
+  "ice_heal": {
+    "id": "ice_heal",
+    "name": "Ice Heal",
+    "category": "medicine",
+    "cures": [
+      "frozen"
+    ],
+    "price": 250,
+    "target": "pokemon",
+    "description": "Cures being frozen."
+  },
+  "awakening": {
+    "id": "awakening",
+    "name": "Awakening",
+    "category": "medicine",
+    "cures": [
+      "sleep"
+    ],
+    "price": 250,
+    "target": "pokemon",
+    "description": "Wakes a sleeping Pokémon."
+  },
+  "parlyz_heal": {
+    "id": "parlyz_heal",
+    "name": "Parlyz Heal",
+    "category": "medicine",
+    "cures": [
+      "paralysis"
+    ],
+    "price": 200,
+    "target": "pokemon",
+    "description": "Cures paralysis."
+  },
+  "full_heal": {
+    "id": "full_heal",
+    "name": "Full Heal",
+    "category": "medicine",
+    "cures": [
+      "all"
+    ],
+    "price": 600,
+    "target": "pokemon",
+    "description": "Cures all status conditions."
+  },
+  "revive": {
+    "id": "revive",
+    "name": "Revive",
+    "category": "medicine",
+    "revive_hp": 0.5,
+    "price": 1500,
+    "target": "pokemon",
+    "description": "Revives a fainted Pokémon with half its HP."
+  },
+  "max_revive": {
+    "id": "max_revive",
+    "name": "Max Revive",
+    "category": "medicine",
+    "revive_hp": -1,
+    "price": 0,
+    "target": "pokemon",
+    "description": "Revives a fainted Pokémon with full HP."
+  },
+  "ether": {
+    "id": "ether",
+    "name": "Ether",
+    "category": "medicine",
+    "restore_pp": 10,
+    "price": 1200,
+    "target": "move",
+    "description": "Restores 10 PP to one move."
+  },
+  "max_ether": {
+    "id": "max_ether",
+    "name": "Max Ether",
+    "category": "medicine",
+    "restore_pp": -1,
+    "price": 0,
+    "target": "move",
+    "description": "Fully restores PP of one move."
+  },
+  "elixir": {
+    "id": "elixir",
+    "name": "Elixir",
+    "category": "medicine",
+    "restore_pp": 10,
+    "price": 0,
+    "target": "all_moves",
+    "description": "Restores 10 PP to all moves."
+  },
+  "max_elixir": {
+    "id": "max_elixir",
+    "name": "Max Elixir",
+    "category": "medicine",
+    "restore_pp": -1,
+    "price": 0,
+    "target": "all_moves",
+    "description": "Fully restores PP of all moves."
+  },
+  "fire_stone": {
+    "id": "fire_stone",
+    "name": "Fire Stone",
+    "category": "stone",
+    "price": 2100,
+    "description": "Evolves certain Fire-type Pokémon."
+  },
+  "water_stone": {
+    "id": "water_stone",
+    "name": "Water Stone",
+    "category": "stone",
+    "price": 2100,
+    "description": "Evolves certain Water-type Pokémon."
+  },
+  "thunder_stone": {
+    "id": "thunder_stone",
+    "name": "Thunder Stone",
+    "category": "stone",
+    "price": 2100,
+    "description": "Evolves certain Electric-type Pokémon."
+  },
+  "leaf_stone": {
+    "id": "leaf_stone",
+    "name": "Leaf Stone",
+    "category": "stone",
+    "price": 2100,
+    "description": "Evolves certain Grass-type Pokémon."
+  },
+  "moon_stone": {
+    "id": "moon_stone",
+    "name": "Moon Stone",
+    "category": "stone",
+    "price": 0,
+    "description": "Evolves certain Pokémon."
+  },
+  "repel": {
+    "id": "repel",
+    "name": "Repel",
+    "category": "field",
+    "steps": 100,
+    "price": 350,
+    "description": "Repels weak Pokémon for 100 steps."
+  },
+  "super_repel": {
+    "id": "super_repel",
+    "name": "Super Repel",
+    "category": "field",
+    "steps": 200,
+    "price": 500,
+    "description": "Repels weak Pokémon for 200 steps."
+  },
+  "max_repel": {
+    "id": "max_repel",
+    "name": "Max Repel",
+    "category": "field",
+    "steps": 250,
+    "price": 700,
+    "description": "Repels weak Pokémon for 250 steps."
+  },
+  "escape_rope": {
+    "id": "escape_rope",
+    "name": "Escape Rope",
+    "category": "field",
+    "price": 550,
+    "effect": "escape_dungeon",
+    "description": "Escapes instantly from a cave."
+  },
+  "poke_flute": {
+    "id": "poke_flute",
+    "name": "Poké Flute",
+    "category": "key",
+    "price": 0,
+    "effect": "wake_snorlax",
+    "description": "Wakes sleeping Pokémon."
+  },
+  "bicycle": {
+    "id": "bicycle",
+    "name": "Bicycle",
+    "category": "key",
+    "price": 0,
+    "effect": "fast_travel",
+    "description": "Allows faster movement."
+  },
+  "old_rod": {
+    "id": "old_rod",
+    "name": "Old Rod",
+    "category": "key",
+    "price": 0,
+    "effect": "fish_common",
+    "description": "A fishing rod for common Pokémon."
+  },
+  "good_rod": {
+    "id": "good_rod",
+    "name": "Good Rod",
+    "category": "key",
+    "price": 0,
+    "effect": "fish_good",
+    "description": "A better fishing rod."
+  },
+  "super_rod": {
+    "id": "super_rod",
+    "name": "Super Rod",
+    "category": "key",
+    "price": 0,
+    "effect": "fish_rare",
+    "description": "The best fishing rod."
+  },
+  "town_map": {
+    "id": "town_map",
+    "name": "Town Map",
+    "category": "key",
+    "price": 0,
+    "effect": "open_map",
+    "description": "Shows the world map."
+  },
+  "x_attack": {
+    "id": "x_attack",
+    "name": "X Attack",
+    "category": "battle",
+    "stat": "attack",
+    "stages": 1,
+    "price": 500,
+    "target": "self",
+    "description": "Raises Attack by 1 stage in battle."
+  },
+  "x_defense": {
+    "id": "x_defense",
+    "name": "X Defense",
+    "category": "battle",
+    "stat": "defense",
+    "stages": 1,
+    "price": 550,
+    "target": "self",
+    "description": "Raises Defense by 1 stage in battle."
+  },
+  "x_speed": {
+    "id": "x_speed",
+    "name": "X Speed",
+    "category": "battle",
+    "stat": "speed",
+    "stages": 1,
+    "price": 350,
+    "target": "self",
+    "description": "Raises Speed by 1 stage in battle."
+  },
+  "x_accuracy": {
+    "id": "x_accuracy",
+    "name": "X Accuracy",
+    "category": "battle",
+    "stat": "accuracy",
+    "stages": 1,
+    "price": 950,
+    "target": "self",
+    "description": "Raises Accuracy by 1 stage in battle."
+  },
+  "x_sp_atk": {
+    "id": "x_sp_atk",
+    "name": "X Sp. Atk",
+    "category": "battle",
+    "stat": "sp_atk",
+    "stages": 1,
+    "price": 350,
+    "target": "self",
+    "description": "Raises Sp. Atk by 1 stage in battle."
+  },
+  "guard_spec": {
+    "id": "guard_spec",
+    "name": "Guard Spec.",
+    "category": "battle",
+    "effect": "mist",
+    "turns": 5,
+    "price": 700,
+    "target": "self",
+    "description": "Prevents stat reduction for 5 turns."
+  },
+  "dire_hit": {
+    "id": "dire_hit",
+    "name": "Dire Hit",
+    "category": "battle",
+    "effect": "focus_energy",
+    "price": 650,
+    "target": "self",
+    "description": "Greatly raises critical-hit ratio."
+  },
+  "hp_up": {
+    "id": "hp_up",
+    "name": "HP Up",
+    "category": "vitamin",
+    "ev_stat": "hp",
+    "ev_amount": 10,
+    "price": 9800,
+    "description": "Raises HP EVs."
+  },
+  "protein": {
+    "id": "protein",
+    "name": "Protein",
+    "category": "vitamin",
+    "ev_stat": "attack",
+    "ev_amount": 10,
+    "price": 9800,
+    "description": "Raises Attack EVs."
+  },
+  "iron": {
+    "id": "iron",
+    "name": "Iron",
+    "category": "vitamin",
+    "ev_stat": "defense",
+    "ev_amount": 10,
+    "price": 9800,
+    "description": "Raises Defense EVs."
+  },
+  "carbos": {
+    "id": "carbos",
+    "name": "Carbos",
+    "category": "vitamin",
+    "ev_stat": "speed",
+    "ev_amount": 10,
+    "price": 9800,
+    "description": "Raises Speed EVs."
+  },
+  "calcium": {
+    "id": "calcium",
+    "name": "Calcium",
+    "category": "vitamin",
+    "ev_stat": "sp_atk",
+    "ev_amount": 10,
+    "price": 9800,
+    "description": "Raises Sp. Atk EVs."
+  },
+  "zinc": {
+    "id": "zinc",
+    "name": "Zinc",
+    "category": "vitamin",
+    "ev_stat": "sp_def",
+    "ev_amount": 10,
+    "price": 9800,
+    "description": "Raises Sp. Def EVs."
+  },
+  "rare_candy": {
+    "id": "rare_candy",
+    "name": "Rare Candy",
+    "category": "vitamin",
+    "effect": "level_up",
+    "price": 0,
+    "description": "Raises level by 1."
+  },
+  "pp_up": {
+    "id": "pp_up",
+    "name": "PP Up",
+    "category": "vitamin",
+    "effect": "pp_up",
+    "price": 9800,
+    "description": "Aumenta o PP máximo de um golpe em 1/5 do valor base. Até 3 usos por golpe."
+  },
+  "tm01": {
+    "id": "tm01",
+    "name": "MT01 Corte Duplo",
+    "category": "tm_hm",
+    "teaches": "swords_dance",
+    "price": 1000,
+    "single_use": true,
+    "description": "Ensina Corte Duplo (aumenta o próprio Ataque)."
+  },
+  "tm02": {
+    "id": "tm02",
+    "name": "MT02 Terremoto",
+    "category": "tm_hm",
+    "teaches": "earthquake",
+    "price": 3000,
+    "single_use": true,
+    "description": "Ensina Terremoto (Terra, dano forte)."
+  },
+  "tm03": {
+    "id": "tm03",
+    "name": "MT03 Investida",
+    "category": "tm_hm",
+    "teaches": "body_slam",
+    "price": 1500,
+    "single_use": true,
+    "description": "Ensina Investida (pode paralisar)."
+  },
+  "tm04": {
+    "id": "tm04",
+    "name": "MT04 Fúria",
+    "category": "tm_hm",
+    "teaches": "double_edge",
+    "price": 1500,
+    "single_use": true,
+    "description": "Ensina Fúria (dano altíssimo, com recuo)."
+  },
+  "tm05": {
+    "id": "tm05",
+    "name": "MT05 Veneno-X",
+    "category": "tm_hm",
+    "teaches": "toxic",
+    "price": 2000,
+    "single_use": true,
+    "description": "Ensina Veneno-X (envenenamento grave garantido)."
+  },
+  "tm06": {
+    "id": "tm06",
+    "name": "MT06 Onda de Choque",
+    "category": "tm_hm",
+    "teaches": "thunder_wave",
+    "price": 2000,
+    "single_use": true,
+    "description": "Ensina Onda de Choque (paralisa o oponente)."
+  },
+  "tm07": {
+    "id": "tm07",
+    "name": "MT07 Descanso",
+    "category": "tm_hm",
+    "teaches": "rest",
+    "price": 2500,
+    "single_use": true,
+    "description": "Ensina Descanso (cura tudo e dorme)."
+  },
+  "tm08": {
+    "id": "tm08",
+    "name": "MT08 Raio Solar",
+    "category": "tm_hm",
+    "teaches": "solar_beam",
+    "price": 3500,
+    "single_use": true,
+    "description": "Ensina Raio Solar (Planta, dano altíssimo)."
+  },
+  "tm09": {
+    "id": "tm09",
+    "name": "MT09 Lança-Chamas",
+    "category": "tm_hm",
+    "teaches": "flamethrower",
+    "price": 3500,
+    "single_use": true,
+    "description": "Ensina Lança-Chamas (Fogo, pode queimar)."
+  },
+  "tm10": {
+    "id": "tm10",
+    "name": "MT10 Raio",
+    "category": "tm_hm",
+    "teaches": "thunderbolt",
+    "price": 3500,
+    "single_use": true,
+    "description": "Ensina Raio (Elétrico, pode paralisar)."
+  },
+  "tm11": {
+    "id": "tm11",
+    "name": "MT11 Surfar",
+    "category": "tm_hm",
+    "teaches": "surf",
+    "price": 3500,
+    "single_use": true,
+    "description": "Ensina Surfar (Água, dano forte)."
+  },
+  "tm12": {
+    "id": "tm12",
+    "name": "MT12 Psíquico",
+    "category": "tm_hm",
+    "teaches": "psychic",
+    "price": 3500,
+    "single_use": true,
+    "description": "Ensina Psíquico (Psíquico, pode baixar Def. Esp.)."
+  },
+  "hm01": {
+    "id": "hm01",
+    "name": "MO01 Cortar",
+    "category": "tm_hm",
+    "teaches": "cut",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Cortar. Não pode ser apagado."
+  },
+  "hm02": {
+    "id": "hm02",
+    "name": "MO02 Voar",
+    "category": "tm_hm",
+    "teaches": "fly",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Voar. Não pode ser apagado."
+  },
+  "hm03": {
+    "id": "hm03",
+    "name": "MO03 Força",
+    "category": "tm_hm",
+    "teaches": "strength",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Força. Não pode ser apagado."
+  },
+  "tm13": {
+    "id": "tm13",
+    "name": "MT13 Rocha Explosiva",
+    "category": "tm_hm",
+    "teaches": "rock_slide",
+    "price": 3500,
+    "single_use": true,
+    "description": "Ensina Rocha Explosiva (Pedra, pode hesitar o oponente)."
+  },
+  "tm14": {
+    "id": "tm14",
+    "name": "MT14 Absorver Folha",
+    "category": "tm_hm",
+    "teaches": "mega_drain",
+    "price": 2500,
+    "single_use": true,
+    "description": "Ensina Absorver Folha (Planta, drena metade do dano como HP)."
+  },
+  "tm15": {
+    "id": "tm15",
+    "name": "MT15 Explosão de Fogo",
+    "category": "tm_hm",
+    "teaches": "fire_blast",
+    "price": 4000,
+    "single_use": true,
+    "description": "Ensina Explosão de Fogo (Fogo, dano altíssimo, pode queimar)."
+  },
+  "tm16": {
+    "id": "tm16",
+    "name": "MT16 Hiper Raio",
+    "category": "tm_hm",
+    "teaches": "hyper_beam",
+    "price": 4500,
+    "single_use": true,
+    "description": "Ensina Hiper Raio (dano devastador, precisa recarregar depois)."
+  },
+  "gold_tm01": {
+    "id": "gold_tm01",
+    "name": "MT Ouro 01 Corte Duplo",
+    "category": "tm_hm",
+    "teaches": "swords_dance",
+    "price": 3000,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT01 (aumenta o próprio Ataque)."
+  },
+  "gold_tm02": {
+    "id": "gold_tm02",
+    "name": "MT Ouro 02 Terremoto",
+    "category": "tm_hm",
+    "teaches": "earthquake",
+    "price": 9000,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT02 (Terra, dano forte)."
+  },
+  "gold_tm03": {
+    "id": "gold_tm03",
+    "name": "MT Ouro 03 Investida",
+    "category": "tm_hm",
+    "teaches": "body_slam",
+    "price": 4500,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT03 (pode paralisar)."
+  },
+  "gold_tm04": {
+    "id": "gold_tm04",
+    "name": "MT Ouro 04 Fúria",
+    "category": "tm_hm",
+    "teaches": "double_edge",
+    "price": 4500,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT04 (dano altíssimo, com recuo)."
+  },
+  "gold_tm05": {
+    "id": "gold_tm05",
+    "name": "MT Ouro 05 Veneno-X",
+    "category": "tm_hm",
+    "teaches": "toxic",
+    "price": 6000,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT05 (envenenamento grave garantido)."
+  },
+  "gold_tm06": {
+    "id": "gold_tm06",
+    "name": "MT Ouro 06 Onda de Choque",
+    "category": "tm_hm",
+    "teaches": "thunder_wave",
+    "price": 6000,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT06 (paralisa o oponente)."
+  },
+  "gold_tm07": {
+    "id": "gold_tm07",
+    "name": "MT Ouro 07 Descanso",
+    "category": "tm_hm",
+    "teaches": "rest",
+    "price": 7500,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT07 (cura tudo e dorme)."
+  },
+  "gold_tm08": {
+    "id": "gold_tm08",
+    "name": "MT Ouro 08 Raio Solar",
+    "category": "tm_hm",
+    "teaches": "solar_beam",
+    "price": 10500,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT08 (Planta, dano altíssimo)."
+  },
+  "gold_tm09": {
+    "id": "gold_tm09",
+    "name": "MT Ouro 09 Lança-Chamas",
+    "category": "tm_hm",
+    "teaches": "flamethrower",
+    "price": 10500,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT09 (Fogo, pode queimar)."
+  },
+  "gold_tm10": {
+    "id": "gold_tm10",
+    "name": "MT Ouro 10 Raio",
+    "category": "tm_hm",
+    "teaches": "thunderbolt",
+    "price": 10500,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT10 (Elétrico, pode paralisar)."
+  },
+  "gold_tm11": {
+    "id": "gold_tm11",
+    "name": "MT Ouro 11 Surfar",
+    "category": "tm_hm",
+    "teaches": "surf",
+    "price": 10500,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT11 (Água, dano forte)."
+  },
+  "gold_tm12": {
+    "id": "gold_tm12",
+    "name": "MT Ouro 12 Psíquico",
+    "category": "tm_hm",
+    "teaches": "psychic",
+    "price": 10500,
+    "single_use": false,
+    "description": "Versão dourada de uso infinito de MT12 (Psíquico, pode baixar Def. Esp.)."
+  },
+  "charcoal": {
+    "id": "charcoal",
+    "name": "Charcoal",
+    "category": "held",
+    "boost_type": "Fire",
+    "boost_mult": 1.2,
+    "price": 2000,
+    "description": "Item segurado. Aumenta o dano de golpes de Fogo em 20%."
+  },
+  "mystic_water": {
+    "id": "mystic_water",
+    "name": "Mystic Water",
+    "category": "held",
+    "boost_type": "Water",
+    "boost_mult": 1.2,
+    "price": 2000,
+    "description": "Item segurado. Aumenta o dano de golpes de Água em 20%."
+  },
+  "miracle_seed": {
+    "id": "miracle_seed",
+    "name": "Miracle Seed",
+    "category": "held",
+    "boost_type": "Grass",
+    "boost_mult": 1.2,
+    "price": 2000,
+    "description": "Item segurado. Aumenta o dano de golpes de Planta em 20%."
+  },
+  "magnet": {
+    "id": "magnet",
+    "name": "Magnet",
+    "category": "held",
+    "boost_type": "Electric",
+    "boost_mult": 1.2,
+    "price": 2000,
+    "description": "Item segurado. Aumenta o dano de golpes Elétricos em 20%."
+  },
+  "trofeu_campeao": {
+    "id": "trofeu_campeao",
+    "name": "Troféu de Campeão",
+    "category": "key",
+    "price": 0,
+    "description": "Prova de que você derrotou a Elite Four e se tornou Campeão de Kanto."
+  },
+  "diario_1": {
+    "id": "diario_1",
+    "name": "Diário — Página 1",
+    "category": "key",
+    "price": 0,
+    "description": "Página de diário, letra apressada: 'Dia 12. As bússolas dos treinadores perto da Floresta de Viridian andam malucas sem explicação nenhuma. O Professor Carvalho acha que é magnetismo natural. Eu não tenho tanta certeza — não é magnetismo nenhum que eu já vi antes.'"
+  },
+  "diario_2": {
+    "id": "diario_2",
+    "name": "Diário — Página 2",
+    "category": "key",
+    "price": 0,
+    "description": "Página de diário: 'Dia 34, Pewter. Achei uma rocha no museu que nenhum aparelho consegue datar — mais velha que qualquer fóssil catalogado, e ainda assim vibra como se estivesse viva. Comecei a chamar o fenômeno de Fratura, por falta de nome melhor.'"
+  },
+  "diario_3": {
+    "id": "diario_3",
+    "name": "Diário — Página 3",
+    "category": "key",
+    "price": 0,
+    "description": "Página de diário, com um mapa rabiscado ao lado: 'A Fratura não está espalhada — está CONCENTRADA, bem debaixo de Cerulean, numa caverna que ninguém nunca explorou até o fim. E não sou o único procurando: vi uniformes da Equipe Rocket rondando a entrada duas vezes essa semana.'"
+  },
+  "diario_4": {
+    "id": "diario_4",
+    "name": "Diário — Página 4",
+    "category": "key",
+    "price": 0,
+    "description": "Página de diário, a letra mais trêmula que nas outras: 'Perdi o Renato lá embaixo. Não vou fingir que sei o que aconteceu — só sei que ele desceu comigo e voltou de lá outra pessoa, e três dias depois desapareceu de vez. Kanto nunca teve um lugar pra chorar gente que a Fratura levou sem deixar corpo. Agora tem uma torre.'"
+  },
+  "diario_5": {
+    "id": "diario_5",
+    "name": "Diário — Página 5",
+    "category": "key",
+    "price": 0,
+    "description": "Página de diário: 'O Cassino de Celadon lava dinheiro da Equipe Rocket há anos — isso, em Kanto, todo mundo meio que sabe e finge que não. O que eu descobri é PRA ONDE esse dinheiro vai: uma escavação inteira, secreta, embaixo da cidade, cavando direto na direção da Fratura.'"
+  },
+  "diario_6": {
+    "id": "diario_6",
+    "name": "Diário — Página 6",
+    "category": "key",
+    "price": 0,
+    "description": "A última página encontrada, queimada nas bordas: 'O incêndio na mansão não foi acidente. Tentaram estabilizar um clone usando energia extraída direto da Fratura, e alguma coisa deu terrivelmente certo — certo demais. Se estiver lendo isto e algum dia encontrar uma criatura fora de qualquer classificação que a gente conhece, corra. Ou não — talvez já seja tarde demais pros dois.'"
+  },
+  "mapa_fratura": {
+    "id": "mapa_fratura",
+    "name": "Mapa da Fratura",
+    "category": "key",
+    "price": 0,
+    "description": "Um mapa desenhado à mão, com um X marcado bem no fundo da Caverna de Cerulean. Na margem, uma anotação apressada: 'se eu não voltar, é aqui que eu fui.'"
+  },
+  "documento_fratura_parcial": {
+    "id": "documento_fratura_parcial",
+    "name": "Documento Rocket (Parcial)",
+    "category": "key",
+    "price": 0,
+    "description": "Um relatório interno da Equipe Rocket, rasgado ao meio. A parte legível fala em 'extração de energia dimensional' e 'aplicação em espécime sintético' — sem nome, sem local exato, mas o suficiente pra confirmar que eles sabiam exatamente o que estavam acordando."
+  },
+  "rocket_hq_code": {
+    "id": "rocket_hq_code",
+    "name": "Cartão de Acesso Rocket",
+    "category": "key",
+    "price": 0,
+    "description": "Um cartão codificado, roubado de um agente da Equipe Rocket. Abre portas que preferiam continuar fechadas."
+  },
+  "item_exclusive": {
+    "id": "item_exclusive",
+    "name": "Distintivo Confiscado",
+    "category": "key",
+    "price": 0,
+    "description": "Um distintivo confiscado da Equipe Rocket — prova de que você desmontou pessoalmente uma célula inteira da organização."
+  },
+  "pokeradar": {
+    "id": "pokeradar",
+    "name": "Pokéradar",
+    "category": "key",
+    "price": 0,
+    "description": "Detecta padrões estatísticos raros em populações selvagens — na prática, aumenta bastante a chance de encontrar um Pokémon shiny enquanto estiver com você."
+  },
+  "pokeradar_advanced": {
+    "id": "pokeradar_advanced",
+    "name": "Pokéradar Avançado",
+    "category": "key",
+    "price": 0,
+    "description": "Versão recalibrada do Pokéradar, a partir de dados de centenas de encontros. Aumenta a chance de Pokémon shiny ainda mais que o modelo comum."
+  },
+  "premium_pokeball": {
+    "id": "premium_pokeball",
+    "name": "Poké Bola Premium",
+    "category": "ball",
+    "catch_rate_mult": 2.5,
+    "price": 0,
+    "description": "Uma pokébola de coleção, forjada só pra quem já provou ser um treinador dedicado. Chance de captura bem acima da Great Ball."
+  },
+  "exp_share": {
+    "id": "exp_share",
+    "name": "Repartidor de EXP",
+    "category": "key",
+    "price": 0,
+    "description": "Um dispositivo que reparte a experiência de cada vitória com todo o time (não só com quem lutou), enquanto estiver na sua mochila."
+  },
+  "tm17": {
+    "id": "tm17",
+    "name": "MT17 Nevasca",
+    "category": "tm_hm",
+    "teaches": "blizzard",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Nevasca (Gelo, dano em area). Recompensa unica do Covil Gelado — nao se compra em lugar nenhum."
+  }
 }

@@ -202,8 +202,26 @@ func _testar_corrente_de_cenas() -> void:
 
 	# e o mundo tem a entrada
 	var mundo := FileAccess.get_file_as_string("res://scenes/world/maps/WorldMap.tscn")
-	_assert(mundo.contains("IlhaGelida_F1.tscn"),
-		"o mapa do mundo tem a boca da montanha que leva ao covil")
+	# Desde 06/09 a boca da montanha cai no ANEL 1 (Entrada), não mais direto
+	# no 1º andar: os cinco anéis puseram duas salas antes — a Entrada (segura,
+	# ponto de retorno) e o Vestíbulo (a aula de deslize).
+	_assert(mundo.contains("IlhaGelida_Entrada.tscn"),
+		"o mapa do mundo leva à Entrada do covil (anel 1), não direto ao 1º andar")
+	var entrada := FileAccess.get_file_as_string("res://scenes/world/dungeons/IlhaGelida_Entrada.tscn")
+	_assert(entrada.contains("IlhaGelida_Vestibulo.tscn"),
+		"a Entrada leva ao Vestíbulo (anel 1 → anel 2)")
+	_assert(entrada.contains("WorldMap.tscn"),
+		"a Entrada é o único caminho de volta pro mundo")
+	var vestibulo := FileAccess.get_file_as_string("res://scenes/world/dungeons/IlhaGelida_Vestibulo.tscn")
+	_assert(vestibulo.contains("IlhaGelida_F1.tscn"),
+		"o Vestíbulo leva ao 1º andar (anel 2 → anel 3)")
+	_assert(vestibulo.contains("IlhaGelida_Entrada.tscn"),
+		"e dá pra voltar do Vestíbulo pra Entrada")
+	# Nenhum andar pode continuar saindo direto pro mundo: se algum sair, o
+	# jogador pula os dois anéis novos sem nunca passar pela aula.
+	var f1 := FileAccess.get_file_as_string("res://scenes/world/dungeons/IlhaGelida_F1.tscn")
+	_assert(not f1.contains("WorldMap.tscn"),
+		"o 1º andar não é mais atalho pro mundo — a volta passa pelos anéis 2 e 1")
 
 	# ── E QUEM SAI DO COVIL CAI EM CHÃO FIRME ──────────────────────────────
 	# 🔴 Achado ao conferir: a coordenada de volta era um chute, e caiu dentro

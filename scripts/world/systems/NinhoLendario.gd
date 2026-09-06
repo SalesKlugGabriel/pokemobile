@@ -24,7 +24,11 @@ extends Node
 ## do gerador dos andares — aquele arquivo não depende de autoload nenhum, e é
 ## por isso que o teste headless consegue alcançá-los.
 
-const NIVEL_LENDARIO : int = 50
+## Era 50 até 05/09. Virou 100 na Etapa 2 das Dungeons Elementais — pedido
+## explícito do Gabriel: lendário é sempre nível 100, o teto do jogo. O que o
+## torna difícil, porém, não é o nível: é o repertório de 6 funções que
+## `ChefeLendario` instala em cima dele.
+const NIVEL_LENDARIO : int = ChefeLendario.NIVEL
 
 ## Chamado pelo BaseMap ao terminar de montar o mapa.
 static func povoar(mapa: Node, map_id: String) -> void:
@@ -57,6 +61,9 @@ static func povoar(mapa: Node, map_id: String) -> void:
 		inst.behavior = "neutral"
 	if "_spawn_pos" in inst:
 		inst._spawn_pos = pos
+	# O que transforma "Pokémon selvagem forte" em CHEFE (06/09): HP ×7,
+	# defesa +50%, e as 6 funções de repertório com enrage aos 4 minutos.
+	ChefeLendario.instalar(inst, especie)
 	EventBus.legendary_encountered.emit(especie, str(dados["nome"]))
 
 static func _ja_derrotado(especie: int) -> bool:

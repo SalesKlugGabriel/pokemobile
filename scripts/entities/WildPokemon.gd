@@ -734,6 +734,14 @@ func _die() -> void:
 			trainer_npc._on_trainer_pokemon_defeated()
 	else:
 		BattleResolver.resolve_wild_defeat(species_id, wild_level, species_data.get("name", ""))
+		# 🔴 Achado em 06/09: `NinhoLendario.marcar_derrotado` existia desde
+		# 05/09 e NINGUÉM chamava — ou seja, a regra "o lendário nasce uma vez
+		# só por partida" (a que faz a Pokébola pesar) nunca valeu de verdade:
+		# bastava sair e voltar no ninho pra ele reaparecer. Aqui é o único
+		# lugar por onde um lendário derrotado sem captura passa.
+		if get_node_or_null("ChefeLendario") != null:
+			NinhoLendario.marcar_derrotado(species_id)
+			RecompensasDeCovil.ao_vencer_chefe(species_id)
 	EventBus.wild_pokemon_died.emit(self, [])
 	EventBus.wild_pokemon_fainted.emit(self)
 	queue_free()

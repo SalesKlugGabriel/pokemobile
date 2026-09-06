@@ -9,6 +9,106 @@
 
 ---
 
+## Etapa 2: a primeira dungeon inteira — Covil Gelado (2026-09-06)
+
+**A dungeon de Gelo ponta a ponta: cinco anéis, teto de nível, as três travas
+de cura, o Articuno como chefe de verdade e as recompensas.** Uma só, inteira,
+pra descobrir o que o design erra antes de repetir sete vezes.
+
+### 🔴 Três buracos achados ANTES de construir qualquer coisa
+
+Fui ligar o "cooldown de cura de 8 segundos" e descobri que não havia cura
+nenhuma pra limitar. Em ordem de gravidade:
+
+1. **Nenhum dos 17 remédios do jogo podia ser usado fora de batalha por
+   turno.** A Mochila respondia *"só pode ser usado numa batalha por
+   enquanto"* — e desde o corte do combate por turno (02/09) a batalha por
+   turno só existe na Zona Safari. Na prática, **o jogo inteiro estava sem
+   cura**.
+2. **O Pokémon do jogador nascia sempre com vida cheia e nunca gravava o HP de
+   volta.** Todo dano sumia sozinho na primeira troca de mapa — por isso o
+   buraco nº 1 nunca tinha incomodado ninguém. Sem persistência, "risco" não
+   existia nem numa dungeon nem no mato.
+3. **`NinhoLendario.marcar_derrotado` não era chamado por ninguém.** A regra
+   "o lendário nasce uma vez só por partida" — a que faz a decisão de gastar a
+   Pokébola pesar — nunca valeu: bastava sair e voltar no ninho.
+
+Os três corrigidos primeiro. Sem eles, todo o resto da Etapa 2 seria regra
+escrita em cima de nada.
+
+### Os cinco anéis
+
+Os 15 andares que já existiam foram **reclassificados, não redesenhados**:
+subida (F1-F10) virou a *fazenda*, descida (B1-B4) virou a *elite*, o ninho
+virou a *arena*. Faltavam as duas primeiras salas, e são elas que decidem se o
+jogador entende o lugar ou só apanha nele:
+
+- **Anel 1 — Entrada.** Sala segura, chão de pedra, sem inimigo. Pisar em algo
+  que *não* escorrega é como o jogo diz "aqui você está seguro" sem escrever.
+- **Anel 2 — Vestíbulo.** A aula: uma pista de gelo curta com parede no fim. O
+  jogador escorrega, bate, entende a regra do lugar — e não paga nada por isso.
+
+A boca da montanha no mapa do mundo agora cai na Entrada, e a volta passa pelos
+dois anéis. Nenhum andar é mais atalho pro mundo (travado por teste).
+
+### As três travas de cura
+
+Fora de dungeon a cura é livre, de propósito — lá o teste é economia, aqui é
+execução. Dentro:
+
+- **8 s de espera compartilhada** entre TODOS os curativos. Duas poções
+  seguidas deixam de existir.
+- **Mochila lacrada na entrada**: o que entrou é o que pode ser usado. É o que
+  faz preparar-se valer alguma coisa.
+- **Na arena: 3 usos e 20 s entre eles.** Curar vira uma decisão que se toma
+  três vezes na luta inteira. (A referência do PokeXGames proíbe consumível por
+  completo; não copiei — lá são 4 jogadores, aqui é um só.)
+
+### Teto de nível
+
+Teto 50 no Covil Gelado: um Pokémon nível 80 entra **rebaixado**, com os stats
+recalculados, não só o número riscado na tela. Pune vencer por excesso de nível
+em vez de estratégia. O piso (35) **avisa e abre a porta assim mesmo** — é
+respeito: o jogador pode escolher apanhar.
+
+### O chefe
+
+Articuno nível 100, HP ×7, defesa +50%. Mas **o que faz um chefe não é o
+número, é o repertório** — um nível 100 com um ataque só é uma parede de HP.
+Seis funções, cada uma punindo um erro diferente: pressão (ficar parado), área
+avisada (ignorar o aviso), controle/lentidão (não guardar movimento), escudo
+que reflete (atacar no automático), **golpe percentual de 35% da vida máxima**
+(confiar em ser gordo) e congelar o chão em volta (ficar no mesmo lugar).
+
+O percentual é **não-fatal** de propósito: morrer por porcentagem é azar, e
+azar não ensina nada. **Enrage aos 4 minutos** (dano ×2, esperas −30%) impede
+vencer por atrito.
+
+O mesmo arquivo já traz o repertório de Moltres e Zapdos — quando as outras
+duas dungeons vierem, é conteúdo, não engenharia.
+
+### Santuário e recompensas
+
+**Santuário ao entrar na arena**: cura completa e salva. Não é bondade, é
+legibilidade — se o jogador perde com 40% de vida porque gastou poção no anel
+3, ele aprende "eu devia ter poupado", não "eu devia ter desviado". O caminho
+testa recurso; o chefe testa execução.
+
+**Pedra da Água** garantida no último andar de elite na primeira vez (~15%
+depois) — as 5 pedras existiam e quase não tinham fonte. **MT17 Nevasca** na
+primeira vitória: não se compra em lugar nenhum. Capturar o chefe conta como
+vitória igual — senão o caminho mais difícil pagaria menos.
+
+**Achado no caminho:** o jogo não tinha canal nenhum pra dizer "você encontrou
+X" fora da tela de batalha. Recompensa em silêncio é o mesmo que não acontecer
+— a HUD ganhou um aviso com fila (dois avisos no mesmo instante não se
+sobrescrevem).
+
+**Testado:** 99 conferências novas em `teste_dungeon_de_gelo.gd` + suíte
+inteira. **Não jogado no navegador ainda** — chegar ao covil exige Surf, que um
+save novo não tem; a Etapa 3 (derrota devolvendo à Entrada com custo, itens
+equipáveis, os três selos) é o próximo passo.
+
 ## MVP do combate: o jogo responde + ponte de feedback (2026-09-05)
 
 **Primeira leva do plano das Dungeons Elementais, na ordem que eu tinha proposto:

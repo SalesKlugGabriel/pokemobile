@@ -2549,6 +2549,53 @@
       "notes": "Cena própria (CeladonGameCorner.tscn, 02/09, MAIN-06) — cassino fachada da Equipe Rocket, com o Quartel General escondido embaixo (mesma cena, warp adicional)."
     },
     {
+      "id": "ilha_gelida_entrada",
+      "map_id": "ilha_gelida_entrada",
+      "name": "Covil Gelado — Entrada",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 13,
+        "h": 11
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [],
+      "npcs": [],
+      "notes": "Anel 1 dos cinco (06/09). Sala segura: sem inimigo de proposito — e o ponto de retorno de quem cai la dentro, e onde o jogador decide se entra."
+    },
+    {
+      "id": "ilha_gelida_vestibulo",
+      "map_id": "ilha_gelida_vestibulo",
+      "name": "Covil Gelado — Vestibulo",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 15,
+        "h": 13
+      },
+      "bgm": "overworld",
+      "wild_pokemon": [
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 30,
+          "weight": 30
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 36,
+          "level_max": 38,
+          "weight": 10
+        }
+      ],
+      "npcs": [],
+      "notes": "Anel 2 dos cinco (06/09). A aula: pista de gelo curta com parede no fim, o resto piso firme. O jogador aprende que escorrega sem pagar por isso."
+    },
+    {
       "id": "ilha_gelida_f1",
       "name": "Ilha Gélida 1F",
       "region": "kanto",

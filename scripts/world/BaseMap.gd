@@ -23,6 +23,11 @@ extends Node2D
 @onready var player  : TrainerEntity = $Entities/Player
 
 func _ready() -> void:
+	# ANTES de qualquer coisa (06/09): entrar numa dungeon lacra a mochila e
+	# liga o teto de nível, e o Follower nasce logo em seguida já rebaixado.
+	# Se isto rodasse depois, o Pokémon entraria com o nível cheio no primeiro
+	# andar — que é justamente o que o teto existe pra impedir.
+	RegrasDeCovil.atualizar(map_id)
 	_paint_tiles()
 	if not MapOverrides.overrides_loaded.is_connected(_on_map_overrides_loaded):
 		MapOverrides.overrides_loaded.connect(_on_map_overrides_loaded)
@@ -39,6 +44,10 @@ func _ready() -> void:
 	# Lendário do ninho, se este mapa for o fim de um covil (05/09). Depois de
 	# `_setup_world_systems` de propósito: precisa do SpawnManager já ligado.
 	NinhoLendario.povoar(self, map_id)
+	# Santuário (cura completa antes da arena) e a pedra de evolução no último
+	# andar de elite. Depois do ninho de propósito: o santuário cura o time, e
+	# curar antes de o chefe existir não teria sentido nenhum.
+	RecompensasDeCovil.ao_entrar(map_id)
 	# O mundo aberto tem UM tile condicionado a estado de save (a porta do
 	# Ginásio de Viridian, que só abre depois de MAIN-08) — repinta se uma
 	# quest completar enquanto o mapa já está carregado, senão o jogador só

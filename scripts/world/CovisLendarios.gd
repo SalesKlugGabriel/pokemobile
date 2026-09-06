@@ -97,6 +97,69 @@ static func _char_gelo() -> String:
 static func _char_bloco_gelo() -> String:
 	return '"' 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# ANEL 1 e ANEL 2 — as duas salas que a arquitetura de cinco anéis pediu
+# (06/09, Etapa 2 das Dungeons Elementais)
+#
+# Os 15 andares que já existiam viram os anéis 3 (fazenda) e 4 (elite), e o
+# ninho vira o 5 (arena). Faltavam justamente as duas primeiras salas — e são
+# elas que decidem se o jogador entende o lugar ou só apanha nele.
+# ──────────────────────────────────────────────────────────────────────────────
+
+## ANEL 1 — ENTRADA. Sala pequena, sem gelo nenhum e sem inimigo: é o ponto de
+## retorno. É pra cá que o jogador volta quando o time inteiro cai, e é aqui
+## que ele decide se entra. Chão de pedra de propósito — pisar em algo que NÃO
+## escorrega é como o jogo diz "aqui você está seguro" sem escrever isso.
+static func gerar_entrada_gelo() -> Array:
+	var L := 13
+	var A := 11
+	var grade : Array = []
+	for r in A:
+		var linha : Array = []
+		for c in L:
+			if c == 0 or c == L - 1 or r == 0 or r == A - 1:
+				linha.append(_char_bloco_gelo())
+			else:
+				linha.append("f")            # piso de pedra: chão que não escorrega
+		grade.append(linha)
+	# Saída pro vestíbulo em cima; a volta pro mundo fica embaixo (warp da cena).
+	grade[1][L / 2] = ESCADA
+	grade[A - 2][L / 2] = "f"
+	return _para_texto(grade)
+
+## ANEL 2 — VESTÍBULO. A aula. Uma pista de gelo CURTA, com parede no fim: o
+## jogador escorrega, bate e entende a regra do lugar sem pagar nada por isso.
+## Todo o resto é piso firme, então dá pra andar em volta e experimentar de
+## novo quantas vezes quiser.
+##
+## É a sala que o plano chama de "um exemplar do perigo ambiental em versão
+## inofensiva" — e é a diferença entre uma dungeon difícil e uma injusta.
+static func gerar_vestibulo_gelo() -> Array:
+	var L := 15
+	var A := 13
+	var grade : Array = []
+	for r in A:
+		var linha : Array = []
+		for c in L:
+			if c == 0 or c == L - 1 or r == 0 or r == A - 1:
+				linha.append(_char_bloco_gelo())
+			else:
+				linha.append("f")
+		grade.append(linha)
+
+	# A pista: uma faixa de gelo no meio, com bloco no fim pra o deslize ter
+	# onde parar. Curta de propósito — a lição é "isto escorrega", não "resolva
+	# um quebra-cabeça".
+	var linha_pista := A / 2
+	for c in range(3, L - 3):
+		grade[linha_pista][c] = _char_gelo()
+	grade[linha_pista][L - 3] = _char_bloco_gelo()
+
+	# Entrada embaixo, saída pra fazenda em cima.
+	grade[A - 2][L / 2] = "f"
+	grade[1][L / 2] = ESCADA
+	return _para_texto(grade)
+
 ## Um andar da montanha gelada.
 ##
 ## `andar` 1..10 — quanto mais alto, mais gelo e menos blocos onde parar.

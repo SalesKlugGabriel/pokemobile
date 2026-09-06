@@ -140,6 +140,7 @@ func _ready() -> void:
 	EventBus.follower_skill_cooldown_updated.connect(_on_skill_cooldown_updated)
 	EventBus.follower_changed.connect(_on_follower_changed)
 	EventBus.mewtwo_choice_requested.connect(_show_mewtwo_choice)
+	EventBus.notification_requested.connect(_mostrar_aviso)
 	btn_fly.pressed.connect(_on_btn_fly_pressed)
 	mode_panel.hide()
 	_build_skill_cooldown_bars()
@@ -188,6 +189,54 @@ func _show_mewtwo_choice() -> void:
 	btn_keep.text = "Manter o Mewtwo (a Fratura fica aberta)"
 	btn_keep.pressed.connect(func(): _resolve_mewtwo_choice(pc, "capture_mewtwo"))
 	vbox.add_child(btn_keep)
+
+## Aviso curto no alto da tela (06/09) — "você encontrou a Pedra da Água",
+## "santuário: seu time foi curado". Antes disto o jogo não tinha canal nenhum
+## pra dizer isso fora de batalha: a recompensa acontecia em silêncio, que é o
+## mesmo que não acontecer.
+##
+## Fila de propósito: dois avisos no mesmo instante (pedra + santuário) não
+## podem se sobrescrever — o segundo espera o primeiro sair.
+var _fila_avisos : Array = []
+var _aviso_no : Label = null
+
+func _mostrar_aviso(texto: String) -> void:
+	_fila_avisos.append(texto)
+	if _fila_avisos.size() == 1:
+		_proximo_aviso()
+
+func _proximo_aviso() -> void:
+	if _fila_avisos.is_empty():
+		return
+	if _aviso_no == null or not is_instance_valid(_aviso_no):
+		_aviso_no = Label.new()
+		_aviso_no.name = "AvisoDoCovil"
+		_aviso_no.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_aviso_no.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_aviso_no.add_theme_font_size_override("font_size", 17)
+		_aviso_no.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+		_aviso_no.add_theme_constant_override("shadow_offset_x", 2)
+		_aviso_no.add_theme_constant_override("shadow_offset_y", 2)
+		_aviso_no.anchor_left = 0.1
+		_aviso_no.anchor_right = 0.9
+		_aviso_no.anchor_top = 0.12
+		_aviso_no.anchor_bottom = 0.22
+		add_child(_aviso_no)
+	_aviso_no.text = str(_fila_avisos[0])
+	_aviso_no.modulate = Color(1, 1, 1, 1)
+	_aviso_no.show()
+	var tw := create_tween()
+	tw.tween_interval(2.6)
+	tw.tween_property(_aviso_no, "modulate:a", 0.0, 0.6)
+	tw.tween_callback(func():
+		if not _fila_avisos.is_empty():
+			_fila_avisos.pop_front()
+		if _fila_avisos.is_empty():
+			if is_instance_valid(_aviso_no):
+				_aviso_no.hide()
+		else:
+			_proximo_aviso()
+	)
 
 func _resolve_mewtwo_choice(popup: PanelContainer, option: String) -> void:
 	popup.queue_free()

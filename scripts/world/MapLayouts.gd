@@ -2643,6 +2643,12 @@ static func get_layout(map_id: String) -> Dictionary:
 		# que existe caminho da entrada até a saída e que ele exige um número
 		# mínimo de jogadas certas. Andar sem solução não seria "difícil" —
 		# seria um jogo quebrado que só aparece pra quem já chegou lá.
+		# Anéis 1 e 2 (06/09): a entrada segura e a aula. Tamanhos próprios —
+		# são salas, não andares de quebra-cabeça.
+		"ilha_gelida_entrada":
+			return {"tiles": CovisLendarios.gerar_entrada_gelo(), "width": 13, "height": 11}
+		"ilha_gelida_vestibulo":
+			return {"tiles": CovisLendarios.gerar_vestibulo_gelo(), "width": 15, "height": 13}
 		"ilha_gelida_f1", "ilha_gelida_f2", "ilha_gelida_f3", "ilha_gelida_f4", \
 		"ilha_gelida_f5", "ilha_gelida_f6", "ilha_gelida_f7", "ilha_gelida_f8", \
 		"ilha_gelida_f9":

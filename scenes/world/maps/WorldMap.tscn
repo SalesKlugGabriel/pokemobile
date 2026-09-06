@@ -423,8 +423,8 @@ is_patrolling = false
 
 [node name="WarpIlhaGelida" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(32064, -7616)
-target_map = "res://scenes/world/dungeons/IlhaGelida_F1.tscn"
-spawn_tile = Vector2i(10, 19)
+target_map = "res://scenes/world/dungeons/IlhaGelida_Entrada.tscn"
+spawn_tile = Vector2i(6, 9)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpIlhaGelida"]
 shape = SubResource("Shape_pokecenter_pallet")

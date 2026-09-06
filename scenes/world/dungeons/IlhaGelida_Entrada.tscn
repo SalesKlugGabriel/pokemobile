@@ -14,11 +14,11 @@
 [sub_resource type="RectangleShape2D" id="Shape_warp"]
 size = Vector2(128, 128)
 
-[node name="IlhaGelida_F1" type="Node2D"]
+[node name="IlhaGelida_Entrada" type="Node2D"]
 script = ExtResource("1_basemap")
-map_id = "ilha_gelida_f1"
+map_id = "ilha_gelida_entrada"
 structure_id = "ilha_gelida"
-floor_number = 1
+floor_number = 0
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = ExtResource("5_tileset")
@@ -31,15 +31,15 @@ format = 2
 [node name="NPCs" type="Node2D" parent="Entities"]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(1344, 2496)
+position = Vector2(832, 1216)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
-limit_right = 2688
-limit_bottom = 2688
+limit_right = 1664
+limit_bottom = 1408
 zoom = Vector2(0.5, 0.5)
 
 [node name="ZoneManager" type="Node" parent="."]
@@ -50,20 +50,20 @@ script = ExtResource("4_sm")
 
 [node name="WarpZones" type="Node2D" parent="."]
 
-[node name="Descer" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(1344, 2624)
-target_map = "res://scenes/world/dungeons/IlhaGelida_Vestibulo.tscn"
-spawn_tile = Vector2i(7, 1)
+[node name="SaidaParaOMundo" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(832, 1344)
+target_map = "res://scenes/world/maps/WorldMap.tscn"
+spawn_tile = Vector2i(248, -62)
 
-[node name="CollisionShape2D" parent="WarpZones/Descer"]
+[node name="CollisionShape2D" parent="WarpZones/SaidaParaOMundo"]
 shape = SubResource("Shape_warp")
 
-[node name="Subir" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(1344, 192)
-target_map = "res://scenes/world/dungeons/IlhaGelida_F2.tscn"
-spawn_tile = Vector2i(10, 19)
+[node name="Entrar" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(832, 192)
+target_map = "res://scenes/world/dungeons/IlhaGelida_Vestibulo.tscn"
+spawn_tile = Vector2i(7, 11)
 
-[node name="CollisionShape2D" parent="WarpZones/Subir"]
+[node name="CollisionShape2D" parent="WarpZones/Entrar"]
 shape = SubResource("Shape_warp")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]

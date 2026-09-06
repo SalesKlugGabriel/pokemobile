@@ -120,6 +120,38 @@ def main():
     os.makedirs(DESTINO, exist_ok=True)
     escritas = []
 
+    # ── ANÉIS 1 e 2 da Dungeon de Gelo (06/09) ──────────────────────────────
+    # A arquitetura de cinco anéis pediu duas salas antes dos andares: a
+    # ENTRADA (segura, ponto de retorno) e o VESTÍBULO (a aula — uma pista de
+    # gelo curta, sem buraco). Os 15 andares que já existiam viraram os anéis
+    # 3 e 4 sem redesenhar nada; só a corrente de warp mudou de ponta.
+    ENT_L, ENT_A = 13, 11
+    VES_L, VES_A = 15, 13
+    ent_baixo = (ENT_L // 2, ENT_A - 2)
+    ent_cima = (ENT_L // 2, 1)
+    ves_baixo = (VES_L // 2, VES_A - 2)
+    ves_cima = (VES_L // 2, 1)
+
+    escritas.append(("IlhaGelida_Entrada", cena(
+        "IlhaGelida_Entrada", "ilha_gelida_entrada", "ilha_gelida", 0,
+        ENT_L, ENT_A, ent_baixo, [
+            # (248,-62) foi ESCOLHIDO por varredura, não chutado: é o tile
+            # andável mais perto da boca da montanha. O chute anterior caía
+            # dentro de um bloco de gelo — quem saísse aparecia entalado.
+            {"nome": "SaidaParaOMundo", "tile": (ent_baixo[0], ENT_A - 1),
+             "destino": "res://scenes/world/maps/WorldMap.tscn", "spawn": (248, -62)},
+            {"nome": "Entrar", "tile": ent_cima,
+             "destino": caminho("IlhaGelida_Vestibulo"), "spawn": ves_baixo},
+        ])))
+    escritas.append(("IlhaGelida_Vestibulo", cena(
+        "IlhaGelida_Vestibulo", "ilha_gelida_vestibulo", "ilha_gelida", 0,
+        VES_L, VES_A, ves_baixo, [
+            {"nome": "Voltar", "tile": (ves_baixo[0], VES_A - 1),
+             "destino": caminho("IlhaGelida_Entrada"), "spawn": ent_cima},
+            {"nome": "Subir", "tile": ves_cima,
+             "destino": caminho("IlhaGelida_F1"), "spawn": (21 // 2, 21 - 2)},
+        ])))
+
     # ── ILHA GÉLIDA (Articuno) — 21x21, entra embaixo, escada em cima ────────
     L = A = 21
     baixo = (L // 2, A - 2)
@@ -132,18 +164,13 @@ def main():
         warps = []
         # descida (volta): o primeiro andar sai pro mundo, os outros pro anterior
         if i == 0:
-            # Volta pra Ilha Gélida no mapa do mundo. O tile (248,-62) foi
-            # ESCOLHIDO por varredura, não chutado: é o mais próximo da boca da
-            # montanha (250,-60) que é andável e fica a 2 tiles dela — longe o
-            # bastante pra não reentrar no covil no mesmo passo em que sai.
-            #
-            # 🔴 O chute anterior era (250,-57), e caiu dentro de um bloco de
-            # gelo: quem saísse do covil apareceria entalado numa parede. É o
-            # tipo de defeito que nenhum teste de layout pega, porque o mapa
-            # está certo — quem está errado é a coordenada de destino.
-            warps.append({"nome": "SaidaParaOMundo", "tile": (baixo[0], A - 1),
-                          "destino": "res://scenes/world/maps/WorldMap.tscn",
-                          "spawn": (248, -62)})
+            # Desde 06/09 o F1 não sai mais direto pro mundo: ele desce pro
+            # VESTÍBULO (anel 2), que desce pra ENTRADA (anel 1), e é a Entrada
+            # que devolve ao mundo. A saída pro mundo passou pra lá junto com a
+            # coordenada varrida (248,-62).
+            warps.append({"nome": "Descer", "tile": (baixo[0], A - 1),
+                          "destino": caminho("IlhaGelida_Vestibulo"),
+                          "spawn": ves_cima})
         else:
             warps.append({"nome": "Descer", "tile": (baixo[0], A - 1),
                           "destino": caminho(andares[i - 1]), "spawn": cima})
