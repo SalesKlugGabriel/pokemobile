@@ -9,6 +9,46 @@
 
 ---
 
+## Ponte de recado nos outros projetos (2026-09-09)
+
+Item 06 — o último da fila, e o único que não é do jogo. Pedido do Gabriel:
+*"a ideia de feedback colhido direto no app pode aplicar para todos os
+projetos, achei muito interessante"*.
+
+**No ar no viabil-app e no app de visitas.** Botão "💬 Recado" fixo na tela,
+em qualquer aba.
+
+Mesmo desenho do PokéMobile, com **uma diferença honesta**: no jogo dá pra
+tirar print (o motor desenha o quadro); num app web isso exigiria biblioteca
+de captura, então a print foi substituída por **contexto rico** — quem
+escreveu, em que aba estava, qual estudo estava aberto, endereço e tamanho da
+tela. É o dado que ele nunca ia digitar e é o que me faz achar o problema.
+
+Guardado no Postgres que os apps já usam (nenhum volume novo), em tabela
+append-only — o que ele escreveu nunca é reescrito; o estado (novo/visto/
+feito) mora em coluna separada. **Fila no navegador**: se a rede cair, o
+recado fica guardado e é reenviado quando a tela abrir; só sai da fila quando
+o servidor confirma.
+
+No app de visitas isso ganha uma função a mais: **a equipe (4 pessoas) reporta
+problema sem precisar acionar o Gabriel** — hoje isso chegava por WhatsApp.
+
+Falta o dashboard comercial, que ficou de fora por ora (é o de menor uso
+diário dos três).
+
+---
+
+## A fila combinada em 09/09 está inteira
+
+| # | item | estado |
+|---|---|---|
+| 01 | celular jogável | ✅ no ar |
+| 02 | loot por espécie + economia | ✅ no ar |
+| 03 | itens equipados | ✅ no ar |
+| 04 | Pokédex com abas | ✅ no ar |
+| 05 | Etapa 3 das dungeons | ✅ no ar |
+| 06 | recado nos outros projetos | ✅ viabil-app e visitas |
+
 ## Etapa 3 das dungeons: risco com preço, e três selos (2026-09-09)
 
 Item 05 da fila. Três peças, todas sobre **risco**.
