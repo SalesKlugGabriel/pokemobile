@@ -9,6 +9,35 @@
 
 ---
 
+## A Pokédex vira uma ficha de verdade (2026-09-09)
+
+Item 04 da fila. O Gabriel: *"a pokebola está muito fraca, precisa ter uma aba
+de habilidades ensináveis, história do Pokémon, stats, nature, evoluções e
+níveis... também deve exibir os itens que cada Pokémon pode dropar"*.
+
+Até aqui a Pokédex era uma lista de 151 linhas com "visto/capturado" e nada
+mais — **clicar num Pokémon não fazia nada.** Não existia tela de detalhe.
+
+**Cinco abas**, e o motivo de cada uma:
+
+- **Status** — os números base e, se você tiver um exemplar, o **nível e a
+  natureza dele**. Natureza é do indivíduo, não da espécie: mostrar uma
+  natureza "da espécie" seria um número falso.
+- **Golpes** — o que aprende e em que nível. O `learnsets.json` existia desde
+  sempre e **nunca tinha sido exibido em lugar nenhum do jogo**.
+- **Evolução** — a linha inteira, com a condição de cada passo. Sobe até o
+  começo da cadeia: quem abre um Charizard quer ver que ele vem do Charmander.
+- **História** — montada a partir do **dado real** da espécie (tipos, altura,
+  biomas, habilidade, taxa de captura). Nada inventado: texto de Pokédex é
+  lugar clássico pra afirmar fato que o jogo não sabe, e fato inventado aqui
+  vira contradição com a mecânica depois.
+- **Drops** — **só aparece depois de capturar**. É a regra do otPokemon, e é o
+  que transforma registrar a Pokédex em recompensa em vez de enfeite. Mostra
+  também por quanto cada drop vende: o loot só vira economia se o jogador
+  souber o preço.
+
+**Testado:** 18 conferências novas + suíte inteira.
+
 ## Itens equipados: dois encaixes, três tiers, fusão (2026-09-09)
 
 Item 03 da fila.

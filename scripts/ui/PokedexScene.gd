@@ -138,6 +138,19 @@ func _make_row(species_id: int, is_seen: bool, is_caught: bool) -> HBoxContainer
 	row.mouse_entered.connect(func(): _highlight_row(row, true))
 	row.mouse_exited.connect(func(): _highlight_row(row, false))
 
+	# CLICAR ABRE A FICHA (09/09). Antes clicar num Pokémon não fazia nada — a
+	# Pokédex era uma lista e só. Só quem já foi VISTO tem ficha: abrir a ficha
+	# de um "???" entregaria justamente o que a Pokédex existe pra você
+	# descobrir.
+	if is_seen:
+		row.mouse_filter = Control.MOUSE_FILTER_STOP
+		row.gui_input.connect(func(evento: InputEvent):
+			var clicou : bool = (evento is InputEventMouseButton and evento.pressed) or (
+				evento is InputEventScreenTouch and evento.pressed)
+			if clicou:
+				PokedexDetalhe.abrir(self, species_id)
+		)
+
 	return row
 
 func _highlight_row(row: HBoxContainer, on: bool) -> void:
