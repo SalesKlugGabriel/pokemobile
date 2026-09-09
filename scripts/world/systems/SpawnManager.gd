@@ -162,6 +162,13 @@ const FOREST_MAX_DEPTH_TILES  : float = 20.0   # a partir daqui já conta como "
 const FOREST_MIN_INTERVAL_SEC : float = 0.6    # intervalo no fundo da floresta (teto de intensidade)
 
 func _current_spawn_interval() -> float:
+	# DENTRO DE UMA DUNGEON o selo manda (Etapa 3): Ouro põe o dobro de bichos
+	# na mesma sala que o Bronze. Divide o intervalo, então densidade 2.0 =
+	# metade do tempo entre spawns.
+	var mapa := str(WorldManager.current_map_id)
+	if RegrasDeCovil.em_covil(mapa):
+		return SPAWN_INTERVAL_SEC / maxf(0.5, RegrasDeCovil.multiplicador_de_densidade())
+
 	var zone_manager := _get_zone_manager()
 	if not zone_manager:
 		return SPAWN_INTERVAL_SEC

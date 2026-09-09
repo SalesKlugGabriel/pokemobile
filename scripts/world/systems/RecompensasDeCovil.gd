@@ -36,10 +36,60 @@ static func ao_entrar(map_id: String) -> void:
 	if covil == "":
 		return
 	var anel := RegrasDeCovil.anel_do_mapa(map_id)
-	if anel == 4 and _e_ultimo_andar_de_elite(covil, map_id):
+	if anel == 1:
+		# Anel 1 é onde se ESCOLHE o selo (Etapa 3). Sem um lugar pra escolher,
+		# os três selos seriam três números no código que o jogador nunca vê.
+		_oferecer_selo(covil)
+	elif anel == 4 and _e_ultimo_andar_de_elite(covil, map_id):
 		_pagar_pedra(covil)
 	elif anel == 5:
 		_santuario(covil)
+
+## Painel na Entrada: escolher entre Bronze, Prata e Ouro. Cada um diz o que
+## MUDA (teto de nível, densidade, quanto do chefe é preciso tirar) — o jogador
+## escolhe uma regra, não um adjetivo.
+static func _oferecer_selo(covil: String) -> void:
+	var laco := Engine.get_main_loop()
+	if laco == null or not (laco is SceneTree):
+		return
+	var cena := (laco as SceneTree).current_scene
+	if cena == null or cena.get_node_or_null("EscolhaDeSelo") != null:
+		return
+
+	var camada := CanvasLayer.new()
+	camada.name = "EscolhaDeSelo"
+	camada.layer = 60
+	cena.add_child(camada)
+
+	var painel := PanelContainer.new()
+	painel.set_anchors_preset(Control.PRESET_CENTER)
+	painel.custom_minimum_size = Vector2(520, 0)
+	camada.add_child(painel)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 8)
+	painel.add_child(col)
+
+	var titulo := Label.new()
+	titulo.text = "%s — escolha o selo" % str(RegrasDeCovil.DUNGEONS[covil].get("nome", covil))
+	titulo.add_theme_font_size_override("font_size", 18)
+	col.add_child(titulo)
+
+	var teto : int = int(RegrasDeCovil.DUNGEONS[covil].get("teto_de_nivel", 0))
+	for chave in RegrasDeCovil.SELOS:
+		var s : Dictionary = RegrasDeCovil.SELOS[chave]
+		var b := Button.new()
+		b.text = "%s  ·  teto nv %d  ·  %.0f%% dos inimigos  ·  tirar %d%% do chefe" % [
+			str(s.get("nome", chave)),
+			maxi(5, teto + int(s.get("teto_extra", 0))),
+			float(s.get("densidade", 1.0)) * 100.0,
+			int(float(s.get("hp_do_chefe", 1.0)) * 100.0)]
+		var id_selo : String = str(chave)
+		b.pressed.connect(func():
+			RegrasDeCovil.escolher_selo(id_selo)
+			_avisar("Selo %s escolhido." % str(RegrasDeCovil.SELOS[id_selo].get("nome", id_selo)))
+			camada.queue_free()
+		)
+		col.add_child(b)
 
 static func _e_ultimo_andar_de_elite(covil: String, map_id: String) -> bool:
 	var d : Dictionary = RegrasDeCovil.DUNGEONS[covil]

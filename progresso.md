@@ -9,6 +9,42 @@
 
 ---
 
+## Etapa 3 das dungeons: risco com preço, e três selos (2026-09-09)
+
+Item 05 da fila. Três peças, todas sobre **risco**.
+
+### Cair custa
+
+Dentro de uma dungeon, cair **não devolve mais ao Centro Pokémon** — devolve à
+**Entrada** dela, e cobra **metade do dinheiro carregado**. Não perde Pokémon
+nem EXP: o custo tem que doer sem apagar progresso, senão o jogador simplesmente
+para de arriscar, que é o oposto do que a dungeon existe pra provocar.
+
+### Três selos, um mapa
+
+Copiando a granulação do PokeXGames sem copiar o custo: em vez de três
+dungeons, a **mesma** dungeon oferece Bronze, Prata e Ouro — escolhidos na
+Entrada, num painel que diz **o que muda**, não um adjetivo:
+
+| selo | teto de nível | inimigos | do chefe |
+|---|---|---|---|
+| Bronze | 50 | 100% | tirar 40% |
+| Prata | 40 | 150% | tirar 70% |
+| Ouro | 30 | 200% | tirar 100% |
+
+No Ouro você luta **vinte níveis mais fraco** na mesma dungeon. E no Bronze o
+chefe **recua aos 40%** — é vitória de verdade, com recompensa menor, em vez de
+"você não conseguiu".
+
+### 25 golpes de área (eram 6)
+
+O telegraph de quatro fases e o desvio só importam se houver golpe de área pra
+desviar. Marquei 25, espalhados por 18 tipos — e curados à mão pelo que o golpe
+**é**: só entrou o que no Pokémon de verdade atinge mais de um alvo ou é
+explosão/onda. Marcar um soco como área seria mentira mecânica.
+
+**Testado:** 26 conferências novas + suíte inteira.
+
 ## A Pokédex vira uma ficha de verdade (2026-09-09)
 
 Item 04 da fila. O Gabriel: *"a pokebola está muito fraca, precisa ter uma aba

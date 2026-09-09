@@ -655,6 +655,14 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 func _faint() -> void:
 	EventBus.trainer_died.emit()
 	SaveManager.heal_team()
+	# DENTRO DE UMA DUNGEON a queda não devolve ao Centro Pokémon: devolve à
+	# ENTRADA dela, e cobra metade do dinheiro (Etapa 3). O custo tem que doer
+	# sem apagar progresso — não perde Pokémon nem EXP, senão o jogador para de
+	# arriscar, que é o oposto do que a dungeon existe pra provocar.
+	var entrada := RegrasDeCovil.ao_cair(WorldManager.current_map_id)
+	if entrada != "":
+		SceneTransition.fade_to(entrada)
+		return
 	WorldManager.warp_to_remembered_return()
 
 # ──────────────────────────────────────────────────────────────────────────────

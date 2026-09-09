@@ -739,7 +739,8 @@
     "contact": false,
     "effect": "burn_10",
     "cooldown": 4.5,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 384.0
   },
   "mist": {
     "id": "mist",
@@ -781,7 +782,8 @@
     "contact": false,
     "effect": "none",
     "cooldown": 5.5,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 448.0
   },
   "surf": {
     "id": "surf",
@@ -796,7 +798,7 @@
     "effect": "none",
     "cooldown": 4.5,
     "target_type": "area",
-    "radius": 640.0
+    "radius": 512.0
   },
   "ice_beam": {
     "id": "ice_beam",
@@ -810,7 +812,8 @@
     "contact": false,
     "effect": "freeze_10",
     "cooldown": 4.5,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 384.0
   },
   "blizzard": {
     "id": "blizzard",
@@ -825,7 +828,7 @@
     "effect": "freeze_10",
     "cooldown": 5.5,
     "target_type": "area",
-    "radius": 640.0
+    "radius": 448.0
   },
   "psybeam": {
     "id": "psybeam",
@@ -881,7 +884,8 @@
     "contact": false,
     "effect": "recharge",
     "cooldown": 6.0,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 512.0
   },
   "peck": {
     "id": "peck",
@@ -1063,7 +1067,8 @@
     "contact": false,
     "effect": "charge_turn",
     "cooldown": 6.0,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 448.0
   },
   "poison_powder": {
     "id": "poison_powder",
@@ -1217,7 +1222,8 @@
     "contact": false,
     "effect": "paralysis_30",
     "cooldown": 5.5,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 448.0
   },
   "rock_throw": {
     "id": "rock_throw",
@@ -1246,7 +1252,7 @@
     "effect": "none",
     "cooldown": 5.0,
     "target_type": "area",
-    "radius": 640.0
+    "radius": 576.0
   },
   "fissure": {
     "id": "fissure",
@@ -1316,7 +1322,8 @@
     "contact": false,
     "effect": "sp_def_minus1_10",
     "cooldown": 4.5,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 384.0
   },
   "hypnosis": {
     "id": "hypnosis",
@@ -1681,7 +1688,7 @@
     "effect": "user_faints",
     "cooldown": 6.0,
     "target_type": "area",
-    "radius": 800.0
+    "radius": 448.0
   },
   "egg_bomb": {
     "id": "egg_bomb",
@@ -1765,7 +1772,8 @@
     "contact": false,
     "effect": "burn_10",
     "cooldown": 5.5,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 448.0
   },
   "waterfall": {
     "id": "waterfall",
@@ -2046,7 +2054,7 @@
     "effect": "user_faints",
     "cooldown": 6.0,
     "target_type": "area",
-    "radius": 880.0
+    "radius": 576.0
   },
   "fury_swipes": {
     "id": "fury_swipes",
@@ -2103,7 +2111,7 @@
     "effect": "flinch_30",
     "cooldown": 3.8,
     "target_type": "area",
-    "radius": 560.0
+    "radius": 384.0
   },
   "hyper_fang": {
     "id": "hyper_fang",
@@ -2229,7 +2237,8 @@
     "contact": false,
     "effect": "none",
     "cooldown": 3.4,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 384.0
   },
   "inferno": {
     "id": "inferno",
@@ -2243,7 +2252,8 @@
     "contact": false,
     "effect": "none",
     "cooldown": 3.4,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 448.0
   },
   "sludge_bomb": {
     "id": "sludge_bomb",
@@ -2257,7 +2267,8 @@
     "contact": false,
     "effect": "none",
     "cooldown": 3.4,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 384.0
   },
   "shadow_ball": {
     "id": "shadow_ball",
@@ -2271,7 +2282,8 @@
     "contact": false,
     "effect": "none",
     "cooldown": 3.4,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 384.0
   },
   "dragon_claw": {
     "id": "dragon_claw",
@@ -2285,7 +2297,8 @@
     "contact": true,
     "effect": "none",
     "cooldown": 3.4,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 320.0
   },
   "close_combat": {
     "id": "close_combat",
@@ -2299,7 +2312,8 @@
     "contact": true,
     "effect": "none",
     "cooldown": 3.4,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 320.0
   },
   "air_slash": {
     "id": "air_slash",
@@ -2313,7 +2327,8 @@
     "contact": false,
     "effect": "none",
     "cooldown": 3.4,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 384.0
   },
   "megahorn": {
     "id": "megahorn",
@@ -2327,7 +2342,8 @@
     "contact": true,
     "effect": "none",
     "cooldown": 3.4,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 320.0
   },
   "iron_head": {
     "id": "iron_head",
@@ -2341,7 +2357,8 @@
     "contact": true,
     "effect": "none",
     "cooldown": 3.4,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 320.0
   },
   "dazzling_gleam": {
     "id": "dazzling_gleam",
@@ -2355,7 +2372,8 @@
     "contact": false,
     "effect": "none",
     "cooldown": 3.4,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 448.0
   },
   "crunch": {
     "id": "crunch",
@@ -2369,6 +2387,7 @@
     "contact": true,
     "effect": "none",
     "cooldown": 3.4,
-    "target_type": "single"
+    "target_type": "area",
+    "radius": 320.0
   }
 }

@@ -47,6 +47,7 @@ const DUNGEONS : Dictionary = {
 		"tipo": "ice",
 		"prefixo": "ilha_gelida",
 		"entrada": "ilha_gelida_entrada",
+		"cena_entrada": "res://scenes/world/dungeons/IlhaGelida_Entrada.tscn",
 		"vestibulo": "ilha_gelida_vestibulo",
 		# Os 10 andares de subida já existiam e estão provados (solução
 		# garantida e dificuldade mínima medida) — viram a FAZENDA. Os 4 de
@@ -123,6 +124,9 @@ static func nivel_efetivo(nivel: int, map_id: String) -> int:
 	var teto := teto_de_nivel(map_id)
 	if teto <= 0:
 		return nivel
+	# O selo APERTA o teto: Ouro faz você lutar 20 níveis mais fraco que
+	# Bronze na mesma dungeon. É a diferença mecânica entre os três.
+	teto = maxi(5, teto + int(selo_atual().get("teto_extra", 0)))
 	return mini(nivel, teto)
 
 static func foi_rebaixado(nivel: int, map_id: String) -> bool:
@@ -136,6 +140,42 @@ static func abaixo_do_piso(nivel: int, map_id: String) -> bool:
 	if id == "":
 		return false
 	return nivel < int(DUNGEONS[id].get("piso_de_nivel", 0))
+
+# ──────────────────────────────────────────────────────────────────────────
+# OS TRÊS SELOS (Etapa 3) — um mapa, três desafios
+# ──────────────────────────────────────────────────────────────────────────
+## Copiando a granulação do PokeXGames sem copiar o custo: em vez de três
+## dungeons, a MESMA dungeon oferece Bronze/Prata/Ouro. Muda o teto de nível
+## (quanto mais alto o selo, mais baixo o teto — você luta mais fraco), a
+## densidade de inimigos, e quanto da vida do chefe é preciso tirar.
+##
+## O jogador escolhe o selo na Entrada. Isso é o oposto de "dificuldade fácil/
+## normal/difícil" genérica: aqui a diferença é MECÂNICA e declarada.
+const SELOS : Dictionary = {
+	"bronze": {"nome": "Bronze", "teto_extra": 0,   "densidade": 1.0, "hp_do_chefe": 0.4},
+	"prata":  {"nome": "Prata",  "teto_extra": -10, "densidade": 1.5, "hp_do_chefe": 0.7},
+	"ouro":   {"nome": "Ouro",   "teto_extra": -20, "densidade": 2.0, "hp_do_chefe": 1.0},
+}
+const SELO_PADRAO : String = "bronze"
+
+static var selo_escolhido : String = SELO_PADRAO
+
+static func selo_atual() -> Dictionary:
+	return SELOS.get(selo_escolhido, SELOS[SELO_PADRAO])
+
+static func escolher_selo(selo: String) -> bool:
+	if not SELOS.has(selo):
+		return false
+	selo_escolhido = selo
+	return true
+
+## Quanto do HP do chefe basta tirar pra vencer neste selo. No Bronze o chefe
+## foge aos 40% — é vitória de verdade, com recompensa menor.
+static func fracao_do_chefe() -> float:
+	return float(selo_atual().get("hp_do_chefe", 1.0))
+
+static func multiplicador_de_densidade() -> float:
+	return float(selo_atual().get("densidade", 1.0))
 
 static func espera_de_cura(map_id: String) -> float:
 	if e_arena(map_id):
@@ -215,6 +255,36 @@ static func registrar_cura(item_id: String, map_id: String) -> void:
 
 static func curas_restantes_na_arena() -> int:
 	return maxi(0, USOS_NA_ARENA - _curas_na_arena)
+
+# ──────────────────────────────────────────────────────────────────────────
+# DERROTA DENTRO DO COVIL (Etapa 3)
+# ──────────────────────────────────────────────────────────────────────────
+## Cair numa dungeon não devolve ao Centro Pokémon: devolve à ENTRADA dela,
+## que é o anel seguro. E cobra metade do dinheiro carregado (convenção
+## clássica). Não perde Pokémon nem EXP — o custo tem que doer sem apagar
+## progresso, senão o jogador para de arriscar.
+##
+## Devolve o caminho da cena da Entrada, ou "" se ele não caiu numa dungeon
+## (aí vale a regra normal do jogo, o Centro Pokémon).
+static func ao_cair(map_id: String) -> String:
+	var covil := dungeon_do_mapa(map_id)
+	if covil == "":
+		return ""
+	var salvar = _no("SaveManager")
+	if salvar != null:
+		var dinheiro : int = int(salvar.save_data.get("money", 0))
+		salvar.save_data["money"] = int(dinheiro / 2)
+		var barramento = _no("EventBus")
+		if barramento != null:
+			barramento.notification_requested.emit(
+				"Você caiu. Voltou pra Entrada e perdeu %d moedas." % (dinheiro - int(dinheiro / 2)))
+	return str(DUNGEONS[covil].get("cena_entrada", ""))
+
+static func _no(nome: String):
+	var laco := Engine.get_main_loop()
+	if laco == null or not (laco is SceneTree):
+		return null
+	return (laco as SceneTree).root.get_node_or_null(nome)
 
 static func _map_id_atual() -> String:
 	var raiz = Engine.get_main_loop().root if Engine.get_main_loop() else null

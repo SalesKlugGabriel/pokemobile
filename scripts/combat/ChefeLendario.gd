@@ -90,6 +90,8 @@ var _inicio_msec : int = 0
 var _proxima : Dictionary = {}           ## função -> msec do próximo uso
 var _escudo_ate_msec : int = 0
 var _enfurecido : bool = false
+## Abaixo disto o chefe considera-se vencido no selo escolhido (0 = só morrendo).
+var _hp_para_vencer : int = 0
 
 ## Monta o chefe em cima de um WildPokemon já criado.
 static func instalar(alvo: Node, id_especie: int) -> Node:
@@ -133,6 +135,10 @@ func _turbinar() -> void:
 		_chefe.def_stat = int(round(_chefe.def_stat * MULT_DEFESA))
 	if "atk_stat" in _chefe:
 		_chefe.atk_stat = int(round(_chefe.atk_stat * MULT_ATAQUE))
+	# SELO (Etapa 3): no Bronze basta tirar 40% da vida do chefe pra vencer —
+	# ele foge, e a recompensa é menor. É o mesmo chefe, com objetivo diferente,
+	# em vez de três chefes.
+	_hp_para_vencer = int(round(float(_chefe.max_hp) * (1.0 - RegrasDeCovil.fracao_do_chefe())))
 	if _chefe.has_method("_update_health_bar"):
 		_chefe._update_health_bar()
 	var barramento := _barramento()
@@ -163,6 +169,15 @@ func _process(_delta: float) -> void:
 		return
 	if "state" in _chefe and _chefe.state == 3:   # State.DEAD
 		return
+	# Venceu pelo objetivo do selo: o chefe foge em vez de morrer, e a
+	# recompensa sai do mesmo jeito (é vitória, só que menor).
+	if _hp_para_vencer > 0 and "current_hp" in _chefe and int(_chefe.current_hp) <= _hp_para_vencer:
+		_hp_para_vencer = 0
+		_anunciar("Recuou!")
+		RecompensasDeCovil.ao_vencer_chefe(especie)
+		_chefe.queue_free()
+		return
+
 	var agora := Time.get_ticks_msec()
 
 	if not _enfurecido and agora - _inicio_msec >= int(ENRAGE_SEG * 1000.0):
