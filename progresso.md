@@ -4196,3 +4196,93 @@ aparecem no mapa de Kanto.
 andares está provada e o deslize do jogo bate com o do gerador em 1.340 pontos,
 mas a SENSAÇÃO do gelo só se julga escorregando — e chegar lá exige Surf, que um
 save novo não tem.
+
+---
+
+## 09/09/2026 — Tutorial contextual + captura/cura/loja/Pokédex por clique
+
+**Pedido do Gabriel, depois de revisar as mecânicas:** tutorial primeiro, depois
+redesenhar 3 fluxos que ele descreveu concretamente:
+1. **Loja**: sem menu de pausa, só 1 NPC físico por cidade, compra e venda
+   separadas (não abas do mesmo painel).
+2. **Captura**: clique na Pokébola escolhida, clique no Pokémon atordoado
+   como alvo — não mais uma tecla que mira sozinha no mais perto.
+3. **Remédio**: mesma coisa (clique no item, clique no alvo).
+4. **Pokédex**: ícone fixo na tela, clique nele + clique no Pokémon alvo —
+   não mais só pelo Menu de Pausa.
+
+**Tutorial (`TutorialManager.gd`, novo autoload):** dicas contextuais que só
+aparecem UMA VEZ na vida do save, na primeira vez que o gatilho acontece de
+verdade (primeiro mapa, primeiro combate, primeiro Pokémon desmaiado,
+primeira captura, primeira vez tomando dano, primeiro level up, primeira vez
+armando a Pokédex, primeira loja). Reaproveita o aviso no topo da tela que os
+covis já usavam (`EventBus.notification_requested`) — nenhuma UI nova. Save
+antigo (sem a chave `tutorial_seen`) marca tudo como já visto na migração —
+quem já joga não recebe aula de novo.
+
+**Loja:** removido o botão "Loja" do Menu de Pausa (`btn_shop`/`_on_shop`) —
+achado no caminho: só existiam 2 vendedores REAIS no jogo inteiro (Viridian e
+Celadon), então "1 por cidade" já estava satisfeito, só faltava tirar o atalho
+de qualquer lugar. Falar com o vendedor agora abre uma escolha
+Comprar/Vender/Cancelar; cada opção abre `ShopScene` num modo FIXO (sem aba
+pra trocar no meio — `open("buy")`/`open("sell")`).
+
+**Captura e remédio (`BarraDeAcaoRapida.gd`, novo, HUD canto inferior
+esquerdo):** uma fileira com as Pokébolas e remédios que o jogador tem.
+Clicar arma o item; um segundo clique define o alvo:
+- Pokébola armada + clique num corpo desmaiado (sinal novo
+  `EventBus.corpo_desmaiado_clicado`, emitido só por corpo em `State.DEAD` com
+  `esta_desmaiado()`) → arremessa de verdade, com o mesmo alcance de 2 tiles
+  de sempre. Clicar num selvagem de PÉ avisa "derrote primeiro" em vez de
+  fazer nada.
+- Remédio armado → aparece uma tira de retratos do time (só o líder está
+  fisicamente no mapa; os outros 5 não têm como ser clicados lá fora) —
+  clicar num retrato aplica o item nele.
+- **Achado ao mexer nisso:** a trava de cura de dungeon (espera de 8s,
+  mochila lacrada, limite na arena) vivia dentro de `PauseMenu.gd`
+  (`_pending_action == "curar"`). Extraída pra `CuraDeCampo.
+  usar_remedio_de_campo()` — um lugar só — porque a barra nova do mundo
+  precisa da MESMA trava, e duplicá-la arriscava as duas discordarem um dia.
+  `PauseMenu.gd` (Mochila, ainda serve pra vitamina/PP Up) agora só chama
+  essa função também.
+- A tecla "pokeball" (Espaço) e as 4 funções que ela usava
+  (`_try_throw_pokeball`, `_corpo_desmaiado_perto`, `_avisar`,
+  `_find_nearest_wild_pokemon`) foram removidas do `TrainerEntity.gd` — código
+  morto depois da troca de fluxo, não só desativado.
+
+**Pokédex por clique (`PokedexRapida.gd`, novo, HUD canto superior direito):**
+botão "Pokédex" arma o modo; clicar em qualquer Pokémon (selvagem de pé,
+desmaiado, ou o próprio líder — `FollowerPokemon` ganhou clique/toque, que
+não tinha) abre a ficha de 5 abas direto (`PokedexDetalhe.abrir()`, já
+existia, nunca era chamado assim). O caminho antigo (Menu de Pausa → lista
+completa) continua existindo — serve pra ver os 151 de uma vez, o ícone serve
+pra "o que é isso que estou vendo agora".
+
+**2 testes antigos consertados no caminho** (checagem de texto-fonte,
+nenhuma regressão de verdade): `teste_sem_turno_e_captura.gd` procurava
+`_corpo_desmaiado_perto()` em `TrainerEntity.gd` (função removida) — passou a
+procurar `corpo_desmaiado_clicado` em `BarraDeAcaoRapida.gd`.
+`teste_dungeon_de_gelo.gd` procurava `CuraDeCampo.aplicar(` dentro de
+`PauseMenu.gd` — passou a procurar `usar_remedio_de_campo(` (a chamada nova)
+e as travas de covil dentro de `CuraDeCampo.gd` (onde elas moraram).
+
+**Testado:** suíte inteira, 77 arquivos, 0 falhas (rodada 3 vezes ao longo do
+lote, a cada mudança grande). `teste_tudo_compila.gd` limpo depois de um erro
+real achado por ele mesmo (tipo de variável não inferido numa expressão
+multi-linha em `WildPokemon.gd`, corrigido). Build web exportado e publicado
+(`poke.workprog.pro`), boot confirmado sem erro em navegador real (Chromium/
+Playwright) — carrega a tela de título limpa.
+
+**Não confirmado ao vivo:** os 4 fluxos novos por clique (armar item → clicar
+alvo) dependem de chegar a um combate de verdade e derrotar um Pokémon, o que
+um teste automatizado sem ferramenta de debug/teleporte não alcança sozinho
+numa sessão de smoke test. A lógica de cada peça está coberta pela suíte
+(inclusive o sinal `corpo_desmaiado_clicado`, o alcance de 2 tiles, a trava de
+cura), mas vale o Gabriel jogar uma rodada real pra sentir os 2 cliques na
+prática.
+
+**Ainda na fila, não iniciado:** a lista de melhorias de imersão (ciclo dia/
+noite, clima dinâmico, transição de música em chefe, reações do Follower,
+trainers vagando, cutscene de entrada de lendário, pós-jogo depois da Elite
+Four) — pedido do Gabriel foi "tutorial primeiro, depois vá implementando as
+melhorias".

@@ -162,12 +162,14 @@ func _captura_exige_derrota() -> void:
 	_assert(i_trava > 0 and i_salva > i_trava,
 		"e a trava vem ANTES de guardar o Pokémon — não adianta conferir depois")
 
-	# A bola mira o corpo caído, não o bicho de pé mais próximo.
-	var treinador := FileAccess.get_file_as_string("res://scripts/entities/TrainerEntity.gd")
-	_assert(treinador.contains("_corpo_desmaiado_perto()"),
-		"a Pokébola procura o corpo caído mais perto")
-	_assert(treinador.contains("Derrote-o primeiro"),
-		"e explica o motivo quando há um selvagem de pé por perto")
+	# A bola só aceita corpo caído como alvo (09/09: virou clique explícito na
+	# barra de ação rápida, não mais tecla mirando sozinha no mais perto — mas
+	# a trava "só em desmaiado" é a mesma, só mudou quem aciona).
+	var barra := FileAccess.get_file_as_string("res://scripts/ui/BarraDeAcaoRapida.gd")
+	_assert(barra.contains("corpo_desmaiado_clicado"),
+		"a Pokébola arma e espera o clique num corpo desmaiado")
+	_assert(barra.contains("Derrote-o primeiro"),
+		"e explica o motivo quando o clique cai num selvagem de pé")
 
 	# Lendário: derrotar deixou de gastar a chance. O que gasta é o corpo
 	# expirar sem captura — que é a leitura certa da regra nova.

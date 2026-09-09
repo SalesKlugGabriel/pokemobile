@@ -110,6 +110,15 @@ func _ready() -> void:
 	EventBus.wild_pokemon_selected.connect(_on_wild_pokemon_selected)
 	EventBus.wild_pokemon_died.connect(_on_wild_pokemon_died)
 	EventBus.wild_pokemon_fainted.connect(_on_wild_pokemon_fainted)
+	# Clicar/tocar no próprio líder (09/09) — usado pela Pokédex por clique
+	# (BarraDeAcaoRapida/ícone da Pokédex), pra ver a ficha de quem já está
+	# do seu lado sem precisar procurar ele numa lista.
+	hurtbox.input_event.connect(_on_hurtbox_input_event)
+
+func _on_hurtbox_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) \
+	or (event is InputEventScreenTouch and event.pressed):
+		EventBus.follower_clicado.emit()
 
 func _on_wild_pokemon_selected(pokemon: Node) -> void:
 	current_target = pokemon

@@ -269,12 +269,19 @@ func _update_health_bar() -> void:
 		_hp_bar_fill.color = Color(0.85, 0.2, 0.2)
 
 func _on_hurtbox_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
-	if state == State.DEAD:
+	var clicou : bool = (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) \
+		or (event is InputEventScreenTouch and event.pressed)
+	if not clicou:
 		return
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		EventBus.wild_pokemon_selected.emit(self)
-	elif event is InputEventScreenTouch and event.pressed:
-		EventBus.wild_pokemon_selected.emit(self)
+	# Corpo desmaiado (09/09, pedido do Gabriel: "clique na Pokébola escolhida
+	# e um clique no Pokémon atordoado como alvo") — sinal PRÓPRIO, nunca
+	# wild_pokemon_selected: aquele é pra mirar combate, e não faz sentido
+	# "engajar" um corpo já caído.
+	if state == State.DEAD:
+		if esta_desmaiado():
+			EventBus.corpo_desmaiado_clicado.emit(self)
+		return
+	EventBus.wild_pokemon_selected.emit(self)
 
 ## Todo Pokémon selvagem escuta a própria seleção pra saber se é ELE o
 ## escolhido (sem gerente central) — só acende o destaque em si mesmo.

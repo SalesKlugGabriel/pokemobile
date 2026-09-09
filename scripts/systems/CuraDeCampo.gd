@@ -23,6 +23,33 @@
 class_name CuraDeCampo
 extends RefCounted
 
+## Fluxo completo de usar remédio de campo — trava de dungeon + efeito +
+## inventário + save + som, tudo num lugar só (09/09: extraído daqui pra fora
+## de PauseMenu._on_bag_item_used, porque a barra de ação rápida do mundo
+## também precisa do MESMO fluxo, e duplicar a trava de dungeon em dois
+## lugares é como ela um dia ficaria furada só num deles). Devolve
+## `{ok: bool, texto: String}`.
+static func usar_remedio_de_campo(item_id: String, indice: int) -> Dictionary:
+	var raiz = Engine.get_main_loop().root if Engine.get_main_loop() else null
+	var salvar = raiz.get_node_or_null("SaveManager") if raiz else null
+	var audio = raiz.get_node_or_null("AudioManager") if raiz else null
+	if salvar == null:
+		return {"ok": false, "texto": "Não deu pra usar agora."}
+
+	var mapa : String = RegrasDeCovil.mapa_atual()
+	var trava : Dictionary = RegrasDeCovil.pode_curar(item_id, mapa)
+	if not bool(trava.get("ok", true)):
+		return {"ok": false, "texto": str(trava.get("motivo", ""))}
+
+	var r := aplicar(item_id, indice)
+	if bool(r.get("ok", false)):
+		salvar.remove_item(item_id, 1)
+		salvar.save_game()
+		RegrasDeCovil.registrar_cura(item_id, mapa)
+		if audio:
+			audio.play_sfx("heal")
+	return r
+
 ## Aplica o item no Pokémon do índice. Não mexe no inventário — quem chama é
 ## que decide remover, depois de ver que deu certo.
 ## Devolve `{ok: bool, texto: String}`; o texto é escrito pro jogador.

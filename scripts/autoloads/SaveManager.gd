@@ -41,7 +41,9 @@ var save_data: Dictionary = {
 		"defeated_trainers": []
 	},
 	"final_choice": "",
-	"rng_seed": 0
+	"rng_seed": 0,
+	# Dicas de tutorial já mostradas (09/09) — cada id só aparece uma vez na vida do save.
+	"tutorial_seen": []
 }
 
 var _save_exists: bool = false
@@ -99,6 +101,12 @@ func load_game() -> bool:
 		return false
 	save_data = parsed
 	RNGManager.set_seed(save_data.get("rng_seed", 0))
+	# Save antigo (de antes de 09/09) não tem esta chave. Quem já tem save
+	# claramente já passou por tudo que o tutorial ensina — marcar como "já
+	# visto" tudo que existe hoje, pra não repetir dica básica pra quem já
+	# jogou horas. TutorialManager.DICAS novas no futuro aparecem normal.
+	if not save_data.has("tutorial_seen"):
+		save_data["tutorial_seen"] = TutorialManager.DICAS.keys()
 	_save_exists = true
 	return true
 

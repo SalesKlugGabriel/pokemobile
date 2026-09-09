@@ -39,7 +39,6 @@ const FLY_DESTINATIONS := {
 @onready var panel       : PanelContainer = $Panel
 @onready var btn_team    : Button         = $Panel/VBox/BtnTeam
 @onready var btn_bag     : Button         = $Panel/VBox/BtnBag
-@onready var btn_shop    : Button         = $Panel/VBox/BtnShop
 @onready var btn_pokedex : Button         = $Panel/VBox/BtnPokedex
 @onready var btn_mapa    : Button         = $Panel/VBox/BtnMapa
 @onready var btn_fly     : Button         = $Panel/VBox/BtnFly
@@ -73,7 +72,6 @@ func _ready() -> void:
 	panel.hide()
 	btn_team.pressed.connect(_on_team)
 	btn_bag.pressed.connect(_on_bag)
-	btn_shop.pressed.connect(_on_shop)
 	btn_pokedex.pressed.connect(_on_pokedex)
 	btn_mapa.pressed.connect(_on_mapa)
 	btn_fly.pressed.connect(_on_fly)
@@ -240,22 +238,71 @@ func _on_bag() -> void:
 	_bag_instance.refresh(SaveManager.get_inventory())
 	_bag_instance.show()
 
-func _on_shop() -> void:
-	AudioManager.play_sfx("confirm")
+func _get_or_create_shop() -> Node:
 	var shop := get_node_or_null("ShopInstance")
 	if not shop:
 		shop = SHOP_SCENE.instantiate()
 		shop.name = "ShopInstance"
 		add_child(shop)
 		shop.closed_by_user.connect(func(): get_tree().paused = false)
-	_on_resume()
-	get_tree().paused = true
-	shop.open()
+	return shop
 
-## Chamado por um NpcEntity vendedor (opens_shop_on_dialog_end) — mesmo caminho
-## do botão "Loja" do menu de Pausa, só que disparado por diálogo no mundo.
+func _abrir_loja(modo: String) -> void:
+	AudioManager.play_sfx("confirm")
+	var shop := _get_or_create_shop()
+	get_tree().paused = true
+	shop.open(modo)
+
+## Chamado por um NpcEntity vendedor (opens_shop_on_dialog_end) — 09/09,
+## pedido do Gabriel: "sem menu de pausa, apenas 1 NPC por cidade numa loja
+## física... a venda deveria ser separado da compra". A loja não abre mais
+## sozinha ao fim do diálogo — primeiro pergunta Comprar ou Vender, cada um
+## abre uma tela SÓ daquele modo (sem aba pra trocar no meio).
 func open_shop_externally() -> void:
-	_on_shop()
+	get_tree().paused = true
+	var pc := PanelContainer.new()
+	pc.process_mode  = Node.PROCESS_MODE_ALWAYS
+	pc.name = "EscolhaLoja"
+	pc.anchor_left   = 0.32
+	pc.anchor_top    = 0.35
+	pc.anchor_right  = 0.68
+	pc.anchor_bottom = 0.65
+	add_child(pc)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	pc.add_child(vbox)
+
+	var titulo := Label.new()
+	titulo.text = "O que você quer fazer?"
+	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(titulo)
+
+	var btn_comprar := Button.new()
+	btn_comprar.text = "Comprar"
+	btn_comprar.pressed.connect(func():
+		pc.queue_free()
+		_abrir_loja("buy")
+	)
+	vbox.add_child(btn_comprar)
+
+	var btn_vender := Button.new()
+	btn_vender.text = "Vender"
+	btn_vender.pressed.connect(func():
+		pc.queue_free()
+		_abrir_loja("sell")
+	)
+	vbox.add_child(btn_vender)
+
+	var btn_cancelar := Button.new()
+	btn_cancelar.text = "Cancelar"
+	btn_cancelar.pressed.connect(func():
+		pc.queue_free()
+		get_tree().paused = false
+	)
+	vbox.add_child(btn_cancelar)
+
+	TutorialManager.mostrar("loja")
 
 func _on_pokedex() -> void:
 	AudioManager.play_sfx("confirm")
@@ -457,20 +504,10 @@ func _on_picker_target(index: int) -> void:
 			AudioManager.play_sfx("confirm")
 		_close_bag_flow()
 	elif _pending_action == "curar":
-		var mapa := RegrasDeCovil.mapa_atual()
-		# Confere de novo aqui: entre escolher o item e escolher o Pokémon o
-		# jogador pode ter levado dano, e a espera pode ter começado.
-		var trava := RegrasDeCovil.pode_curar(_pending_item_id, mapa)
-		if not bool(trava.get("ok", true)):
-			label_info.text = str(trava.get("motivo", ""))
-			_close_bag_flow()
-			return
-		var r := CuraDeCampo.aplicar(_pending_item_id, index)
-		if bool(r.get("ok", false)):
-			SaveManager.remove_item(_pending_item_id, 1)
-			SaveManager.save_game()
-			RegrasDeCovil.registrar_cura(_pending_item_id, mapa)
-			AudioManager.play_sfx("heal")
+		# 09/09: a trava de dungeon + inventário + save + som viraram
+		# CuraDeCampo.usar_remedio_de_campo() — mesmo fluxo que a barra de
+		# ação rápida do mundo usa, pra nunca discordarem (regra 2.1).
+		var r := CuraDeCampo.usar_remedio_de_campo(_pending_item_id, index)
 		label_info.text = str(r.get("texto", ""))
 		_close_bag_flow()
 	elif _pending_action == "vitamin":

@@ -144,7 +144,21 @@ func _ready() -> void:
 	btn_fly.pressed.connect(_on_btn_fly_pressed)
 	mode_panel.hide()
 	_build_skill_cooldown_bars()
+	_build_barra_de_acao_rapida()
+	_build_pokedex_rapida()
 	_refresh()
+
+## Barra de usar Pokébola/remédio por dois cliques (09/09) — canto inferior
+## esquerdo, pra não disputar com o joystick invisível (inferior direito).
+func _build_barra_de_acao_rapida() -> void:
+	var barra := preload("res://scripts/ui/BarraDeAcaoRapida.gd").new()
+	add_child(barra)
+
+## Ícone de Pokédex por dois cliques (09/09) — canto superior direito, longe
+## das duas barras de baixo.
+func _build_pokedex_rapida() -> void:
+	var dex := preload("res://scripts/ui/PokedexRapida.gd").new()
+	add_child(dex)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # A Escolha da Fratura (MAIN-11, 03/09) — a ramificação narrativa do final

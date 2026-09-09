@@ -20,6 +20,7 @@ signal follower_hp_changed(current: int, maximum: int)
 signal follower_fainted(pokemon_data: Dictionary)
 signal follower_skill_used(slot: int, move_id: String)
 signal follower_skill_cooldown_updated(slot: int, progress: float)
+signal follower_clicado()  # clique/toque no líder (09/09) — usado pela Pokédex por clique
 
 # --- POKÉMON SELVAGEM ---
 signal wild_pokemon_spawned(pokemon: Node)
@@ -44,6 +45,10 @@ signal wild_pokemon_hp_changed(pokemon: Node, current: int, maximum: int)
 signal pokeball_thrown(target: Node)
 signal capture_success(pokemon_data: Dictionary)
 signal capture_failed(pokemon_data: Dictionary)
+# Clique num corpo desmaiado (09/09) — separado de wild_pokemon_selected
+# porque aquele é IGNORADO em State.DEAD de propósito (não dá pra "engajar"
+# combate com um corpo caído). Este é só pra mirar a Pokébola.
+signal corpo_desmaiado_clicado(pokemon: Node)
 
 # --- COMBATE ---
 signal damage_dealt(target: Node, amount: int, is_critical: bool, attacker: Node)

@@ -62,11 +62,6 @@ layout_mode = 2
 text = "Mochila"
 theme_override_font_sizes/font_size = 14
 
-[node name="BtnShop" type="Button" parent="Panel/VBox"]
-layout_mode = 2
-text = "Loja"
-theme_override_font_sizes/font_size = 14
-
 [node name="BtnPokedex" type="Button" parent="Panel/VBox"]
 layout_mode = 2
 text = "Pokédex"

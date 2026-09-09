@@ -28,6 +28,7 @@ const SELL_RATIO := 0.5
 @onready var title_label  : Label           = $Panel/Header/Title
 @onready var money_label  : Label           = $Panel/Header/MoneyLabel
 @onready var close_btn    : Button          = $Panel/Header/CloseBtn
+@onready var tab_bar      : HBoxContainer   = $Panel/TabBar
 @onready var btn_buy_tab  : Button          = $Panel/TabBar/BtnBuyTab
 @onready var btn_sell_tab : Button          = $Panel/TabBar/BtnSellTab
 @onready var sidebar      : VBoxContainer   = $Panel/Body/Sidebar
@@ -45,8 +46,15 @@ func _ready() -> void:
 	btn_sell_tab.pressed.connect(func(): _set_mode("sell"))
 	_build_sidebar()
 
-func open() -> void:
-	_set_mode("buy")
+## `modo_fixo`: "" abre com as duas abas (uso antigo, ainda válido se algum
+## dia fizer sentido oferecer os dois juntos). "buy"/"sell" (09/09, pedido do
+## Gabriel: "a venda deveria ser separado da compra") esconde a barra de
+## abas de vez — não dá pra trocar de tela no meio, é uma decisão só do NPC
+## que abriu (Comprar OU Vender), não do jogador dentro da loja.
+func open(modo_fixo: String = "") -> void:
+	_set_mode(modo_fixo if not modo_fixo.is_empty() else "buy")
+	tab_bar.visible = modo_fixo.is_empty()
+	title_label.text = "Loja" if modo_fixo.is_empty() else ("Loja — Comprar" if modo_fixo == "buy" else "Loja — Vender")
 	panel.show()
 	UIStack.empilhar(self, close)
 	AudioManager.play_sfx("menu_open")

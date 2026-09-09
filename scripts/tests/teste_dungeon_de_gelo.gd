@@ -165,14 +165,18 @@ func _cura_de_campo() -> void:
 	var menu := FileAccess.get_file_as_string("res://scripts/ui/PauseMenu.gd")
 	_assert(menu.contains('"medicine":'),
 		"a Mochila tem tratamento pra remédio (antes caía em 'só numa batalha')")
-	_assert(menu.contains("CuraDeCampo.aplicar("),
-		"e usar de verdade aplica o efeito")
-	_assert(menu.contains("RegrasDeCovil.pode_curar("),
-		"passando pelas travas do covil antes")
-	_assert(menu.contains("RegrasDeCovil.registrar_cura("),
-		"e registrando o uso depois, senão a espera nunca começa")
 
 	var cura := FileAccess.get_file_as_string("res://scripts/systems/CuraDeCampo.gd")
+	# 09/09: o fluxo (trava do covil + efeito + inventário/save + som) virou
+	# CuraDeCampo.usar_remedio_de_campo() — um lugar só, porque a barra de
+	# ação rápida do mundo (clique no item, clique no alvo) precisa do MESMO
+	# fluxo, e a Mochila (PauseMenu) agora só CHAMA essa função.
+	_assert(menu.contains("CuraDeCampo.usar_remedio_de_campo("),
+		"a Mochila usa o fluxo completo de cura, não só aplicar() cru")
+	_assert(cura.contains("RegrasDeCovil.pode_curar("),
+		"passando pelas travas do covil antes")
+	_assert(cura.contains("RegrasDeCovil.registrar_cura("),
+		"e registrando o uso depois, senão a espera nunca começa")
 	_assert(cura.contains("revive_hp"), "Reviver é tratado")
 	_assert(cura.contains("heal_hp"), "curar HP é tratado")
 	_assert(cura.contains("cures"), "curar status é tratado")

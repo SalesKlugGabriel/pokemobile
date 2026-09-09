@@ -317,9 +317,6 @@ func _process(_delta: float) -> void:
 		if not interact():
 			_try_fish()
 
-	if Input.is_action_just_pressed("pokeball"):
-		_try_throw_pokeball()
-
 	_emit_mode_if_changed()
 
 ## Mesma prioridade de _get_move_duration() (a marcha mais rápida disponível
@@ -545,76 +542,11 @@ func _show_system_message(dialog_id: String) -> void:
 	EventBus.npc_dialog_requested.emit(null, dialog_id)
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Captura em tempo real (Fase 6 do motor de combate, 02/09) — CaptureSystem.gd
-# já existia pronto (arremesso em arco, cálculo de chance), só nunca tinha
-# sido ligado a uma tecla. A ação "pokeball" (Espaço) já existia no mapa de
-# input, também nunca usada até agora.
-#
-# Achado na Onda 1, item 6 (03/09, tabela completa de bolas): a lista fixa
-# antiga (BALL_PRIORITY, "melhor bola primeiro") usava IDs sem underline
-# ("masterball") que NUNCA batiam com o ID real salvo no inventário
-# ("master_ball") — SaveManager.has_item() nunca achava nada além da
-# "pokeball" (único ID que por acaso é igual nos dois formatos), então
-# apertar a tecla só conseguia arremessar Poké Ball comum, mesmo com
-# Master Ball no bolso. E uma lista fixa nunca faria sentido de qualquer
-# forma com bolas situacionais (Net Ball não é "melhor" que Ultra Ball em
-# geral, só contra Água/Inseto) — trocado por escolher, entre as bolas que o
-# Treinador tem, a de MAIOR chance calculada pra ESTE alvo específico.
-# ──────────────────────────────────────────────────────────────────────────────
-
-func _try_throw_pokeball() -> void:
-	# 06/09: a bola procura o Pokémon DESMAIADO mais perto, não o selvagem mais
-	# perto. Mirar num bicho de pé enquanto há um caído do lado seria gastar a
-	# bola à toa — e o jogo diz isso em vez de deixar o jogador adivinhar.
-	var alvo := _corpo_desmaiado_perto()
-	if not alvo:
-		if _find_nearest_wild_pokemon() != null:
-			_avisar("Derrote-o primeiro — a Pokébola só funciona em quem já caiu.")
-		else:
-			_show_system_message("no_wild_nearby")
-		return
-
-	var ball_id := CaptureSystem.pick_best_owned_ball(alvo)
-	if ball_id.is_empty():
-		_show_system_message("no_pokeball")
-		return
-
-	SaveManager.remove_item(ball_id, 1)
-	CaptureSystem.throw_pokeball(alvo, ball_id)
-
-## O corpo caído mais perto, dentro do mesmo alcance curto de sempre.
-func _corpo_desmaiado_perto() -> Node2D:
-	var melhor : Node2D = null
-	var melhor_dist : float = INF
-	for c in get_tree().get_nodes_in_group("wild_pokemon"):
-		if not is_instance_valid(c) or not (c is Node2D):
-			continue
-		if not (c.has_method("esta_desmaiado") and c.esta_desmaiado()):
-			continue
-		var d : float = global_position.distance_to((c as Node2D).global_position)
-		if d < melhor_dist:
-			melhor_dist = d
-			melhor = c
-	return melhor if (melhor != null and melhor_dist <= TILE_SIZE * 2.0) else null
-
-func _avisar(texto: String) -> void:
-	EventBus.notification_requested.emit(texto)
-
-## Só permite arremesso dentro de alcance curto (2 tiles) — evita capturar
-## um selvagem do outro lado da tela sem nem chegar perto dele.
-func _find_nearest_wild_pokemon() -> Node2D:
-	var candidatos := get_tree().get_nodes_in_group("wild_pokemon")
-	var melhor      : Node2D = null
-	var melhor_dist : float  = INF
-	for c in candidatos:
-		var d : float = global_position.distance_to(c.global_position)
-		if d < melhor_dist:
-			melhor_dist = d
-			melhor = c
-	if melhor and melhor_dist <= TILE_SIZE * 2.0:
-		return melhor
-	return null
-
+# Captura (09/09): o arremesso deixou de ser uma tecla que mirava sozinha no
+# corpo mais perto e escolhia a bola sozinha. Agora é BarraDeAcaoRapida.gd
+# (HUD) — o jogador arma a bola que quiser e clica no corpo desmaiado que
+# quiser. CaptureSystem.gd (arco, chance) e a trava "só em desmaiado"
+# continuam os mesmos, só quem os aciona mudou.
 # ──────────────────────────────────────────────────────────────────────────────
 # HP / combate em tempo real (motor novo, 02/09) — o Treinador só é alvo de
 # ataque quando não tem Pokémon ativo: WildPokemon._find_target() já prioriza
