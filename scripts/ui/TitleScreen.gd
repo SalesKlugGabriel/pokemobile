@@ -38,8 +38,21 @@ func _ready() -> void:
 ## teclado, um clique que erra o botão parece jogo travado — foi o que
 ## aconteceu no teste de 04/09, na tela seguinte a esta.
 func _unhandled_input(event: InputEvent) -> void:
+	# TOQUE EM QUALQUER LUGAR (09/09). No celular o Gabriel não conseguia
+	# começar o jogo: reproduzi num iPhone emulado e, mesmo tocando no centro
+	# EXATO do botão, nada acontecia — o toque não virava clique. Em vez de
+	# caçar a causa dentro do motor, a tela inicial passa a aceitar o toque
+	# direto: é a primeira coisa que qualquer pessoa tenta fazer numa tela de
+	# título, e agora funciona não importa onde o dedo caia.
+	# Clique de mouse entra na lista porque a ponte de toque
+	# (`tools/exportar_web.sh`) converte todo toque de celular em clique — o
+	# Godot 4.2 web não entrega evento de toque ao jogo. Sem esta linha, tocar
+	# fora do botão continuava não fazendo nada, que foi exatamente o que
+	# aconteceu no primeiro teste depois da ponte.
 	var confirmar : bool = event.is_action_pressed("interact") or (
-		event is InputEventKey and event.pressed and event.keycode in [KEY_ENTER, KEY_KP_ENTER])
+		event is InputEventKey and event.pressed and event.keycode in [KEY_ENTER, KEY_KP_ENTER]) or (
+		event is InputEventScreenTouch and event.pressed) or (
+		event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT)
 	if not confirmar:
 		return
 	get_viewport().set_input_as_handled()

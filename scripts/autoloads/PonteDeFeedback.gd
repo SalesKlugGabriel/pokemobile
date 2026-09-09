@@ -58,10 +58,12 @@ func _montar_ui() -> void:
 	add_child(_camada)
 
 	_botao = Button.new()
-	_botao.text = "💬"
+	# "FB" e não 💬: a fonte do jogo não tem emoji, e no celular o botão
+	# aparecia como um quadradinho vazio.
+	_botao.text = "FB"
 	_botao.tooltip_text = "Mandar um recado sobre o jogo (F2)"
 	_botao.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	_botao.offset_left = -64.0
+	_botao.offset_left = -74.0
 	_botao.offset_top = -64.0
 	_botao.offset_right = -12.0
 	_botao.offset_bottom = -12.0
@@ -152,6 +154,15 @@ func _unhandled_input(evento: InputEvent) -> void:
 func abrir() -> void:
 	if _painel.visible:
 		return
+	# CELULAR (09/09): o Godot para web não levanta o teclado do celular num
+	# campo de texto — o painel abria e não dava pra escrever nada, que foi
+	# exatamente o que o Gabriel viu. Em celular a caixa é a NATIVA do
+	# navegador (`prompt`), que sempre traz o teclado. Perde o visual, ganha
+	# funcionar — e um recado que não dá pra escrever não vale visual nenhum.
+	if _usar_caixa_nativa():
+		_print_atual = await _capturar_print()
+		_perguntar_no_navegador()
+		return
 	# A print é tirada ANTES de mostrar o painel — senão eu recebo a foto do
 	# painel, não a do problema.
 	_print_atual = await _capturar_print()
@@ -161,6 +172,26 @@ func abrir() -> void:
 	get_tree().paused = true
 	UIStack.empilhar(self, Callable(self, "fechar"))
 	_caixa.grab_focus()
+
+## Só no navegador, e só em tela de celular: no desktop o painel desenhado é
+## melhor (dá pra ver o jogo atrás enquanto escreve).
+func _usar_caixa_nativa() -> bool:
+	if not OS.has_feature("web"):
+		return false
+	return DisplayServer.is_touchscreen_available() or DisplayServer.window_get_size().x < 900
+
+func _perguntar_no_navegador() -> void:
+	var js := "window.prompt('O que você quer me contar? (a print e o lugar vão junto)', '')"
+	var resposta = JavaScriptBridge.eval(js, true)
+	if resposta == null:
+		return
+	var texto := str(resposta).strip_edges()
+	if texto == "":
+		return
+	_fila.append({"texto": texto, "contexto": coletar_contexto(), "print": _print_atual})
+	_gravar_fila()
+	_tentar_enviar_fila()
+	_mostrar_aviso("Recado enviado. Obrigado!")
 
 func fechar() -> void:
 	if not _painel.visible:

@@ -22,6 +22,32 @@ func _ready() -> void:
 	name_input.text_submitted.connect(func(_t): _on_confirm())
 	name_input.grab_focus()
 	set_process_unhandled_input(true)
+	# CELULAR (09/09): o Godot para web não levanta o teclado do celular num
+	# campo de texto — o jogador chegava aqui e ficava travado, sem conseguir
+	# escrever o próprio nome. No celular o campo vira um toque que abre a
+	# caixa nativa do navegador (que sempre traz o teclado).
+	if _celular_no_navegador():
+		name_input.editable = false
+		name_input.placeholder_text = "Toque aqui para escrever"
+		name_input.gui_input.connect(_ao_tocar_no_nome)
+
+func _celular_no_navegador() -> bool:
+	if not OS.has_feature("web"):
+		return false
+	return DisplayServer.is_touchscreen_available() or DisplayServer.window_get_size().x < 900
+
+func _ao_tocar_no_nome(evento: InputEvent) -> void:
+	var tocou : bool = (evento is InputEventMouseButton and evento.pressed) or (
+		evento is InputEventScreenTouch and evento.pressed)
+	if not tocou:
+		return
+	var resposta = JavaScriptBridge.eval(
+		"window.prompt('Qual é o seu nome?', '%s')" % name_input.text, true)
+	if resposta == null:
+		return
+	var nome := str(resposta).strip_edges()
+	if nome != "":
+		name_input.text = nome
 
 func _vestir() -> void:
 	var bg := $BG as ColorRect
