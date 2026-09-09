@@ -265,6 +265,7 @@ func _process(delta: float) -> void:
 	if _is_fainted:
 		return
 	_tick_cooldowns(delta)
+	_tick_itens_equipados(delta)
 	_handle_skill_input()
 
 ## Move respeitando os tiles bloqueados (árvore/parede/água), usando a MESMA
@@ -370,6 +371,46 @@ func _hit_self_confused() -> void:
 	_apply_status_damage(maxi(1, roundi(dmg)))
 	FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -220), "Confuso!", Color(0.9, 0.5, 0.9))
 
+## Os dois efeitos de item que correm no relógio (09/09): regenerar vida FORA
+## de combate e curar status sozinho. "Fora de combate" é literal — regenerar
+## enquanto apanha faria o item vencer a luta no lugar do jogador.
+var _relogio_itens : float = 0.0
+
+func _tick_itens_equipados(delta: float) -> void:
+	if _is_fainted:
+		return
+	_relogio_itens += delta
+	if _relogio_itens < 1.0:
+		return
+	_relogio_itens = 0.0
+
+	var regen : float = ItensEquipados.valor_do_lider("regeneracao")
+	if regen > 0.0 and current_hp < max_hp and _fora_de_combate():
+		current_hp = mini(max_hp, current_hp + maxi(1, int(round(float(max_hp) * regen))))
+		EventBus.follower_hp_changed.emit(current_hp, max_hp)
+		_gravar_hp_no_save()
+
+	var limpeza : float = ItensEquipados.valor_do_lider("cura_status")
+	if limpeza > 0.0 and current_status != "none" and randf() < limpeza * 0.2:
+		current_status = "none"
+		var cena := get_tree().current_scene if get_tree() else null
+		if cena != null:
+			FloatingText.show_text(cena, global_position + Vector2(0, -160),
+				"Curado!", Color(0.6, 1.0, 0.7))
+
+## Sem inimigo por perto e sem ter apanhado há pouco.
+func _fora_de_combate() -> bool:
+	if current_target != null and is_instance_valid(current_target):
+		return false
+	for w in get_tree().get_nodes_in_group("wild_pokemon"):
+		if not is_instance_valid(w) or not (w is Node2D):
+			continue
+		if w.has_method("esta_desmaiado") and w.esta_desmaiado():
+			continue
+		if global_position.distance_to((w as Node2D).global_position) < 640.0:
+			return false
+	return true
+
 func _tick_cooldowns(delta: float) -> void:
 	for i in 4:
 		if _cooldowns[i] > 0.0:
@@ -417,7 +458,10 @@ func use_skill(slot: int) -> void:
 	# Aplica redução de cooldown pela velocidade
 	var base_cd    : float = move_data.get("cooldown", 2.0)
 	var spd_reduc  : float = speed_stat / 500.0
-	_cooldowns[slot] = max(0.2, base_cd * (1.0 - spd_reduc))
+	# Item equipado de recarga (09/09): entra aqui, junto da velocidade, porque
+	# é o mesmo tipo de redução — e não passa do piso de 0,2s.
+	var alivio : float = ItensEquipados.valor_do_lider("recarga")
+	_cooldowns[slot] = max(0.2, base_cd * (1.0 - spd_reduc) * (1.0 - clampf(alivio, 0.0, 0.6)))
 
 	# Paralisia: chance por tentativa de falhar o golpe inteiro (mesma regra
 	# de WildPokemon._perform_attack() — 25%, StatusEffectController, 03/09).
@@ -468,7 +512,8 @@ func _item_equipado() -> String:
 	var lider : Dictionary = salvar.get_pokemon_at(0)
 	if lider.is_empty() or int(lider.get("species_id", -1)) != pokemon_species_id:
 		return ""
-	return str(lider.get("held_item", ""))
+	# Encaixe de COMBATE: é o único que pode carregar efeito de dano.
+	return ItensEquipados.equipado(lider, "combate")
 
 ## Golpe de área: bate em todo `wild_pokemon` no raio, nunca no próprio time
 ## (sem fogo amigo, decisão confirmada com o Gabriel) — não depende de
@@ -595,6 +640,14 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 	if attacker and not _recent_attackers.has(attacker):
 		_recent_attackers.append(attacker)
 	_passive_dmg_since += amount
+	# Item equipado de RETORNO: devolve parte do dano a quem bateu. Não anula o
+	# dano recebido — anular E devolver faria o item resolver a luta sozinho.
+	var retorno : float = ItensEquipados.valor_do_lider("retorno")
+	if retorno > 0.0 and attacker != null and is_instance_valid(attacker) \
+			and attacker.has_method("take_damage"):
+		var devolvido : int = int(round(float(amount) * retorno))
+		if devolvido > 0:
+			attacker.take_damage(devolvido, self)
 
 	if current_hp <= 0:
 		_faint()

@@ -155,17 +155,15 @@ static func calculate_damage(
 
 ## +20% (ou o que o item disser) quando o tipo do golpe bate com o do item.
 ## Item vazio, desconhecido ou de outro tipo = 1.0, sem efeito.
+## Avalia O ITEM QUE RECEBE — não o que está equipado no líder. Chegou a ser o
+## contrário por um momento e quebrou dois testes: ignorar o próprio argumento
+## faz a função mentir pra quem a chama, e quem chama é que sabe qual item quer
+## medir (o combate passa o item do encaixe de COMBATE, que é o único que pode
+## carregar efeito de dano).
 static func multiplicador_de_item_equipado(held_item: String, move_type: String) -> float:
 	if held_item.is_empty():
 		return 1.0
-	var raiz = Engine.get_main_loop().root if Engine.get_main_loop() else null
-	var dados = raiz.get_node_or_null("GameData") if raiz else null
-	if dados == null:
-		return 1.0
-	var item : Dictionary = dados.get_item(held_item)
-	if item.get("category", "") == "held" and str(item.get("boost_type", "")) == move_type:
-		return float(item.get("boost_mult", 1.0))
-	return 1.0
+	return 1.0 + ItensEquipados.valor({"held_combate": held_item}, "dano_tipo", move_type)
 
 ## Mesma regra de BattleManager._ability_damage_multiplier(), só que recebendo
 ## primitivos em vez de um BattlePokemon — pra funcionar tanto no combate por

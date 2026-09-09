@@ -34,7 +34,10 @@ static func sortear_drops(species_id: int, sorte: int = 0) -> Array:
 	var lista : Array = dados.get("drops", [])
 	if lista.is_empty():
 		return []
-	var bonus : float = 1.0 + clampf(float(sorte) * 0.05, 0.0, 1.0)
+	# Sorte do treinador + item equipado de sorte (09/09) — os dois empurram só
+	# as camadas raras (ver o filtro abaixo).
+	var bonus : float = 1.0 + clampf(float(sorte) * 0.05, 0.0, 1.0) \
+		+ ItensEquipados.valor_do_lider("sorte")
 	var caiu : Array = []
 	for linha in lista:
 		var chance : float = float(linha.get("chance", 0.0))

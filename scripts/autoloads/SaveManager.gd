@@ -838,7 +838,9 @@ func _make_pokemon_data(species_id: int, level: int) -> Dictionary:
 		"hp_max":     hp_max,
 		"moves":      moves,
 		"status":     "none",
-		"held_item":  ""
+		"held_item":  "",
+		"held_combate": "",
+		"held_utilidade": ""
 	}
 
 ## Cria dados de Pokémon capturado a partir de um BattlePokemon.
@@ -866,5 +868,7 @@ func make_caught_data(bp) -> Dictionary:
 		"hp_max":     bp.max_hp,
 		"moves":      moves,
 		"status":     "none",
-		"held_item":  ""
+		"held_item":  "",
+		"held_combate": "",
+		"held_utilidade": ""
 	}

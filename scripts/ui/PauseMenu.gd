@@ -294,6 +294,22 @@ func _on_bag_item_used(item_id: String) -> void:
 			_pending_item_id = item_id
 			_pending_action  = "vitamin"
 			_open_pokemon_picker("Usar %s em qual Pokémon?" % item.get("name", item_id))
+		"held":
+			# 🔴 Até 09/09 esta categoria caía no default ("só numa batalha") —
+			# `SaveManager.equip_held_item()` existia desde sempre e a Mochila
+			# nunca soube chamá-lo. Equipar item era impossível na prática.
+			#
+			# Com 3 ou mais iguais, a primeira opção vira FUNDIR (3 -> 1 do tier
+			# acima): é o destino do held repetido, que senão vira lixo.
+			var fusao := ItensEquipados.pode_fundir(item_id)
+			if bool(fusao.get("ok", false)):
+				_pending_item_id = item_id
+				_pending_action  = "fundir_ou_equipar"
+				_abrir_escolha_do_held(item_id, int(fusao.get("custo", 0)))
+			else:
+				_pending_item_id = item_id
+				_pending_action  = "equipar"
+				_open_pokemon_picker("Equipar %s em qual Pokémon?" % item.get("name", item_id))
 		"medicine":
 			# 🔴 Até 06/09 esta categoria caía no default abaixo — ou seja,
 			# NENHUM dos 17 remédios do jogo podia ser usado fora de uma
@@ -308,6 +324,53 @@ func _on_bag_item_used(item_id: String) -> void:
 			_open_pokemon_picker("Usar %s em qual Pokémon?" % item.get("name", item_id))
 		_:
 			label_info.text = "%s só pode ser usado numa batalha por enquanto." % item.get("name", item_id)
+
+## Painel curto: com 3 iguais dá pra fundir OU equipar — a escolha é do
+## jogador, e a fusão mostra o custo antes, não depois.
+func _abrir_escolha_do_held(item_id: String, custo: int) -> void:
+	_free_picker()
+	if _bag_instance:
+		_bag_instance.hide()
+	var pc := PanelContainer.new()
+	pc.set_anchors_preset(Control.PRESET_CENTER)
+	pc.custom_minimum_size = Vector2(460, 0)
+	add_child(pc)
+	_picker = pc
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	pc.add_child(vbox)
+
+	var titulo := Label.new()
+	titulo.text = "%s — você tem 3 ou mais" % str(GameData.get_item(item_id).get("name", item_id))
+	titulo.add_theme_font_size_override("font_size", 16)
+	titulo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(titulo)
+
+	var alvo : String = str(GameData.get_item(item_id).get("fuses_into", ""))
+	var btn_fundir := Button.new()
+	btn_fundir.text = "Fundir 3 → 1 %s  (%d moedas)" % [
+		str(GameData.get_item(alvo).get("name", alvo)), custo]
+	btn_fundir.pressed.connect(func():
+		var r := ItensEquipados.fundir(item_id)
+		label_info.text = str(r.get("texto", ""))
+		if bool(r.get("ok", false)):
+			AudioManager.play_sfx("level_up")
+		_close_bag_flow()
+	)
+	vbox.add_child(btn_fundir)
+
+	var btn_equipar := Button.new()
+	btn_equipar.text = "Equipar em um Pokémon"
+	btn_equipar.pressed.connect(func():
+		_pending_action = "equipar"
+		_open_pokemon_picker("Equipar em qual Pokémon?")
+	)
+	vbox.add_child(btn_equipar)
+
+	var btn_cancelar := Button.new()
+	btn_cancelar.text = "Cancelar"
+	btn_cancelar.pressed.connect(func(): _close_bag_flow())
+	vbox.add_child(btn_cancelar)
 
 func _close_bag_flow() -> void:
 	_free_picker()
@@ -387,6 +450,12 @@ func _on_picker_target(index: int) -> void:
 		else:
 			_pending_target = index
 			_open_move_replace_picker(index)
+	elif _pending_action == "equipar":
+		var r := ItensEquipados.equipar(index, _pending_item_id)
+		label_info.text = str(r.get("texto", ""))
+		if bool(r.get("ok", false)):
+			AudioManager.play_sfx("confirm")
+		_close_bag_flow()
 	elif _pending_action == "curar":
 		var mapa := RegrasDeCovil.mapa_atual()
 		# Confere de novo aqui: entre escolher o item e escolher o Pokémon o

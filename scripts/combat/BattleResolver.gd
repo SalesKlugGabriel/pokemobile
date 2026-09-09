@@ -50,7 +50,9 @@ func _grant_exp_and_signal(species_id: int, level: int, species_name: String, is
 		return -1
 	var old_level : int = int(old_poke.get("level", 1))
 
-	var base_exp   : int = _exp_base(species_id)
+	# Item equipado de experiência (09/09).
+	var base_exp   : int = int(round(float(_exp_base(species_id))
+		* (1.0 + ItensEquipados.valor_do_lider("experiencia"))))
 	var exp_gained : int = maxi(1, roundi(base_exp * level / 7.0))
 	var new_level  : int = SaveManager.add_exp_with_share(player_save_index, exp_gained)
 

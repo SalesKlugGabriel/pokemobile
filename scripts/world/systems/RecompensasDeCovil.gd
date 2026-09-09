@@ -86,6 +86,29 @@ static func _pagar_pedra(covil: String) -> void:
 	salvar.save_game()
 	var nome := _nome_do_item(pedra)
 	_avisar(("Você encontrou %s!" % nome) if primeira else ("Mais %s!" % nome))
+	# Item equipado (09/09): cai SÓ aqui e no chefe, nunca de selvagem comum.
+	# Se caísse no mato viraria farm, e held é vetor de PREPARAÇÃO — o que se
+	# leva pra dentro, não o que se junta lá dentro.
+	_pagar_held(1)
+
+## Sorteia um held do tier pedido. Tier 1 na elite, tier 2 no chefe: dá pra
+## fundir (3 iguais) sem que a dungeon entregue o topo de bandeja.
+static func _pagar_held(tier: int) -> void:
+	var dados = _no("GameData")
+	var salvar = _no("SaveManager")
+	if dados == null or salvar == null:
+		return
+	var candidatos : Array = []
+	for item_id in dados.items:
+		var item : Dictionary = dados.items[item_id]
+		if str(item.get("category", "")) == "held" and int(item.get("tier", 0)) == tier:
+			candidatos.append(str(item_id))
+	if candidatos.is_empty():
+		return
+	var escolhido : String = candidatos[randi() % candidatos.size()]
+	salvar.add_item(escolhido, 1)
+	salvar.save_game()
+	_avisar("Item equipável: %s" % _nome_do_item(escolhido))
 
 ## Chamado quando o chefe do covil é derrotado (ou capturado): a MT exclusiva
 ## sai UMA vez só, na primeira vitória.
@@ -104,6 +127,9 @@ static func ao_vencer_chefe(especie: int) -> void:
 			if salvar != null:
 				salvar.add_item(mt, 1)
 			_avisar("Você recebeu %s — só existe aqui." % _nome_do_item(mt))
+		# O chefe paga um held melhor, toda vez — é a razão de voltar depois de
+		# já ter o lendário.
+		_pagar_held(2)
 		_gravar(covil, estado)
 		var salvar2 = _no("SaveManager")
 		if salvar2 != null:

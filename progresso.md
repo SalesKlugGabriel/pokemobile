@@ -9,6 +9,57 @@
 
 ---
 
+## Itens equipados: dois encaixes, três tiers, fusão (2026-09-09)
+
+Item 03 da fila.
+
+**A regra que veio do PokeXGames** e que faz held ser uma *escolha* em vez de
+uma pilha de bônus: **dois encaixes por Pokémon — um de COMBATE e um de
+UTILIDADE**, um item em cada. Bater mais forte custa abrir mão de ganhar mais
+EXP, achar mais loot ou se curar sozinho.
+
+**O que trouxe de lá:** os dois encaixes, os tiers, e a fusão de 3 iguais.
+**O que deixei lá:** 9 tiers (aqui 3 bastam), pagar pra desequipar (num jogo
+solo é só pedágio) e a economia de tokens (existe porque lá tem torneio semanal
+e milhares de jogadores — aqui o dinheiro do loot já faz esse papel).
+
+**Sete efeitos**, escolhidos por um critério só: *o motor já sabe medir cada
+um*. Held que promete o que o jogo não mede é número decorativo.
+
+| encaixe | efeito | tier 1 → 3 |
+|---|---|---|
+| combate | dano do tipo | 12% → 35% |
+| combate | recarga dos golpes | −8% → −22% |
+| combate | devolver dano recebido | 10% → 28% |
+| utilidade | chance de drop raro | +20% → +80% |
+| utilidade | experiência | +10% → +35% |
+| utilidade | regenerar fora de combate | 1% → 3,5% da vida/s |
+| utilidade | curar status sozinho | 25% → 100% |
+
+34 itens ao todo. Os quatro helds antigos ("+20% de um tipo") viraram o tier 2
+do efeito de dano — mesma função, e nenhum save perde item.
+
+**Fusão:** 3 iguais viram 1 do tier acima, pagando com o dinheiro do loot. É o
+destino do held repetido, que senão vira lixo na mochila — e dá pra que serve o
+dinheiro depois que a mochila já está cheia de poção.
+
+**Onde cai:** só de dungeon (tier 1 na elite, tier 2 no chefe). Decisão minha,
+registrada: se caísse de selvagem comum viraria farm, e held é vetor de
+*preparação* — o que se leva pra dentro, não o que se junta lá dentro.
+
+### 🔴 O terceiro sistema-fachada
+
+`SaveManager.equip_held_item()` existia desde sempre e **a Mochila nunca soube
+chamá-lo** — a categoria "held" caía no *"só pode ser usado numa batalha"*.
+Equipar item era impossível na prática. É o terceiro sistema "pronto" que era
+fachada nesta leva: os outros dois foram remédio fora de batalha e o HP do
+Pokémon que nunca era gravado.
+
+Padrão que já dá pra nomear: **um sistema só está pronto quando existe um
+caminho do dedo do jogador até ele.** Função escrita e testada não conta.
+
+**Testado:** 29 conferências novas + suíte inteira.
+
 ## Celular jogável + loot por espécie e economia (2026-09-09)
 
 Itens 01 e 02 da fila combinada com o Gabriel.
