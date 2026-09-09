@@ -1,95 +1,64 @@
+## LootTable.gd — O que cada Pokémon deixa cair (reescrito em 09/09).
+##
+## 🔴 O que havia aqui antes, e por que foi jogado fora: uma tabela por "tier"
+## que sorteava poção, pokébola, revive e Doce Raro. Ou seja, o jogo dava de
+## GRAÇA exatamente o que o Gabriel disse que devia ser só de compra — e não
+## dava nada do que devia dar. Um Magikarp e um Onix dropavam da mesma lista.
+##
+## Agora o drop é **por espécie**, lido de `species.json`, em três camadas
+## (estrutura do otPokemon, que é a que faz a economia funcionar):
+##
+##   FRAGMENTO do tipo  55%  — o troco do dia a dia
+##   AMULETO do tipo    14%  — o drop que anima
+##   PEÇA DE ESPÉCIE     6%  — só aquele bicho dropa; é o que dá motivo pra
+##                             caçar UM Pokémon em vez de qualquer um
+##   PEDRA DE EVOLUÇÃO  0,4% — a única fonte no mundo aberto
+##   MT DO TIPO         0,5% — **só de evolução final** (regra do Gabriel), e a
+##                             única fonte dessas MTs no jogo inteiro
+##
+## Cada linha é sorteada SEPARADAMENTE: um mesmo Pokémon pode largar fragmento
+## e MT no mesmo golpe. É o que faz o drop raro ser uma surpresa em cima do
+## normal, e não uma alternativa a ele.
+##
+## A tabela em si mora em `data/pokemon/species.json`, gerada por
+## `tools/gerar_loot.py` — que é também onde ficam os preços (o dossiê).
 class_name LootTable
 extends RefCounted
 
-# Tier weights (sum = 100)
-const TIER_WEIGHTS := {
-	"common":   70,
-	"uncommon": 22,
-	"rare":      6,
-	"epic":      2
-}
+## Sorteia TUDO o que este Pokémon deixou cair. Devolve uma lista de
+## `{id, quantity}` — pode vir vazia, pode vir com mais de um item.
+## `sorte` (pontos de sorte do treinador) só empurra as camadas raras, nunca as
+## comuns: sorte deve mudar o que é possível, não inflacionar o troco.
+static func sortear_drops(species_id: int, sorte: int = 0) -> Array:
+	var dados := _especie(species_id)
+	var lista : Array = dados.get("drops", [])
+	if lista.is_empty():
+		return []
+	var bonus : float = 1.0 + clampf(float(sorte) * 0.05, 0.0, 1.0)
+	var caiu : Array = []
+	for linha in lista:
+		var chance : float = float(linha.get("chance", 0.0))
+		# Sorte só ajuda no que é raro (abaixo de 20%).
+		if chance < 0.2:
+			chance *= bonus
+		if randf() > chance:
+			continue
+		var faixa : Array = linha.get("quantidade", [1, 1])
+		var quantos : int = randi_range(int(faixa[0]), int(faixa[faixa.size() - 1]))
+		caiu.append({"id": str(linha.get("id", "")), "quantity": maxi(1, quantos)})
+	return caiu
 
-# Item pools per tier. Keys map to species_id ranges for context-sensitive drops.
-# Format: { "tier": [ { "id": String, "quantity": int, "weight": int } ] }
-# "berry_common" e "pp_up" trocados por itens que existem de fato em items.json
-# (achado ao ligar este sistema pela primeira vez ao BattleManager).
-const ITEM_POOLS := {
-	"common": [
-		{"id": "potion",       "quantity": 1, "weight": 40},
-		{"id": "pokeball",     "quantity": 1, "weight": 35},
-		{"id": "antidote",     "quantity": 1, "weight": 15},
-		{"id": "repel",        "quantity": 1, "weight": 10}
-	],
-	"uncommon": [
-		{"id": "super_potion", "quantity": 1, "weight": 40},
-		{"id": "great_ball",   "quantity": 1, "weight": 35},
-		{"id": "awakening",    "quantity": 1, "weight": 15},
-		{"id": "full_heal",    "quantity": 1, "weight": 10}
-	],
-	"rare": [
-		{"id": "hyper_potion", "quantity": 1, "weight": 40},
-		{"id": "ultra_ball",   "quantity": 1, "weight": 30},
-		{"id": "revive",       "quantity": 1, "weight": 20},
-		{"id": "rare_candy",   "quantity": 1, "weight": 10}
-	],
-	"epic": [
-		{"id": "max_potion",   "quantity": 1, "weight": 30},
-		{"id": "master_ball",  "quantity": 1, "weight": 5},
-		{"id": "hp_up",        "quantity": 1, "weight": 25},
-		{"id": "full_restore", "quantity": 1, "weight": 25},
-		# Itens segurados (Fase 1 do Diário) — raros de propósito, ficam
-		# equipados pro Pokémon pra sempre depois de achados.
-		{"id": "charcoal",     "quantity": 1, "weight": 4},
-		{"id": "mystic_water", "quantity": 1, "weight": 4},
-		{"id": "miracle_seed", "quantity": 1, "weight": 4},
-		{"id": "magnet",       "quantity": 1, "weight": 3}
-	]
-}
+## Mantida com o nome antigo porque `BattleResolver` já chamava assim; agora
+## devolve o PRIMEIRO drop (ou vazio) pra quem só sabe lidar com um.
+func roll_drop(_pokemon_level: int, luck_points: int, species_id: int = 0) -> Dictionary:
+	var tudo := sortear_drops(species_id, luck_points)
+	return tudo[0] if not tudo.is_empty() else {}
 
-
-## Returns a drop Dictionary {"id": String, "quantity": int} or null if no drop occurs.
-func roll_drop(pokemon_level: int, luck_points: int) -> Dictionary:
-	var chance_drop: float = minf(0.15 + (pokemon_level / 200.0) + (luck_points * 0.02), 0.85)
-	if randf() > chance_drop:
+static func _especie(species_id: int) -> Dictionary:
+	var laco := Engine.get_main_loop()
+	if laco == null or not (laco is SceneTree):
 		return {}
-	var tier := get_tier(luck_points)
-	return get_item_for_tier(tier, 0)
-
-
-## Determines drop tier based on luck_points.
-## luck_points shifts weight toward better tiers.
-func get_tier(luck_points: int) -> String:
-	var bonus := clampi(luck_points, 0, 20)
-	# Redistribute weight: each luck point shifts 0.5% from common to rarer tiers
-	var w_common   := maxi(TIER_WEIGHTS["common"]   - bonus,     40)
-	var w_uncommon := TIER_WEIGHTS["uncommon"] + (bonus / 2)
-	var w_rare     := TIER_WEIGHTS["rare"]     + (bonus / 4)
-	var w_epic     := TIER_WEIGHTS["epic"]     + (bonus / 5)
-	var total      := w_common + w_uncommon + w_rare + w_epic
-	var roll       := randi() % total
-
-	if roll < w_common:
-		return "common"
-	elif roll < w_common + w_uncommon:
-		return "uncommon"
-	elif roll < w_common + w_uncommon + w_rare:
-		return "rare"
-	return "epic"
-
-
-## Returns a random item from the given tier's pool.
-## species_id is reserved for future context-sensitive drops.
-func get_item_for_tier(tier: String, _species_id: int) -> Dictionary:
-	if not ITEM_POOLS.has(tier):
+	var dados = (laco as SceneTree).root.get_node_or_null("GameData")
+	if dados == null or not dados.has_method("get_species"):
 		return {}
-	var pool: Array = ITEM_POOLS[tier]
-	var total_weight := 0
-	for entry in pool:
-		total_weight += entry["weight"]
-	var roll := randi() % total_weight
-	var accumulated := 0
-	for entry in pool:
-		accumulated += entry["weight"]
-		if roll < accumulated:
-			return {"id": entry["id"], "quantity": entry["quantity"]}
-	return {}
+	return dados.get_species(species_id)

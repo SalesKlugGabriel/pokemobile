@@ -9,7 +9,10 @@ extends CanvasLayer
 
 signal closed_by_user()
 
-const CATEGORIES := ["medicine", "ball", "stone", "tm_hm", "battle", "vitamin"]
+# "loot" entrou em 09/09: é a categoria dos itens que só servem pra vender
+# (fragmentos, amuletos, peças de espécie). Sem ela na lista, o jogador
+# acumularia loot sem ter onde transformar em dinheiro — que é o ponto.
+const CATEGORIES := ["medicine", "ball", "stone", "tm_hm", "battle", "vitamin", "loot"]
 const CATEGORY_LABELS := {
 	"medicine": "Poções",
 	"ball":     "Poké Bolas",
@@ -17,6 +20,7 @@ const CATEGORY_LABELS := {
 	"tm_hm":    "TM/HM",
 	"battle":   "Itens de Batalha",
 	"vitamin":  "Vitaminas",
+	"loot":     "Tesouros",
 }
 const SELL_RATIO := 0.5
 

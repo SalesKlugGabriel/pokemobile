@@ -42,13 +42,60 @@ var _acoes_ligadas : Array[String] = []
 var _desenho : Control = null
 var _botoes : Control = null
 
+## Espião de eventos. Ficou DESLIGADO depois de cumprir o papel dele, mas fica
+## aqui porque foi o que resolveu: três tentativas de consertar o toque no
+## celular falharam enquanto eu adivinhava. Ligar isto e ler a tela respondeu
+## em uma rodada — o Godot RECEBIA o clique da ponte; o que faltava era o jogo
+## fazer algo com ele numa tela sem mundo (título, nome, diálogo).
+## Ligar de novo é trocar para `true` e reexportar.
+const ESPIAO : bool = false
+var _espiao_label : Label = null
+var _espiao_linhas : Array = []
+
 func _ready() -> void:
 	layer = 50
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	if ESPIAO:
+		_montar_espiao()
 	if not _e_celular():
+		if _espiao_label:
+			_anotar("NAO_E_CELULAR touch=%s larg=%d" % [
+				str(DisplayServer.is_touchscreen_available()),
+				DisplayServer.window_get_size().x])
 		return
+	_anotar("CELULAR ok touch=%s larg=%d" % [
+		str(DisplayServer.is_touchscreen_available()),
+		DisplayServer.window_get_size().x])
 	_montar_desenho()
 	_montar_botoes()
+
+func _montar_espiao() -> void:
+	_espiao_label = Label.new()
+	_espiao_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_espiao_label.offset_top = 78.0
+	_espiao_label.offset_left = 8.0
+	_espiao_label.offset_right = -8.0
+	_espiao_label.add_theme_font_size_override("font_size", 13)
+	_espiao_label.add_theme_color_override("font_color", Color(1, 1, 0.4))
+	_espiao_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 1))
+	_espiao_label.add_theme_constant_override("shadow_offset_x", 2)
+	_espiao_label.add_theme_constant_override("shadow_offset_y", 2)
+	_espiao_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add_child(_espiao_label)
+
+func _anotar(texto: String) -> void:
+	if _espiao_label == null:
+		return
+	_espiao_linhas.append(texto)
+	if _espiao_linhas.size() > 7:
+		_espiao_linhas.pop_front()
+	_espiao_label.text = "\n".join(_espiao_linhas)
+
+## Roda ANTES de tudo e não filtra nada: se o Godot recebe algum evento, ele
+## aparece aqui. Se a tela ficar vazia ao tocar, o motor não está recebendo.
+func _unhandled_input(evento: InputEvent) -> void:
+	if ESPIAO:
+		_anotar(evento.get_class() + " " + evento.as_text().substr(0, 46))
 
 ## No navegador, `is_touchscreen_available()` às vezes responde falso mesmo num
 ## celular. Somar o tamanho da tela evita o pior dos dois erros: sumir com os
@@ -155,6 +202,12 @@ func _tocar_no_mundo(pos_tela: Vector2) -> void:
 		return
 	var mundo = _posicao_no_mundo(pos_tela)
 	if mundo == null:
+		# Sem câmera = tela de UI (título, nome, laboratório, diálogo). O espião
+		# provou que o evento CHEGA aqui; o que faltava era transformá-lo em
+		# algo que essas telas entendem. `interact` é a ação que todas elas já
+		# escutam — então tocar em qualquer lugar passa a valer como "confirmar",
+		# sem eu precisar caçar tela por tela.
+		_injetar_pulso("interact")
 		return
 	var ponto : Vector2 = mundo
 
@@ -170,6 +223,11 @@ func _tocar_no_mundo(pos_tela: Vector2) -> void:
 	var npc = _mais_perto("npc", ponto, false)
 	if npc != null:
 		_injetar_pulso("interact")
+		return
+	# Nada reconhecível no ponto tocado: vale como "confirmar" mesmo assim —
+	# é o que faz avançar diálogo tocando em qualquer lugar da tela, que é o
+	# gesto que todo mundo tenta primeiro.
+	_injetar_pulso("interact")
 
 func _injetar_pulso(acao: String) -> void:
 	_injetar(acao, true)

@@ -9,6 +9,77 @@
 
 ---
 
+## Celular jogável + loot por espécie e economia (2026-09-09)
+
+Itens 01 e 02 da fila combinada com o Gabriel.
+
+### 01 — O celular, e o erro de método que ele expôs
+
+Ele não conseguia nem começar o jogo no telefone. Reproduzi num iPhone 13
+emulado com toque real. **Eram dois problemas**, e o segundo me custou três
+tentativas erradas:
+
+1. **A tarja preta.** `aspect="keep"` com base 1280×720 desenhava uma faixa
+   16:9 no meio da tela — o jogo usava ~40% de um celular em pé. Virou
+   `"expand"`.
+2. **O toque não virava comando.** Tentei ponte de toque→mouse, depois
+   pointer fingindo ser mouse, depois `touch-action: none` e foco no canvas.
+   Nada. **O que resolveu foi parar de adivinhar e instrumentar o jogo** pra
+   ele mostrar na tela o que recebia. A resposta veio em uma rodada:
+   `InputEventMouseButton Left Mouse Button` — o motor **estava recebendo** o
+   clique da ponte. O que faltava era o jogo fazer algo com ele numa tela sem
+   mundo (título, nome, diálogo). Toque em tela de UI agora vale `interact`.
+
+Junto: joystick invisível no quadrante inferior direito (nasce onde o dedo
+encosta), ação por toque único (caído → bola, vivo → ataque, NPC → falar),
+botões com texto em vez de emoji (a fonte do jogo não tem glifo e saía
+quadradinho), e **campo de nome e caixa de recado com o teclado nativo** do
+navegador — o Godot web não levanta teclado em campo de texto, e sem isso o
+jogador travava sem conseguir escrever o próprio nome.
+
+**Achado de processo:** eu estava lendo capturas de tela do container antigo
+ainda servindo. `tools/exportar_web.sh` agora carimba a versão
+(`versao.txt`) e o deploy só é considerado no ar quando o navegador vê o
+carimbo novo. Duas leituras erradas foram por isso.
+
+### 02 — Loot por espécie, e a economia que não existia
+
+O Gabriel perguntou se o loot existia. **Não existia** — e o que havia estava
+invertido: a tabela por *tier* dropava poção, revive e Doce Raro, exatamente o
+que ele quer que seja só de compra. `species.json` não tinha campo de drops, e
+não havia nenhum item de venda pura.
+
+Três camadas, estrutura do otPokemon (que é a que faz a economia girar):
+
+| camada | chance | papel |
+|---|---|---|
+| Fragmento do tipo | 55% | o troco do dia a dia |
+| Amuleto do tipo | 14% | o drop que anima |
+| **Peça de espécie** | 6% | só *aquele* bicho dropa — é o que dá motivo pra caçar um Pokémon específico |
+| Pedra de evolução | 0,4% | a única fonte no mundo aberto |
+| **MT do tipo** | **0,5%** | **só de evolução final**, regra dele. Única fonte dessas MTs |
+
+58 itens de loot novos, 18 MTs de tipo (com os golpes que faltavam criados —
+Giga Drenar, Inferno, Bomba de Lodo, Bola Sombria…), 151 espécies com tabela
+própria, 82 evoluções finais com MT.
+
+**A contrapartida, também pedido dele:** cura, revive e XP saíram dos drops e
+ficaram caros. Poção 300→800, Reviver 1.500→5.000, e o **Doce Raro, que caía
+de graça, agora custa 15.000**. A loja ganhou a aba "Tesouros" — sem ela o
+jogador acumularia loot sem ter onde vender, que é o ponto inteiro.
+
+Cada linha é sorteada **em separado**: o mesmo golpe pode largar fragmento e a
+MT raríssima. E o jogador **vê** o que caiu — economia em silêncio é o mesmo
+que não existir.
+
+**Testado:** 17 conferências do celular + 27 do loot + suíte inteira.
+
+**Erro meu que virou lição:** o teste do loot travava o motor num laço infinito
+porque `species.json` é um dicionário e eu atribuí a um `Array`. Só apareceu
+quando rodei com a saída num arquivo em vez de num cano — o `timeout` matava o
+processo e o buffer levava a mensagem junto. **Saída de teste que trava vai pra
+arquivo, não pra cano.**
+
 ## Captura só depois de derrotar (2026-09-06)
 
 **Regra nova do Gabriel, valendo no jogo inteiro:** *"a captura deve acontecer

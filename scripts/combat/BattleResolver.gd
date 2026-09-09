@@ -19,10 +19,19 @@ func resolve_wild_defeat(species_id: int, level: int, species_name: String, play
 
 	SaveManager.record_defeat(species_id)
 
+	# Loot por ESPÉCIE (09/09): cada linha da tabela do Pokémon é sorteada em
+	# separado, então um mesmo golpe pode largar fragmento E a MT raríssima. O
+	# jogador precisa VER o que caiu, senão a economia acontece em silêncio.
 	var luck_pts : int = SaveManager.get_trainer_stats().get_attribute("sorte")
-	var drop : Dictionary = LootTable.new().roll_drop(level, luck_pts)
-	if not drop.is_empty():
-		SaveManager.add_item(drop.get("id", ""), int(drop.get("quantity", 1)))
+	for drop in LootTable.sortear_drops(species_id, luck_pts):
+		var item_id : String = str(drop.get("id", ""))
+		var quantos : int = int(drop.get("quantity", 1))
+		if item_id == "":
+			continue
+		SaveManager.add_item(item_id, quantos)
+		var nome : String = str(GameData.get_item(item_id).get("name", item_id))
+		EventBus.notification_requested.emit(
+			"%s deixou cair: %s%s" % [species_name, nome, ("" if quantos <= 1 else " x%d" % quantos)])
 
 ## Chamado por WildPokemon._die() quando um Pokémon DE TREINADOR (Fase 7,
 ## 02/09: `is_trainer_owned=true`) morre em combate real — mesma fórmula de

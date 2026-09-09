@@ -85,7 +85,7 @@
     "name": "Potion",
     "category": "medicine",
     "heal_hp": 20,
-    "price": 300,
+    "price": 800,
     "target": "pokemon",
     "description": "Restores 20 HP to one Pokémon."
   },
@@ -94,7 +94,7 @@
     "name": "Super Potion",
     "category": "medicine",
     "heal_hp": 50,
-    "price": 700,
+    "price": 1800,
     "target": "pokemon",
     "description": "Restores 50 HP to one Pokémon."
   },
@@ -103,7 +103,7 @@
     "name": "Hyper Potion",
     "category": "medicine",
     "heal_hp": 200,
-    "price": 1200,
+    "price": 3500,
     "target": "pokemon",
     "description": "Restores 200 HP to one Pokémon."
   },
@@ -112,7 +112,7 @@
     "name": "Max Potion",
     "category": "medicine",
     "heal_hp": -1,
-    "price": 2500,
+    "price": 6500,
     "target": "pokemon",
     "description": "Fully restores HP of one Pokémon."
   },
@@ -121,7 +121,7 @@
     "name": "Full Restore",
     "category": "medicine",
     "heal_hp": -1,
-    "price": 3000,
+    "price": 9000,
     "target": "pokemon",
     "heal_status": true,
     "description": "Fully restores HP and cures all status conditions."
@@ -133,7 +133,7 @@
     "cures": [
       "poison"
     ],
-    "price": 100,
+    "price": 400,
     "target": "pokemon",
     "description": "Cures poison."
   },
@@ -144,7 +144,7 @@
     "cures": [
       "burn"
     ],
-    "price": 250,
+    "price": 400,
     "target": "pokemon",
     "description": "Cures a burn."
   },
@@ -155,7 +155,7 @@
     "cures": [
       "frozen"
     ],
-    "price": 250,
+    "price": 400,
     "target": "pokemon",
     "description": "Cures being frozen."
   },
@@ -166,7 +166,7 @@
     "cures": [
       "sleep"
     ],
-    "price": 250,
+    "price": 400,
     "target": "pokemon",
     "description": "Wakes a sleeping Pokémon."
   },
@@ -177,7 +177,7 @@
     "cures": [
       "paralysis"
     ],
-    "price": 200,
+    "price": 400,
     "target": "pokemon",
     "description": "Cures paralysis."
   },
@@ -188,7 +188,7 @@
     "cures": [
       "all"
     ],
-    "price": 600,
+    "price": 1600,
     "target": "pokemon",
     "description": "Cures all status conditions."
   },
@@ -197,7 +197,7 @@
     "name": "Revive",
     "category": "medicine",
     "revive_hp": 0.5,
-    "price": 1500,
+    "price": 5000,
     "target": "pokemon",
     "description": "Revives a fainted Pokémon with half its HP."
   },
@@ -206,7 +206,7 @@
     "name": "Max Revive",
     "category": "medicine",
     "revive_hp": -1,
-    "price": 0,
+    "price": 12000,
     "target": "pokemon",
     "description": "Revives a fainted Pokémon with full HP."
   },
@@ -215,7 +215,7 @@
     "name": "Ether",
     "category": "medicine",
     "restore_pp": 10,
-    "price": 1200,
+    "price": 2500,
     "target": "move",
     "description": "Restores 10 PP to one move."
   },
@@ -224,7 +224,7 @@
     "name": "Max Ether",
     "category": "medicine",
     "restore_pp": -1,
-    "price": 0,
+    "price": 5000,
     "target": "move",
     "description": "Fully restores PP of one move."
   },
@@ -233,7 +233,7 @@
     "name": "Elixir",
     "category": "medicine",
     "restore_pp": 10,
-    "price": 0,
+    "price": 4000,
     "target": "all_moves",
     "description": "Restores 10 PP to all moves."
   },
@@ -242,7 +242,7 @@
     "name": "Max Elixir",
     "category": "medicine",
     "restore_pp": -1,
-    "price": 0,
+    "price": 8000,
     "target": "all_moves",
     "description": "Fully restores PP of all moves."
   },
@@ -436,7 +436,7 @@
     "category": "vitamin",
     "ev_stat": "hp",
     "ev_amount": 10,
-    "price": 9800,
+    "price": 6000,
     "description": "Raises HP EVs."
   },
   "protein": {
@@ -445,7 +445,7 @@
     "category": "vitamin",
     "ev_stat": "attack",
     "ev_amount": 10,
-    "price": 9800,
+    "price": 6000,
     "description": "Raises Attack EVs."
   },
   "iron": {
@@ -454,7 +454,7 @@
     "category": "vitamin",
     "ev_stat": "defense",
     "ev_amount": 10,
-    "price": 9800,
+    "price": 6000,
     "description": "Raises Defense EVs."
   },
   "carbos": {
@@ -463,7 +463,7 @@
     "category": "vitamin",
     "ev_stat": "speed",
     "ev_amount": 10,
-    "price": 9800,
+    "price": 6000,
     "description": "Raises Speed EVs."
   },
   "calcium": {
@@ -472,7 +472,7 @@
     "category": "vitamin",
     "ev_stat": "sp_atk",
     "ev_amount": 10,
-    "price": 9800,
+    "price": 6000,
     "description": "Raises Sp. Atk EVs."
   },
   "zinc": {
@@ -481,7 +481,7 @@
     "category": "vitamin",
     "ev_stat": "sp_def",
     "ev_amount": 10,
-    "price": 9800,
+    "price": 6000,
     "description": "Raises Sp. Def EVs."
   },
   "rare_candy": {
@@ -489,7 +489,7 @@
     "name": "Rare Candy",
     "category": "vitamin",
     "effect": "level_up",
-    "price": 0,
+    "price": 15000,
     "description": "Raises level by 1."
   },
   "pp_up": {
@@ -497,7 +497,7 @@
     "name": "PP Up",
     "category": "vitamin",
     "effect": "pp_up",
-    "price": 9800,
+    "price": 9000,
     "description": "Aumenta o PP máximo de um golpe em 1/5 do valor base. Até 3 usos por golpe."
   },
   "tm01": {
@@ -929,5 +929,573 @@
     "price": 0,
     "single_use": false,
     "description": "Ensina Nevasca (Gelo, dano em area). Recompensa unica do Covil Gelado — nao se compra em lugar nenhum."
+  },
+  "bug_fragmento": {
+    "id": "bug_fragmento",
+    "name": "Fragmento de Inseto",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Inseto. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "bug_amuleto": {
+    "id": "bug_amuleto",
+    "name": "Amuleto de Inseto",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Inseto. Colecionadores pagam bem."
+  },
+  "dragon_fragmento": {
+    "id": "dragon_fragmento",
+    "name": "Fragmento de Dragão",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Dragão. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "dragon_amuleto": {
+    "id": "dragon_amuleto",
+    "name": "Amuleto de Dragão",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Dragão. Colecionadores pagam bem."
+  },
+  "electric_fragmento": {
+    "id": "electric_fragmento",
+    "name": "Fragmento de Elétrico",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Elétrico. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "electric_amuleto": {
+    "id": "electric_amuleto",
+    "name": "Amuleto de Elétrico",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Elétrico. Colecionadores pagam bem."
+  },
+  "fairy_fragmento": {
+    "id": "fairy_fragmento",
+    "name": "Fragmento de Fada",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Fada. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "fairy_amuleto": {
+    "id": "fairy_amuleto",
+    "name": "Amuleto de Fada",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Fada. Colecionadores pagam bem."
+  },
+  "fighting_fragmento": {
+    "id": "fighting_fragmento",
+    "name": "Fragmento de Luta",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Luta. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "fighting_amuleto": {
+    "id": "fighting_amuleto",
+    "name": "Amuleto de Luta",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Luta. Colecionadores pagam bem."
+  },
+  "fire_fragmento": {
+    "id": "fire_fragmento",
+    "name": "Fragmento de Fogo",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Fogo. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "fire_amuleto": {
+    "id": "fire_amuleto",
+    "name": "Amuleto de Fogo",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Fogo. Colecionadores pagam bem."
+  },
+  "flying_fragmento": {
+    "id": "flying_fragmento",
+    "name": "Fragmento de Voador",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Voador. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "flying_amuleto": {
+    "id": "flying_amuleto",
+    "name": "Amuleto de Voador",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Voador. Colecionadores pagam bem."
+  },
+  "ghost_fragmento": {
+    "id": "ghost_fragmento",
+    "name": "Fragmento de Fantasma",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Fantasma. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "ghost_amuleto": {
+    "id": "ghost_amuleto",
+    "name": "Amuleto de Fantasma",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Fantasma. Colecionadores pagam bem."
+  },
+  "grass_fragmento": {
+    "id": "grass_fragmento",
+    "name": "Fragmento de Planta",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Planta. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "grass_amuleto": {
+    "id": "grass_amuleto",
+    "name": "Amuleto de Planta",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Planta. Colecionadores pagam bem."
+  },
+  "ground_fragmento": {
+    "id": "ground_fragmento",
+    "name": "Fragmento de Terra",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Terra. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "ground_amuleto": {
+    "id": "ground_amuleto",
+    "name": "Amuleto de Terra",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Terra. Colecionadores pagam bem."
+  },
+  "ice_fragmento": {
+    "id": "ice_fragmento",
+    "name": "Fragmento de Gelo",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Gelo. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "ice_amuleto": {
+    "id": "ice_amuleto",
+    "name": "Amuleto de Gelo",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Gelo. Colecionadores pagam bem."
+  },
+  "normal_fragmento": {
+    "id": "normal_fragmento",
+    "name": "Fragmento de Normal",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Normal. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "normal_amuleto": {
+    "id": "normal_amuleto",
+    "name": "Amuleto de Normal",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Normal. Colecionadores pagam bem."
+  },
+  "poison_fragmento": {
+    "id": "poison_fragmento",
+    "name": "Fragmento de Veneno",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Veneno. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "poison_amuleto": {
+    "id": "poison_amuleto",
+    "name": "Amuleto de Veneno",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Veneno. Colecionadores pagam bem."
+  },
+  "psychic_fragmento": {
+    "id": "psychic_fragmento",
+    "name": "Fragmento de Psíquico",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Psíquico. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "psychic_amuleto": {
+    "id": "psychic_amuleto",
+    "name": "Amuleto de Psíquico",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Psíquico. Colecionadores pagam bem."
+  },
+  "rock_fragmento": {
+    "id": "rock_fragmento",
+    "name": "Fragmento de Pedra",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Pedra. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "rock_amuleto": {
+    "id": "rock_amuleto",
+    "name": "Amuleto de Pedra",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Pedra. Colecionadores pagam bem."
+  },
+  "steel_fragmento": {
+    "id": "steel_fragmento",
+    "name": "Fragmento de Aço",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Aço. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "steel_amuleto": {
+    "id": "steel_amuleto",
+    "name": "Amuleto de Aço",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Aço. Colecionadores pagam bem."
+  },
+  "water_fragmento": {
+    "id": "water_fragmento",
+    "name": "Fragmento de Água",
+    "category": "loot",
+    "price": 80,
+    "description": "Caco de energia de Água. Sozinho não vale muito; aos montes, paga as contas."
+  },
+  "water_amuleto": {
+    "id": "water_amuleto",
+    "name": "Amuleto de Água",
+    "category": "loot",
+    "price": 900,
+    "description": "Amuleto carregado de energia de Água. Colecionadores pagam bem."
+  },
+  "magikarp_fin": {
+    "id": "magikarp_fin",
+    "name": "Barbatana de Magikarp",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "krabby_claw": {
+    "id": "krabby_claw",
+    "name": "Garra de Krabby",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "slowpoke_tail": {
+    "id": "slowpoke_tail",
+    "name": "Cauda de Slowpoke",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "sandshrew_claw": {
+    "id": "sandshrew_claw",
+    "name": "Garra de Sandshrew",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "ekans_fang": {
+    "id": "ekans_fang",
+    "name": "Presa de Ekans",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "diglett_dirt": {
+    "id": "diglett_dirt",
+    "name": "Terra de Diglett",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "mankey_fur": {
+    "id": "mankey_fur",
+    "name": "Pelo de Mankey",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "ponyta_ember": {
+    "id": "ponyta_ember",
+    "name": "Brasa de Ponyta",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "farfetchd_leek": {
+    "id": "farfetchd_leek",
+    "name": "Alho-poró de Farfetch'd",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "shellder_pearl": {
+    "id": "shellder_pearl",
+    "name": "Pérola de Shellder",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "voltorb_coil": {
+    "id": "voltorb_coil",
+    "name": "Bobina de Voltorb",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "exeggcute_shell": {
+    "id": "exeggcute_shell",
+    "name": "Casca de Exeggcute",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "cubone_bone": {
+    "id": "cubone_bone",
+    "name": "Osso de Cubone",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "lickitung_lick": {
+    "id": "lickitung_lick",
+    "name": "Saliva de Lickitung",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "koffing_gas": {
+    "id": "koffing_gas",
+    "name": "Gás de Koffing",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "rhyhorn_horn": {
+    "id": "rhyhorn_horn",
+    "name": "Chifre de Rhyhorn",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "tangela_vine": {
+    "id": "tangela_vine",
+    "name": "Cipó de Tangela",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "horsea_ink": {
+    "id": "horsea_ink",
+    "name": "Tinta de Horsea",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "staryu_core": {
+    "id": "staryu_core",
+    "name": "Núcleo de Staryu",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "tauros_hide": {
+    "id": "tauros_hide",
+    "name": "Couro de Tauros",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "omanyte_shell": {
+    "id": "omanyte_shell",
+    "name": "Concha de Omanyte",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "kabuto_shell": {
+    "id": "kabuto_shell",
+    "name": "Carapaça de Kabuto",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "dratini_scale": {
+    "id": "dratini_scale",
+    "name": "Escama de Dratini",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "pikachu_static": {
+    "id": "pikachu_static",
+    "name": "Estática de Pikachu",
+    "category": "loot",
+    "price": 1400,
+    "description": "Só se consegue derrotando esse Pokémon. Vale bem na loja."
+  },
+  "tm20": {
+    "id": "tm20",
+    "name": "MT20 Terremoto",
+    "category": "tm_hm",
+    "teaches": "earthquake",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Terremoto. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm21": {
+    "id": "tm21",
+    "name": "MT21 Giga Drenar",
+    "category": "tm_hm",
+    "teaches": "giga_drain",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Giga Drenar. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm22": {
+    "id": "tm22",
+    "name": "MT22 Inferno",
+    "category": "tm_hm",
+    "teaches": "inferno",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Inferno. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm23": {
+    "id": "tm23",
+    "name": "MT23 Hidro Bomba",
+    "category": "tm_hm",
+    "teaches": "hydro_pump",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Hidro Bomba. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm24": {
+    "id": "tm24",
+    "name": "MT24 Trovão",
+    "category": "tm_hm",
+    "teaches": "thunder",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Trovão. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm25": {
+    "id": "tm25",
+    "name": "MT25 Nevasca",
+    "category": "tm_hm",
+    "teaches": "blizzard",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Nevasca. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm26": {
+    "id": "tm26",
+    "name": "MT26 Psíquico",
+    "category": "tm_hm",
+    "teaches": "psychic",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Psíquico. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm27": {
+    "id": "tm27",
+    "name": "MT27 Rocha Explosiva",
+    "category": "tm_hm",
+    "teaches": "rock_slide",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Rocha Explosiva. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm28": {
+    "id": "tm28",
+    "name": "MT28 Bomba de Lodo",
+    "category": "tm_hm",
+    "teaches": "sludge_bomb",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Bomba de Lodo. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm29": {
+    "id": "tm29",
+    "name": "MT29 Bola Sombria",
+    "category": "tm_hm",
+    "teaches": "shadow_ball",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Bola Sombria. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm30": {
+    "id": "tm30",
+    "name": "MT30 Garra de Dragão",
+    "category": "tm_hm",
+    "teaches": "dragon_claw",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Garra de Dragão. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm31": {
+    "id": "tm31",
+    "name": "MT31 Combate Fechado",
+    "category": "tm_hm",
+    "teaches": "close_combat",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Combate Fechado. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm32": {
+    "id": "tm32",
+    "name": "MT32 Corte de Ar",
+    "category": "tm_hm",
+    "teaches": "air_slash",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Corte de Ar. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm33": {
+    "id": "tm33",
+    "name": "MT33 Mega Chifre",
+    "category": "tm_hm",
+    "teaches": "megahorn",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Mega Chifre. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm34": {
+    "id": "tm34",
+    "name": "MT34 Hiper Raio",
+    "category": "tm_hm",
+    "teaches": "hyper_beam",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Hiper Raio. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm35": {
+    "id": "tm35",
+    "name": "MT35 Cabeça de Ferro",
+    "category": "tm_hm",
+    "teaches": "iron_head",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Cabeça de Ferro. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm36": {
+    "id": "tm36",
+    "name": "MT36 Brilho Deslumbrante",
+    "category": "tm_hm",
+    "teaches": "dazzling_gleam",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Brilho Deslumbrante. Só cai de Pokémon de evolução final, e é raríssima."
+  },
+  "tm37": {
+    "id": "tm37",
+    "name": "MT37 Mordida Forte",
+    "category": "tm_hm",
+    "teaches": "crunch",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Mordida Forte. Só cai de Pokémon de evolução final, e é raríssima."
   }
 }

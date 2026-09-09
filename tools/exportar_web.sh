@@ -25,6 +25,12 @@ cd "$(dirname "$0")/.."
 
 godot4 --headless --export-release "Web" builds/web/index.html
 
+# Carimbo de versão: sem isso não dá pra saber se o navegador está vendo o
+# build novo ou o container antigo ainda servindo — foi exatamente o que me
+# fez ler duas capturas de tela erradas.
+date +%s > builds/web/versao.txt
+echo "carimbo: $(cat builds/web/versao.txt)"
+
 PONTE='<script>
 /* Ponte de toque (tools/exportar_web.sh) — o Godot 4.2 web não transforma
    toque em input; o mouse ele escuta. Então todo toque vira mouse. */
@@ -34,6 +40,14 @@ PONTE='<script>
     if (!c) { return setTimeout(ligar, 200); }
     if (c.__ponteDeToque) { return; }
     c.__ponteDeToque = true;
+    /* `touch-action: none` é o que impede o navegador de sequestrar o toque
+       pra rolagem/zoom antes de o jogo vê-lo — sem isso o motor pode nunca
+       receber o evento. E `tabindex` permite dar foco ao canvas, que é o que
+       o clique real fazia de diferente do toque. */
+    c.style.touchAction = "none";
+    document.body.style.touchAction = "none";
+    if (!c.hasAttribute("tabindex")) { c.setAttribute("tabindex", "0"); }
+    c.addEventListener("touchstart", function () { try { c.focus(); } catch (e) {} }, { passive: true });
     /* Dispara PointerEvent (pointerType "mouse") E MouseEvent. Medido no
        navegador: o clique real gera pointerdown+mousedown e o jogo reage; o
        toque gera pointerdown com pointerType "touch" e o jogo NÃO reage. Ou
