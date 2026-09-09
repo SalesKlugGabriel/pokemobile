@@ -114,6 +114,10 @@ func _ready() -> void:
 	# (BarraDeAcaoRapida/ícone da Pokédex), pra ver a ficha de quem já está
 	# do seu lado sem precisar procurar ele numa lista.
 	hurtbox.input_event.connect(_on_hurtbox_input_event)
+	# Reações visuais (09/09, item da lista de imersão) — sem arte nova, só
+	# tween no próprio sprite que já existe.
+	EventBus.pokemon_level_up.connect(_on_pokemon_level_up)
+	_atualizar_reacao_de_hp()
 
 func _on_hurtbox_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) \
@@ -639,11 +643,18 @@ func _position_behind_trainer() -> Vector2:
 # Receber dano
 # ──────────────────────────────────────────────────────────────────────────────
 
+## Fração de HP abaixo da qual o Follower fica "preocupado" (09/09, item da
+## lista de imersão: "reações visuais do Follower"). Sem arte nova — só um
+## tingimento leve e constante no próprio sprite, que já existe.
+const FRACAO_HP_PREOCUPADO : float = 0.25
+var _preocupado : bool = false
+
 func take_damage(amount: int, attacker: Node = null) -> void:
 	if _is_fainted:
 		return
 	current_hp = max(0, current_hp - amount)
 	EventBus.follower_hp_changed.emit(current_hp, max_hp)
+	_atualizar_reacao_de_hp()
 	EventBus.damage_dealt.emit(self, amount, false, attacker)
 	_gravar_hp_no_save()
 	if attacker and not _recent_attackers.has(attacker):
@@ -677,6 +688,39 @@ func _gravar_hp_no_save() -> void:
 		return
 	lider["hp_current"] = current_hp
 	salvar.update_team_pokemon(0, lider)
+
+## Tingimento leve e constante enquanto o HP estiver crítico — não é um
+## efeito de um instante, é um ESTADO (fica ligado até curar ou desmaiar).
+## Roda toda vez que o HP muda pra pouco ou muito (dano ou cura), nunca
+## sobrescreve o cinza de `_faint()` (chamado depois, no mesmo fluxo de
+## `take_damage`) nem mexe fora do range 0-1 de modulate.
+func _atualizar_reacao_de_hp() -> void:
+	if _is_fainted or not sprite or max_hp <= 0:
+		return
+	var ratio : float = float(current_hp) / float(max_hp)
+	var preocupado_agora := ratio > 0.0 and ratio <= FRACAO_HP_PREOCUPADO
+	if preocupado_agora == _preocupado:
+		return
+	_preocupado = preocupado_agora
+	var alvo := Color(0.75, 0.55, 0.85) if preocupado_agora else Color(1, 1, 1)
+	var tw := create_tween()
+	tw.tween_property(sprite, "modulate", alvo, 0.3)
+
+## Comemoração de level up (09/09) — só se for ESTE Pokémon (o líder é o
+## slot 0 do time; um Rare Candy usado em outro membro do time, pela
+## Mochila, não deve fazer o sprite do mapa pular). Sem arte nova: um pulo
+## de escala + um brilho branco rápido no próprio sprite.
+func _on_pokemon_level_up(pokemon_data: Dictionary, _novo_nivel: int) -> void:
+	if int(pokemon_data.get("species_id", -1)) != pokemon_species_id or not sprite:
+		return
+	var tw := create_tween()
+	tw.tween_property(sprite, "scale", sprite.scale * 1.25, 0.15)
+	tw.tween_property(sprite, "scale", sprite.scale, 0.2)
+	var tw2 := create_tween()
+	var cor_normal : Color = Color(1, 1, 1) if not _preocupado else Color(0.75, 0.55, 0.85)
+	tw2.tween_property(sprite, "modulate", Color(1.6, 1.6, 1.2), 0.1)
+	tw2.tween_property(sprite, "modulate", cor_normal, 0.25)
+	AudioManager.play_sfx("level_up")
 
 func _faint() -> void:
 	_is_fainted     = true

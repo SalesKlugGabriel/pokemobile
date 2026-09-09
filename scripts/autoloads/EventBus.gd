@@ -92,6 +92,7 @@ signal pokedex_opened()
 signal party_opened()
 signal pokemon_evolved(from_id: int, into_id: int)
 signal zone_changed(zone_name: String)
+signal periodo_do_dia_mudou(periodo: String)  # "noite"/"amanhecer"/"dia"/"entardecer" (09/09)
 
 ## A Escolha da Fratura (MAIN-11, 03/09) — disparado logo depois de capturar
 ## o Mewtwo (QuestManager._on_capture_success), pega por quem monta a tela

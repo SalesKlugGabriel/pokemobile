@@ -170,6 +170,11 @@ static func sincronizar_follower(vida: int) -> void:
 				f._is_fainted = false
 				if f.sprite:
 					f.sprite.modulate = Color(1, 1, 1, 1)
+			# 09/09: reavalia o tingimento de "preocupado" depois de curar — sem
+			# isto, um Follower curado acima de 25% de HP continuaria com a cor
+			# de "pouca vida" até o próximo dano.
+			if f.has_method("_atualizar_reacao_de_hp"):
+				f._atualizar_reacao_de_hp()
 			# Pelo nó, não pelo identificador global: `class_name` que cita
 			# autoload direto não carrega em teste headless.
 			var barramento = (laco as SceneTree).root.get_node_or_null("EventBus")

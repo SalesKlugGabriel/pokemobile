@@ -86,6 +86,7 @@ func play_bgm(track: String) -> void:
 	var next := _bgm_b if _bgm_active == _bgm_a else _bgm_a
 	next.stream = stream
 	next.volume_db = -80.0
+	next.pitch_scale = 1.0  # 09/09: zera o "enfurecido" de uma luta anterior — senão vazaria pra próxima trilha
 	next.play()
 	var tw := create_tween().set_parallel(true)
 	tw.tween_property(_bgm_active, "volume_db", -80.0, BGM_FADE_OUT)
@@ -109,6 +110,18 @@ func stop_bgm_instant() -> void:
 	_current_bgm = ""
 	_bgm_a.stop()
 	_bgm_b.stop()
+
+## Intensifica a trilha ATUAL sem trocar de faixa (09/09, pedido do Gabriel:
+## "transição de música em combate de chefe") — acelera o pitch da mesma
+## música, o mesmo truque barato que muitos jogos usam pra "esquentar" uma
+## fase 2 sem precisar compor uma trilha nova. Chamado por
+## ChefeLendario._enfurecer() no momento do enrage. Não volta sozinho — some
+## quando a próxima play_bgm() troca de faixa (pitch_scale resetado lá).
+func intensificar_bgm(fator: float = 1.12, duracao: float = 1.5) -> void:
+	if not _bgm_active.playing:
+		return
+	var tw := create_tween()
+	tw.tween_property(_bgm_active, "pitch_scale", fator, duracao)
 
 # ── SFX ─────────────────────────────────────────────────────────────────────
 

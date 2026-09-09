@@ -4286,3 +4286,49 @@ noite, clima dinâmico, transição de música em chefe, reações do Follower,
 trainers vagando, cutscene de entrada de lendário, pós-jogo depois da Elite
 Four) — pedido do Gabriel foi "tutorial primeiro, depois vá implementando as
 melhorias".
+
+---
+
+## 09/09/2026 (mesmo dia, continuação) — Início da lista de imersão: 3 de 7
+
+Depois do tutorial + 4 fluxos por clique, o Gabriel confirmou "vá em frente"
+pra lista de melhorias de imersão. Entregues 3 dos 7 itens nesta leva:
+
+**1. Ciclo de dia e noite** (`CicloDoDia.gd`, novo autoload) — não ligado ao
+relógio do sistema, um ciclo próprio (1 dia = 18 minutos reais). Tinge o
+mundo aberto via `CanvasModulate` (só afeta o Node2D do mapa, nunca a HUD,
+que é CanvasLayer separada) — 9 paradas de cor interpoladas (madrugada →
+amanhecer → dia → entardecer → noite). Só liga em `map_id == "world_map"`
+(mesmo padrão já usado por outra checagem em `BaseMap.gd`) — dungeon/
+interior tem luz própria, nunca escurece com o relógio de fora.
+
+**2. Transição de música no combate de chefe** — `AudioManager.
+intensificar_bgm()`, novo: acelera o PITCH da trilha atual (sem trocar de
+faixa — não existe uma trilha de "fase 2" composta) quando
+`ChefeLendario._enfurecer()` dispara, no mesmo momento que já tremia a
+câmera e deixava o chefe vermelho. Pitch reseta sozinho na próxima troca de
+música (`play_bgm()`), pra não vazar pra luta seguinte.
+
+**3. Reações visuais do Follower** — sem arte nova, só tween no sprite que
+já existe: fica com um tom "preocupado" enquanto o HP está ≤25% (liga/
+desliga sozinho, dano ou cura), e dá um pulo + brilho branco + som ao subir
+de nível (só reage se for O PRÓPRIO Pokémon, não quando outro membro do
+time sobe de nível pela Mochila).
+
+**Achado ao mexer no ciclo do dia**: nenhum autoload SEM `class_name` (nem
+o mais antigo do projeto) resolve como identificador global solto num teste
+`--script`, mesmo em `_initialize()`. O padrão certo (achado lendo um teste
+que já funcionava) é declarar uma variável de membro com o MESMO nome do
+autoload e preencher via `root.get_node()`. Registrado em memória — é uma
+lição nova, distinta da já conhecida "class_name citando autoload".
+
+**Testado**: suíte inteira, 79 arquivos (2 novos: `teste_ciclo_do_dia.gd`,
+`teste_reacoes_follower.gd`, mais uma checagem nova em
+`teste_dungeon_de_gelo.gd` pro item 2), 0 falhas. Build web publicado, boot
+confirmado limpo em navegador real.
+
+**Faltam 4 da lista**: clima dinâmico, trainers vagando pelo mundo (não só
+parados), cutscene curta ao entrar na arena de um lendário, conteúdo pós-
+Elite Four. O pós-jogo em especial precisa de uma decisão de escopo do
+Gabriel antes de eu inventar sozinho (área nova? recompensa repetível?
+desafio estilo Battle Tower?) — os outros 3 dá pra seguir sem perguntar.

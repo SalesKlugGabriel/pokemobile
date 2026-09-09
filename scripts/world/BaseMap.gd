@@ -54,9 +54,21 @@ func _ready() -> void:
 	# veria a porta abrir depois de sair e voltar pro mapa.
 	if map_id == "world_map":
 		QuestManager.quest_completed.connect(_on_quest_completed_repaint)
+		_ligar_ciclo_do_dia()
 
 func _on_quest_completed_repaint(_quest_id: String) -> void:
 	_paint_tiles()
+
+## Ciclo de dia/noite (09/09) — só no mundo aberto. Dungeon/interior tem luz
+## própria; CanvasModulate tinge só o que está neste Node2D (o mapa), nunca a
+## HUD (CanvasLayer separada, não é filha daqui).
+var _canvas_modulate : CanvasModulate = null
+
+func _ligar_ciclo_do_dia() -> void:
+	_canvas_modulate = CanvasModulate.new()
+	_canvas_modulate.name = "CicloDoDiaModulate"
+	add_child(_canvas_modulate)
+	CicloDoDia.registrar_modulate(_canvas_modulate)
 
 func _setup_world_systems() -> void:
 	if not player:
@@ -80,6 +92,8 @@ func _setup_world_systems() -> void:
 
 func _exit_tree() -> void:
 	WorldManager.unregister_map()
+	if _canvas_modulate:
+		CicloDoDia.desregistrar_modulate(_canvas_modulate)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Polimento visual

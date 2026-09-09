@@ -351,6 +351,10 @@ func _enfurecer() -> void:
 		var fi = Engine.get_main_loop().root.get_node_or_null("FeedbackDeImpacto")
 		if fi != null and fi.has_method("tremer_camera"):
 			fi.tremer_camera(1.0)
+		# 09/09: a música acelera junto com o chefe — sem precisar de trilha nova.
+		var audio = Engine.get_main_loop().root.get_node_or_null("AudioManager")
+		if audio != null and audio.has_method("intensificar_bgm"):
+			audio.intensificar_bgm()
 
 func esta_enfurecido() -> bool:
 	return _enfurecido

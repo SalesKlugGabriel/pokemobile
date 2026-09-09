@@ -238,6 +238,14 @@ func _chefe() -> void:
 		"o enrage vem aos %.0f minutos" % (ChefeLendario.ENRAGE_SEG / 60.0))
 	_assert(ChefeLendario.ENRAGE_DANO > 1.0 and ChefeLendario.ENRAGE_ESPERA < 1.0,
 		"e ele bate mais forte e mais rápido")
+	# 09/09: a música também "esquenta" no enrage — item da lista de imersão.
+	_assert(fonte.contains("intensificar_bgm"),
+		"e a trilha acelera junto (transição de música no combate de chefe)")
+	var audio_src := FileAccess.get_file_as_string("res://scripts/autoloads/AudioManager.gd")
+	_assert(audio_src.contains("func intensificar_bgm"),
+		"o AudioManager sabe acelerar a trilha atual sem trocar de faixa")
+	_assert(audio_src.contains('next.pitch_scale = 1.0'),
+		"e zera o pitch ao trocar de música — senão o enrage vazaria pra próxima trilha")
 
 	# O ninho tem que instalar o chefe — senão o lendário continua sendo só um
 	# Pokémon selvagem forte.
