@@ -34,16 +34,28 @@ func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
 
-	# ---- 1. Caminho contínuo de Lavender até Fuchsia (corredor N-S, cols
-	# LAVENDER_COL_INICIO+27..29) ----
+	# 🔴 10/09 (Fase 5 da reestruturação geográfica): esta asserção ERA
+	# "caminho contínuo, sem quebra nenhuma" (desenho do próprio Tier 5) —
+	# e é o oposto do que a escala real exige agora. A distância real
+	# (12km, a maior jornada do mapa) mora em RotaLavenderFuchsia.tscn (ver
+	# teste_rota_lavender_fuchsia.gd). A faixa antiga virou floresta
+	# impassável; Fuchsia em si continua com chão andável de sempre.
 	var col_meio := MapLayouts.LAVENDER_COL_INICIO + 28
 	var r_ini := MapLayouts.SAFFRON_ROW_INICIO + MapLayouts.SAFFRON_ROWS
+	var r_fim_rota := MapLayouts.FUCHSIA_ROW_INICIO
 	var r_fim := MapLayouts.FUCHSIA_ROW_INICIO + MapLayouts.FUCHSIA_ROWS
-	var quebras := 0
-	for r in range(r_ini, r_fim):
-		if tiles[r][col_meio] != "P" and tiles[r][col_meio] != "." and tiles[r][col_meio] != "I":
-			quebras += 1
-	_assert(quebras == 0, "caminho de Lavender até Fuchsia é contínuo (%d quebras)" % quebras)
+	var quebra_rota := false
+	for r in range(r_ini, r_fim_rota):
+		if tiles[r][col_meio] == "P":
+			quebra_rota = true
+	_assert(not quebra_rota, "a Rota Lavender-Fuchsia antiga está selada, sem tile andável na coluna do corredor")
+
+	var quebras_fuchsia := 0
+	for r in range(r_fim_rota, r_fim):
+		var ch : String = tiles[r][col_meio]
+		if ch != "P" and ch != "." and ch != "I":
+			quebras_fuchsia += 1
+	_assert(quebras_fuchsia == 0, "Fuchsia continua com chão andável de sempre (%d quebras)" % quebras_fuchsia)
 
 	var fc0 := MapLayouts.LAVENDER_COL_INICIO
 	var fr0 := MapLayouts.FUCHSIA_ROW_INICIO

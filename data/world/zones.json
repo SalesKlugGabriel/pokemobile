@@ -250,6 +250,30 @@
       "npcs": []
     },
     {
+      "id": "rota_lavender_fuchsia",
+      "map_id": "rota_lavender_fuchsia",
+      "name": "Rota Lavender-Fuchsia",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 12000
+      },
+      "bgm": "route_12",
+      "wild_pokemon": [
+        {"id": 84, "name": "Doduo", "level_min": 18, "level_max": 24, "weight": 15},
+        {"id": 43, "name": "Oddish", "level_min": 18, "level_max": 24, "weight": 15},
+        {"id": 69, "name": "Bellsprout", "level_min": 18, "level_max": 24, "weight": 15},
+        {"id": 48, "name": "Venonat", "level_min": 18, "level_max": 24, "weight": 10},
+        {"id": 60, "name": "Poliwag", "level_min": 18, "level_max": 24, "weight": 15},
+        {"id": 54, "name": "Psyduck", "level_min": 18, "level_max": 24, "weight": 15},
+        {"id": 98, "name": "Krabby", "level_min": 18, "level_max": 24, "weight": 10},
+        {"id": 46, "name": "Paras", "level_min": 18, "level_max": 24, "weight": 5}
+      ],
+      "npcs": []
+    },
+    {
       "id": "rota_saffron_lavender",
       "map_id": "rota_saffron_lavender",
       "name": "Rota Saffron-Lavender",

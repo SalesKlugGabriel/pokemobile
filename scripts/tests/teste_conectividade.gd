@@ -22,15 +22,12 @@ var _ok := 0
 var _fail := 0
 var _rodou := false
 
-## Cidades alcançáveis a pé DIRETO no world_map (sem trocar de cena) —
-## desde as Fases 1/2/3/4 da reestruturação geográfica (10/09), Viridian,
-## Pewter, Cerulean, Saffron, Vermilion, Celadon e Lavender saíram desta
-## lista: viram cadeia (ver `_alcancavel_via_rota` abaixo). Fuchsia continua
-## aqui porque a ligação dela (Lavender→Fuchsia) ainda não entrou na
-## reestruturação — é a próxima fase.
-const A_PE : Array[String] = [
-	"fuchsia_city",
-]
+## Cidades alcançáveis a pé DIRETO no world_map (sem trocar de cena) — desde
+## as Fases 1-5 da reestruturação geográfica (10/09), TODAS as cidades da
+## espinha principal saíram desta lista: viram cadeia (ver
+## `_alcancavel_via_rota` abaixo). Só sobram as áreas de Surf/trava de
+## progressão (NAO_A_PE, abaixo) — nenhuma cidade de terra firme falta.
+const A_PE : Array[String] = []
 
 ## Alcançáveis só por mar ou por trava de progressão — com o motivo.
 const NAO_A_PE := {
@@ -124,26 +121,19 @@ func _process(_delta: float) -> bool:
 	_assert(origem_lavender.x != -9999,
 		"Lavender alcançável por cadeia: Saffron → warp → RotaSaffronLavender.tscn (provada à parte) → Lavender")
 
-	# ---- 1b. As cidades que continuam ligadas direto no world_map (ainda
-	# não entraram nesta reestruturação: só Fuchsia agora, ao sul de
-	# Lavender, sem mudança nesta fase) — origem passa a ser LAVENDER. Se
-	# origem_lavender falhou, usa Pallet mesmo (evita mascarar erro duplo
-	# com "sem retângulo").
-	var origem_resto := origem_lavender if origem_lavender.x != -9999 else origem
-	var ilhadas : Array[String] = []
-	for zona in A_PE:
-		var ret := AjudaMapa.retangulo_da_zona(zona)
-		if ret.size.x <= 0:
-			ilhadas.append("%s (sem retângulo no zones.json)" % zona)
-			continue
-		var destino := AjudaMapa.tile_andavel_da_zona(tm, ret)
-		if destino.x == -9999:
-			ilhadas.append("%s (nenhum tile andável dentro dela)" % zona)
-			continue
-		if not AjudaMapa.caminho_a_pe(tm, origem_resto, destino):
-			ilhadas.append("%s (sem caminho a pé desde Lavender)" % zona)
-	_assert(ilhadas.is_empty(), "as demais cidades de terra firme são alcançáveis a pé desde Lavender — %s" % (
-		"ok" if ilhadas.is_empty() else str(ilhadas)))
+	# Fuchsia (Fase 5, a última da espinha principal): Lavender→Rota nova
+	# (12km, a maior jornada do mapa — provada à parte em
+	# teste_rota_lavender_fuchsia.gd).
+	var origem_fuchsia := Vector2i(-9999, -9999)
+	if origem_lavender.x != -9999:
+		origem_fuchsia = _alcancavel_via_rota(tm, origem_lavender,
+			"WarpRotaLavenderFuchsiaNorte", "WarpRotaLavenderFuchsiaSul", "fuchsia_city")
+	_assert(origem_fuchsia.x != -9999,
+		"Fuchsia alcançável por cadeia: Lavender → warp → RotaLavenderFuchsia.tscn (provada à parte) → Fuchsia")
+
+	# ---- 1b. Não sobra nenhuma cidade de terra firme ligada direto no
+	# world_map — a espinha principal inteira (Pallet até Fuchsia) agora é
+	# cadeia (A_PE ficou vazia de propósito, ver comentário na constante).
 
 	# ---- 2. As de mar/trava têm chão andável (existem de verdade) --------
 	# Não dá pra exigir caminho a pé nelas, mas dá pra exigir que existam:

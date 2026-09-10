@@ -203,13 +203,17 @@ que `ZoneManager.find_zone_id()` já usa).
    testava uma largura fixa que não existe mais; `teste_spawn_por_terreno.
    gd` precisou de uma 2ª troca de zona-substituta, já que a primeira
    escolha da Fase 1 — Rota 3 — foi selada nesta fase).
-   ⚠️ **Achado de performance, verificado e resolvido**: `paint()` da rota
-   inteira levava ~9s numa medição isolada (700 mil tiles) — parecia grave,
-   mas a medição real (cena instanciada + `_ready()`, o caminho que o jogo
-   de verdade usa) deu ~800ms. O número de 9s era inflado por
-   `get_used_cells()`, chamada só em teste, não em gameplay real. Vale
-   remedir quando a Fase 5 (12.000 tiles, quase o dobro desta) for
-   construída.
+   🔴 **Correção (10/09, Fase 5): a conclusão de performance desta fase
+   estava ERRADA — o problema era real, só a forma de medir escondeu.**
+   Na hora, medi via `_initialize()` de um script `SceneTree` headless e
+   conclui "~800ms, resolvido". Na Fase 5, medindo do jeito CERTO (dentro
+   de `_process()`, o mesmo caminho que o jogo de verdade usa pra rodar
+   `_ready()`), a MESMA rota (Pewter-Cerulean, 700 mil tiles) media
+   **12,7s**, não 800ms — `_initialize()` mede rápido demais porque o
+   processo sai (`quit()`) antes de comandos do TileMap ainda em fila
+   terminarem de processar; nunca era um número real. Causa raiz achada e
+   corrigida na Fase 5 (ver aquela seção) — valia pra TODAS as rotas desde
+   a Fase 1, não só pra esta.
 3. ✅ **Nó central — FEITO, testado (48 conferências + suíte inteira 92/0),
    publicado (10/09/2026).** Cerulean→Saffron (4.000) + Saffron→Vermilion
    (2.000) + Saffron→Celadon (4.000). `RotaCeruleanSaffron.tscn` +
@@ -247,9 +251,51 @@ que `ZoneManager.find_zone_id()` já usa).
    `teste_estradas_alargadas.gd` apagado (as 3 rotas que ele cobria — 3/4,
    7, 8 — já viraram cenas próprias nas Fases 2/3/4; cobertura equivalente
    está nos testes dedicados de cada rota nova).
-5. **Lavender→Fuchsia** (12.000 tiles, 7 segmentos de bioma — a maior jornada do
-   mapa, ver texto original do Gabriel pra sequência exata: Dry Grasslands→Dense
-   Forest→River Valley→Wetlands→Tropical Forest→Coastal Plains→outskirts).
+5. ✅ **Lavender→Fuchsia — FEITO, testado (24 conferências + suíte inteira
+   93/0), publicado (10/09/2026).** (12.000 tiles, a maior jornada do
+   mapa). `RotaLavenderFuchsia.tscn` (norte-sul) com os 7 segmentos de
+   bioma do prompt original do Gabriel: Campo Seco → Mata Fechada → Vale
+   do Rio (com ponte de verdade, "#", cruzando o caminho) → Pântano →
+   Floresta Tropical → Planície Costeira → Arredores (encosta em Fuchsia).
+   **Primeira vez que "9" (mata fechada) e "z"/"!"/"("/")" (pântano) — no
+   CHAR_MAP desde 05/09, nunca pintados em lugar nenhum — aparecem de
+   verdade no jogo.** Única rota da reestruturação cuja âncora bate DIRETO
+   com a topologia real (Lavender/Fuchsia mesma coluna), sem correção como
+   a Fase 3 precisou. Rota antiga selada, zero NPC encontrado.
+
+   🔴 **Achado crítico de performance, ao vivo, não só de teste — corrige
+   uma conclusão ERRADA da Fase 2 (ver aquela seção).** Testei a rota
+   pelo jeito CERTO (medindo dentro de `_process()`, não `_initialize()`)
+   e achei **~17 segundos de congelamento real** entrando na maior rota —
+   e, ao remedir as fases anteriores da MESMA forma, o mesmo problema já
+   estava lá desde a Fase 1 (Pewter-Cerulean sozinha: 12,7s, não os 800ms
+   que eu tinha reportado). Causa raiz, achada por profiling passo a
+   passo: `MapLayouts.paint()` sempre rodava 6 passadas de acabamento
+   (`preencher_vazios`, `amaciar_bordas` ×3, `ondular_costa`,
+   `limpar_entalhes_da_costa`, `plantar_arvores_grandes`, `costurar_costa`)
+   desenhadas pro `world_map` retangular de sempre (~174 mil células) —
+   cada uma varre `tilemap.get_used_cells()` inteiro, e `amaciar_bordas`
+   olha 8 vizinhos de cada célula, 3 vezes. Numa rota de 1,2 milhão de
+   células isso sozinho custava ~10,6s. Nenhuma rota da reestruturação
+   PRECISA dessas passadas — a borda orgânica, o rio/lago e a variedade de
+   árvore já nascem prontos na própria função de célula de cada rota.
+   **Corrigido**: as 6 passadas agora só rodam pra `map_id == "world_map"`
+   (o único map_id testado/comprovadamente dependente delas —
+   `teste_costa_e_surf.gd`/`teste_telhado_segundo_andar.gd` confirmam).
+   Segundo achado menor no mesmo profiling: `_apply_camera_limits()`
+   chamava `get_pixel_bounds()` → `get_layout()` de novo, regenerando a
+   MESMA grade que `_paint_tiles()` acabara de gerar — só pra ler largura/
+   altura. Corrigido com uma memoização de 1 posição
+   (`_ultimo_layout_map_id`/`_ultimo_layout_dims`), segura porque só é
+   lida no mesmo `_ready()` logo em seguida (dimensão nunca muda com save,
+   só o conteúdo de cada célula muda — world_map incluído).
+   **Resultado, medido de novo depois da correção** (mesmo método,
+   `_process()`): Lavender-Fuchsia (a maior, 1,2 mi) 17s→5s; Pewter-
+   Cerulean (a 2ª maior, 700 mil) 12,7s→3,4s; as demais rotas, todas
+   abaixo de 2,2s. Ainda não é instantâneo, mas é uma carga de tela
+   aceitável, não um congelamento — e o republish desta fase já levou a
+   correção pras 4 fases anteriores também (elas estavam no ar com o
+   problema desde que cada uma foi publicada).
 6. **Cinnabar** (ilha vulcânica ~5.000×5.000) + **Safari Zone** (5 zonas
    encadeadas).
 

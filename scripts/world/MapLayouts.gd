@@ -424,20 +424,18 @@ static func _world_cell(c: int, r: int, W: int, H: int) -> String:
 			return _route8_cell(c - (SPINE_COL_INICIO + CERULEAN_COLS), local_r8)
 		return _lavender_cell(c - LAVENDER_COL_INICIO, local_r8)
 
-	# ── Rota Lavender→Fuchsia + Fuchsia (reorganização de 02/09: Fuchsia
-	# fica embaixo de Lavender) — mesmas colunas de Lavender ───────────────
+	# ── Rota Lavender→Fuchsia (reorganização de 02/09) + Fuchsia — mesmas
+	# colunas de Lavender ───────────────────────────────────────────────
+	# 🔴 10/09 (Fase 5 da reestruturação geográfica): a faixa antiga
+	# (local_lf < ROUTE_LAVENDER_FUCHSIA_ROWS) SELADA — mesmo achado das
+	# Fases 1-4. Substituída por RotaLavenderFuchsia.tscn (12km, a maior
+	# jornada do mapa, 7 segmentos de bioma). Fuchsia continua intocada.
 	if c >= LAVENDER_COL_INICIO and c < LAVENDER_COL_INICIO + LAVENDER_COLS \
 	and r > SAFFRON_ROW_INICIO + SAFFRON_ROWS - 1 and r < VERMILION_COAST_ROW_INICIO:
 		var local_lf := r - (SAFFRON_ROW_INICIO + SAFFRON_ROWS)
 		var lc := c - LAVENDER_COL_INICIO
 		if local_lf < ROUTE_LAVENDER_FUCHSIA_ROWS:
-			if lc >= 27 and lc <= 29:
-				return "P"
-			if _espalhar_sal(c, r, 1) < 2:
-				return "T"
-			if _espalhar_sal(c, r, 2) < 2:
-				return "F"
-			return "."
+			return _forest_variant(c, r)
 		return _fuchsia_cell(lc, local_lf - ROUTE_LAVENDER_FUCHSIA_ROWS)
 
 	# ── Rota 2 (linhas 37-72) — só existe na largura antiga; o resto é borda
@@ -2757,6 +2755,245 @@ static func _rota_saffron_lavender_cell(c: int, r: int, W: int, H: int) -> Strin
 	return _misturar_bioma_cell(c, r, progresso2, campo2, floresta2, 101)
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Lavender→Fuchsia — 100×12.000 (12km, a maior jornada do mapa), norte-sul.
+# Fase 5, 10/09. r=0 é o lado de Lavender, r=H-1 é o lado de Fuchsia — a
+# única rota da reestruturação cuja âncora bate direto com a tabela
+# original (Lavender x=12.000/Fuchsia x=12.000, mesma coluna), sem
+# correção de topologia como a Fase 3 precisou.
+#
+# 7 segmentos de bioma, na ordem do prompt original do Gabriel: Campo Seco
+# → Mata Fechada → Vale do Rio → Pântano → Floresta Tropical → Planície
+# Costeira → Arredores (encosta em Fuchsia). Dois dos sete (Mata Fechada e
+# Pântano) usam biomas que JÁ EXISTIAM no CHAR_MAP desde 05/09 mas nunca
+# tinham sido pintados em lugar nenhum do jogo ("9"/"z" e companhia,
+# reservados pra "quando a Fase 2 da reestruturação geográfica chegasse
+# aqui" — é agora).
+# ──────────────────────────────────────────────────────────────────────────────
+const ROTA_LF_W : int = 100
+const ROTA_LF_H : int = 12000
+
+const LF_CAMPO_SECO_FIM     : int = 1750
+const LF_BLEND1_FIM         : int = 1820
+const LF_MATA_FECHADA_FIM   : int = 3750
+const LF_BLEND2_FIM         : int = 3820
+const LF_VALE_RIO_FIM       : int = 5550
+const LF_BLEND3_FIM         : int = 5620
+const LF_PANTANO_FIM        : int = 7550
+const LF_BLEND4_FIM         : int = 7620
+const LF_FLORESTA_TROP_FIM  : int = 9350
+const LF_BLEND5_FIM         : int = 9420
+const LF_PLANICIE_COST_FIM  : int = 11150
+const LF_BLEND6_FIM         : int = 11220
+# arredores: LF_BLEND6_FIM..H
+
+static func _gen_rota_lavender_fuchsia() -> Array:
+	var grid : Array = []
+	for r in ROTA_LF_H:
+		var row := ""
+		for c in ROTA_LF_W:
+			row += _rota_lavender_fuchsia_cell(c, r, ROTA_LF_W, ROTA_LF_H)
+		grid.append(row)
+	return grid
+
+static func _rota_lf_centro_caminho(r: int) -> int:
+	return 50 + int(15.0 * sin(float(r) * 0.0006 + 0.4) + 6.0 * sin(float(r) * 0.0022 + 2.6))
+
+static func _rota_lavender_fuchsia_cell(c: int, r: int, W: int, H: int) -> String:
+	if r <= 1 or r >= H - 2:
+		return _forest_variant(c, r)
+	if c <= 0 or c >= W - 1:
+		return _forest_variant(c, r)
+
+	if r < LF_CAMPO_SECO_FIM:
+		return _lf_campo_seco_cell(c, r)
+	if r < LF_BLEND1_FIM:
+		return _lf_blend(c, r, LF_CAMPO_SECO_FIM, LF_BLEND1_FIM, _lf_campo_seco_cell, _lf_mata_fechada_cell, 110)
+
+	if r < LF_MATA_FECHADA_FIM:
+		return _lf_mata_fechada_cell(c, r)
+	if r < LF_BLEND2_FIM:
+		return _lf_blend(c, r, LF_MATA_FECHADA_FIM, LF_BLEND2_FIM, _lf_mata_fechada_cell, _lf_vale_rio_cell, 111)
+
+	if r < LF_VALE_RIO_FIM:
+		return _lf_vale_rio_cell(c, r)
+	if r < LF_BLEND3_FIM:
+		return _lf_blend(c, r, LF_VALE_RIO_FIM, LF_BLEND3_FIM, _lf_vale_rio_cell, _lf_pantano_cell, 112)
+
+	if r < LF_PANTANO_FIM:
+		return _lf_pantano_cell(c, r)
+	if r < LF_BLEND4_FIM:
+		return _lf_blend(c, r, LF_PANTANO_FIM, LF_BLEND4_FIM, _lf_pantano_cell, _lf_floresta_tropical_cell, 113)
+
+	if r < LF_FLORESTA_TROP_FIM:
+		return _lf_floresta_tropical_cell(c, r)
+	if r < LF_BLEND5_FIM:
+		return _lf_blend(c, r, LF_FLORESTA_TROP_FIM, LF_BLEND5_FIM, _lf_floresta_tropical_cell, _lf_planicie_costeira_cell, 114)
+
+	if r < LF_PLANICIE_COST_FIM:
+		return _lf_planicie_costeira_cell(c, r)
+	if r < LF_BLEND6_FIM:
+		return _lf_blend(c, r, LF_PLANICIE_COST_FIM, LF_BLEND6_FIM, _lf_planicie_costeira_cell, _lf_arredores_cell, 115)
+
+	return _lf_arredores_cell(c, r)
+
+## Wrapper fino sobre `_misturar_bioma_cell` — os 6 blends da rota são todos
+## "banda A até X, transição X..Y, banda B dali em diante", então evita
+## repetir a mesma conta de progresso 6 vezes.
+static func _lf_blend(c: int, r: int, inicio: int, fim: int, bioma_a: Callable, bioma_b: Callable, sal: int) -> String:
+	var prog := _progresso_transicao(r - inicio, fim - inicio)
+	return _misturar_bioma_cell(c, r, prog, bioma_a, bioma_b, sal)
+
+## 1. Campo Seco — grama esparsa, quase sem árvore, alguma areia seca
+## (transição do clima mais ameno de Lavender pro resto da jornada).
+static func _lf_campo_seco_cell(c: int, r: int) -> String:
+	var centro := _rota_lf_centro_caminho(r)
+	var dist : int = absi(c - centro)
+	var largura : int = 9 + (_espalhar_sal(0, r / 12, 120) % 5)
+	if dist <= largura:
+		return "P"
+	if dist <= largura + 12:
+		if _espalhar_sal(c, r, 121) < 5:
+			return "A"
+		if _espalhar_sal(c, r, 122) < 2:
+			return "S"
+		return "."
+	if dist <= largura + 22:
+		if _espalhar_sal(c, r, 123) < 2:
+			return "T"
+		return "."
+	return _forest_variant(c, r)
+
+## 2. Mata Fechada — primeira vez que o bioma "9" (chão de sombra, já
+## existia no CHAR_MAP desde 05/09) aparece pintado em algum lugar do
+## jogo. Caminho estreito, dossel fechado dos dois lados.
+static func _lf_mata_fechada_cell(c: int, r: int) -> String:
+	var centro := _rota_lf_centro_caminho(r)
+	var dist : int = absi(c - centro)
+	var largura : int = 6 + (_espalhar_sal(0, r / 14, 124) % 3)
+	if dist <= largura:
+		if _espalhar_sal(c, r, 125) < 3:
+			return "9"
+		return "P"
+	if dist <= largura + 6:
+		if _espalhar_sal(c, r, 126) < 6:
+			return "?"
+		if _espalhar_sal(c, r, 127) < 4:
+			return "`"
+		return "9"
+	return _forest_variant(c, r)
+
+## 3. Vale do Rio — o rio corta o caminho de verdade (perpendicular, não
+## só ao lado como na Rota Pewter-Cerulean) — precisa de ponte. "#" (ponte
+## horizontal) já estava reservado no CHAR_MAP desde 05/09 mas nunca tinha
+## sido pintado em lugar nenhum — confirmado andável (blocked=false) antes
+## de usar.
+const LF_RIO_CENTRO : int = LF_MATA_FECHADA_FIM + int((LF_VALE_RIO_FIM - LF_MATA_FECHADA_FIM) / 2.0)
+
+static func _lf_vale_rio_cell(c: int, r: int) -> String:
+	var centro := _rota_lf_centro_caminho(r)
+	var dist : int = absi(c - centro)
+	var largura : int = 9 + (_espalhar_sal(0, r / 12, 128) % 5)
+
+	var dist_rio : int = absi(r - LF_RIO_CENTRO)
+	if dist_rio <= 3:
+		if dist <= largura:
+			return "#"  # ponte horizontal (o rio corre leste-oeste, cruza o caminho N-S)
+		return "~"
+	if dist_rio <= 5 and dist > largura:
+		return "S"
+
+	if dist <= largura:
+		return "P"
+	if dist <= largura + 10:
+		if _espalhar_sal(c, r, 129) < 6:
+			return "A"
+		return "."
+	if dist <= largura + 20:
+		if _espalhar_sal(c, r, 130) < 3:
+			return "F"
+		return "."
+	return _forest_variant(c, r)
+
+## 4. Pântano — primeira vez que "z"/"!"/"("/")" (já existiam no CHAR_MAP
+## desde 05/09) aparecem pintados. Poça tóxica é rara e nunca no eixo do
+## caminho (decorativa, não uma armadilha obrigatória).
+static func _lf_pantano_cell(c: int, r: int) -> String:
+	var centro := _rota_lf_centro_caminho(r)
+	var dist : int = absi(c - centro)
+	var largura : int = 8 + (_espalhar_sal(0, r / 12, 131) % 4)
+	if dist <= largura:
+		return "z"
+	if dist <= largura + 14:
+		if _espalhar_sal(c, r, 132) < 3:
+			return "0"
+		if _espalhar_sal(c, r, 133) < 4:
+			return "("
+		if _espalhar_sal(c, r, 134) < 2:
+			return ")"
+		if _espalhar_sal(c, r, 135) < 1:
+			return "!"
+		return "z"
+	return _forest_variant(c, r)
+
+## 5. Floresta Tropical — mato alto denso, mais fechado que a floresta
+## comum (mais "A"/"F" que "."), clima mais quente/úmido que a Mata
+## Fechada do segmento 2 (paleta diferente: mais flor, menos sombra).
+static func _lf_floresta_tropical_cell(c: int, r: int) -> String:
+	var centro := _rota_lf_centro_caminho(r)
+	var dist : int = absi(c - centro)
+	var largura : int = 7 + (_espalhar_sal(0, r / 12, 136) % 4)
+	if dist <= largura:
+		return "P"
+	if dist <= largura + 14:
+		if _espalhar_sal(c, r, 137) < 14:
+			return "A"
+		if _espalhar_sal(c, r, 138) < 4:
+			return "F"
+		return "."
+	if dist <= largura + 24:
+		if _espalhar_sal(c, r, 139) < 5:
+			return "F"
+		return _forest_variant(c, r)
+	return _forest_variant(c, r)
+
+## 6. Planície Costeira — abre pro mar a leste/oeste (organicamente, sem
+## bloquear o caminho), areia entrando aos poucos — prepara pra Fuchsia,
+## cidade litorânea.
+static func _lf_planicie_costeira_cell(c: int, r: int) -> String:
+	var centro := _rota_lf_centro_caminho(r)
+	var dist : int = absi(c - centro)
+	var largura : int = 10 + (_espalhar_sal(0, r / 12, 140) % 5)
+	if dist <= largura:
+		return "P"
+	if dist <= largura + 16:
+		if _espalhar_sal(c, r, 141) < 6:
+			return "S"
+		if _espalhar_sal(c, r, 142) < 3:
+			return "A"
+		return "."
+	if dist <= largura + 30:
+		if _espalhar_sal(c, r, 143) < 8:
+			return "~"
+		if _espalhar_sal(c, r, 144) < 5:
+			return "S"
+		return "."
+	return "~"
+
+## 7. Arredores de Fuchsia — desacelera pro campo aberto de sempre, sem
+## surpresa nenhuma, só a chegada.
+static func _lf_arredores_cell(c: int, r: int) -> String:
+	var centro := _rota_lf_centro_caminho(r)
+	var dist : int = absi(c - centro)
+	var largura : int = 9 + (_espalhar_sal(0, r / 12, 145) % 5)
+	if dist <= largura:
+		return "P"
+	if dist <= largura + 12:
+		if _espalhar_sal(c, r, 146) < 4:
+			return "A"
+		return "."
+	return "."
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Mt Moon — 20×30, cena própria (é caverna/subterrâneo — a ÚNICA situação em
 # que o Gabriel pediu warp de verdade, 31/08). Entrada ao sul (vem da Rota 3),
 # saída ao norte (sai na Rota 4) — sem volta pela superfície, tem que atravessar.
@@ -3314,6 +3551,9 @@ static func get_layout(map_id: String) -> Dictionary:
 		"rota_saffron_lavender":
 			var tiles := _gen_rota_saffron_lavender()
 			return {"tiles": tiles, "width": ROTA_SL_W, "height": ROTA_SL_H}
+		"rota_lavender_fuchsia":
+			var tiles := _gen_rota_lavender_fuchsia()
+			return {"tiles": tiles, "width": ROTA_LF_W, "height": ROTA_LF_H}
 		"mt_moon":
 			var tiles := _gen_mtmoon()
 			return {"tiles": tiles, "width": 20, "height": 30}
@@ -3563,11 +3803,27 @@ static func _variety_atlas(ch: String, col_idx: int, row_idx: int) -> Vector2i:
 	var h : int = absi((col_idx * 374761393) ^ (row_idx * 668265263))
 	return lista[h % lista.size()]
 
+## Memoização de 1 posição — não é cache geral (perigoso pro world_map, cuja
+## pintura depende de estado de save, ex. porta do Ginásio de Viridian
+## liberada por quest). Guarda só a DIMENSÃO do último `paint()`, pra
+## `get_pixel_bounds()` não precisar regenerar a grade inteira de novo um
+## instante depois (achado ao vivo, 10/09, Fase 5: `_apply_camera_limits()`
+## chamava `get_pixel_bounds()` → `get_layout()` de novo, logo depois de
+## `_paint_tiles()` já ter chamado a mesma função — regenerar 1,2 milhão de
+## células de string por load custava ~1,9s à toa). Sempre correto porque
+## SÓ é lido a seguir, no mesmo `_ready()`, nunca por um paint() de outro
+## mapa no meio — dimensão nunca muda com estado de save, só o CONTEÚDO
+## de cada célula muda.
+static var _ultimo_layout_map_id : String = ""
+static var _ultimo_layout_dims : Vector2i = Vector2i.ZERO
+
 static func paint(tilemap: TileMap, map_id: String) -> void:
 	var layout := get_layout(map_id)
 	if layout.is_empty():
 		push_warning("MapLayouts: layout desconhecido para '%s'" % map_id)
 		return
+	_ultimo_layout_map_id = map_id
+	_ultimo_layout_dims = Vector2i(int(layout["width"]), int(layout["height"]))
 	tilemap.clear()
 	var rows : Array = layout["tiles"]
 	for row_idx in rows.size():
@@ -3606,21 +3862,42 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 				var alt  : int = _variety_alt(ch, c, r)
 				tilemap.set_cell(0, Vector2i(c, r), 0, atlas, alt)
 
-	# Fecha os vazios ANTES da costa: a beira depende de quem é vizinho de quem,
-	# e um buraco não pintado ao lado do mar contaria como "terra".
-	preencher_vazios(tilemap)
-	# Bordas orgânicas antes da costa, pela mesma razão da ordem acima.
-	amaciar_bordas(tilemap)
-	ondular_costa(tilemap)
-	limpar_entalhes_da_costa(tilemap)
-	# Árvores grandes por último entre as passadas de terreno: elas leem a mata
-	# JÁ amaciada, então a floresta grande segue a silhueta orgânica nova.
-	plantar_arvores_grandes(tilemap)
+	# 🔴 10/09 (achado ao vivo, Fase 5 da reestruturação geográfica): estas 6
+	# passadas foram desenhadas pro world_map RETANGULAR de sempre (~174 mil
+	# células) — cada uma varre `get_used_cells()` inteiro, e `amaciar_bordas`
+	# faz isso 3 vezes (uma por passada) olhando 8 vizinhos de cada célula.
+	# Numa rota nova de 1,2 milhão de células (Lavender-Fuchsia, a maior),
+	# medido ao vivo: ~11s só nestas 6 passadas — um congelamento real ao
+	# entrar na cena, não um problema de teste (a suíte headless mascarava
+	# isso: rodando fora do laço normal de frame, `get_used_cells()` media
+	# rápido demais — só apareceu certo medindo dentro de `_process()`, o
+	# mesmo caminho que o jogo de verdade usa). Nenhuma rota da
+	# reestruturação PRECISA delas: a borda orgânica, a costa (quando tem —
+	# lago/rio) e a variedade de árvore já vêm da própria função de célula
+	# de cada rota (`_misturar_bioma_cell`, `_forest_variant`, os cálculos
+	# de lago/rio por distância, os próprios "S"/"~" já plantados). Só o
+	# world_map de verdade depende deste acabamento — confirmado: as únicas
+	# 2 referências em teste (teste_costa_e_surf.gd, teste_telhado_segundo_
+	# andar.gd) chamam `paint(tm, "world_map")`, nunca outro map_id.
+	if map_id == "world_map":
+		# Fecha os vazios ANTES da costa: a beira depende de quem é vizinho de
+		# quem, e um buraco não pintado ao lado do mar contaria como "terra".
+		preencher_vazios(tilemap)
+		# Bordas orgânicas antes da costa, pela mesma razão da ordem acima.
+		amaciar_bordas(tilemap)
+		ondular_costa(tilemap)
+		limpar_entalhes_da_costa(tilemap)
+		# Árvores grandes por último entre as passadas de terreno: elas leem a
+		# mata JÁ amaciada, então a floresta grande segue a silhueta orgânica nova.
+		plantar_arvores_grandes(tilemap)
+		# Beira da praia: por último, com o mapa inteiro já pintado (inclusive
+		# os ramos em linha/coluna negativa acima) — a costa depende de quem é
+		# vizinho de quem, então não dá pra decidir tile a tile na hora de
+		# pintar. Mesma classe das 5 de cima: só o world_map tem costa de
+		# verdade formada por vizinhança — os lagos/rios das rotas novas já
+		# nascem com o anel de areia embutido na própria função de célula.
+		costurar_costa(tilemap)
 	plantar_estruturas_deserto(tilemap)
-	# Beira da praia: por último, com o mapa inteiro já pintado (inclusive os
-	# ramos em linha/coluna negativa acima) — a costa depende de quem é vizinho
-	# de quem, então não dá pra decidir tile a tile na hora de pintar.
-	costurar_costa(tilemap)
 
 ## Espelha horizontal/vertical/os dois de forma determinística (mesmo tile
 ## sempre dá a mesma variação — mapa continua reproduzível, sem RNG), só pra
@@ -3638,9 +3915,21 @@ static func _variety_alt(ch: String, col_idx: int, row_idx: int) -> int:
 		_:  return 0
 
 static func get_pixel_bounds(map_id: String) -> Rect2i:
-	var layout := get_layout(map_id)
-	if layout.is_empty():
-		return Rect2i(0, 0, 10240, 5760)
+	# Reaproveita a dimensão do último paint() deste mesmo map_id (ver
+	# comentário em `_ultimo_layout_map_id`) — evita regenerar a grade
+	# inteira só pra ler largura/altura, que `_apply_camera_limits()`
+	# sempre chama logo depois de `_paint_tiles()` pintar o mesmo mapa.
+	var w : int
+	var h : int
+	if _ultimo_layout_map_id == map_id:
+		w = _ultimo_layout_dims.x
+		h = _ultimo_layout_dims.y
+	else:
+		var layout := get_layout(map_id)
+		if layout.is_empty():
+			return Rect2i(0, 0, 10240, 5760)
+		w = int(layout["width"])
+		h = int(layout["height"])
 	var x0 := 0
 	var y0 := 0
 	var extra_w := 0
@@ -3650,4 +3939,4 @@ static func get_pixel_bounds(map_id: String) -> Rect2i:
 		extra_w = OESTE_OFFSET
 		y0 = -NORTE_OFFSET
 		extra_h = NORTE_OFFSET
-	return Rect2i(x0 * 128, y0 * 128, (layout["width"] + extra_w) * 128, (layout["height"] + extra_h) * 128)
+	return Rect2i(x0 * 128, y0 * 128, (w + extra_w) * 128, (h + extra_h) * 128)

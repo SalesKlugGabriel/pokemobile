@@ -114,6 +114,12 @@ size = Vector2(128, 128)
 [sub_resource type="RectangleShape2D" id="Shape_rota_sl_lavender"]
 size = Vector2(128, 128)
 
+[sub_resource type="RectangleShape2D" id="Shape_rota_lf_lavender"]
+size = Vector2(384, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_lf_fuchsia"]
+size = Vector2(384, 128)
+
 [node name="WorldMap" type="Node2D"]
 script = ExtResource("1_basemap")
 map_id = "world_map"
@@ -637,6 +643,22 @@ spawn_tile = Vector2i(4994, 62)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpRotaSaffronLavenderLeste"]
 shape = SubResource("Shape_rota_sl_lavender")
+
+[node name="WarpRotaLavenderFuchsiaNorte" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(54848, 13120)
+target_map = "res://scenes/world/maps/RotaLavenderFuchsia.tscn"
+spawn_tile = Vector2i(58, 5)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaLavenderFuchsiaNorte"]
+shape = SubResource("Shape_rota_lf_lavender")
+
+[node name="WarpRotaLavenderFuchsiaSul" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(54848, 17088)
+target_map = "res://scenes/world/maps/RotaLavenderFuchsia.tscn"
+spawn_tile = Vector2i(60, 11994)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaLavenderFuchsiaSul"]
+shape = SubResource("Shape_rota_lf_fuchsia")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 
