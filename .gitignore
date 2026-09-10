@@ -4,8 +4,13 @@
 # Build exportada — gerada a partir do código-fonte, não precisa ir pro Git
 builds/
 
-# Worktrees de sessões-filha (Claude Code) — metadado de ferramenta, não do jogo
-.claude/
+# Worktrees de sessões-filha (Claude Code) — metadado de ferramenta, não do jogo.
+# Exceção: agents/ e skills/ SÃO versionados de propósito (10/09) — são
+# configuração do projeto (agentes/skills especializados, ex: CCGS), não
+# estado de sessão, e servem pra qualquer sessão futura que abrir este repo.
+.claude/*
+!.claude/agents/
+!.claude/skills/
 
 # Ferramentas de teste locais (Playwright etc.) — nunca versionar
 node_modules/
