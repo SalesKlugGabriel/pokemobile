@@ -23,10 +23,11 @@ var _fail := 0
 var _rodou := false
 
 ## Cidades alcançáveis a pé DIRETO no world_map (sem trocar de cena) —
-## desde a Fase 1/2 da reestruturação geográfica (10/09), Viridian e Pewter
-## saíram desta lista: viram cadeia (ver `_alcancavel_via_rota` abaixo).
+## desde a Fase 1/2 da reestruturação geográfica (10/09), Viridian, Pewter
+## e Cerulean saíram desta lista: viram cadeia (ver `_alcancavel_via_rota`
+## abaixo).
 const A_PE : Array[String] = [
-	"cerulean_city", "saffron_city",
+	"saffron_city",
 	"vermilion_city", "celadon_city", "lavender_town", "fuchsia_city",
 ]
 
@@ -78,12 +79,22 @@ func _process(_delta: float) -> bool:
 	_assert(origem_pewter.x != -9999,
 		"Pewter alcançável por cadeia: Viridian → warp → RotaPewterViridian.tscn (rota+caverna, provada à parte) → Pewter")
 
+	# Cerulean — mesma cadeia, agora via RotaPewterCerulean.tscn (7km, com
+	# Mt Moon retrofitada não-linear no meio — travessia obrigatória
+	# provada à parte em teste_rota_pewter_cerulean.gd).
+	var origem_cerulean := Vector2i(-9999, -9999)
+	if origem_pewter.x != -9999:
+		origem_cerulean = _alcancavel_via_rota(tm, origem_pewter,
+			"WarpRotaPewterCeruleanOeste", "WarpRotaPewterCeruleanLeste", "cerulean_city")
+	_assert(origem_cerulean.x != -9999,
+		"Cerulean alcançável por cadeia: Pewter → warp → RotaPewterCerulean.tscn (rota+Mt Moon, provada à parte) → Cerulean")
+
 	# ---- 1b. As cidades que continuam ligadas direto no world_map (ainda
-	# não entraram nesta reestruturação) — origem passa a ser PEWTER, não
+	# não entraram nesta reestruturação) — origem passa a ser CERULEAN, não
 	# mais Pallet, já que a cadeia acima é quem prova que dá pra chegar até
-	# ele. Se origem_pewter falhou, usa Pallet mesmo (evita mascarar erro
+	# ela. Se origem_cerulean falhou, usa Pallet mesmo (evita mascarar erro
 	# duplo com "sem retângulo").
-	var origem_resto := origem_pewter if origem_pewter.x != -9999 else origem
+	var origem_resto := origem_cerulean if origem_cerulean.x != -9999 else origem
 	var ilhadas : Array[String] = []
 	for zona in A_PE:
 		var ret := AjudaMapa.retangulo_da_zona(zona)
@@ -95,8 +106,8 @@ func _process(_delta: float) -> bool:
 			ilhadas.append("%s (nenhum tile andável dentro dela)" % zona)
 			continue
 		if not AjudaMapa.caminho_a_pe(tm, origem_resto, destino):
-			ilhadas.append("%s (sem caminho a pé desde Pewter)" % zona)
-	_assert(ilhadas.is_empty(), "as demais cidades de terra firme são alcançáveis a pé desde Pewter — %s" % (
+			ilhadas.append("%s (sem caminho a pé desde Cerulean)" % zona)
+	_assert(ilhadas.is_empty(), "as demais cidades de terra firme são alcançáveis a pé desde Cerulean — %s" % (
 		"ok" if ilhadas.is_empty() else str(ilhadas)))
 
 	# ---- 2. As de mar/trava têm chão andável (existem de verdade) --------

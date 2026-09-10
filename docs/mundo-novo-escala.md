@@ -18,9 +18,8 @@
 - Ilhas também orgânicas (nunca círculo/quadrado perfeito).
 - **Bioma de montanha de verdade** (rocha com elevação, distinto de "colinas") +
   **caverna não-linear** (padrão Rock Tunnel/Tier 10) sempre que uma rota atravessa
-  montanha por dentro. Mt Moon entra pro retrofit da regra de caverna não-linear
-  quando a Fase 2 (Pewter→Cerulean) chegar nela — pendência antiga, nunca
-  executada.
+  montanha por dentro. ✅ Mt Moon já passou pelo retrofit da regra de caverna
+  não-linear (Fase 2, 10/09) — pendência antiga, finalmente executada.
 
 ## Distância pedida × distância de hoje
 
@@ -157,15 +156,38 @@ que `ZoneManager.find_zone_id()` já usa).
      helper `_alcancavel_via_rota()` que confere a cadeia cidade→warp→rota
      (provada à parte)→warp→cidade, em vez de exigir BFS direto no
      world_map pra Viridian/Pewter).
-2. **Pewter→Cerulean** (7.000 tiles) — Rocky Highlands→Forest Valley→River
-   Basin→Open Fields. Retrofit de Mt Moon pra caverna não-linear aqui.
-   ⚠️ **Lição da Fase 1 a aplicar de propósito aqui, não só descobrir nesta
-   hora**: a Rota 3 antiga (dentro do `world_map`, ainda intacta —
-   reaproveitada como zona "segura" em 2 testes durante a Fase 1) PRECISA
-   ser selada (virar floresta/rocha impassável) assim que a rota nova
-   entrar, senão sobra um atalho reto igual ao que a Rota 1/2 virou. Conferir
-   TAMBÉM se algum NPC mora nela antes de selar (mesma checagem que pegou
-   Colecionador/Treinador1/Campista/Pescador desta vez).
+2. ✅ **Pewter→Cerulean (7.000 tiles) — FEITO, testado (34 conferências +
+   suíte inteira 91/0), publicado (10/09/2026).** `RotaPewterCerulean.tscn`
+   — primeira rota LESTE-OESTE (Pewter e Cerulean têm a mesma âncora Y). 4
+   bandas do blueprint original: Rocky Highlands (com Mt Moon no meio, ver
+   abaixo) → blend → Forest Valley → blend → River Basin (rio de verdade
+   serpenteando ao lado do caminho — decisão de risco: não corta o
+   caminho, então não precisa de ponte obrigatória) → blend → Open Fields
+   perto de Cerulean.
+   **Mt Moon retrofitada pra caverna não-linear** (pendência confirmada
+   pelo Gabriel ao aprovar o plano): o desenho antigo era um corredor reto
+   cols 9-10 com rocha só decorativa — virou caminhada com viés + ramos
+   secundários (mesma técnica das outras cavernas), porta sul mantida fixa
+   (compatibilidade), porta norte dinâmica (onde a caminhada realmente
+   chegou). A crista da montanha na rota nova fica bloqueada por fora
+   entre as duas bocas — Mt Moon virou travessia OBRIGATÓRIA de verdade,
+   não mais um desvio opcional dentro do world_map.
+   **Lição da Fase 1 aplicada de propósito desta vez**: antes de selar a
+   Rota 3/4 antiga, conferido que zero NPC morava lá (só Cerulean, que
+   ficou intocada) — nenhuma migração de NPC foi necessária aqui,
+   diferente da Fase 1. 4 testes antigos ajustados (`teste_fase3_tier2.gd`
+   tinha a mesma classe de asserção "corredor contínuo sem quebra" da
+   Fase 1; `teste_estradas_alargadas.gd` perdeu a seção Rota 3/4, que
+   testava uma largura fixa que não existe mais; `teste_spawn_por_terreno.
+   gd` precisou de uma 2ª troca de zona-substituta, já que a primeira
+   escolha da Fase 1 — Rota 3 — foi selada nesta fase).
+   ⚠️ **Achado de performance, verificado e resolvido**: `paint()` da rota
+   inteira levava ~9s numa medição isolada (700 mil tiles) — parecia grave,
+   mas a medição real (cena instanciada + `_ready()`, o caminho que o jogo
+   de verdade usa) deu ~800ms. O número de 9s era inflado por
+   `get_used_cells()`, chamada só em teste, não em gameplay real. Vale
+   remedir quando a Fase 5 (12.000 tiles, quase o dobro desta) for
+   construída.
 3. **Nó central**: Cerulean→Saffron (4.000) + Saffron→Celadon (4.000) +
    Saffron→Vermilion (2.000).
 4. **Cerulean→Lavender** (5.000 tiles).

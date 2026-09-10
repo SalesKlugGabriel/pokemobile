@@ -1,10 +1,17 @@
 ## teste_estradas_alargadas.gd — Teste headless das estradas alargadas
 ## (03/09, pedido do Gabriel: "estradas que tenham 6 a 10 pisos de largura,
-## mais perto do formato original do jogo"). Cobre só os 3 trechos já
-## alargados nesta leva (Rota 7, Rota 3/4, Rota 8) — os demais (rotas
-## verticais, cidades) ficam pra uma leva futura, documentado em
-## progresso.md com o motivo (prédios/molduras de caverna ancorados na
-## largura antiga em cada um deles).
+## mais perto do formato original do jogo"). Cobre os trechos alargados
+## desta leva ainda vivos dentro do world_map (Rota 7, Rota 8) — os demais
+## (rotas verticais, cidades) ficam pra uma leva futura.
+##
+## 🔴 10/09: a Rota 3/4 (Pewter→Cerulean) SAIU deste teste — não porque
+## deixou de ser larga, mas porque deixou de existir dentro do world_map:
+## a Fase 2 da reestruturação geográfica substituiu esse trecho pela
+## RotaPewterCerulean.tscn (cena própria, 7.000 tiles), com sua própria
+## largura de caminho variável (ver `_rpc_highlands_cell`/`_rpc_forest_
+## cell` em MapLayouts.gd). A largura fixa de 10 tiles daqui não se aplica
+## mais lá. Cobertura equivalente pra rota nova está em
+## teste_rota_pewter_cerulean.gd.
 ## Roda com: godot4 --headless --script res://scripts/tests/teste_estradas_alargadas.gd
 extends SceneTree
 
@@ -25,15 +32,6 @@ func _process(_delta: float) -> bool:
 		_assert(MapLayouts._route7_cell(5, r) == "P", "Rota 7: linha %d é caminho (dentro dos 8 tiles novos)" % r)
 	_assert(MapLayouts._route7_cell(5, 13) != "P" or MapLayouts._route7_cell(5, 13) == ".",
 		"Rota 7: linha 13 (fora da faixa) não é forçada a virar caminho só por acidente")
-
-	# ---- Rota 3/4 (Pewter -> Cerulean): 5 -> 10 tiles, r13-22 ----
-	for r in range(13, 23):
-		_assert(MapLayouts._leste_de_pewter_cell(5, r) == "P", "Rota 3: linha %d é caminho (dentro dos 10 tiles novos)" % r)
-	# A moldura de Mt Moon (r12-24, cols ROUTE3_COLS-4..+4) continua de pé —
-	# alargar o caminho não apagou a rocha ao redor da boca da caverna.
-	var route3_cols : int = MapLayouts.ROUTE3_COLS
-	_assert(MapLayouts._leste_de_pewter_cell(route3_cols, 12) == "R",
-		"Mt Moon: moldura de rocha continua existindo, mesmo com o caminho mais largo")
 
 	# ---- Rota 8 (Saffron -> Lavender): 5 -> 10 tiles, r13-22 ----
 	for r in range(13, 23):

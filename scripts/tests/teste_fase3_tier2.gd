@@ -35,21 +35,24 @@ func _teste_geral() -> void:
 	# couberam antes de qualquer coisa nova começar.
 	_assert(layout["width"] >= 280, "world_map tem pelo menos 280 de largura (Rota3+MtMoon+Rota4+Cerulean cabem)")
 
-	# ---- 1. Caminho principal leste-oeste é contínuo, sem quebra, de Pewter
-	# até a boca do Mt Moon (a única quebra de verdade É o Mt Moon — caverna,
-	# a exceção que o Gabriel autorizou) ----
-	var quebras := 0
-	for c in range(100, 156):  # até quase a boca da montanha
-		if tiles[18][c] != "P":
-			quebras += 1
-	_assert(quebras == 0, "caminho de Pewter até a boca do Mt Moon (row 18) é contínuo (%d quebras)" % quebras)
-
-	# ---- 2. Depois da montanha, a Rota 4 continua até Cerulean ----
-	var quebras2 := 0
+	# ---- 1/2. O atalho reto Pewter→MtMoon→Cerulean, DENTRO do world_map
+	# antigo, está SELADO — 🔴 achado em 10/09 (Fase 2 da reestruturação
+	# geográfica, docs/mundo-novo-escala.md): estas 2 asserções ERAM "sem
+	# quebra nenhuma, caminho contínuo" (desenho do próprio Tier 2, de
+	# quando este teste foi escrito) — e é exatamente o oposto do que a
+	# escala real de gameplay exige agora. A distância real (7km) mora na
+	# RotaPewterCerulean.tscn nova; esta faixa (Rota 3+boca antiga do Mt
+	# Moon+Rota 4) virou floresta impassável de propósito.
+	var quebra1 := false
+	for c in range(100, 156):
+		if tiles[18][c] == "P":
+			quebra1 = true
+	_assert(not quebra1, "Rota 3 (o atalho antigo Pewter-Mt Moon) está selada, sem tile andável na row 18")
+	var quebra2 := false
 	for c in range(164, 220):
-		if tiles[18][c] != "P":
-			quebras2 += 1
-	_assert(quebras2 == 0, "Rota 4 (depois da montanha) até Cerulean é contínua (%d quebras)" % quebras2)
+		if tiles[18][c] == "P":
+			quebra2 = true
+	_assert(not quebra2, "Rota 4 (o atalho antigo Mt Moon-Cerulean) está selada, sem tile andável na row 18")
 
 	# ---- 3. Ginásio e Centro Pokémon de Cerulean existem ----
 	# 05/09 (Fase 0): eram três coordenadas literais. A intenção é "Cerulean tem
@@ -63,21 +66,26 @@ func _teste_geral() -> void:
 		"os prédios de Cerulean têm telhado, interior andável E porta")
 
 	# ---- 4. Mt Moon é cena própria (caverna — a única exceção de warp) ----
+	# 🔴 10/09: retrofitada pra não-linear na Fase 2 da reestruturação
+	# geográfica — as portas fixas cols 9-10 nos dois lados eram exatamente
+	# o desenho "corredor reto" que a regra de caverna não-linear proíbe.
+	# Cobertura completa do retrofit (conectividade real, não-linearidade,
+	# porta norte dinâmica) está em teste_rota_pewter_cerulean.gd; aqui só
+	# confere o que ainda é garantido: dimensão e porta sul fixa.
 	var mt_layout = MapLayouts.get_layout("mt_moon")
 	_assert(mt_layout.get("width", 0) == 20 and mt_layout.get("height", 0) == 30,
 		"Mt Moon gera 20x30")
 	var mt_tiles : Array = mt_layout["tiles"]
 	_assert(mt_tiles[29][9] == "P" and mt_tiles[29][10] == "P",
-		"Mt Moon: entrada sul (vinda da Rota 3) é caminho")
-	_assert(mt_tiles[0][9] == "P" and mt_tiles[0][10] == "P",
-		"Mt Moon: saída norte (pra Rota 4) é caminho")
-	_assert(mt_tiles[15][9] == "I" or mt_tiles[15][9] == "P",
-		"Mt Moon: caminho central (col 9) é sempre andável — nunca fica rocha bloqueando por completo")
+		"Mt Moon: entrada sul continua nas colunas 9-10 (compatibilidade)")
 
 	var mtmoon_scene := load("res://scenes/world/maps/MtMoon.tscn") as PackedScene
 	_assert(mtmoon_scene != null, "MtMoon.tscn carrega sem erro")
 
-	# ---- 5. WorldMap: Misty tem time real, boca do Mt Moon é warp de verdade ----
+	# ---- 5. WorldMap: Misty tem time real; Mt Moon NÃO tem mais warp direto
+	# daqui (10/09: a boca da montanha saiu do world_map — só se chega nela
+	# de dentro da RotaPewterCerulean.tscn agora, ver docs/mundo-novo-
+	# escala.md) ----
 	var world_scene := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene
 	_assert(world_scene != null, "WorldMap.tscn carrega sem erro")
 	if world_scene:
@@ -91,22 +99,19 @@ func _teste_geral() -> void:
 			_assert(misty.starts_quest_id == "GYM-02", "Misty inicia a GYM-02")
 
 		var warp_zones := inst.get_node_or_null("WarpZones")
-		var vai_pro_mtmoon := false
+		var vai_pro_mtmoon_direto := false
 		var alvos_indevidos := 0
 		if warp_zones:
 			for w in warp_zones.get_children():
 				if w.target_map.contains("MtMoon"):
-					vai_pro_mtmoon = true
+					vai_pro_mtmoon_direto = true
 				elif w.target_map != "" and not w.target_map.contains("PokemonCenter") \
 				and not w.target_map.contains("RockTunnel") and not w.target_map.contains("SafariZone") and not w.target_map.contains("RocketHideout") and not w.target_map.contains("VictoryRoad") and not w.target_map.contains("DiglettsCave") and not w.target_map.contains("PokemonTower") and not w.target_map.contains("SilphCo") and not w.target_map.contains("GameCorner") and not w.target_map.contains("RocketHQ") and not w.target_map.contains("PokemonMansion") and not w.target_map.contains("IndigoLeague") and not w.target_map.contains("SSAnne") and not w.target_map.contains("CeruleanCave") \
 				and not w.target_map.contains("IlhaGelida") \
 				and not w.target_map.contains("Rota"):  # 10/09: rota-múltiplos-mapas (docs/mundo-novo-escala.md) — não é cidade, é continuação a pé dividida em cena
 					alvos_indevidos += 1
-		_assert(vai_pro_mtmoon, "existe um warp pra dentro do Mt Moon (caverna — exceção permitida)")
-		# 05/09: a Ilha Gélida entrou na lista de exceções. A regra que este teste
-		# protege é "cidade e rota se entra ANDANDO, não por warp" — a boca da
-		# montanha do covil do Articuno é a mesma exceção do Mt Moon e da Caverna
-		# Cerulean: caverna, não cidade.
+		_assert(not vai_pro_mtmoon_direto,
+			"não existe mais warp direto world_map→Mt Moon (só se chega pela RotaPewterCerulean.tscn agora)")
 		_assert(alvos_indevidos == 0,
 			"nenhum OUTRO warp de cidade/rota sobrou — só Centro Pokémon, cavernas e covis (%d indevidos)" % alvos_indevidos)
 		inst.free()

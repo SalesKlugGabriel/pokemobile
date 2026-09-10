@@ -21,9 +21,6 @@ size = Vector2(384, 128)
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_pewter"]
 size = Vector2(384, 128)
 
-[sub_resource type="RectangleShape2D" id="Shape_mtmoon"]
-size = Vector2(384, 512)
-
 [sub_resource type="RectangleShape2D" id="Shape_rocktunnel"]
 size = Vector2(512, 640)
 
@@ -89,6 +86,12 @@ size = Vector2(384, 128)
 
 [sub_resource type="RectangleShape2D" id="Shape_rota_pv2_sul"]
 size = Vector2(384, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_pc_oeste"]
+size = Vector2(128, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_pc_leste"]
+size = Vector2(128, 128)
 
 [node name="WorldMap" type="Node2D"]
 script = ExtResource("1_basemap")
@@ -422,14 +425,6 @@ spawn_tile = Vector2i(6, 9)
 [node name="CollisionShape2D" parent="WarpZones/WarpIlhaGelida"]
 shape = SubResource("Shape_pokecenter_pallet")
 
-[node name="WarpMtMoon" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(20416, 2368)
-target_map = "res://scenes/world/maps/MtMoon.tscn"
-spawn_tile = Vector2i(9, 27)
-
-[node name="CollisionShape2D" parent="WarpZones/WarpMtMoon"]
-shape = SubResource("Shape_mtmoon")
-
 [node name="WarpRockTunnel" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(46528, 10944)
 target_map = "res://scenes/world/maps/RockTunnel.tscn"
@@ -549,6 +544,22 @@ spawn_tile = Vector2i(69, 2994)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpRotaPewterViridianSul"]
 shape = SubResource("Shape_rota_pv2_sul")
+
+[node name="WarpRotaPewterCeruleanOeste" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(11968, 3136)
+target_map = "res://scenes/world/maps/RotaPewterCerulean.tscn"
+spawn_tile = Vector2i(5, 55)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaPewterCeruleanOeste"]
+shape = SubResource("Shape_rota_pc_oeste")
+
+[node name="WarpRotaPewterCeruleanLeste" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(28480, 2368)
+target_map = "res://scenes/world/maps/RotaPewterCerulean.tscn"
+spawn_tile = Vector2i(6995, 55)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaPewterCeruleanLeste"]
+shape = SubResource("Shape_rota_pc_leste")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 

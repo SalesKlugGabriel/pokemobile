@@ -1242,45 +1242,20 @@ static func _powerplant_cell(c: int, cr: int, W: int) -> String:
 # Pewter). Caminho principal é horizontal, rows 16-20; resto é grama/árvore
 # esparsa (Rota 3/4) ou a cidade em si (Cerulean).
 # ──────────────────────────────────────────────────────────────────────────────
+## 🔴 10/09 (Fase 2 da reestruturação geográfica): Rota 3 + boca antiga do
+## Mt Moon + Rota 4 (local cols 0..ROUTE3_COLS+ROUTE4_COLS-1) SELADAS —
+## mesmo achado/mesma correção do `_route1_cell`/`_route2_cell` na Fase 1:
+## esse trecho era um atalho reto de ~120 tiles entre Pewter e Cerulean,
+## que ficaria andável por baixo da rota nova (RotaPewterCerulean.tscn,
+## 7.000 tiles = 7km, com Mt Moon retrofitada não-linear no meio). Antes de
+## selar, conferido: zero NPC cadastrado nessas bandas (só Cerulean, cc>=0
+## abaixo, tem NPCs — intocada). Cerulean CONTINUA exatamente como estava.
 static func _leste_de_pewter_cell(c: int, r: int) -> String:
 	if r <= 2 or r >= PEWTER_ROWS - 1:
 		return "T"
 
-	# ── Caminho principal leste-oeste ── rows 13-22 (03/09: alargado de 5 pra
-	# 10 tiles, pedido do Gabriel — "estradas 6 a 10 pisos de largura, mais
-	# perto do formato original"). Seguro alargar até aqui porque a moldura
-	# da boca de Mt Moon (linha 1041, abaixo) já reserva r12-24 pro entorno
-	# rochoso — o caminho mais largo cabe inteiro dentro dessa moldura sem
-	# encostar nela. Não afeta Cerulean (cc adiante nesta função): os
-	# prédios de lá não usam esta variável, têm o próprio conector r14-16.
-	var no_caminho := r >= 13 and r <= 22
-
-	# ── Rota 3 ── local cols 0-59
-	if c < ROUTE3_COLS:
-		if no_caminho:
-			return "P"
-		if _espalhar_sal(c, r, 29) < 2:
-			return "T"
-		if _espalhar_sal(c, r, 30) < 2:
-			return "F"
-		return "."
-
-	# ── Mt Moon: boca da caverna ── local cols ROUTE3_COLS-3 .. ROUTE3_COLS+3
-	# (a entrada em si — a caverna de verdade é uma cena própria, warp aqui)
-	if c >= ROUTE3_COLS - 4 and c < ROUTE3_COLS + 4 and r >= 12 and r <= 24:
-		if no_caminho and c >= ROUTE3_COLS - 2 and c < ROUTE3_COLS + 2:
-			return "P"  # entrada caminhável (warp fica aqui)
-		return "R"  # rochedo da montanha ao redor da boca da caverna
-
-	# ── Rota 4 ── local cols ROUTE3_COLS .. ROUTE3_COLS+ROUTE4_COLS-1
 	if c < ROUTE3_COLS + ROUTE4_COLS:
-		if no_caminho:
-			return "P"
-		if _espalhar_sal(c, r, 31) < 2:
-			return "T"
-		if _espalhar_sal(c, r, 32) < 2:
-			return "S"  # Rota 4 é mais arenosa (perto de Cerulean/Celadon)
-		return "."
+		return _forest_variant(c, r)
 
 	# ── Cerulean City ── local cols ROUTE3_COLS+ROUTE4_COLS em diante
 	var cc := c - ROUTE3_COLS - ROUTE4_COLS  # local dentro da própria cidade
@@ -2461,35 +2436,311 @@ static func _gen_pokemon_center() -> Array:
 	]
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Rota Pewter-Cerulean — 7.000×100, cena própria (Fase 2, 10/09). 7km =
+# 7.000 tiles. c=0 é o lado de Pewter (OESTE), c=W-1 é o lado de Cerulean
+# (LESTE) — rota LESTE-OESTE (as duas âncoras têm o mesmo Y, ver
+# docs/mundo-novo-escala.md), diferente das rotas norte-sul da Fase 1.
+#
+# 4 bandas (oeste→leste), do blueprint original: Rocky Highlands (com a
+# travessia OBRIGATÓRIA de Mt Moon, agora não-linear) → Forest Valley →
+# River Basin (rio de verdade correndo ao lado do caminho) → Open Fields
+# (encosta em Cerulean).
+# ──────────────────────────────────────────────────────────────────────────────
+const ROTA_PC_W : int = 7000
+const ROTA_PC_H : int = 100
+
+const RPC_HIGHLANDS_FIM : int = 1750
+const RPC_BLEND1_FIM    : int = 1820
+const RPC_FOREST_FIM    : int = 3850
+const RPC_BLEND2_FIM    : int = 3920
+const RPC_RIVER_FIM     : int = 5600
+const RPC_BLEND3_FIM    : int = 5670
+
+## A crista da Mt Moon fica intransponível por fora entre essas duas
+## colunas — só passa por dentro da caverna (mt_moon, retrofitada não-linear
+## nesta mesma fase). Mesma técnica de bloqueio da CavernaMontanhaPV.
+const RPC_MTMOON_ENTRADA_C : int = 800   # boca oeste (lado Pewter)
+const RPC_MTMOON_SAIDA_C   : int = 1150  # boca leste (lado floresta)
+
+static func _gen_rota_pewter_cerulean() -> Array:
+	var grid : Array = []
+	for r in ROTA_PC_H:
+		var row := ""
+		for c in ROTA_PC_W:
+			row += _rota_pewter_cerulean_cell(c, r, ROTA_PC_W, ROTA_PC_H)
+		grid.append(row)
+	return grid
+
+static func _rota_pc_centro_caminho(c: int) -> int:
+	return 50 + int(14.0 * sin(float(c) * 0.0009) + 6.0 * sin(float(c) * 0.0035 + 1.7))
+
+static func _rota_pewter_cerulean_cell(c: int, r: int, W: int, H: int) -> String:
+	if c <= 1 or c >= W - 2:
+		return _forest_variant(c, r)
+	if r <= 0 or r >= H - 1:
+		return _forest_variant(c, r)
+
+	if c < RPC_HIGHLANDS_FIM:
+		return _rpc_highlands_cell(c, r, H)
+
+	if c < RPC_BLEND1_FIM:
+		var highlands := func(cc: int, rr: int) -> String:
+			return _rpc_highlands_cell(cc, rr, H)
+		var forest1 := func(cc: int, rr: int) -> String:
+			return _rpc_forest_cell(cc, rr, H)
+		var prog1 := _progresso_transicao(c - RPC_HIGHLANDS_FIM, RPC_BLEND1_FIM - RPC_HIGHLANDS_FIM)
+		return _misturar_bioma_cell(c, r, prog1, highlands, forest1, 25)
+
+	if c < RPC_FOREST_FIM:
+		return _rpc_forest_cell(c, r, H)
+
+	if c < RPC_BLEND2_FIM:
+		var forest2 := func(cc: int, rr: int) -> String:
+			return _rpc_forest_cell(cc, rr, H)
+		var river1 := func(cc: int, rr: int) -> String:
+			return _rpc_river_cell(cc, rr, H)
+		var prog2 := _progresso_transicao(c - RPC_FOREST_FIM, RPC_BLEND2_FIM - RPC_FOREST_FIM)
+		return _misturar_bioma_cell(c, r, prog2, forest2, river1, 26)
+
+	if c < RPC_RIVER_FIM:
+		return _rpc_river_cell(c, r, H)
+
+	if c < RPC_BLEND3_FIM:
+		var river2 := func(cc: int, rr: int) -> String:
+			return _rpc_river_cell(cc, rr, H)
+		var campo1 := func(cc: int, rr: int) -> String:
+			return _rpc_campo_cell(cc, rr, H)
+		var prog3 := _progresso_transicao(c - RPC_RIVER_FIM, RPC_BLEND3_FIM - RPC_RIVER_FIM)
+		return _misturar_bioma_cell(c, r, prog3, river2, campo1, 27)
+
+	return _rpc_campo_cell(c, r, H)
+
+## Rocky Highlands: trilha (":") no eixo, rocha exposta ("^") andável nos
+## flancos, falésia/cume/pedregulho bloqueando quanto mais longe. Entre
+## RPC_MTMOON_ENTRADA_C e RPC_MTMOON_SAIDA_C a ALTURA INTEIRA vira rocha
+## bloqueada — não só o eixo — senão dava pra contornar a montanha e a
+## caverna virava decoração em vez de travessia obrigatória (mesma regra
+## da CavernaMontanhaPV, na Fase 1).
+static func _rpc_highlands_cell(c: int, r: int, H: int) -> String:
+	var centro := _rota_pc_centro_caminho(c)
+	var dist : int = absi(r - centro)
+
+	if c > RPC_MTMOON_ENTRADA_C and c < RPC_MTMOON_SAIDA_C:
+		if _espalhar_sal(c, r, 70) < 12:
+			return "<"
+		return "/"
+
+	# Boca da montanha — marcador visual; o WarpZone de verdade é plantado
+	# em cima destes tiles, na cena.
+	if (c == RPC_MTMOON_ENTRADA_C or c == RPC_MTMOON_SAIDA_C) and dist <= 1:
+		return "D"
+
+	if dist <= 6:
+		return ":"
+	if dist <= 12:
+		if _espalhar_sal(c, r, 71) < 4:
+			return ">"
+		return "^"
+	if dist <= 22:
+		if _espalhar_sal(c, r, 72) < 7:
+			return "/"
+		return "^"
+	return "/"
+
+## Forest Valley — mesmo espírito da floresta da rota Pewter-Viridian, só
+## que o "eixo do caminho" agora é uma LINHA (row), variando por coluna.
+static func _rpc_forest_cell(c: int, r: int, H: int) -> String:
+	var centro := _rota_pc_centro_caminho(c)
+	var dist : int = absi(r - centro)
+	var largura_caminho : int = 7 + (_espalhar_sal(c / 15, 0, 73) % 4)
+	if dist <= largura_caminho:
+		return "P"
+	if dist <= largura_caminho + 9:
+		if _espalhar_sal(c, r, 74) < 10:
+			return "A"
+		return "."
+	if dist <= largura_caminho + 20:
+		if _espalhar_sal(c, r, 75) < 4:
+			return "."
+		return _forest_variant(c, r)
+	return _forest_variant(c, r)
+
+## River Basin — rio de verdade serpenteando ao lado leste do caminho
+## (nunca corta o caminho — decisão de risco: um rio que cruza exigiria
+## ponte obrigatória; aqui é "vale de rio" pra variedade visual, mesmo
+## espírito do lago da rota Pewter-Viridian, só esticado).
+static func _rpc_river_cell(c: int, r: int, H: int) -> String:
+	var centro := _rota_pc_centro_caminho(c)
+	var dist : int = absi(r - centro)
+	var largura_caminho : int = 8 + (_espalhar_sal(c / 12, 0, 76) % 5)
+	if dist <= largura_caminho:
+		return "P"
+	var centro_rio := centro + largura_caminho + 14 + int(6.0 * sin(float(c) * 0.004))
+	var dist_rio : int = absi(r - centro_rio)
+	if dist_rio <= 3:
+		return "~"
+	if dist_rio <= 5:
+		return "S"
+	if dist <= largura_caminho + 8:
+		if _espalhar_sal(c, r, 77) < 8:
+			return "A"
+		return "."
+	if dist <= largura_caminho + 18:
+		if _espalhar_sal(c, r, 78) < 3:
+			return "F"
+		return "."
+	return _forest_variant(c, r)
+
+## Open Fields — encosta em Cerulean, mesmo espírito do campo perto de
+## Viridian (Fase 1).
+static func _rpc_campo_cell(c: int, r: int, H: int) -> String:
+	var centro := _rota_pc_centro_caminho(c)
+	var dist : int = absi(r - centro)
+	var largura_caminho : int = 9 + (_espalhar_sal(c / 12, 0, 79) % 5)
+	if dist <= largura_caminho:
+		return "P"
+	if dist <= largura_caminho + 10:
+		if _espalhar_sal(c, r, 80) < 6:
+			return "A"
+		return "."
+	if dist <= largura_caminho + 18:
+		if _espalhar_sal(c, r, 81) < 3:
+			return "F"
+		return "."
+	return _forest_variant(c, r)
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Mt Moon — 20×30, cena própria (é caverna/subterrâneo — a ÚNICA situação em
 # que o Gabriel pediu warp de verdade, 31/08). Entrada ao sul (vem da Rota 3),
 # saída ao norte (sai na Rota 4) — sem volta pela superfície, tem que atravessar.
 # ──────────────────────────────────────────────────────────────────────────────
+## 🔴 10/09 (Fase 2 da reestruturação geográfica): retrofit pra caverna
+## NÃO-LINEAR — pendência confirmada pelo Gabriel ao aprovar o plano
+## ("Mt Moon entra pro retrofit quando a Fase 2 chegar nela"). O desenho
+## antigo (corredor reto cols 9-10, rocha só decorativa nas laterais) era de
+## antes da regra de caverna não-linear existir (Rock Tunnel/Tier 10 foi a
+## primeira a aplicá-la) e nunca tinha sido atualizado. Mesma técnica das
+## outras cavernas do jogo: porta sul FIXA (cols 9-10, mantém compatível com
+## quem já entra por ali), caminhada principal com viés pra norte até a
+## borda (garante travessia sem depender de sorte), ramos secundários pra
+## não ficar corredor reto. Porta norte fica onde a caminhada realmente
+## chegou (dinâmica — ver `MTMOON_PORTA_NORTE_COL` logo abaixo, calculada
+## uma vez e usada tanto aqui quanto nos WarpZone da cena).
+const MTMOON_SEED : int = 20260910301
+
 static func _gen_mtmoon() -> Array:
 	var W := 20
 	var H := 30
-	var grid : Array = []
+	var grid_chars : Array = []
 	for r in H:
-		var row := ""
+		var row : Array = []
 		for c in W:
-			row += _mtmoon_cell(c, r, W, H)
-		grid.append(row)
+			row.append("R")
+		grid_chars.append(row)
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = MTMOON_SEED
+
+	grid_chars[H - 1][9] = "P"
+	grid_chars[H - 1][10] = "P"
+
+	var visitados : Array = []
+	var c := 9
+	var r := H - 2
+	var passos := 0
+	var menor_r := r
+	var col_do_menor_r := c
+	while r > 1 and passos < 3000:
+		if grid_chars[r][c] != "I":
+			grid_chars[r][c] = "I"
+			visitados.append(Vector2i(c, r))
+		if r < menor_r:
+			menor_r = r
+			col_do_menor_r = c
+		var sorteio := rng.randf()
+		if sorteio < 0.55:
+			r -= 1
+		elif sorteio < 0.75:
+			r += 1
+		elif sorteio < 0.88:
+			c -= 1
+		else:
+			c += 1
+		c = clampi(c, 1, W - 2)
+		r = clampi(r, 1, H - 2)
+		passos += 1
+
+	for rr in range(1, menor_r):
+		grid_chars[rr][col_do_menor_r] = "I"
+	grid_chars[0][col_do_menor_r] = "P"
+
+	for i in 3:
+		var idx := rng.randi_range(0, visitados.size() - 1)
+		var pt : Vector2i = visitados[idx]
+		_rocktunnel_carve_piso(grid_chars, W, H, pt.x, pt.y, 90, rng, visitados)
+
+	# Bordas (c=0, c=W-1) nunca são escavadas pela caminhada (fica clampada
+	# em [1,W-2]) — continuam "R" por padrão, mesma convenção das outras
+	# cavernas não-lineares do jogo (Rock Tunnel/Victory Road/Digletts).
+	var grid : Array = []
+	for rr in H:
+		var linha := ""
+		for cc in W:
+			linha += str(grid_chars[rr][cc])
+		grid.append(linha)
 	return grid
 
-static func _mtmoon_cell(c: int, r: int, W: int, H: int) -> String:
-	if c == 0 or c == W - 1:
-		return _parede_frontal(c, r)
-	if r == 0:
-		if c >= 9 and c <= 10: return "P"  # saída (Rota 4)
-		return _parede_frontal(c, r)
-	if r == H - 1:
-		if c >= 9 and c <= 10: return "P"  # entrada (Rota 3)
-		return _parede_frontal(c, r)
-	# Rochas espalhadas — nunca nas colunas 9-10 (mantém sempre um caminho
-	# reto entrada→saída, mesmo que sinuoso pelas rochas ao redor)
-	if _espalhar_sal(c, r, 45) < 3 and (c < 8 or c > 11):
-		return "R"
-	return "I"
+## Coluna onde a porta norte de Mt Moon realmente ficou (calculada pela
+## mesma caminhada de `_gen_mtmoon`, só que rápido — sem montar a grade
+## inteira). Usada pelos testes e pela documentação dos WarpZone da cena
+## (MtMoon.tscn); se o `MTMOON_SEED` nunca mudar, o valor é sempre o mesmo.
+static func mtmoon_porta_norte_col() -> int:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = MTMOON_SEED
+	var c := 9
+	var r := 30 - 2
+	var passos := 0
+	var menor_r := r
+	var col_do_menor_r := c
+	while r > 1 and passos < 3000:
+		if r < menor_r:
+			menor_r = r
+			col_do_menor_r = c
+		var sorteio := rng.randf()
+		if sorteio < 0.55:
+			r -= 1
+		elif sorteio < 0.75:
+			r += 1
+		elif sorteio < 0.88:
+			c -= 1
+		else:
+			c += 1
+		c = clampi(c, 1, 20 - 2)
+		r = clampi(r, 1, 30 - 2)
+		passos += 1
+	return col_do_menor_r
+
+## Igual `_rocktunnel_carve`, só que escava "I" (piso do Mt Moon) em vez de
+## "D" (piso das outras cavernas) — Mt Moon sempre usou "I" pra não mudar a
+## paleta visual dela (chão de pedra clara, não o chão escuro das cavernas
+## mais novas).
+static func _rocktunnel_carve_piso(grid_chars: Array, W: int, H: int, start_c: int, start_r: int,
+	steps: int, rng: RandomNumberGenerator, visitados: Array) -> void:
+	var c := start_c
+	var r := start_r
+	for i in steps:
+		if r >= 1 and r <= H - 2 and c >= 1 and c <= W - 2:
+			if grid_chars[r][c] != "I":
+				grid_chars[r][c] = "I"
+				visitados.append(Vector2i(c, r))
+		var dir := rng.randi_range(0, 3)
+		match dir:
+			0: r -= 1
+			1: r += 1
+			2: c -= 1
+			3: c += 1
+		c = clampi(c, 1, W - 2)
+		r = clampi(r, 1, H - 2)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Caverna de Cerulean (Mewtwo, MAIN-10, 03/09) — 7 andares, mesmo molde do Mt
@@ -2901,6 +3152,9 @@ static func get_layout(map_id: String) -> Dictionary:
 		"caverna_montanha_pv":
 			var tiles := _gen_caverna_montanha_pv()
 			return {"tiles": tiles, "width": CAVERNA_PV_W, "height": CAVERNA_PV_H}
+		"rota_pewter_cerulean":
+			var tiles := _gen_rota_pewter_cerulean()
+			return {"tiles": tiles, "width": ROTA_PC_W, "height": ROTA_PC_H}
 		"mt_moon":
 			var tiles := _gen_mtmoon()
 			return {"tiles": tiles, "width": 20, "height": 30}

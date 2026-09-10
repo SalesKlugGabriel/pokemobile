@@ -1,8 +1,7 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
 [ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
-[ext_resource type="PackedScene" path="res://scenes/entities/NpcEntity.tscn" id="11_npc"]
 [ext_resource type="Script" path="res://scripts/world/systems/ZoneManager.gd" id="3_zm"]
 [ext_resource type="Script" path="res://scripts/world/systems/SpawnManager.gd" id="4_sm"]
 [ext_resource type="TileSet" path="res://assets/tilesets/overworld.tres" id="5_tileset"]
@@ -12,15 +11,15 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/PartyScene.tscn" id="9_party"]
 [ext_resource type="PackedScene" path="res://scenes/world/WarpZone.tscn" id="10_warpzone"]
 
-[sub_resource type="RectangleShape2D" id="Shape_south"]
-size = Vector2(256, 128)
+[sub_resource type="RectangleShape2D" id="Shape_ponta"]
+size = Vector2(128, 1664)
 
-[sub_resource type="RectangleShape2D" id="Shape_north"]
-size = Vector2(128, 128)
+[sub_resource type="RectangleShape2D" id="Shape_boca"]
+size = Vector2(128, 384)
 
-[node name="MtMoon" type="Node2D"]
+[node name="RotaPewterCerulean" type="Node2D"]
 script = ExtResource("1_basemap")
-map_id = "mt_moon"
+map_id = "rota_pewter_cerulean"
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = ExtResource("5_tileset")
@@ -30,24 +29,16 @@ format = 2
 
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 
-[node name="AgenteSombra1" parent="Entities" instance=ExtResource("11_npc")]
-position = Vector2(1088, 1984)
-npc_name = "Agente Sombra 1"
-dialog_id = "agente_sombra_1_encontro"
-is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 41, "level": 12}, {"species_id": 74, "level": 14}])
-is_patrolling = false
-
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(1216, 3520)
+position = Vector2(320, 7104)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
-limit_right = 2560
-limit_bottom = 3840
+limit_right = 896000
+limit_bottom = 12800
 zoom = Vector2(0.5, 0.5)
 
 [node name="ZoneManager" type="Node" parent="."]
@@ -58,21 +49,37 @@ script = ExtResource("4_sm")
 
 [node name="WarpZones" type="Node2D" parent="."]
 
-[node name="WarpSouth" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(1216, 3776)
-target_map = "res://scenes/world/maps/RotaPewterCerulean.tscn"
-spawn_tile = Vector2i(799, 53)
+[node name="WarpOeste" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(320, 7104)
+target_map = "res://scenes/world/maps/WorldMap.tscn"
+spawn_tile = Vector2i(91, 24)
 
-[node name="CollisionShape2D" parent="WarpZones/WarpSouth"]
-shape = SubResource("Shape_south")
+[node name="CollisionShape2D" parent="WarpZones/WarpOeste"]
+shape = SubResource("Shape_ponta")
 
-[node name="WarpNorth" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(192, 64)
-target_map = "res://scenes/world/maps/RotaPewterCerulean.tscn"
-spawn_tile = Vector2i(1151, 58)
+[node name="WarpLeste" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(895680, 7104)
+target_map = "res://scenes/world/maps/WorldMap.tscn"
+spawn_tile = Vector2i(224, 18)
 
-[node name="CollisionShape2D" parent="WarpZones/WarpNorth"]
-shape = SubResource("Shape_north")
+[node name="CollisionShape2D" parent="WarpZones/WarpLeste"]
+shape = SubResource("Shape_ponta")
+
+[node name="WarpMtMoonEntrada" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(102464, 6848)
+target_map = "res://scenes/world/maps/MtMoon.tscn"
+spawn_tile = Vector2i(9, 28)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpMtMoonEntrada"]
+shape = SubResource("Shape_boca")
+
+[node name="WarpMtMoonSaida" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(147264, 7488)
+target_map = "res://scenes/world/maps/MtMoon.tscn"
+spawn_tile = Vector2i(1, 1)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpMtMoonSaida"]
+shape = SubResource("Shape_boca")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 
