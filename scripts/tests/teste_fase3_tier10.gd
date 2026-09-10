@@ -31,16 +31,17 @@ func _assert(cond: bool, label: String) -> void:
 		print("  FALHA - %s" % label)
 
 func _teste_geral() -> void:
-	# ---- 1. Entrada na Rota 8/10 (superfície) — moldura de rocha + patch
-	# caminhável. Reorganização de 02/09: a Rota 10 (com a boca do Rock
-	# Tunnel) virou a segunda metade da nova Rota 8 (Saffron → Lavender). ----
+	# ---- 1. O atalho reto Saffron↔Lavender (com a boca antiga do Rock
+	# Tunnel embutida), DENTRO do world_map antigo, está SELADO — 🔴
+	# achado em 10/09 (Fase 4 da reestruturação geográfica): a boca do
+	# Rock Tunnel migrou pra dentro da RotaSaffronLavender.tscn nova (5km)
+	# — ver teste_rota_saffron_lavender.gd, que cobre a moldura/entrada
+	# equivalente lá. Aqui só confere que a faixa antiga virou floresta.
 	var world_layout = MapLayouts.get_layout("world_map")
 	var wtiles : Array = world_layout["tiles"]
 	var r0 := MapLayouts.SAFFRON_ROW_INICIO
 	var entrada_col := MapLayouts.SPINE_COL_INICIO + MapLayouts.CERULEAN_COLS + MapLayouts.ROUTE9_COLS + 23
-	_assert(wtiles[r0 + 18][entrada_col] == "P", "Rota 8: entrada do Rock Tunnel é caminhável (onde fica o warp)")
-	_assert(wtiles[r0 + 13][entrada_col - 3] == "R", "Rota 8: moldura de rocha ao lado da boca do Rock Tunnel existe")
-	_assert(wtiles[r0 + 18][entrada_col - 3] == "P", "Rota 8: o corredor leste-oeste NUNCA é bloqueado pela moldura da caverna")
+	_assert(wtiles[r0 + 18][entrada_col] != "P", "Rota 8 antiga está selada — a entrada de sempre do Rock Tunnel não é mais caminho")
 
 	# ---- 2. Layout interno: 36x36, determinístico (seed fixa) ----
 	var layout = MapLayouts.get_layout("rock_tunnel")
@@ -110,7 +111,11 @@ func _teste_geral() -> void:
 			alcancados += 1
 	_assert(alcancados == piso, "TODO tile de piso é alcançável a partir da porta — nenhum ramo secundário ficou isolado (%d de %d)" % [alcancados, piso])
 
-	# ---- 8. Cenas e warps ----
+	# ---- 8. Cenas e warps — 🔴 10/09: o Rock Tunnel não é mais alcançado
+	# direto do WorldMap; a entrada agora é DENTRO da RotaSaffronLavender.
+	# tscn (cobertura completa em teste_rota_saffron_lavender.gd). Aqui só
+	# confere que o WorldMap NÃO tem mais o warp direto, e que a porta de
+	# volta do Rock Tunnel aponta pra rota nova.
 	var rt_scene := load("res://scenes/world/maps/RockTunnel.tscn") as PackedScene
 	_assert(rt_scene != null, "RockTunnel.tscn carrega sem erro")
 
@@ -123,20 +128,18 @@ func _teste_geral() -> void:
 			for w in warp_zones.get_children():
 				if w.target_map.contains("RockTunnel"):
 					achou_warp_rt = true
-		_assert(achou_warp_rt, "WorldMap tem warp de verdade pro Rock Tunnel")
+		_assert(not achou_warp_rt, "WorldMap não tem mais warp direto pro Rock Tunnel (só via RotaSaffronLavender.tscn agora)")
 		inst.free()
 
 	if rt_scene:
 		var rt_inst := rt_scene.instantiate()
 		var rt_warps := rt_inst.get_node_or_null("WarpZones")
 		var achou_volta := false
-		var saida_col := MapLayouts.SPINE_COL_INICIO + MapLayouts.CERULEAN_COLS + MapLayouts.ROUTE9_COLS + 23
-		var saida_row := MapLayouts.SAFFRON_ROW_INICIO + 18
 		if rt_warps:
 			for w in rt_warps.get_children():
-				if w.target_map.contains("WorldMap") and w.spawn_tile == Vector2i(saida_col, saida_row):
+				if w.target_map.contains("RotaSaffronLavender"):
 					achou_volta = true
-		_assert(achou_volta, "Rock Tunnel tem warp de volta pra Rota 8, no mesmo tile da entrada")
+		_assert(achou_volta, "Rock Tunnel tem warp de volta pra RotaSaffronLavender.tscn")
 		rt_inst.free()
 
 	# ---- 9. zones.json: spawn selvagem real do Gen 1 ----

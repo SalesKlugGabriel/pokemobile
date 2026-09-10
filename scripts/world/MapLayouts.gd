@@ -813,37 +813,15 @@ static func _celadon_cell(ce: int, r: int) -> String:
 
 	return "."
 
-## Rota 8 (Saffron → Lavender, pra leste). Reaproveita o comprimento e a
-## boca de Rock Tunnel que já existiam nas antigas Rota 9 (pedregosa) e
-## Rota 10 (a boca em si). `dist` cresce se afastando de Saffron.
+## 🔴 10/09 (Fase 4 da reestruturação geográfica): Rota 8 (Saffron→
+## Lavender, com a boca de Rock Tunnel embutida) SELADA — mesmo achado das
+## Fases 1/2/3. Substituída por RotaSaffronLavender.tscn (5km), que
+## reconstrói a mesma ideia (Rock Tunnel como desvio opcional, porta
+## única) numa distância real. Saffron e Lavender continuam intocadas; a
+## Rock Tunnel em si (cena própria) também não mudou — só o warp de
+## entrada dela migrou pra rota nova (ver RockTunnel.tscn).
 static func _route8_cell(dist: int, r: int) -> String:
-	# Estrada alargada de 5 pra 10 tiles (03/09, pedido do Gabriel). Onde a
-	# moldura da boca de Rock Tunnel existe (r10 20-27, abaixo), ela é
-	# checada ANTES e continua vencendo nas próprias linhas — alargar aqui
-	# só afeta o resto da rota, sem tocar a moldura.
-	if dist < ROUTE9_COLS:
-		if r >= 13 and r <= 22:
-			return "P"
-		if _espalhar_sal(dist, r, 17) < 2:
-			return "R"  # pedregosa (leva pro Rock Tunnel no Kanto real)
-		if _espalhar_sal(dist, r, 18) < 2:
-			return "T"
-		return "."
-
-	var r10 := dist - ROUTE9_COLS
-	# Boca do Rock Tunnel — moldura de rocha ACIMA do corredor (rows 12-15,
-	# checada primeiro, sempre vence nesta faixa de colunas específica).
-	if r10 >= 20 and r10 <= 27 and r >= 12 and r <= 15:
-		if r10 >= 22 and r10 <= 25:
-			return "P"
-		return "R"
-	if r >= 13 and r <= 22:
-		return "P"
-	if _espalhar_sal(dist, r, 19) < 2:
-		return "T"
-	if _espalhar_sal(dist, r, 20) < 2:
-		return "F"
-	return "."
+	return _forest_variant(dist, r)
 
 ## Lavender Town — Torre Pokémon (só fachada) + Centro, exatamente como
 ## sempre. Fica a LESTE de Saffron; ao SUL (nova rota) fica Fuchsia.
@@ -2712,6 +2690,73 @@ static func _rota_campo_leste_oeste_cell(c: int, r: int, W: int, H: int) -> Stri
 	return _misturar_bioma_cell(c, r, progresso, campo, floresta, 96)
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Saffron→Lavender — 5.000×100 (5km), leste-oeste. Fase 4, 10/09. c=0 é o
+# lado de Saffron (oeste), c=W-1 é o lado de Lavender (leste).
+#
+# Rock Tunnel entra como DESVIO OPCIONAL (não travessia obrigatória) —
+# preserva o desenho já existente dela: porta única (entrada/saída pelo
+# mesmo lugar), já não-linear desde que foi construída (Tier 10, técnica
+# `_rocktunnel_carve`), sem precisar de retrofit. Diferente de Mt Moon
+# (Fase 2), aqui não há crista bloqueando o caminho de superfície — Rock
+# Tunnel sempre foi um atalho/desvio com tesouro e treinadores, não uma
+# parede que força a entrada.
+# ──────────────────────────────────────────────────────────────────────────────
+const ROTA_SL_W : int = 5000
+const ROTA_SL_H : int = 100
+
+## Posição (dist do lado de Saffron) da boca de Rock Tunnel na rota nova —
+## ~69% do caminho, mesma proporção relativa que ela tinha no desenho
+## antigo (Rota 9 + boca + Rota 10 = 120 tiles, boca em dist≈83/120).
+const ROTA_SL_ROCKTUNNEL_C : int = 3450
+
+static func _gen_rota_saffron_lavender() -> Array:
+	var grid : Array = []
+	for r in ROTA_SL_H:
+		var row := ""
+		for c in ROTA_SL_W:
+			row += _rota_saffron_lavender_cell(c, r, ROTA_SL_W, ROTA_SL_H)
+		grid.append(row)
+	return grid
+
+static func _rota_saffron_lavender_cell(c: int, r: int, W: int, H: int) -> String:
+	if c <= 1 or c >= W - 2:
+		return _forest_variant(c, r)
+	if r <= 0 or r >= H - 1:
+		return _forest_variant(c, r)
+
+	var centro := 50 + int(13.0 * sin(float(c) * 0.0007 + 3.4) + 6.0 * sin(float(c) * 0.0025 + 1.1))
+	var dist : int = absi(r - centro)
+
+	# Moldura rochosa da boca de Rock Tunnel — mesmo espírito do desenho
+	# antigo (rocha ACIMA do corredor, corredor sempre andável por baixo,
+	# porta de verdade plantada como WarpZone na cena).
+	var dist_rt : int = absi(c - ROTA_SL_ROCKTUNNEL_C)
+	if dist_rt <= 14 and r >= centro - 16 and r <= centro - 6:
+		if dist_rt <= 4 and r >= centro - 10 and r <= centro - 7:
+			return "D"  # boca (marcador — warp de verdade na cena)
+		return "R"
+
+	var largura_caminho : int = 9 + (_espalhar_sal(c / 12, 0, 97) % 5)
+	if dist <= largura_caminho:
+		return "P"
+	if dist <= largura_caminho + 8:
+		if _espalhar_sal(c, r, 98) < 8:
+			return "A"
+		return "."
+	if dist <= largura_caminho + 18:
+		if _espalhar_sal(c, r, 99) < 3:
+			return "F"
+		return "."
+	var progresso2 : float = clampf(float(dist - (largura_caminho + 18)) / 20.0, 0.0, 1.0)
+	var campo2 := func(cc: int, rr: int) -> String:
+		if _espalhar_sal(cc, rr, 100) < 2:
+			return "F"
+		return "."
+	var floresta2 := func(cc: int, rr: int) -> String:
+		return _forest_variant(cc, rr)
+	return _misturar_bioma_cell(c, r, progresso2, campo2, floresta2, 101)
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Mt Moon — 20×30, cena própria (é caverna/subterrâneo — a ÚNICA situação em
 # que o Gabriel pediu warp de verdade, 31/08). Entrada ao sul (vem da Rota 3),
 # saída ao norte (sai na Rota 4) — sem volta pela superfície, tem que atravessar.
@@ -3266,6 +3311,9 @@ static func get_layout(map_id: String) -> Dictionary:
 		"rota_saffron_celadon":
 			var tiles := _gen_rota_saffron_celadon()
 			return {"tiles": tiles, "width": ROTA_SC_W, "height": ROTA_SC_H}
+		"rota_saffron_lavender":
+			var tiles := _gen_rota_saffron_lavender()
+			return {"tiles": tiles, "width": ROTA_SL_W, "height": ROTA_SL_H}
 		"mt_moon":
 			var tiles := _gen_mtmoon()
 			return {"tiles": tiles, "width": 20, "height": 30}

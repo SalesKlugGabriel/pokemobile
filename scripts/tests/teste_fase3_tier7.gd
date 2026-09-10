@@ -37,12 +37,25 @@ func _teste_geral() -> void:
 	var tiles : Array = layout["tiles"]
 	_assert(layout["width"] == 465, "world_map tem 465 de largura")
 
+	# 🔴 10/09 (Fase 4 da reestruturação geográfica): esta asserção ERA
+	# "caminho contínuo, sem quebra nenhuma" (desenho do próprio Tier 7) —
+	# e é o oposto do que a escala real exige agora. A distância real (5km)
+	# mora em RotaSaffronLavender.tscn (teste_rota_saffron_lavender.gd).
+	# Rota 8 antiga (Saffron→boca do Rock Tunnel→Lavender) virou floresta
+	# impassável; Lavender em si continua com chão andável de sempre.
 	var r0 := MapLayouts.SAFFRON_ROW_INICIO
-	var quebras := 0
-	for c in range(MapLayouts.SPINE_COL_INICIO + MapLayouts.CERULEAN_COLS, MapLayouts.LAVENDER_COL_INICIO + MapLayouts.LAVENDER_COLS):
-		if tiles[r0 + 18][c] != "P" and tiles[r0 + 18][c] != "." and tiles[r0 + 18][c] != "I":
-			quebras += 1
-	_assert(quebras == 0, "caminho de Saffron até Lavender é contínuo (%d quebras)" % quebras)
+	var quebra_rota8 := false
+	for c in range(MapLayouts.SPINE_COL_INICIO + MapLayouts.CERULEAN_COLS, MapLayouts.LAVENDER_COL_INICIO):
+		if tiles[r0 + 18][c] == "P":
+			quebra_rota8 = true
+	_assert(not quebra_rota8, "Rota 8 (o atalho antigo Saffron-Lavender) está selada, sem tile andável na linha do corredor")
+
+	var quebras_lavender := 0
+	for c in range(MapLayouts.LAVENDER_COL_INICIO, MapLayouts.LAVENDER_COL_INICIO + MapLayouts.LAVENDER_COLS):
+		var ch : String = tiles[r0 + 18][c]
+		if ch != "P" and ch != "." and ch != "I":
+			quebras_lavender += 1
+	_assert(quebras_lavender == 0, "Lavender continua com chão andável de sempre (%d quebras)" % quebras_lavender)
 
 	var lv0 := MapLayouts.LAVENDER_COL_INICIO
 	_assert(tiles[r0 + 10][lv0 + 16] == "I", "Lavender: interior da Torre Pokémon (fachada) é piso")

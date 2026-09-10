@@ -250,6 +250,26 @@
       "npcs": []
     },
     {
+      "id": "rota_saffron_lavender",
+      "map_id": "rota_saffron_lavender",
+      "name": "Rota Saffron-Lavender",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 5000,
+        "h": 100
+      },
+      "bgm": "route_8",
+      "wild_pokemon": [
+        {"id": 19, "name": "Rattata", "level_min": 15, "level_max": 20, "weight": 30},
+        {"id": 20, "name": "Raticate", "level_min": 18, "level_max": 22, "weight": 10},
+        {"id": 23, "name": "Ekans", "level_min": 15, "level_max": 20, "weight": 30},
+        {"id": 27, "name": "Sandshrew", "level_min": 15, "level_max": 20, "weight": 30}
+      ],
+      "npcs": []
+    },
+    {
       "id": "rota_pewter_cerulean",
       "map_id": "rota_pewter_cerulean",
       "name": "Rota Pewter-Cerulean",

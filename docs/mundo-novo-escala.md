@@ -232,13 +232,21 @@ que `ZoneManager.find_zone_id()` já usa).
    testados — risco desnecessário. O item 4 foi renomeado pra
    "Saffron→Lavender" pra bater com o mapa real; nada foi tocado nela
    nesta fase (fica pra quando essa fase específica chegar).
-4. **Saffron→Lavender** (5.000 tiles — nome corrigido, ver achado de
-   topologia acima; era "Cerulean→Lavender" na primeira versão deste doc).
-   Reaproveita o comprimento e a boca de Rock Tunnel que já existem
-   (Rota 8 = Rota 9 + Rock Tunnel + Rota 10, todas já no jogo). Retrofit
-   de Rock Tunnel pra caverna não-linear (se ainda não for — conferir:
-   pode já ter sido construída não-linear desde o início, diferente de Mt
-   Moon).
+4. ✅ **Saffron→Lavender — FEITO, testado (25 conferências + suíte inteira
+   92/0), publicado (10/09/2026).** (5.000 tiles — nome corrigido, ver
+   achado de topologia acima; era "Cerulean→Lavender" na primeira versão
+   deste doc). `RotaSaffronLavender.tscn` (leste-oeste). **Rock Tunnel NÃO
+   precisou de retrofit** — conferido antes de construir: já era
+   não-linear desde que foi construída (Tier 10, mesma técnica
+   `_rocktunnel_carve` do Mt Moon pós-retrofit), com porta única
+   (entrada/saída pelo mesmo lugar). Entra na rota nova como **desvio
+   opcional** (não bloqueia o caminho de superfície, mesmo desenho de
+   sempre) — só o warp de entrada migrou pra dentro da cena nova; a
+   caverna em si (interior, conectividade, determinismo) não mudou nada.
+   Rota 8/9/10 antiga selada, zero NPC encontrado (igual Fases 2/3).
+   `teste_estradas_alargadas.gd` apagado (as 3 rotas que ele cobria — 3/4,
+   7, 8 — já viraram cenas próprias nas Fases 2/3/4; cobertura equivalente
+   está nos testes dedicados de cada rota nova).
 5. **Lavender→Fuchsia** (12.000 tiles, 7 segmentos de bioma — a maior jornada do
    mapa, ver texto original do Gabriel pra sequência exata: Dry Grasslands→Dense
    Forest→River Valley→Wetlands→Tropical Forest→Coastal Plains→outskirts).

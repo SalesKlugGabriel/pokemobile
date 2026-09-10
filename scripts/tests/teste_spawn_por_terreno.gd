@@ -70,13 +70,12 @@ func _process(_delta: float) -> bool:
 	# Zona sintética pequena, dentro dos limites do world_map real (a função
 	# usa MapLayouts.get_layout("world_map") de verdade — não precisa mockar
 	# o mapa, só recortar um pedaço real onde sabidamente há grama/mato).
-	# 🔴 10/09: já foi "route_1", depois "route_3", depois "route_5" — as
-	# três viraram floresta IMPASSÁVEL nas Fases 1, 2 e 3 da reestruturação
-	# geográfica (os atalhos retos Viridian-Pallet, Pewter-Cerulean e
-	# Cerulean-Saffron foram selados). Trocado pelo rect de "route_8"
-	# (Saffron→Lavender via Rock Tunnel, ainda no desenho antigo — só entra
-	# na reestruturação numa fase futura), que continua grama de verdade.
-	var zona_route1 := {"id": "teste_route1", "tile_rect": {"x": 280, "y": 67, "w": 120, "h": 36}}
+	# 🔴 10/09: já foi "route_1", "route_3", "route_5", depois "route_8" —
+	# as quatro viraram floresta IMPASSÁVEL nas Fases 1-4 da reestruturação
+	# geográfica. Trocado pelo rect de "route_11" (Vermilion→Digletts Cave,
+	# ainda no desenho antigo — só entra na reestruturação numa fase
+	# futura), que continua grama de verdade.
+	var zona_route1 := {"id": "teste_route1", "tile_rect": {"x": 280, "y": 133, "w": 30, "h": 36}}
 	var antes : int = mgr._wild_instances.size()
 	mgr._populate_zone_by_terrain(zona_route1)
 	_assert(mgr._wild_instances.size() > antes, "populate: pelo menos 1 Pokémon nasceu de verdade na zona")

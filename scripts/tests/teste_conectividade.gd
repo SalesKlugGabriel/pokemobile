@@ -23,13 +23,13 @@ var _fail := 0
 var _rodou := false
 
 ## Cidades alcançáveis a pé DIRETO no world_map (sem trocar de cena) —
-## desde as Fases 1/2/3 da reestruturação geográfica (10/09), Viridian,
-## Pewter, Cerulean, Saffron, Vermilion e Celadon saíram desta lista: viram
-## cadeia (ver `_alcancavel_via_rota` abaixo). Lavender/Fuchsia continuam
-## aqui porque a ligação delas (Saffron→Rock Tunnel→Route8/9/10→Lavender→
-## Fuchsia) ainda não entrou na reestruturação — é uma fase futura.
+## desde as Fases 1/2/3/4 da reestruturação geográfica (10/09), Viridian,
+## Pewter, Cerulean, Saffron, Vermilion, Celadon e Lavender saíram desta
+## lista: viram cadeia (ver `_alcancavel_via_rota` abaixo). Fuchsia continua
+## aqui porque a ligação dela (Lavender→Fuchsia) ainda não entrou na
+## reestruturação — é a próxima fase.
 const A_PE : Array[String] = [
-	"lavender_town", "fuchsia_city",
+	"fuchsia_city",
 ]
 
 ## Alcançáveis só por mar ou por trava de progressão — com o motivo.
@@ -114,13 +114,22 @@ func _process(_delta: float) -> bool:
 	_assert(origem_celadon.x != -9999,
 		"Celadon alcançável por cadeia: Saffron → warp → RotaSaffronCeladon.tscn (provada à parte) → Celadon")
 
+	# Lavender (Fase 4): Saffron→Rota nova (Rock Tunnel é desvio opcional,
+	# não faz parte da cadeia obrigatória — provado à parte em
+	# teste_rota_saffron_lavender.gd).
+	var origem_lavender := Vector2i(-9999, -9999)
+	if origem_saffron.x != -9999:
+		origem_lavender = _alcancavel_via_rota(tm, origem_saffron,
+			"WarpRotaSaffronLavenderOeste", "WarpRotaSaffronLavenderLeste", "lavender_town")
+	_assert(origem_lavender.x != -9999,
+		"Lavender alcançável por cadeia: Saffron → warp → RotaSaffronLavender.tscn (provada à parte) → Lavender")
+
 	# ---- 1b. As cidades que continuam ligadas direto no world_map (ainda
-	# não entraram nesta reestruturação: Lavender/Fuchsia, via Saffron→Rock
-	# Tunnel→Route8/9/10, sem mudança nesta fase) — origem passa a ser
-	# SAFFRON, não mais Pallet, já que a cadeia acima é quem prova que dá
-	# pra chegar até ela. Se origem_saffron falhou, usa Pallet mesmo (evita
-	# mascarar erro duplo com "sem retângulo").
-	var origem_resto := origem_saffron if origem_saffron.x != -9999 else origem
+	# não entraram nesta reestruturação: só Fuchsia agora, ao sul de
+	# Lavender, sem mudança nesta fase) — origem passa a ser LAVENDER. Se
+	# origem_lavender falhou, usa Pallet mesmo (evita mascarar erro duplo
+	# com "sem retângulo").
+	var origem_resto := origem_lavender if origem_lavender.x != -9999 else origem
 	var ilhadas : Array[String] = []
 	for zona in A_PE:
 		var ret := AjudaMapa.retangulo_da_zona(zona)
@@ -132,8 +141,8 @@ func _process(_delta: float) -> bool:
 			ilhadas.append("%s (nenhum tile andável dentro dela)" % zona)
 			continue
 		if not AjudaMapa.caminho_a_pe(tm, origem_resto, destino):
-			ilhadas.append("%s (sem caminho a pé desde Saffron)" % zona)
-	_assert(ilhadas.is_empty(), "as demais cidades de terra firme são alcançáveis a pé desde Saffron — %s" % (
+			ilhadas.append("%s (sem caminho a pé desde Lavender)" % zona)
+	_assert(ilhadas.is_empty(), "as demais cidades de terra firme são alcançáveis a pé desde Lavender — %s" % (
 		"ok" if ilhadas.is_empty() else str(ilhadas)))
 
 	# ---- 2. As de mar/trava têm chão andável (existem de verdade) --------

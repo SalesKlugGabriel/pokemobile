@@ -21,9 +21,6 @@ size = Vector2(384, 128)
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_pewter"]
 size = Vector2(384, 128)
 
-[sub_resource type="RectangleShape2D" id="Shape_rocktunnel"]
-size = Vector2(512, 640)
-
 [sub_resource type="RectangleShape2D" id="Shape_safarizone"]
 size = Vector2(384, 128)
 
@@ -110,6 +107,12 @@ size = Vector2(128, 128)
 
 [sub_resource type="RectangleShape2D" id="Shape_rota_hub_vermilion"]
 size = Vector2(384, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_sl_saffron"]
+size = Vector2(128, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_sl_lavender"]
+size = Vector2(128, 128)
 
 [node name="WorldMap" type="Node2D"]
 script = ExtResource("1_basemap")
@@ -443,14 +446,6 @@ spawn_tile = Vector2i(6, 9)
 [node name="CollisionShape2D" parent="WarpZones/WarpIlhaGelida"]
 shape = SubResource("Shape_pokecenter_pallet")
 
-[node name="WarpRockTunnel" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(46528, 10944)
-target_map = "res://scenes/world/maps/RockTunnel.tscn"
-spawn_tile = Vector2i(17, 34)
-
-[node name="CollisionShape2D" parent="WarpZones/WarpRockTunnel"]
-shape = SubResource("Shape_rocktunnel")
-
 [node name="WarpSafariZone" parent="WarpZones" instance=ExtResource("10_warpzone")]
 position = Vector2(58176, 21184)
 target_map = "res://scenes/world/maps/SafariZone.tscn"
@@ -626,6 +621,22 @@ spawn_tile = Vector2i(3994, 40)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpRotaSaffronCeladonLeste"]
 shape = SubResource("Shape_rota_hub_saffron_w")
+
+[node name="WarpRotaSaffronLavenderOeste" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(35776, 10944)
+target_map = "res://scenes/world/maps/RotaSaffronLavender.tscn"
+spawn_tile = Vector2i(5, 52)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaSaffronLavenderOeste"]
+shape = SubResource("Shape_rota_sl_saffron")
+
+[node name="WarpRotaSaffronLavenderLeste" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(51520, 10944)
+target_map = "res://scenes/world/maps/RotaSaffronLavender.tscn"
+spawn_tile = Vector2i(4994, 62)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaSaffronLavenderLeste"]
+shape = SubResource("Shape_rota_sl_lavender")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 
