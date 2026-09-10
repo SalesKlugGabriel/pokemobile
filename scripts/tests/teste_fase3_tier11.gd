@@ -28,12 +28,13 @@ func _assert(cond: bool, label: String) -> void:
 		print("  FALHA - %s" % label)
 
 func _teste_geral() -> void:
-	# ---- 1. Ilha: 40x40, contorno orgânico (não retângulo) ----
+	# ---- 1. Ilha: 1.200x1.200 (Fase 6, 10/09 — era 40x40), contorno
+	# orgânico (não retângulo) ----
 	var layout = MapLayouts.get_layout("cinnabar_island")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] == 40 and layout["height"] == 40, "cinnabar_island tem 40x40")
+	_assert(layout["width"] == 1200 and layout["height"] == 1200, "cinnabar_island tem 1.200x1.200")
 	_assert(tiles[0][0] == "~", "canto (0,0) é mar — a ilha não é um retângulo cheio")
-	_assert(tiles[19][20] != "~" and tiles[19][20] != "S", "o centro da ilha é terreno de verdade, não mar/praia")
+	_assert(tiles[600][600] != "~" and tiles[600][600] != "S", "o centro da ilha é terreno de verdade, não mar/praia")
 
 	var achou_praia := false
 	for r in tiles.size():
@@ -44,14 +45,24 @@ func _teste_geral() -> void:
 	_assert(achou_praia, "existe praia (anel de areia) ao redor da ilha")
 
 	# ---- 2. Cais + Ginásio + Centro Pokémon existem ----
-	_assert(tiles[35][19] == "D", "cais de madeira existe (onde o barco atraca)")
+	# 🔴 10/09 (Fase 6): cais nasce onde a costa orgânica de verdade fica
+	# (calculado, não mais um número fixo — ver MapLayouts.CINNABAR_RAIO_SUL).
+	_assert(tiles[1000][599] == "D", "cais de madeira existe (onde o barco atraca)")
 	# 05/09 (Fase 0): a ilha vai ser redesenhada na Fase 3 do plano de mundo, e
 	# coordenada literal reprovaria um mapa correto. O que importa é que a ilha
 	# tem os dois prédios inteiros.
 	var r_ilha := Rect2i(0, 0, int(layout["width"]), int(layout["height"]))
 	_assert(AjudaMapa.conta_predios(tiles, r_ilha) >= 2,
 		"Cinnabar tem Ginásio e Centro Pokémon (%d prédios)" % AjudaMapa.conta_predios(tiles, r_ilha))
-	_assert(AjudaMapa.tem_predio_completo(tiles, r_ilha),
+	# 🔴 10/09 (Fase 6): `tem_predio_completo`/`tem_porta` checam densidade de
+	# parede NA LARGURA INTEIRA do retângulo recebido — funcionava com o
+	# r_ilha de 40 colunas, mas dilui a densidade a quase zero num retângulo
+	# de 1.200 (a porta de um prédio de 12 tiles some no meio de 1.200
+	# colunas de grama). Usa o retângulo do VILAREJO (onde os 3 prédios
+	# ficam), não a ilha inteira — mesmo espírito do teste, sem o problema
+	# de escala.
+	var r_ginasio := Rect2i(475, 745, 25, 20)
+	_assert(AjudaMapa.tem_predio_completo(tiles, r_ginasio),
 		"os prédios de Cinnabar têm telhado, interior andável E porta")
 
 	# ---- 3. Cena carrega, Blaine tem time real, warp de volta existe ----

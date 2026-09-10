@@ -34,19 +34,19 @@ format = 2
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(2496, 4416)
+position = Vector2(76736, 128064)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
-limit_right = 5120
-limit_bottom = 5120
+limit_right = 153600
+limit_bottom = 153600
 zoom = Vector2(0.5, 0.5)
 
 [node name="Blaine" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(2112, 1856)
+position = Vector2(62272, 96576)
 npc_name = "Blaine"
 dialog_id = "blaine_gym"
 starts_quest_id = "GYM-06"
@@ -55,7 +55,7 @@ trainer_team = Array[Dictionary]([{"species_id": 58, "level": 40}, {"species_id"
 is_patrolling = false
 
 [node name="CinnabarLocal" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(3136, 2624)
+position = Vector2(71104, 96448)
 npc_name = "Morador"
 dialog_id = "cinnabar_local"
 is_patrolling = false
@@ -69,7 +69,7 @@ script = ExtResource("5_sm")
 [node name="WarpZones" type="Node2D" parent="."]
 
 [node name="WarpPokeCenter" parent="WarpZones" instance=ExtResource("11_warpzone")]
-position = Vector2(3648, 2368)
+position = Vector2(79808, 97088)
 target_map = "res://scenes/world/maps/PokemonCenter.tscn"
 spawn_tile = Vector2i(7, 11)
 is_pokemon_center_entrance = true
@@ -78,7 +78,7 @@ is_pokemon_center_entrance = true
 shape = SubResource("Shape_pokecenter")
 
 [node name="WarpBarcoVolta" parent="WarpZones" instance=ExtResource("11_warpzone")]
-position = Vector2(2496, 4800)
+position = Vector2(76736, 131264)
 target_map = "res://scenes/world/maps/WorldMap.tscn"
 spawn_tile = Vector2i(445, 27)
 
@@ -86,7 +86,7 @@ spawn_tile = Vector2i(445, 27)
 shape = SubResource("Shape_barco")
 
 [node name="WarpPokemonMansion" parent="WarpZones" instance=ExtResource("11_warpzone")]
-position = Vector2(2624, 3648)
+position = Vector2(73792, 115968)
 target_map = "res://scenes/world/maps/PokemonMansion_F1.tscn"
 spawn_tile = Vector2i(8, 11)
 

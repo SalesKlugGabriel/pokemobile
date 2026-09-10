@@ -296,8 +296,68 @@ que `ZoneManager.find_zone_id()` já usa).
    aceitável, não um congelamento — e o republish desta fase já levou a
    correção pras 4 fases anteriores também (elas estavam no ar com o
    problema desde que cada uma foi publicada).
-6. **Cinnabar** (ilha vulcânica ~5.000×5.000) + **Safari Zone** (5 zonas
-   encadeadas).
+6. **Cinnabar** ✅ **feita** (ver detalhe abaixo) **+ Safari Zone** (5 zonas
+   encadeadas) ⬜ **pendente** — as duas peças do item 6 são independentes,
+   Cinnabar não esperou Safari Zone.
+
+   ✅ **Cinnabar Island — FEITO, testado (24 conferências + suíte inteira
+   94/0), publicado (10/09/2026).** Pedido explícito do Gabriel depois da
+   Fase 5: *"quero uma ilha para explorar, achar os pokemons de fogo,
+   moltres, arcanine, charizard, etc, quase uma DLC do game, por isso
+   quero grande"*.
+
+   🔴 **Achado antes de construir, resolvido com o Gabriel**: 5.000×5.000
+   (25 km² literais do prompt original) seriam 25 milhões de células —
+   nem gera em tempo razoável, nem carregaria rápido no navegador (a
+   maior rota, 12km, já é 1,2 milhão e leva ~2s só pra montar a grade).
+   Perguntei diretamente; ele confirmou que o que importa é "ilha grande
+   de verdade pra explorar", não o número exato. Fechado em
+   **1.200×1.200** (1,44 milhão de células, mesma ordem de grandeza da
+   maior rota — carrega em ~6s, aceitável).
+
+   **Mesma filosofia de toda a reestruturação**: os PRÉDIOS (Ginásio do
+   Blaine, Centro Pokémon, fachada da Mansão) mantêm o TAMANHO ORIGINAL —
+   só a distância entre eles cresceu, preservando a mesma disposição
+   norte-sul de sempre (cais → Mansão → vilarejo → terreno selvagem →
+   planalto vulcânico ao norte). Contorno orgânico com uma 3ª harmônica
+   extra (a fórmula original de 2 harmônicas ficava lisa demais numa
+   costa deste tamanho).
+
+   🔴 **2 achados de bug reais, ambos corrigidos e travados por teste**:
+   (1) o cais foi inicialmente cravado numa posição fixa assumindo raio
+   constante — como a costa é orgânica (varia ±112 tiles), a posição fixa
+   caía ~140 tiles dentro do mar aberto em alguns testes; corrigido
+   calculando a posição real da costa naquele ângulo específico
+   (`CINNABAR_RAIO_SUL`) antes de plantar o cais. (2) o planalto vulcânico
+   ao norte tinha 50% de chance de pedregulho bloqueado por tile, sem
+   nenhuma trilha garantida — isolava o norte inteiro da ilha (mesma
+   lição de toda rota da reestruturação: bioma decorativo sozinho nunca
+   basta). Corrigido com uma trilha serpenteando sempre andável +
+   pedregulho reduzido pra 15%.
+
+   🔴 **Achado à parte, documentado mas NÃO corrigido aqui — fora do
+   escopo geográfico**: a Cratera do Vulcão (covil do Moltres) já tem
+   gerador de 10 andares pronto (`CovisLendarios.gerar_andar_lava`) e
+   zonas reservadas em zones.json ("cratera_b1".."b10"), mas NUNCA foi
+   ligada a uma cena/warp de verdade — não existe `CraterVulcao_F1.tscn`
+   nem entrada física no mapa. **A Ilha Gélida/Articuno tem a MESMA
+   pendência** ("ilha_gelida_f1".."f10"/"b1".."b5", mesma situação). Isso
+   é uma pendência de "Pokémon e estruturas" (completar uma feature já
+   desenhada), separada da reestruturação geográfica — o planalto ao
+   norte de Cinnabar já está fisicamente pronto (terreno alto, rochoso)
+   esperando essa peça, mas sem warp nenhum apontando pra lugar nenhum. Se
+   o Gabriel quiser o Moltres alcançável de verdade, é a próxima
+   conversa — envolve criar as 10 cenas de andar + testar o minigame de
+   lava que sobe atrás do jogador (mecânica só de ida, sem volta).
+
+   Spawn selvagem expandido pro pedido do Gabriel: Growlithe/Vulpix/
+   Ponyta/Magmar/Slowpoke normais, Arcanine e Charizard como encontros
+   raros (peso 1-2%) — não é canônico do Kanto original (nenhum dos dois
+   é selvagem lá), mas é o jogo dele, e ele pediu explicitamente.
+
+Ainda pendente: **Safari Zone → 5 zonas encadeadas** (hoje é 1 zona só, 44×44
+— "5 zonas encadeadas" do blueprint original nunca foi construído, não é só
+questão de redimensionar).
 
 Depois de tudo isso: aplicar `pokemobile_matriz_ecologica.md` (fauna por bioma) —
 etapa seguinte, não faz parte deste blueprint.

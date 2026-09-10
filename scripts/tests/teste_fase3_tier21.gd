@@ -43,11 +43,12 @@ func _teste_geral() -> void:
 
 	var cinnabar_layout = MapLayouts.get_layout("cinnabar_island")
 	var cinnabar_tiles : Array = cinnabar_layout["tiles"]
-	# Mansão: cols locais 14-26, rows 22-28
-	# 05/09 (Fase 0): eram duas coordenadas literais dentro do layout de
-	# Cinnabar, que a Fase 3 vai redesenhar. A Mansão é o TERCEIRO prédio da
-	# ilha (além de Ginásio e Centro) — é isso que o teste quer garantir.
-	var r_cinnabar := Rect2i(0, 0, 40, 40)
+	# 🔴 10/09 (Fase 6 da reestruturação geográfica): Cinnabar saiu de 40x40
+	# pra 1.200x1.200 — o Rect2i FIXO em 40x40 abaixo passou a varrer só um
+	# cantinho vazio da ilha nova (achou 0 prédios). A Mansão é o TERCEIRO
+	# prédio da ilha (além de Ginásio e Centro) — é isso que o teste quer
+	# garantir, então o retângulo precisa cobrir a ilha INTEIRA de verdade.
+	var r_cinnabar := Rect2i(0, 0, int(cinnabar_layout["width"]), int(cinnabar_layout["height"]))
 	_assert(AjudaMapa.conta_predios(cinnabar_tiles, r_cinnabar) >= 3,
 		"Cinnabar tem 3 prédios: Ginásio, Centro e a Mansão Pokémon (%d)" % AjudaMapa.conta_predios(cinnabar_tiles, r_cinnabar))
 	_assert(AjudaMapa.conta_char(cinnabar_tiles, r_cinnabar, ["H"]) > 20,
@@ -68,4 +69,6 @@ func _teste_geral() -> void:
 	var mansion : Dictionary = by_id.get("pokemon_mansion", {})
 	_assert(mansion.get("map_id", "") == "cinnabar_island", "zones.json: pokemon_mansion aponta pro map_id cinnabar_island")
 	var mr : Dictionary = mansion.get("tile_rect", {})
-	_assert(mr.get("x", 0) == 14 and mr.get("y", 0) == 22, "zones.json: pokemon_mansion aponta pra coordenada local real (14,22)")
+	# 🔴 10/09 (Fase 6): coordenada mudou de (14,22) pra (570,900) — a Mansão
+	# se afastou do Ginásio/Centro na ilha nova, mesma distância relativa.
+	_assert(mr.get("x", 0) == 570 and mr.get("y", 0) == 900, "zones.json: pokemon_mansion aponta pra coordenada local real (570,900)")

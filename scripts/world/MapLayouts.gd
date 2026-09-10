@@ -3312,16 +3312,49 @@ static func _gen_digglettscave() -> Array:
 	return grid
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Cinnabar Island — 40×40, cena própria (só alcançável de barco — a viagem
-# em si é o "trocar de ilha", exceção de warp igual caverna/subterrâneo).
-# Tier 11 (01/09): contorno da ilha ORGÂNICO (mesma técnica de sin()/
-# distância do litoral de Vermilion, regra de tematização de bioma), não
-# um retângulo — praia em anel ao redor, rochedo vulcânico esparso no
-# interior (identidade de ilha vulcânica, mesmo sem sprite de lava ainda).
+# Cinnabar Island — 1.200×1.200, cena própria (Fase 6, 10/09 — só
+# alcançável de barco, a viagem em si é o "trocar de ilha", exceção de
+# warp igual caverna/subterrâneo). Escala real de gameplay, pedido
+# explícito do Gabriel ("quero uma ilha pra explorar de verdade... quase
+# uma DLC do jogo").
+#
+# 🔴 Achado antes de escalar: 5.000×5.000 (25 km² literais) seriam 25
+# milhões de células — nem gera em tempo razoável (a maior rota, 12km,
+# já leva ~2s só pra montar a grade de 1,2 milhão) nem carregaria rápido
+# no navegador. Perguntei ao Gabriel e ele confirmou: o que importa é
+# "ilha grande de verdade pra explorar", não o número exato — 1.200×1.200
+# (1,44 milhão de células, mesma ordem de grandeza da maior rota) entrega
+# isso sem os dois problemas.
+#
+# Prédios (Ginásio/Centro/Mansão) mantêm o TAMANHO original — a mesma
+# filosofia de toda a reestruturação: o que cresce é a DISTÂNCIA entre as
+# coisas, nunca o prédio em si (Pewter não ficou gigante nas Fases 1-5,
+# um Ginásio não vira um Ginásio 30× maior aqui). Só a posição de cada um
+# foi afastada, preservando a mesma disposição norte-sul de sempre: cais
+# ao sul → Mansão → vilarejo (Ginásio+Centro) → terreno selvagem vulcânico
+# → planalto vulcânico ao norte (onde um dia a Cratera do Vulcão/Moltres
+# vai entrar — ver nota abaixo, achado à parte, fora do escopo geográfico
+# desta fase).
+#
+# 🔴 Achado à parte (não é geografia, é conteúdo — documentado, não
+# corrigido aqui): a Cratera do Vulcão (covil do Moltres) já tem gerador
+# de andares pronto (`CovisLendarios.gerar_andar_lava`, 10 andares) e
+# entrada reservada em zones.json ("cratera_b1".."b10"), mas NUNCA foi
+# ligada a uma cena/warp de verdade — não existe nem `CraterVulcao_F1.
+# tscn` nem entrada física no mapa de cima. O mesmo vale pra Ilha Gélida/
+# Articuno ("ilha_gelida_f1".."f10"/"b1".."b5" — mesma situação). Isso é
+# uma pendência de "Pokémon e estruturas", separada da reestruturação
+# geográfica — não criei um warp furado aqui; o planalto ao norte fica
+# fisicamente pronto (terreno alto, rochoso) esperando essa peça, mas sem
+# um warp apontando pra lugar nenhum.
 # ──────────────────────────────────────────────────────────────────────────────
+const CINNABAR_W : int = 1200
+const CINNABAR_H : int = 1200
+const CINNABAR_CENTRO := Vector2(600.0, 600.0)
+
 static func _gen_cinnabar() -> Array:
-	var W := 40
-	var H := 40
+	var W := CINNABAR_W
+	var H := CINNABAR_H
 	var grid : Array = []
 	for r in H:
 		var row := ""
@@ -3330,66 +3363,137 @@ static func _gen_cinnabar() -> Array:
 		grid.append(row)
 	return grid
 
+## 🔴 Achado ao testar: a ORDEM importa. O cais/espinha/ruas precisam ser
+## checados ANTES do contorno da costa — senão a costa ORGÂNICA (que
+## afunda até 112 tiles pra dentro em alguns ângulos, de propósito, pra
+## não parecer uma bola de praia lisa) corta a espinha ao meio em qualquer
+## ponto onde a "baía" morde mais fundo que a posição do caminho. Mesma
+## ordem que o desenho original de 40×40 já usava pro cais (checado antes
+## da costa) — só que agora TUDO que é construção/caminho precisa da
+## mesma prioridade, porque a espinha é comprida o bastante pra cruzar
+## várias reentrâncias da costa.
+## Onde a costa de verdade fica bem ao sul (ângulo 90°, reto abaixo do
+## centro — mesmo eixo do cais): raio = 480 + 70·sin(270°) + 30·sin(630°)
+## + 12·sin(1170°) = 480-70-30+12 = 392. Constante, não precisa recalcular
+## por célula — só existe pra o cais nascer exatamente na praia de
+## verdade, não numa posição arbitrária que podia cair em mar aberto ou
+## em terra seca dependendo de quanto a costa orgânica balança ali.
+const CINNABAR_RAIO_SUL : float = 392.0
+
 static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 	# Cais de madeira — sai da praia sul rumo ao mar, é onde o barco atraca
-	# (warp de volta pra Vermilion fica na ponta) ──
-	if c >= 18 and c <= 21 and r >= 33 and r <= 38:
+	# (warp de volta pra Vermilion fica na ponta). Tamanho original mantido,
+	# começando exatamente na costa (ver `CINNABAR_RAIO_SUL`) até 48 tiles
+	# mar adentro.
+	var cais_r_inicio : int = int(CINNABAR_CENTRO.y + CINNABAR_RAIO_SUL) - 4
+	var cais_r_fim : int = cais_r_inicio + 48
+	if c >= 598 and c <= 601 and r >= cais_r_inicio and r <= cais_r_fim:
 		return "D"
 
-	# Contorno orgânico da ilha (praia em anel, mar ao redor) ──
-	var dx := float(c - 20)
-	var dy := float(r - 19)
+	# ── Ginásio de Cinnabar (Blaine) — tamanho original, cols 480-492 ──
+	if c >= 480 and c <= 492 and r >= 750 and r <= 758:
+		if c == 480 or c == 492: return "w"
+		if r == 750: return "H"
+		if r == 758:
+			if c >= 485 and c <= 487: return "P"
+			return _parede_frontal(c, r)
+		return "I"
+	if r >= 758 and r <= 759 and c >= 485 and c <= 487:
+		return "P"
+
+	# ── Centro Pokémon — tamanho original, cols 620-628 (mesma "rua" do
+	# Ginásio, formando o vilarejo) ──
+	if c >= 620 and c <= 628 and r >= 750 and r <= 758:
+		if c == 620 or c == 628: return "w"
+		if r == 750: return "H"
+		if r == 758:
+			if c >= 623 and c <= 624: return "P"
+			return _parede_frontal(c, r)
+		return "I"
+	if r >= 758 and r <= 759 and c >= 623 and c <= 624:
+		return "P"
+
+	# ── Mansão Pokémon — só a fachada (interior/andares já existem à
+	# parte, PokemonMansion_F1..F3) — tamanho original, entre o vilarejo e
+	# o cais ──
+	if c >= 570 and c <= 582 and r >= 900 and r <= 906:
+		if c == 570 or c == 582: return "w"
+		if r == 900: return "H"
+		if r == 906:
+			if c >= 575 and c <= 577: return "P"
+			return _parede_frontal(c, r)
+		return "I"
+	if r >= 906 and r <= 907 and c >= 575 and c <= 577:
+		return "P"
+
+	# ── Espinha norte-sul: cais (~r988) → Mansão (r906) → vilarejo (r758) ──
+	if c >= 599 and c <= 600 and r >= 759 and r <= cais_r_inicio + 4:
+		return "P"
+	# Curta rua ligando a espinha à porta da Mansão (fora do eixo central) —
+	# mesma linha da saída da porta (r906-907).
+	if r >= 906 and r <= 907 and c >= 577 and c <= 600:
+		return "P"
+	# Rua leste-oeste ligando Ginásio ↔ Centro, na mesma linha das portas
+	if r >= 758 and r <= 759 and c >= 487 and c <= 623:
+		return "P"
+
+	# ── Contorno orgânico da ilha — mesma técnica de sempre (sin()/
+	# distância), com uma 3ª harmônica extra pra não parecer uma bola de
+	# praia lisa numa costa deste tamanho. Checado só DEPOIS de toda
+	# construção/caminho (ver achado no cabeçalho da função). ──
+	var dx := float(c) - CINNABAR_CENTRO.x
+	var dy := float(r) - CINNABAR_CENTRO.y
 	var dist := sqrt(dx * dx + dy * dy)
-	var raio := 15.0 + 2.5 * sin(atan2(dy, dx) * 3.0) + 1.0 * sin(atan2(dy, dx) * 7.0)
+	var ang := atan2(dy, dx)
+	var raio := 480.0 + 70.0 * sin(ang * 3.0) + 30.0 * sin(ang * 7.0) + 12.0 * sin(ang * 13.0)
 	if dist > raio:
 		return "~"
-	if dist > raio - 2.5:
+	if dist > raio - 16.0:
 		return "S"
 
-	# ── Ginásio de Cinnabar (Blaine) ── cols 10-22, rows 10-18
-	if c >= 10 and c <= 22 and r >= 10 and r <= 18:
-		if c == 10 or c == 22: return "w"
-		if r == 10: return "H"
-		if r == 18:
-			if c >= 15 and c <= 17: return "P"
-			return _parede_frontal(c, r)
-		return "I"
-	if r >= 18 and r <= 19 and c >= 15 and c <= 17:
-		return "P"
+	# ── Trilha do vilarejo até o planalto (r < 759) — 🔴 achado ao testar:
+	# sem uma trilha EXPLÍCITA, o pedregulho aleatório do planalto (abaixo)
+	# bloqueava metade dos tiles e isolava o norte da ilha por completo
+	# (a mesma lição de toda rota da reestruturação: bioma decorativo
+	# nunca é suficiente sozinho, precisa de um caminho garantido). Trilha
+	# serpenteando, sempre andável, do mesmo jeito que toda rota nova usa.
+	if r < 759:
+		var centro_trilha := 600 + int(60.0 * sin(float(r) * 0.006) + 25.0 * sin(float(r) * 0.017 + 1.0))
+		if absi(c - centro_trilha) <= 5:
+			return ":"
 
-	# ── Centro Pokémon ── cols 25-33, rows 10-18
-	if c >= 25 and c <= 33 and r >= 10 and r <= 18:
-		if c == 25 or c == 33: return "w"
-		if r == 10: return "H"
-		if r == 18:
-			if c >= 28 and c <= 29: return "P"
-			return _parede_frontal(c, r)
-		return "I"
-	if r >= 18 and r <= 19 and c >= 28 and c <= 29:
-		return "P"
+	# ── Planalto vulcânico ao norte (r < 500) — terreno alto e rochoso,
+	# onde a Cratera do Vulcão vai entrar quando essa peça for construída
+	# (ver achado no cabeçalho). Sem warp nenhum aqui de propósito. ──
+	if r < 500:
+		var prog_planalto : float = clampf(float(500 - r) / 250.0, 0.0, 1.0)
+		var campo_vulcanico := func(cc: int, rr: int) -> String:
+			return _cinnabar_terreno_selvagem(cc, rr)
+		var planalto := func(cc: int, rr: int) -> String:
+			# 🔴 pedregulho reduzido de 50% pra 15% (o valor original quase
+			# isolava o planalto inteiro — ver achado acima). A trilha já
+			# garante a travessia; o pedregulho aqui é só decoração de
+			# dificultar atalho fora da trilha, não pode competir com ela.
+			if _espalhar_sal(cc, rr, 150) < 3:
+				return ">"  # pedregulho vulcânico
+			return "^"
+		return _misturar_bioma_cell(c, r, prog_planalto, campo_vulcanico, planalto, 152)
 
-	# ── Mansão Pokémon — só a fachada por enquanto (interior/andares ficam
-	# pra quando "Pokémon e estruturas" virar foco) ── cols 14-26, rows 22-28
-	if c >= 14 and c <= 26 and r >= 22 and r <= 28:
-		if c == 14 or c == 26: return "w"
-		if r == 22: return "H"
-		if r == 28:
-			if c >= 19 and c <= 21: return "P"
-			return _parede_frontal(c, r)
-		return "I"
-	if r >= 28 and r <= 29 and c >= 19 and c <= 21:
-		return "P"
+	# ── Terreno selvagem vulcânico (a maior parte da ilha) — habitat de
+	# Growlithe/Vulpix/Ponyta/Magmar, mais aberto e árido que as rotas do
+	# continente (identidade de ilha vulcânica: pouca árvore, rocha e chão
+	# seco esparsos) ──
+	return _cinnabar_terreno_selvagem(c, r)
 
-	# ── Caminho ligando o cais ao resto da ilha ──
-	if c >= 19 and c <= 20 and r >= 29 and r <= 33:
-		return "P"
-
-	# ── Rochedo vulcânico esparso (identidade de ilha vulcânica) ──
-	# 02/09: usava rocha genérica "R" apesar do comentário já pedir "vulcânica"
-	# desde antes — agora usa o tile de verdade ("c", categoria Terrenos
-	# especiais), sem mudar nem a posição nem a lógica de geração.
-	if _espalhar_sal(c, r, 46) < 2:
+static func _cinnabar_terreno_selvagem(c: int, r: int) -> String:
+	if _espalhar_sal(c, r, 46) < 3:
 		return "c"
+	if _espalhar_sal(c, r, 153) < 2:
+		return "_"
+	if _espalhar_sal(c, r, 154) < 1:
+		return "T"
+	if _espalhar_sal(c, r, 155) < 3:
+		return "A"
 	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -3562,7 +3666,7 @@ static func get_layout(map_id: String) -> Dictionary:
 			return {"tiles": tiles, "width": 36, "height": 36}
 		"cinnabar_island":
 			var tiles := _gen_cinnabar()
-			return {"tiles": tiles, "width": 40, "height": 40}
+			return {"tiles": tiles, "width": CINNABAR_W, "height": CINNABAR_H}
 		"safari_zone":
 			var tiles := _gen_safarizone()
 			return {"tiles": tiles, "width": 44, "height": 44}

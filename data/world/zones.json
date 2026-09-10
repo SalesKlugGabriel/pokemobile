@@ -628,12 +628,12 @@
       "map_id": "cinnabar_island",
       "name": "Cinnabar Island",
       "region": "kanto",
-      "notes": "Cena própria (CinnabarIsland.tscn), só alcançável de barco (Capitão de Vermilion, exige UTIL-02 completa) — coordenada local 0-based, 40x40, ilha com contorno orgânico (mesma técnica de sin()/distância do litoral de Vermilion).",
+      "notes": "Cena própria (CinnabarIsland.tscn), só alcançável de barco (Capitão de Vermilion, exige UTIL-02 completa) — coordenada local 0-based. Escala real (Fase 6, 10/09): 1.200x1.200, ilha com contorno orgânico (mesma técnica de sin()/distância do litoral de Vermilion, com harmônica extra pro tamanho novo). Pedido do Gabriel: 'ilha pra explorar de verdade, achar Growlithe/Vulpix/Ponyta/Magmar/Moltres/Arcanine/Charizard, quase uma DLC'.",
       "tile_rect": {
         "x": 0,
         "y": 0,
-        "w": 40,
-        "h": 40
+        "w": 1200,
+        "h": 1200
       },
       "bgm": "cinnabar_island",
       "wild_pokemon": [
@@ -642,21 +642,49 @@
           "name": "Growlithe",
           "level_min": 30,
           "level_max": 36,
-          "weight": 40
+          "weight": 30
+        },
+        {
+          "id": 37,
+          "name": "Vulpix",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 25
         },
         {
           "id": 77,
           "name": "Ponyta",
           "level_min": 30,
           "level_max": 36,
-          "weight": 35
+          "weight": 25
+        },
+        {
+          "id": 126,
+          "name": "Magmar",
+          "level_min": 32,
+          "level_max": 38,
+          "weight": 12
         },
         {
           "id": 79,
           "name": "Slowpoke",
           "level_min": 28,
           "level_max": 34,
-          "weight": 25
+          "weight": 15
+        },
+        {
+          "id": 59,
+          "name": "Arcanine",
+          "level_min": 38,
+          "level_max": 44,
+          "weight": 2
+        },
+        {
+          "id": 6,
+          "name": "Charizard",
+          "level_min": 40,
+          "level_max": 46,
+          "weight": 1
         }
       ],
       "npcs": []
@@ -2320,8 +2348,8 @@
       "name": "Pokémon Mansion",
       "region": "kanto",
       "tile_rect": {
-        "x": 14,
-        "y": 22,
+        "x": 570,
+        "y": 900,
         "w": 13,
         "h": 7
       },

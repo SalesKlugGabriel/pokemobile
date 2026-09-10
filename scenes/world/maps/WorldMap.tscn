@@ -363,7 +363,7 @@ dialog_id = "capitao_vermilion"
 starts_quest_id = "UTIL-02"
 requires_quest_for_travel = "UTIL-02"
 travel_target_map = "res://scenes/world/maps/CinnabarIsland.tscn"
-travel_spawn_tile = Vector2i(19, 35)
+travel_spawn_tile = Vector2i(599, 1000)
 is_patrolling = false
 
 [node name="ZoneManager" type="Node" parent="."]
