@@ -1962,6 +1962,37 @@ static func _espalhar(c: int, r: int) -> int:
 	h = (h ^ (h >> 13)) & 0xFFFFFFFF
 	return h % 20
 
+## Mistura gradual entre duas "receitas" de célula ao longo de uma transição de
+## bioma (10/09, reestruturação geográfica em escala real — pedido do Gabriel:
+## nunca "floresta → linha invisível → deserto", os biomas têm que se
+## misturar). `progresso` é 0.0 (100% bioma_a) a 1.0 (100% bioma_b); quem
+## chama decide como mapear a posição na rota pra esse valor (normalmente
+## `dist_percorrida / comprimento_do_segmento`, com uma folga nas pontas —
+## ver `_progresso_transicao()` abaixo). `sal` diferencia transições vizinhas
+## que, sem isso, sorteariam o MESMO padrão de ruído lado a lado (duas
+## transições na mesma rota pareceriam sincronizadas, não orgânicas).
+static func _misturar_bioma_cell(c: int, r: int, progresso: float,
+		bioma_a: Callable, bioma_b: Callable, sal: int = 0) -> String:
+	var chance_b : float = clampf(progresso, 0.0, 1.0)
+	# Divide por 20 (não 19): o maior valor possível de _espalhar_sal (19) vira
+	# 0.95, sempre < 1.0 — sem isso, progresso=1.0 (chance_b=1.0) podia sortear
+	# 19/19=1.0 exato, e `1.0 < 1.0` é falso, vazando um tile do bioma ERRADO
+	# bem no fim da transição (achado escrevendo o teste deste helper).
+	var sorteio : float = float(_espalhar_sal(c, r, 97 + sal)) / 20.0
+	if sorteio < chance_b:
+		return bioma_b.call(c, r)
+	return bioma_a.call(c, r)
+
+## Converte "quantos tiles já andei no segmento" num progresso 0..1 com folga
+## nas duas pontas (`margem` tiles 100% puros de cada lado) — sem isso, o
+## primeiro tile do segmento já teria chance de sortear o bioma seguinte, e a
+## cidade/rota anterior pareceria "vazar" imediatamente na transição.
+static func _progresso_transicao(dist: int, comprimento: int, margem: int = 0) -> float:
+	if comprimento <= margem * 2:
+		return 0.5
+	var util : int = comprimento - margem * 2
+	return clampf(float(dist - margem) / float(util), 0.0, 1.0)
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Rota 1 — rows 39-79, corredor cols 44-56, árvores nas bordas
 # ──────────────────────────────────────────────────────────────────────────────
