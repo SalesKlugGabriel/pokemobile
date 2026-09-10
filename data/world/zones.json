@@ -76,6 +76,36 @@
       "npcs": []
     },
     {
+      "id": "rota_viridian_pallet",
+      "map_id": "rota_viridian_pallet",
+      "name": "Rota Viridian-Pallet",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 1000
+      },
+      "bgm": "route_1",
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 2,
+          "level_max": 5,
+          "weight": 50
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 2,
+          "level_max": 4,
+          "weight": 50
+        }
+      ],
+      "npcs": []
+    },
+    {
       "id": "pewter_city",
       "name": "Pewter City",
       "region": "kanto",

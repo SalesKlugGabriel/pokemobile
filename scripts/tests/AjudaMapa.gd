@@ -45,11 +45,24 @@ static func retangulo_da_zona(zone_id: String) -> Rect2i:
 ## 05/09 e reprovou seis testes de um mapa correto. Perguntar "cobre as zonas"
 ## vale pra qualquer crescimento futuro, e ainda pega o defeito de verdade:
 ## uma zona cadastrada fora do mapa, que renderiza vazio.
+##
+## 🔴 Achado (10/09, Fase 1 da reestruturação geográfica): só CONTA zona sem
+## `map_id` próprio (ou `map_id == "world_map"`) — mesmo filtro que
+## `ZoneManager.find_zone_id()` já usa. Sem isso, uma zona de CENA PRÓPRIA
+## (mt_moon, rock_tunnel, e agora rota_viridian_pallet — cada uma com
+## coordenada LOCAL começando perto de 0, sem relação nenhuma com o grid de
+## world_map) contava como se precisasse caber DENTRO de world_map. Passou
+## despercebido até a primeira zona de cena própria maior que o world_map de
+## verdade (rota_viridian_pallet, 1.000 linhas) expor o bug.
 static func altura_cobre_as_zonas(altura: int) -> bool:
 	retangulo_da_zona("pallet_town")   # garante o carregamento do cache
 	var mais_ao_sul := 0
 	for id in _zonas:
-		var ret : Dictionary = (_zonas[id] as Dictionary).get("tile_rect", {})
+		var zona : Dictionary = _zonas[id] as Dictionary
+		var dono_do_mapa : String = str(zona.get("map_id", "world_map"))
+		if dono_do_mapa != "world_map":
+			continue
+		var ret : Dictionary = zona.get("tile_rect", {})
 		if ret.is_empty():
 			continue
 		mais_ao_sul = maxi(mais_ao_sul, int(ret["y"]) + int(ret["h"]))

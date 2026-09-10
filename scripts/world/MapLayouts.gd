@@ -2164,6 +2164,89 @@ static func _viridian_cell(c: int, r: int, W: int) -> String:
 	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Rota Viridian↔Pallet, escala real (10/09) — Fase 1 da reestruturação
+# geográfica (ver docs/mundo-novo-escala.md). 1km ≈ 1.000 tiles, confirmado
+# LITERAL com o Gabriel. Cena PRÓPRIA (RotaViridianPallet.tscn), não dentro
+# de world_map — nenhum mapa único aguenta a escala completa pedida (a
+# "espinha" inteira soma ~38.000 tiles de rota); o padrão que já existe pra
+# dungeon de vários andares (IndigoLeague_F1..F5 etc., cenas encadeadas por
+# warp) é o mesmo aplicado aqui pra rota aberta. Curta de propósito ("Viridian
+# → Pallet deve parecer uma viagem curta") — só grama/campo, sem montanha/
+# caverna (isso fica pra Pewter↔Viridian).
+# ──────────────────────────────────────────────────────────────────────────────
+const ROTA_VP_W : int = 100
+const ROTA_VP_H : int = 1000
+
+static func _gen_rota_viridian_pallet() -> Array:
+	var grid : Array = []
+	for r in ROTA_VP_H:
+		var row := ""
+		for c in ROTA_VP_W:
+			row += _rota_viridian_pallet_cell(c, r, ROTA_VP_W, ROTA_VP_H)
+		grid.append(row)
+	return grid
+
+## Centro do caminho principal, ondulando aos poucos — mesma técnica de
+## `shore_de_vermilion()`/`_ilha_tropical_terreno()` (sin() com período longo,
+## pra não virar uma reta artificial nem serpentear rápido demais).
+static func _rota_vp_centro_caminho(r: int) -> int:
+	return 50 + int(14.0 * sin(float(r) * 0.006) + 6.0 * sin(float(r) * 0.021 + 2.0))
+
+static func _rota_viridian_pallet_cell(c: int, r: int, W: int, H: int) -> String:
+	# Bordas norte/sul: as duas pontas da cena, onde os WarpZone entram — uns
+	# tiles de transição antes do warp, não o warp em si (isso é nó de cena,
+	# não tile).
+	if r <= 1 or r >= H - 2:
+		return _forest_variant(c, r)
+	if c <= 0 or c >= W - 1:
+		return _forest_variant(c, r)
+
+	var centro := _rota_vp_centro_caminho(r)
+	var dist : int = absi(c - centro)
+
+	# Caminho principal — largura varia um pouco (8-12) pra não parecer régua.
+	var largura_caminho : int = 8 + (_espalhar_sal(0, r / 12, 71) % 5)
+	if dist <= largura_caminho:
+		return "P"
+
+	# Faixa de grama alta (zona de encontro selvagem) logo nas bordas do
+	# caminho — mais perto da grama normal, rareando conforme afasta.
+	if dist <= largura_caminho + 6:
+		if _espalhar_sal(c, r, 3) < 9:
+			return "A"
+		return "."
+
+	# Flores e mato espalhado — decoração, nunca bloqueia.
+	if dist <= largura_caminho + 16:
+		if _espalhar_sal(c, r, 4) < 2:
+			return "F"
+		if _espalhar_sal(c, r, 5) < 1:
+			return "A"
+		return "."
+
+	# Um pequeno lago perto da metade do trecho (10/09: variedade visual
+	# pedida — "rios/lagos" nas seções 2/12 do prompt do Gabriel), só do
+	# lado LESTE do caminho pra não competir com a faixa oeste.
+	if r > H / 2 - 40 and r < H / 2 + 40 and c > centro + 20 and c < centro + 34:
+		var dlago := Vector2(c - (centro + 27), r - (H / 2)).length()
+		if dlago < 12.0:
+			return "~"
+		if dlago < 15.0:
+			return "S"
+
+	# Transição orgânica pra árvore (nunca uma parede reta): densidade de
+	# árvore cresce com a distância do caminho, usando o blend genérico —
+	# perto da faixa de mato é quase só grama, longe é quase só floresta.
+	var progresso_arvore : float = clampf(float(dist - (largura_caminho + 16)) / 24.0, 0.0, 1.0)
+	var campo := func(cc: int, rr: int) -> String:
+		if _espalhar_sal(cc, rr, 6) < 2:
+			return "F"
+		return "."
+	var floresta := func(cc: int, rr: int) -> String:
+		return _forest_variant(cc, rr)
+	return _misturar_bioma_cell(c, r, progresso_arvore, campo, floresta, 11)
+
+# ──────────────────────────────────────────────────────────────────────────────
 # PokéCenter interior — 16×14 (inalterado)
 # ──────────────────────────────────────────────────────────────────────────────
 static func _gen_pokemon_center() -> Array:
@@ -2616,6 +2699,9 @@ static func get_layout(map_id: String) -> Dictionary:
 		"pokemon_center":
 			var tiles := _gen_pokemon_center()
 			return {"tiles": tiles, "width": 16, "height": 14}
+		"rota_viridian_pallet":
+			var tiles := _gen_rota_viridian_pallet()
+			return {"tiles": tiles, "width": ROTA_VP_W, "height": ROTA_VP_H}
 		"mt_moon":
 			var tiles := _gen_mtmoon()
 			return {"tiles": tiles, "width": 20, "height": 30}

@@ -78,6 +78,12 @@ size = Vector2(256, 128)
 [sub_resource type="RectangleShape2D" id="Shape_pokecenter_lavender"]
 size = Vector2(384, 128)
 
+[sub_resource type="RectangleShape2D" id="Shape_rota_vp_norte"]
+size = Vector2(1664, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_vp_sul"]
+size = Vector2(1664, 128)
+
 [node name="WorldMap" type="Node2D"]
 script = ExtResource("1_basemap")
 map_id = "world_map"
@@ -527,6 +533,22 @@ spawn_tile = Vector2i(8, 11)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpGameCorner"]
 shape = SubResource("Shape_gamecorner")
+
+[node name="WarpRotaViridianPalletNorte" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(6400, 13568)
+target_map = "res://scenes/world/maps/RotaViridianPallet.tscn"
+spawn_tile = Vector2i(50, 5)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaViridianPalletNorte"]
+shape = SubResource("Shape_rota_vp_norte")
+
+[node name="WarpRotaViridianPalletSul" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(6400, 19968)
+target_map = "res://scenes/world/maps/RotaViridianPallet.tscn"
+spawn_tile = Vector2i(50, 994)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaViridianPalletSul"]
+shape = SubResource("Shape_rota_vp_sul")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 
