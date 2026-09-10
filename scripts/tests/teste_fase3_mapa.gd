@@ -57,19 +57,29 @@ func _teste_geral() -> void:
 	_assert(AjudaMapa.tem_predio_completo(tiles, r_pewter),
 		"os prédios de Pewter têm telhado, interior andável E porta")
 
-	# ---- 2. Corredor central é UM SÓ, sem quebra, de Pewter até Pallet ----
-	# (a prova de que é mundo aberto de verdade: anda reto por 190 linhas
-	# sem nenhum warp no meio — só bate em parede/água/caverna, isso não
-	# existe ainda nesse trecho)
-	# Pallet é o fim da estrada (sul do mapa) — o corredor dela só vai até
-	# old_r=115 (o resto é a borda sul, de propósito, sem quebra "no meio").
-	var fim_do_corredor := 115 + MapLayouts.OFFSET_ANTIGO
-	var quebras := 0
-	for r in range(3, fim_do_corredor + 1):
-		if tiles[r][50] != "P" and tiles[r][50] != "I" and tiles[r][50] != "W" and tiles[r][50] != "H":
-			quebras += 1
-	_assert(quebras == 0,
-		"corredor central (col 50) é caminhável do topo (Pewter) até o fim de Pallet, sem quebra (%d quebras)" % quebras)
+	# ---- 2. O atalho reto (col 50) entre Pewter/Viridian/Pallet, DENTRO do
+	# world_map antigo, está SELADO — 🔴 achado em 10/09 (Fase 2 da
+	# reestruturação geográfica, docs/mundo-novo-escala.md): esta asserção
+	# ERA "sem quebra nenhuma, corredor contínuo" (desenho da Fase 3,
+	# 03/09) — e é exatamente o oposto do que a escala real de gameplay
+	# exige. Testei a conectividade de verdade e achei que um jogador
+	# conseguia ir de Pewter a Pallet 100% por aqui, sem nunca tocar a
+	# rota nova (RotaViridianPallet.tscn, 1.000 tiles = 1km). Agora o
+	# corredor PRECISA estar bloqueado nas faixas de Rota 1 (old_r 39-79)
+	# e Rota 2 (r 37-72) — só as cidades continuam com corredor interno
+	# andável.
+	var quebra_rota2 := false
+	for r in range(MapLayouts.PEWTER_ROWS + 1, MapLayouts.OFFSET_ANTIGO + 1):
+		if tiles[r][50] == "P":
+			quebra_rota2 = true
+	_assert(not quebra_rota2,
+		"Rota 2 (o atalho antigo Pewter-Viridian) está selada, sem tile andável na col 50")
+	var quebra_rota1 := false
+	for r in range(MapLayouts.OFFSET_ANTIGO + 39, MapLayouts.OFFSET_ANTIGO + 80):
+		if tiles[r][50] == "P":
+			quebra_rota1 = true
+	_assert(not quebra_rota1,
+		"Rota 1 (o atalho antigo Viridian-Pallet) está selada, sem tile andável na col 50")
 
 	# ---- 3. Rota 2 (linhas locais 37-72) tem grama/árvore, não é cidade ----
 	# Fora do corredor, a Rota 2 é campo — nunca prédio. Contado na zona

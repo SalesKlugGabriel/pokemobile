@@ -103,8 +103,8 @@ que `ZoneManager.find_zone_id()` já usa).
 ## Fases (cada uma testável/publicável isolada — mesmo padrão "Tier N" de sempre)
 
 0. **Esqueleto** — só as âncoras acima em `zones.json`, sem pintar nada. ✅
-1. **Pallet↔Viridian↔Pewter** (1km+3km=4.000 tiles) — primeira espinha
-   jogável, é onde o jogo começa.
+1. ✅ **Pallet↔Viridian↔Pewter** (1km+3km=4.000 tiles) — primeira espinha
+   jogável, é onde o jogo começa. **COMPLETA (10/09/2026).**
    - ✅ **Viridian↔Pallet (1.000 tiles) — FEITO, testado (19 conferências),
      publicado.** `RotaViridianPallet.tscn` (cena nova) + `MapLayouts.
      _gen_rota_viridian_pallet()`/`_rota_viridian_pallet_cell()` + o helper
@@ -120,13 +120,52 @@ que `ZoneManager.find_zone_id()` já usa).
      old_r≈34, corredor cols 44-56) e dentro de Pallet (old_r≈84) — TESTADO
      visualmente (build local, screenshot), NÃO ainda percorrido a pé de
      ponta a ponta contra produção pelo Gabriel.
-   - ⬜ **Pewter↔Viridian (3.000 tiles)** — próximo passo. Aqui entra a
-     exigência de montanha+caverna não-linear (padrão Rock Tunnel) que ficou
-     pendente. Biomas: Rochoso/Montanha (perto de Pewter, com caverna) →
-     Floresta (existe Viridian Forest já no jogo — cuidado pra não duplicar/
-     conflitar) → Campo (perto de Viridian).
+   - ✅ **Pewter↔Viridian (3.000 tiles) — FEITO, testado (37+9 conferências
+     + suíte inteira 90/0), publicado (10/09/2026).** `RotaPewterViridian.
+     tscn` + `CavernaMontanhaPV.tscn` (cena própria pra travessia). Bandas
+     norte→sul: Montanha (rocha `^`, falésia `/`, cume `<`, pedregulho `>`,
+     trilha `:` — biomas novos, nunca usados de verdade até agora) → blend
+     → Floresta densa (substitui a antiga Viridian Forest, que virou
+     conteúdo morto junto com o resto de Rota 1/2, ver abaixo) → blend →
+     Campo perto de Viridian.
+     **A caverna é travessia OBRIGATÓRIA de verdade**: a crista fica
+     bloqueada por fora entre r=300 e r=620 (testado: nenhum tile andável
+     sobra na largura inteira), só passa entrando em `CavernaMontanhaPV.
+     tscn` — e essa caverna, diferente de Mt Moon/Rock Tunnel/Victory Road
+     (que têm as duas bocas PRÓXIMAS), liga de verdade dois lados opostos
+     (porta sul boca-Pewter ↔ porta norte boca-floresta), não-linear
+     (caminhada com viés + ramos secundários, mesma técnica de sempre).
+   - 🔴 **Achado crítico no meio do caminho, corrigido**: as duas rotas
+     "antigas" (Rota 1 Viridian↔Pallet, Rota 2 Pewter↔Viridian), que ainda
+     viviam DENTRO do `world_map` de sempre, continuavam 100% andáveis —
+     um atalho reto que ignorava as rotas novas inteiras. Testei
+     conectividade real e confirmei: dava pra ir de Pewter a Pallet sem
+     tocar nenhuma rota nova. As duas foram SELADAS (`_route1_cell`/
+     `_route2_cell` agora só devolvem floresta densa impassável, exceto o
+     lago de pesca da Rota 1 — que ficou como dado histórico; o lago
+     CANÔNICO agora é o da RotaViridianPallet.tscn, que já tinha um
+     equivalente). 4 NPCs que moravam nessas bandas foram realocados:
+     Campista/Treinador1/Pescador migraram pra dentro de
+     RotaViridianPallet.tscn (mesmas coordenadas relativas, patrulha e
+     presente old_rod preservados); Colecionador de Insetos (só ele
+     PRECISA continuar dentro de `Entities/Colecionador` no WorldMap.tscn —
+     testado por nome) foi reposicionado pro corredor de Pewter. 6 testes
+     antigos ajustados pra essa realidade nova (o pior: `teste_fase3_mapa.
+     gd` tinha uma asserção que EXIGIA o corredor contínuo sem quebra —
+     desenho de 03/09, exatamente o oposto do que a escala real pede — 
+     virou "confirma que está selado"; `teste_conectividade.gd` ganhou um
+     helper `_alcancavel_via_rota()` que confere a cadeia cidade→warp→rota
+     (provada à parte)→warp→cidade, em vez de exigir BFS direto no
+     world_map pra Viridian/Pewter).
 2. **Pewter→Cerulean** (7.000 tiles) — Rocky Highlands→Forest Valley→River
    Basin→Open Fields. Retrofit de Mt Moon pra caverna não-linear aqui.
+   ⚠️ **Lição da Fase 1 a aplicar de propósito aqui, não só descobrir nesta
+   hora**: a Rota 3 antiga (dentro do `world_map`, ainda intacta —
+   reaproveitada como zona "segura" em 2 testes durante a Fase 1) PRECISA
+   ser selada (virar floresta/rocha impassável) assim que a rota nova
+   entrar, senão sobra um atalho reto igual ao que a Rota 1/2 virou. Conferir
+   TAMBÉM se algum NPC mora nela antes de selar (mesma checagem que pegou
+   Colecionador/Treinador1/Campista/Pescador desta vez).
 3. **Nó central**: Cerulean→Saffron (4.000) + Saffron→Celadon (4.000) +
    Saffron→Vermilion (2.000).
 4. **Cerulean→Lavender** (5.000 tiles).

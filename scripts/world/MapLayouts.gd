@@ -1370,32 +1370,14 @@ static func _pewter_cell(c: int, r: int, W: int) -> String:
 	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Rota 2 — linhas locais 1-36 (globais 37-72), corredor cols 44-56 igual a
-# Rota 1, mesma faixa de grama/árvore/flor esparsa. Geodude entra no spawn
-# selvagem via zones.json (não muda nada aqui, só o dado de spawn).
+# Rota 2 (linhas globais 37-72) — 🔴 10/09 (Fase 2 da reestruturação
+# geográfica): mesmo achado/mesma correção do `_route1_cell` — este era o
+# atalho reto entre Pewter e Viridian, substituído pela RotaPewterViridian.
+# tscn nova (3.000 tiles). Selado com floresta densa; comentário completo
+# de por que em `_route1_cell`.
 # ──────────────────────────────────────────────────────────────────────────────
 static func _route2_cell(c: int, r: int, W: int) -> String:
-	if c <= 4 or c >= W - 5:
-		return "T"
-	if c >= 44 and c <= 56:
-		return "P"
-	if c <= 43:
-		if c <= 8 or c >= 40:
-			return "T"
-		if _espalhar_sal(c, r, 35) < 2:
-			return "T"
-		if _espalhar_sal(c, r, 36) < 2:
-			return "F"
-		return "."
-	if c >= 57:
-		if c <= 60 or c >= 91:
-			return "T"
-		if _espalhar_sal(c, r, 37) < 2:
-			return "T"
-		if _espalhar_sal(c, r, 38) < 2:
-			return "F"
-		return "."
-	return "."
+	return _forest_variant(c, r)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Pallet Town — rows 80-119, full 100 wide
@@ -2014,37 +1996,22 @@ static func _forest_variant(c: int, r: int) -> String:
 		return "O"
 	return "K"
 
+## 🔴 10/09 (Fase 2 da reestruturação geográfica, docs/mundo-novo-escala.md):
+## esta função pintava um ATALHO reto de ~41 linhas entre Viridian e Pallet,
+## dentro do próprio world_map — e a nova RotaViridianPallet.tscn (1.000
+## tiles, a distância REAL de 1km) virou decoração opcional enquanto esse
+## atalho continuasse andável. Achado ao testar a conectividade: um jogador
+## conseguia ir de Pewter a Pallet 100% pelo world_map antigo, sem nunca
+## tocar nenhuma das rotas novas. Selado: tudo vira floresta densa
+## (impassável) — MENOS o lago (mecânica de pesca real). O lago em si não
+## fica órfão: o mesmo recurso já existe, alcançável, dentro da
+## RotaViridianPallet.tscn nova (ver `_rota_viridian_pallet_cell`).
 static func _route1_cell(c: int, r: int, W: int) -> String:
-	# Bordas laterais densas
-	if c <= 4 or c >= W - 5:
-		return _forest_variant(c, r)
-	# Corredor central N-S: cols 44-56
-	if c >= 44 and c <= 56:
-		return "P"
-	# Faixa de grama caminhável entre árvores e corredor
-	# Lado oeste: cols 5-43 — grama com árvores esparsas
-	if c <= 43:
-		if c <= 8 or c >= 40:
-			return _forest_variant(c, r)  # bordas internas também são árvore
-		if _espalhar_sal(c, r, 39) < 3:
-			return _forest_variant(c, r)
-		if _espalhar_sal(c, r, 40) < 2:
-			return "F"
-		return "."
-	# Lado leste: cols 57-94 — grama com árvores esparsas
-	if c >= 57:
-		if c <= 60 or c >= 91:
-			return _forest_variant(c, r)
-		# Lago pequeno (Fase 2 do Diário — pesca precisa de água de verdade
-		# em algum lugar do mapa; não existia nenhum tile "~" no jogo antes).
-		if c >= 63 and c <= 70 and r >= 55 and r <= 60:
-			return "~"
-		if _espalhar_sal(c, r, 41) < 3:
-			return _forest_variant(c, r)
-		if _espalhar_sal(c, r, 42) < 2:
-			return "F"
-		return "."
-	return "."
+	# Lago pequeno (Fase 2 do Diário — mantido como dado histórico do mapa;
+	# não é mais o ponto de pesca canônico, que agora vive na rota nova).
+	if c >= 63 and c <= 70 and r >= 55 and r <= 60:
+		return "~"
+	return _forest_variant(c, r)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Viridian City — rows 2-38, corredor cols 44-56 vindo do sul
@@ -2245,6 +2212,232 @@ static func _rota_viridian_pallet_cell(c: int, r: int, W: int, H: int) -> String
 	var floresta := func(cc: int, rr: int) -> String:
 		return _forest_variant(cc, rr)
 	return _misturar_bioma_cell(c, r, progresso_arvore, campo, floresta, 11)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Rota Pewter-Viridian — 100×3.000, cena própria (Fase 1, 2º trecho, 10/09).
+# 3km = 3.000 tiles. r=0 é o lado de Pewter (norte), r=H-1 é o lado de
+# Viridian (sul) — mesma convenção da RotaViridianPallet.
+#
+# Aqui entra a exigência confirmada pelo Gabriel ao aprovar o plano: bioma
+# de MONTANHA de verdade (rocha com elevação, não "colinas" raso) + CAVERNA
+# não-linear sempre que a rota atravessa a montanha por dentro — pendência
+# desde antes de Mt Moon existir, nunca executada até agora.
+#
+# 4 bandas (norte→sul): Montanha (com a travessia de caverna obrigatória,
+# ~r300-620) → transição → Floresta densa (equivalente maior da Viridian
+# Forest antiga) → transição → Campo aberto (encosta em Viridian).
+# ──────────────────────────────────────────────────────────────────────────────
+const ROTA_PV2_W : int = 100
+const ROTA_PV2_H : int = 3000
+
+const RPV_MONTANHA_FIM  : int = 840
+const RPV_BLEND1_FIM    : int = 900
+const RPV_FLORESTA_FIM  : int = 2280
+const RPV_BLEND2_FIM    : int = 2340
+
+## A crista fica intransponível por fora entre essas duas linhas — só passa
+## por dentro da caverna (CavernaMontanhaPV, cena própria). Ver
+## `_rota_pv2_montanha_cell`.
+const RPV_CAVERNA_ENTRADA_R : int = 300  # boca norte (lado Pewter)
+const RPV_CAVERNA_SAIDA_R   : int = 620  # boca sul (lado floresta)
+
+static func _gen_rota_pewter_viridian() -> Array:
+	var grid : Array = []
+	for r in ROTA_PV2_H:
+		var row := ""
+		for c in ROTA_PV2_W:
+			row += _rota_pewter_viridian_cell(c, r, ROTA_PV2_W, ROTA_PV2_H)
+		grid.append(row)
+	return grid
+
+static func _rota_pv2_centro_caminho(r: int) -> int:
+	return 50 + int(16.0 * sin(float(r) * 0.0045) + 7.0 * sin(float(r) * 0.017 + 1.3))
+
+static func _rota_pewter_viridian_cell(c: int, r: int, W: int, H: int) -> String:
+	if r <= 1 or r >= H - 2:
+		return _forest_variant(c, r)
+	if c <= 0 or c >= W - 1:
+		return _forest_variant(c, r)
+
+	if r < RPV_MONTANHA_FIM:
+		return _rota_pv2_montanha_cell(c, r, W)
+
+	if r < RPV_BLEND1_FIM:
+		var montanha := func(cc: int, rr: int) -> String:
+			return _rota_pv2_montanha_cell(cc, rr, W)
+		var floresta1 := func(cc: int, rr: int) -> String:
+			return _rota_pv2_floresta_cell(cc, rr, W)
+		var prog1 := _progresso_transicao(r - RPV_MONTANHA_FIM, RPV_BLEND1_FIM - RPV_MONTANHA_FIM)
+		return _misturar_bioma_cell(c, r, prog1, montanha, floresta1, 23)
+
+	if r < RPV_FLORESTA_FIM:
+		return _rota_pv2_floresta_cell(c, r, W)
+
+	if r < RPV_BLEND2_FIM:
+		var floresta2 := func(cc: int, rr: int) -> String:
+			return _rota_pv2_floresta_cell(cc, rr, W)
+		var campo1 := func(cc: int, rr: int) -> String:
+			return _rota_pv2_campo_cell(cc, rr, W)
+		var prog2 := _progresso_transicao(r - RPV_FLORESTA_FIM, RPV_BLEND2_FIM - RPV_FLORESTA_FIM)
+		return _misturar_bioma_cell(c, r, prog2, floresta2, campo1, 24)
+
+	return _rota_pv2_campo_cell(c, r, W)
+
+## Bioma de montanha: trilha (":") no eixo do caminho, rocha exposta ("^")
+## andável nos flancos, falésia ("/")/cume ("<")/pedregulho (">") bloqueando
+## quanto mais longe do eixo. Entre RPV_CAVERNA_ENTRADA_R e
+## RPV_CAVERNA_SAIDA_R a LARGURA INTEIRA vira rocha bloqueada — não só o
+## eixo — senão dava pra contornar a crista pela lateral e a caverna virava
+## decoração em vez de travessia obrigatória.
+static func _rota_pv2_montanha_cell(c: int, r: int, W: int) -> String:
+	var centro := _rota_pv2_centro_caminho(r)
+	var dist : int = absi(c - centro)
+
+	if r > RPV_CAVERNA_ENTRADA_R and r < RPV_CAVERNA_SAIDA_R:
+		if _espalhar_sal(c, r, 60) < 12:
+			return "<"
+		return "/"
+
+	# Boca da caverna — marcador visual (2 tiles); o WarpZone de verdade é
+	# plantado em cima destes tiles, na cena.
+	if (r == RPV_CAVERNA_ENTRADA_R or r == RPV_CAVERNA_SAIDA_R) and dist <= 1:
+		return "D"
+
+	if dist <= 6:
+		return ":"
+	if dist <= 12:
+		if _espalhar_sal(c, r, 61) < 4:
+			return ">"
+		return "^"
+	if dist <= 24:
+		if _espalhar_sal(c, r, 62) < 7:
+			return "/"
+		return "^"
+	return "/"
+
+## Floresta densa — analógica a uma Viridian Forest bem maior. Caminho
+## largo o bastante pra não parecer corredor, faixa de mato alto pra
+## encontro selvagem, resto é mata fechada.
+static func _rota_pv2_floresta_cell(c: int, r: int, W: int) -> String:
+	var centro := _rota_pv2_centro_caminho(r)
+	var dist : int = absi(c - centro)
+	var largura_caminho : int = 7 + (_espalhar_sal(0, r / 15, 63) % 4)
+	if dist <= largura_caminho:
+		return "P"
+	if dist <= largura_caminho + 9:
+		if _espalhar_sal(c, r, 64) < 10:
+			return "A"
+		return "."
+	if dist <= largura_caminho + 20:
+		if _espalhar_sal(c, r, 65) < 4:
+			return "."
+		return _forest_variant(c, r)
+	return _forest_variant(c, r)
+
+## Campo aberto perto de Viridian — mesmo espírito do trecho de Pallet
+## (Fase 1), só um pouco mais largo de caminho (rota mais percorrida).
+static func _rota_pv2_campo_cell(c: int, r: int, W: int) -> String:
+	var centro := _rota_pv2_centro_caminho(r)
+	var dist : int = absi(c - centro)
+	var largura_caminho : int = 9 + (_espalhar_sal(0, r / 12, 66) % 5)
+	if dist <= largura_caminho:
+		return "P"
+	if dist <= largura_caminho + 10:
+		if _espalhar_sal(c, r, 67) < 6:
+			return "A"
+		return "."
+	if dist <= largura_caminho + 18:
+		if _espalhar_sal(c, r, 68) < 3:
+			return "F"
+		return "."
+	return _forest_variant(c, r)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Caverna Montanha PV — cena própria, a travessia por dentro da montanha da
+# rota Pewter-Viridian. Diferente de Mt Moon/Rock Tunnel/Victory Road (que
+# têm as duas bocas PRÓXIMAS, "não é um túnel ligando dois pontos
+# distantes"), esta caverna liga de VERDADE dois lados opostos — é
+# exatamente o que o Gabriel pediu ("caverna não-linear sempre que uma rota
+# atravessa montanha por dentro"). Caminho principal com viés pra norte até
+# quase o topo (garante que a travessia é possível), + ramos secundários
+# aleatórios (mesma técnica de `_rocktunnel_carve`) pra não ficar um
+# corredor reto.
+# ──────────────────────────────────────────────────────────────────────────────
+const CAVERNA_PV_W : int = 40
+const CAVERNA_PV_H : int = 70
+const CAVERNA_PV_SEED : int = 20260910300
+
+static func _gen_caverna_montanha_pv() -> Array:
+	var W := CAVERNA_PV_W
+	var H := CAVERNA_PV_H
+	var grid_chars : Array = []
+	for r in H:
+		var row : Array = []
+		for c in W:
+			row.append("R")
+		grid_chars.append(row)
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = CAVERNA_PV_SEED
+
+	# Porta SUL (row H-1) = boca de entrada (lado Pewter/norte da rota).
+	grid_chars[H - 1][19] = "P"
+	grid_chars[H - 1][20] = "P"
+
+	# Caminhada principal com viés pra cima — garante que a travessia chega
+	# perto do topo antes de abrir a porta norte, em vez de confiar só na
+	# sorte de um passeio 100% aleatório. Registra o ponto mais ao norte
+	# (menor r) que a caminhada realmente visitou, pra entalhar a ligação
+	# até a porta SEM deixar buraco (achado: escolher só o (c,r) final do
+	# laço podia deixar 1 linha de rocha sólida entre o topo do passeio e a
+	# porta — a travessia inteira ficava desconectada).
+	var visitados : Array = []
+	var c := 19
+	var r := H - 2
+	var passos := 0
+	var menor_r := r
+	var col_do_menor_r := c
+	while r > 1 and passos < 4000:
+		if grid_chars[r][c] != "D":
+			grid_chars[r][c] = "D"
+			visitados.append(Vector2i(c, r))
+		if r < menor_r:
+			menor_r = r
+			col_do_menor_r = c
+		var sorteio := rng.randf()
+		if sorteio < 0.55:
+			r -= 1
+		elif sorteio < 0.75:
+			r += 1
+		elif sorteio < 0.88:
+			c -= 1
+		else:
+			c += 1
+		c = clampi(c, 1, W - 2)
+		r = clampi(r, 1, H - 2)
+		passos += 1
+
+	# Porta NORTE (boca de saída, lado floresta/sul da rota) — entalha reto
+	# na MESMA coluna do ponto mais ao norte alcançado, até a borda, então
+	# abre a porta ali. Garante ligação sem lacuna.
+	for rr in range(1, menor_r):
+		grid_chars[rr][col_do_menor_r] = "D"
+	grid_chars[0][col_do_menor_r] = "P"
+
+	# Ramos secundários — não-linear de verdade, mesma técnica das outras
+	# cavernas do jogo.
+	for i in 5:
+		var idx := rng.randi_range(0, visitados.size() - 1)
+		var pt : Vector2i = visitados[idx]
+		_rocktunnel_carve(grid_chars, W, H, pt.x, pt.y, 180, rng, visitados)
+
+	var grid : Array = []
+	for rr in H:
+		var linha := ""
+		for cc in W:
+			linha += grid_chars[rr][cc]
+		grid.append(linha)
+	return grid
 
 # ──────────────────────────────────────────────────────────────────────────────
 # PokéCenter interior — 16×14 (inalterado)
@@ -2702,6 +2895,12 @@ static func get_layout(map_id: String) -> Dictionary:
 		"rota_viridian_pallet":
 			var tiles := _gen_rota_viridian_pallet()
 			return {"tiles": tiles, "width": ROTA_VP_W, "height": ROTA_VP_H}
+		"rota_pewter_viridian":
+			var tiles := _gen_rota_pewter_viridian()
+			return {"tiles": tiles, "width": ROTA_PV2_W, "height": ROTA_PV2_H}
+		"caverna_montanha_pv":
+			var tiles := _gen_caverna_montanha_pv()
+			return {"tiles": tiles, "width": CAVERNA_PV_W, "height": CAVERNA_PV_H}
 		"mt_moon":
 			var tiles := _gen_mtmoon()
 			return {"tiles": tiles, "width": 20, "height": 30}

@@ -84,6 +84,12 @@ size = Vector2(1664, 128)
 [sub_resource type="RectangleShape2D" id="Shape_rota_vp_sul"]
 size = Vector2(1664, 128)
 
+[sub_resource type="RectangleShape2D" id="Shape_rota_pv2_norte"]
+size = Vector2(384, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_pv2_sul"]
+size = Vector2(384, 128)
+
 [node name="WorldMap" type="Node2D"]
 script = ExtResource("1_basemap")
 map_id = "world_map"
@@ -131,21 +137,6 @@ npc_name = "Moradora"
 dialog_id = "pallet_resident_2"
 is_patrolling = false
 
-[node name="Treinador1" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(6400, 16768)
-npc_name = "Treinador"
-dialog_id = "route_1_trainer_1"
-is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 19, "level": 4}])
-patrol_route = Array[Vector2i]([Vector2i(51, 131), Vector2i(49, 131)])
-is_patrolling = true
-
-[node name="Campista" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(6400, 15360)
-npc_name = "Campista"
-dialog_id = "route_1_camper"
-is_patrolling = false
-
 [node name="Guarda" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(6400, 12928)
 npc_name = "Guarda"
@@ -180,20 +171,13 @@ npc_name = "Ancião"
 dialog_id = "viridian_elder"
 is_patrolling = false
 
-[node name="Pescador" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(8512, 17088)
-npc_name = "Pescador"
-dialog_id = "route1_fisherman"
-gift_item_id = "old_rod"
-is_patrolling = false
-
 [node name="Colecionador" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(7872, 7104)
+position = Vector2(6400, 3840)
 npc_name = "Colecionador de Insetos"
 dialog_id = "route2_bugcatcher"
 is_trainer = true
 trainer_team = Array[Dictionary]([{"species_id": 10, "level": 6}, {"species_id": 13, "level": 7}])
-patrol_route = Array[Vector2i]([Vector2i(62, 55), Vector2i(60, 55)])
+patrol_route = Array[Vector2i]([Vector2i(51, 30), Vector2i(49, 30)])
 is_patrolling = true
 
 [node name="Brock" parent="Entities" instance=ExtResource("3_npc")]
@@ -549,6 +533,22 @@ spawn_tile = Vector2i(50, 994)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpRotaViridianPalletSul"]
 shape = SubResource("Shape_rota_vp_sul")
+
+[node name="WarpRotaPewterViridianNorte" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(6400, 4352)
+target_map = "res://scenes/world/maps/RotaPewterViridian.tscn"
+spawn_tile = Vector2i(56, 5)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaPewterViridianNorte"]
+shape = SubResource("Shape_rota_pv2_norte")
+
+[node name="WarpRotaPewterViridianSul" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(6400, 9856)
+target_map = "res://scenes/world/maps/RotaPewterViridian.tscn"
+spawn_tile = Vector2i(69, 2994)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaPewterViridianSul"]
+shape = SubResource("Shape_rota_pv2_sul")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 

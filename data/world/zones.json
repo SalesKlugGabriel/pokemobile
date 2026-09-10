@@ -106,6 +106,87 @@
       "npcs": []
     },
     {
+      "id": "rota_pewter_viridian",
+      "map_id": "rota_pewter_viridian",
+      "name": "Rota Pewter-Viridian",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 3000
+      },
+      "bgm": "route_2",
+      "wild_pokemon": [
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 3,
+          "level_max": 8,
+          "weight": 30
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 3,
+          "level_max": 7,
+          "weight": 25
+        },
+        {
+          "id": 10,
+          "name": "Caterpie",
+          "level_min": 3,
+          "level_max": 7,
+          "weight": 25
+        },
+        {
+          "id": 13,
+          "name": "Weedle",
+          "level_min": 3,
+          "level_max": 7,
+          "weight": 20
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "caverna_montanha_pv",
+      "map_id": "caverna_montanha_pv",
+      "name": "Caverna da Montanha (Pewter-Viridian)",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 70
+      },
+      "bgm": "mt_moon",
+      "wild_pokemon": [
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 5,
+          "level_max": 10,
+          "weight": 45
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 5,
+          "level_max": 10,
+          "weight": 45
+        },
+        {
+          "id": 27,
+          "name": "Sandshrew",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 10
+        }
+      ],
+      "npcs": []
+    },
+    {
       "id": "pewter_city",
       "name": "Pewter City",
       "region": "kanto",

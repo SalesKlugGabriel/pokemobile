@@ -22,9 +22,11 @@ var _ok := 0
 var _fail := 0
 var _rodou := false
 
-## Cidades que TÊM que ser alcançáveis a pé desde Pallet.
+## Cidades alcançáveis a pé DIRETO no world_map (sem trocar de cena) —
+## desde a Fase 1/2 da reestruturação geográfica (10/09), Viridian e Pewter
+## saíram desta lista: viram cadeia (ver `_alcancavel_via_rota` abaixo).
 const A_PE : Array[String] = [
-	"viridian_city", "pewter_city", "cerulean_city", "saffron_city",
+	"cerulean_city", "saffron_city",
 	"vermilion_city", "celadon_city", "lavender_town", "fuchsia_city",
 ]
 
@@ -55,7 +57,33 @@ func _process(_delta: float) -> bool:
 	var origem := AjudaMapa.tile_andavel_da_zona(tm, r_pallet)
 	_assert(origem.x != -9999, "Pallet Town tem chão andável pra sair (origem %s)" % origem)
 
-	# ---- 1. Toda cidade de terra firme é alcançável a pé desde Pallet -----
+	# ---- 1a. Viridian e Pewter — alcançáveis por CADEIA de cena+warp, não
+	# mais andando direto no world_map (10/09, Fase 1/2 da reestruturação
+	# geográfica: a distância real de 1km/3km agora mora dentro de
+	# RotaViridianPallet.tscn/RotaPewterViridian.tscn, cenas próprias). A
+	# travessia DENTRO de cada rota já é provada, rigorosamente, pelos
+	# testes dedicados delas (teste_rota_viridian_pallet.gd,
+	# teste_rota_pewter_viridian.gd — inclusive a caverna não-linear da
+	# montanha). Aqui só confere a PONTA: dá pra andar de dentro da cidade
+	# até o tile onde o warp da rota fica plantado?
+	var origem_viridian := _alcancavel_via_rota(tm, origem,
+		"WarpRotaViridianPalletSul", "WarpRotaViridianPalletNorte", "viridian_city")
+	_assert(origem_viridian.x != -9999,
+		"Viridian alcançável por cadeia: Pallet → warp → RotaViridianPallet.tscn (provada à parte) → Viridian")
+
+	var origem_pewter := Vector2i(-9999, -9999)
+	if origem_viridian.x != -9999:
+		origem_pewter = _alcancavel_via_rota(tm, origem_viridian,
+			"WarpRotaPewterViridianSul", "WarpRotaPewterViridianNorte", "pewter_city")
+	_assert(origem_pewter.x != -9999,
+		"Pewter alcançável por cadeia: Viridian → warp → RotaPewterViridian.tscn (rota+caverna, provada à parte) → Pewter")
+
+	# ---- 1b. As cidades que continuam ligadas direto no world_map (ainda
+	# não entraram nesta reestruturação) — origem passa a ser PEWTER, não
+	# mais Pallet, já que a cadeia acima é quem prova que dá pra chegar até
+	# ele. Se origem_pewter falhou, usa Pallet mesmo (evita mascarar erro
+	# duplo com "sem retângulo").
+	var origem_resto := origem_pewter if origem_pewter.x != -9999 else origem
 	var ilhadas : Array[String] = []
 	for zona in A_PE:
 		var ret := AjudaMapa.retangulo_da_zona(zona)
@@ -66,9 +94,9 @@ func _process(_delta: float) -> bool:
 		if destino.x == -9999:
 			ilhadas.append("%s (nenhum tile andável dentro dela)" % zona)
 			continue
-		if not AjudaMapa.caminho_a_pe(tm, origem, destino):
-			ilhadas.append("%s (sem caminho a pé desde Pallet)" % zona)
-	_assert(ilhadas.is_empty(), "as 8 cidades de terra firme são alcançáveis a pé — %s" % (
+		if not AjudaMapa.caminho_a_pe(tm, origem_resto, destino):
+			ilhadas.append("%s (sem caminho a pé desde Pewter)" % zona)
+	_assert(ilhadas.is_empty(), "as demais cidades de terra firme são alcançáveis a pé desde Pewter — %s" % (
 		"ok" if ilhadas.is_empty() else str(ilhadas)))
 
 	# ---- 2. As de mar/trava têm chão andável (existem de verdade) --------
@@ -113,6 +141,44 @@ func _process(_delta: float) -> bool:
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	quit(1 if _fail > 0 else 0)
 	return true
+
+## Confere uma cadeia cidade→(warp)→rota (cena própria)→(warp)→cidade. A
+## travessia DENTRO da rota já foi provada à parte, rigorosamente, pelo
+## teste dedicado dela (inclusive a caverna, quando houver) — aqui só
+## confere as duas pontas: dá pra andar da origem até o tile do warp de
+## saída, e o warp de chegada encosta de verdade no resto da cidade de
+## destino? Devolve um tile andável da cidade de destino (pra virar a
+## próxima origem da cadeia) ou (-9999,-9999) se qualquer ponta falhar.
+func _alcancavel_via_rota(tm: TileMap, origem: Vector2i, nome_warp_saida: String,
+		nome_warp_entrada: String, zona_destino: String) -> Vector2i:
+	var falha := Vector2i(-9999, -9999)
+	var wm_cena := load("res://scenes/world/maps/WorldMap.tscn") as PackedScene
+	var wm := wm_cena.instantiate()
+	root.add_child(wm)
+
+	var warp_saida = wm.get_node_or_null("WarpZones/%s" % nome_warp_saida)
+	if warp_saida == null:
+		wm.queue_free()
+		return falha
+	var tile_saida := Vector2i(int(warp_saida.position.x / 128), int(warp_saida.position.y / 128))
+	if not AjudaMapa.caminho_a_pe(tm, origem, tile_saida):
+		wm.queue_free()
+		return falha
+
+	var warp_entrada = wm.get_node_or_null("WarpZones/%s" % nome_warp_entrada)
+	if warp_entrada == null:
+		wm.queue_free()
+		return falha
+	var tile_entrada := Vector2i(int(warp_entrada.position.x / 128), int(warp_entrada.position.y / 128))
+	wm.queue_free()
+
+	var ret_destino := AjudaMapa.retangulo_da_zona(zona_destino)
+	var destino := AjudaMapa.tile_andavel_da_zona(tm, ret_destino)
+	if destino.x == -9999:
+		return falha
+	if not AjudaMapa.caminho_a_pe(tm, tile_entrada, destino):
+		return falha
+	return destino
 
 ## Tile andável mais próximo de um alvo — o alvo pode ser a própria porta ou um
 ## NPC, que não são posições pisáveis.

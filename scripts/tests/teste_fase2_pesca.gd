@@ -37,6 +37,12 @@ func _teste_geral() -> void:
 	# O lago mora dentro de _route1_cell (número de linha PRÓPRIO da Rota 1,
 	# 55-60) — desde a Fase 3 (mundo aberto, Pewter+Rota2 entraram ao norte),
 	# a Rota 1 inteira está OFFSET_ANTIGO linhas mais pra baixo no mapa único.
+	# 🔴 10/09: a Rota 1 em volta virou floresta impassável (Fase 2 da
+	# reestruturação geográfica selou o atalho antigo Viridian-Pallet) — o
+	# tile "~" continua existindo aqui como dado histórico, mas não é mais
+	# alcançável a pé. O lago CANÔNICO de pesca agora é o da
+	# RotaViridianPallet.tscn nova (mesma mecânica, reaproveitada lá).
+	# Cerulean (abaixo) continua sendo a prova viva de que pesca funciona.
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
 	var off : int = MapLayouts.OFFSET_ANTIGO

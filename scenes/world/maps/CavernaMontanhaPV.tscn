@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
 [ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
@@ -10,17 +10,16 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="8_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/PartyScene.tscn" id="9_party"]
 [ext_resource type="PackedScene" path="res://scenes/world/WarpZone.tscn" id="10_warpzone"]
-[ext_resource type="PackedScene" path="res://scenes/entities/NpcEntity.tscn" id="11_npc"]
 
-[sub_resource type="RectangleShape2D" id="Shape_north"]
-size = Vector2(1664, 128)
+[sub_resource type="RectangleShape2D" id="Shape_sul"]
+size = Vector2(256, 128)
 
-[sub_resource type="RectangleShape2D" id="Shape_south"]
-size = Vector2(1664, 128)
+[sub_resource type="RectangleShape2D" id="Shape_norte"]
+size = Vector2(128, 128)
 
-[node name="RotaViridianPallet" type="Node2D"]
+[node name="CavernaMontanhaPV" type="Node2D"]
 script = ExtResource("1_basemap")
-map_id = "rota_viridian_pallet"
+map_id = "caverna_montanha_pv"
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = ExtResource("5_tileset")
@@ -31,38 +30,16 @@ format = 2
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(6400, 640)
+position = Vector2(2432, 8576)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
-limit_right = 12800
-limit_bottom = 128000
+limit_right = 5120
+limit_bottom = 8960
 zoom = Vector2(0.5, 0.5)
-
-[node name="Campista" parent="Entities" instance=ExtResource("11_npc")]
-position = Vector2(8448, 28800)
-npc_name = "Campista"
-dialog_id = "route_1_camper"
-is_patrolling = false
-
-[node name="Treinador1" parent="Entities" instance=ExtResource("11_npc")]
-position = Vector2(6656, 64000)
-npc_name = "Treinador"
-dialog_id = "route_1_trainer_1"
-is_trainer = true
-trainer_team = Array[Dictionary]([{"species_id": 19, "level": 4}])
-patrol_route = Array[Vector2i]([Vector2i(52, 500), Vector2i(50, 500)])
-is_patrolling = true
-
-[node name="Pescador" parent="Entities" instance=ExtResource("11_npc")]
-position = Vector2(9600, 64640)
-npc_name = "Pescador"
-dialog_id = "route1_fisherman"
-gift_item_id = "old_rod"
-is_patrolling = false
 
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("3_zm")
@@ -72,21 +49,21 @@ script = ExtResource("4_sm")
 
 [node name="WarpZones" type="Node2D" parent="."]
 
-[node name="WarpNorte" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(6400, 256)
-target_map = "res://scenes/world/maps/WorldMap.tscn"
-spawn_tile = Vector2i(50, 102)
-
-[node name="CollisionShape2D" parent="WarpZones/WarpNorte"]
-shape = SubResource("Shape_north")
-
 [node name="WarpSul" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(6400, 127616)
-target_map = "res://scenes/world/maps/WorldMap.tscn"
-spawn_tile = Vector2i(50, 160)
+position = Vector2(2432, 8832)
+target_map = "res://scenes/world/maps/RotaPewterViridian.tscn"
+spawn_tile = Vector2i(66, 299)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpSul"]
-shape = SubResource("Shape_south")
+shape = SubResource("Shape_sul")
+
+[node name="WarpNorte" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(2560, 0)
+target_map = "res://scenes/world/maps/RotaPewterViridian.tscn"
+spawn_tile = Vector2i(50, 621)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpNorte"]
+shape = SubResource("Shape_norte")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 
