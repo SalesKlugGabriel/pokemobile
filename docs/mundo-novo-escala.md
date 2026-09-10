@@ -57,6 +57,28 @@ linha reta do que o km pedido de propósito, a rota é que faz a volta certa.
 | Safari Zone | (13.500, 13.500) — presa em Fuchsia | 6 |
 | Cinnabar | (-6.000, -1.000) — ilha isolada a oeste, mar aberto | 6 |
 
+## 🔴 3 ilhas que JÁ EXISTEM e não podem se perder na reestruturação (lembrete
+## do Gabriel, 10/09, depois da Fase 3)
+
+Não entravam na tabela acima porque já foram construídas em sessões anteriores
+(antes deste blueprint existir) — mas continuam de pé, e cada fase nova que mexer
+perto delas precisa CONFERIR que elas continuam alcançáveis, com a mesma
+disciplina de "checar antes de selar" das Fases 1-3.
+
+| Ilha | Onde fica hoje | Como se chega | Status |
+|---|---|---|---|
+| **Ilha Gélida** (covil do Articuno) | Mar ao NORTE de Cerulean, depois da Rota 24→Rota 25→Casa do Bill (linhas negativas, mesmo `world_map`) | A PÉ (a ilha em si) + warp só pro covil de 10 andares (`WarpIlhaGelida`) | Intacta — nenhuma fase até agora tocou coordenada negativa |
+| **Seafoam Islands** | Mar ao SUL de Vermilion, depois do Arquipélago Tropical (mesma faixa de colunas de Vermilion, continuando ao sul da costa) | Só por Surf/Fly — **nenhum dos dois existe ainda no jogo**, de propósito (sem warp/prédio) | Intacta — nenhuma fase até agora tocou o sul de Vermilion |
+| **Ilha do Deserto** | Mar ao SUL de Vermilion, depois da Power Plant (mais ao sul que Seafoam) | Só por Surf/Fly, mesma regra acima | Intacta |
+
+**Atenção pras próximas fases**: a Fase 4 (Saffron→Lavender) e a Fase 5
+(Lavender→Fuchsia) não encostam nem no norte de Cerulean nem no sul de
+Vermilion — zero risco pra essas 3 ilhas nelas. O único ponto de atenção real
+é se uma fase futura decidir reconstruir Vermilion em si (ela ainda não tem
+fase própria neste blueprint) — nesse caso, a saída SUL dela (pra Seafoam/
+Ilha do Deserto) e a entrada norte de Cerulean (pra Rota 24/Ilha Gélida) têm
+que ser preservadas ou migradas, nunca só apagadas.
+
 ## 🔴 Mudança de arquitetura (10/09, achado NA HORA de construir a Fase 1) —
 ## rota nova é CENA PRÓPRIA, cidade não migra
 
