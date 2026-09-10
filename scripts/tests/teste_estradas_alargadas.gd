@@ -1,17 +1,16 @@
 ## teste_estradas_alargadas.gd — Teste headless das estradas alargadas
 ## (03/09, pedido do Gabriel: "estradas que tenham 6 a 10 pisos de largura,
-## mais perto do formato original do jogo"). Cobre os trechos alargados
-## desta leva ainda vivos dentro do world_map (Rota 7, Rota 8) — os demais
-## (rotas verticais, cidades) ficam pra uma leva futura.
+## mais perto do formato original do jogo"). Cobre o trecho alargado desta
+## leva ainda vivo dentro do world_map (Rota 8) — os demais (rotas
+## verticais, cidades) ficam pra uma leva futura.
 ##
-## 🔴 10/09: a Rota 3/4 (Pewter→Cerulean) SAIU deste teste — não porque
-## deixou de ser larga, mas porque deixou de existir dentro do world_map:
-## a Fase 2 da reestruturação geográfica substituiu esse trecho pela
-## RotaPewterCerulean.tscn (cena própria, 7.000 tiles), com sua própria
-## largura de caminho variável (ver `_rpc_highlands_cell`/`_rpc_forest_
-## cell` em MapLayouts.gd). A largura fixa de 10 tiles daqui não se aplica
-## mais lá. Cobertura equivalente pra rota nova está em
-## teste_rota_pewter_cerulean.gd.
+## 🔴 10/09: a Rota 3/4 (Pewter→Cerulean, Fase 2) e a Rota 7
+## (Saffron→Celadon, Fase 3) SAÍRAM deste teste — não porque deixaram de
+## ser largas, mas porque deixaram de existir dentro do world_map: viraram
+## RotaPewterCerulean.tscn e RotaSaffronCeladon.tscn (cenas próprias, com
+## largura de caminho variável própria — ver `_rpc_*_cell`/`_rota_campo_
+## leste_oeste_cell` em MapLayouts.gd). Cobertura equivalente está em
+## teste_rota_pewter_cerulean.gd e teste_no_central_saffron.gd.
 ## Roda com: godot4 --headless --script res://scripts/tests/teste_estradas_alargadas.gd
 extends SceneTree
 
@@ -26,12 +25,6 @@ func _process(_delta: float) -> bool:
 	if _rodou:
 		return true
 	_rodou = true
-
-	# ---- Rota 7 (Saffron -> Celadon): 5 -> 8 tiles, r14-21 ----
-	for r in range(14, 22):
-		_assert(MapLayouts._route7_cell(5, r) == "P", "Rota 7: linha %d é caminho (dentro dos 8 tiles novos)" % r)
-	_assert(MapLayouts._route7_cell(5, 13) != "P" or MapLayouts._route7_cell(5, 13) == ".",
-		"Rota 7: linha 13 (fora da faixa) não é forçada a virar caminho só por acidente")
 
 	# ---- Rota 8 (Saffron -> Lavender): 5 -> 10 tiles, r13-22 ----
 	for r in range(13, 23):

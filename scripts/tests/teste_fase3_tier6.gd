@@ -36,13 +36,23 @@ func _teste_geral() -> void:
 	var cc0 := MapLayouts.SPINE_COL_INICIO
 	var r0 := MapLayouts.SAFFRON_ROW_INICIO
 
-	# ---- 1. Caminho contínuo de Cerulean até Saffron (corredor N-S) ----
-	var quebras := 0
-	for r in range(MapLayouts.ROUTE5_SUL_START, r0 + MapLayouts.SAFFRON_ROWS):
+	# ---- 1. O atalho reto Cerulean→Saffron, DENTRO do world_map antigo,
+	# está SELADO (Rota 5) — 🔴 achado em 10/09 (Fase 3 da reestruturação
+	# geográfica), mesma classe de correção do Tier 3. A distância real
+	# mora em RotaCeruleanSaffron.tscn (4km), ver teste_no_central_
+	# saffron.gd. Saffron continua com corredor interno andável.
+	var quebra_rota5 := false
+	for r in range(MapLayouts.ROUTE5_SUL_START, r0):
+		if tiles[r][cc0 + 28] == "P":
+			quebra_rota5 = true
+	_assert(not quebra_rota5, "Rota 5 (o atalho antigo Cerulean-Saffron) está selada, sem tile andável na coluna do corredor")
+
+	var quebras_saffron := 0
+	for r in range(r0, r0 + MapLayouts.SAFFRON_ROWS):
 		var ch : String = tiles[r][cc0 + 28]
 		if ch != "P" and ch != "." and ch != "I":
-			quebras += 1
-	_assert(quebras == 0, "caminho de Cerulean até Saffron é contínuo (%d quebras)" % quebras)
+			quebras_saffron += 1
+	_assert(quebras_saffron == 0, "Saffron continua com corredor interno andável (%d quebras)" % quebras_saffron)
 
 	_assert(tiles[r0 + 10][cc0 + 16] == "I", "Saffron: interior do Ginásio (Sabrina) é piso")
 	_assert(tiles[r0 + 6][cc0 + 16] == "H", "Saffron: telhado do Ginásio existe")

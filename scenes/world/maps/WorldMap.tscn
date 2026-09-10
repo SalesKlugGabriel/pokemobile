@@ -93,6 +93,24 @@ size = Vector2(128, 128)
 [sub_resource type="RectangleShape2D" id="Shape_rota_pc_leste"]
 size = Vector2(128, 128)
 
+[sub_resource type="RectangleShape2D" id="Shape_rota_hub_cerulean"]
+size = Vector2(384, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_hub_saffron_n"]
+size = Vector2(128, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_hub_saffron_s"]
+size = Vector2(128, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_hub_saffron_w"]
+size = Vector2(128, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_hub_celadon"]
+size = Vector2(128, 128)
+
+[sub_resource type="RectangleShape2D" id="Shape_rota_hub_vermilion"]
+size = Vector2(384, 128)
+
 [node name="WorldMap" type="Node2D"]
 script = ExtResource("1_basemap")
 map_id = "world_map"
@@ -560,6 +578,54 @@ spawn_tile = Vector2i(6995, 55)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpRotaPewterCeruleanLeste"]
 shape = SubResource("Shape_rota_pc_leste")
+
+[node name="WarpRotaCeruleanSaffronNorte" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(31808, 4544)
+target_map = "res://scenes/world/maps/RotaCeruleanSaffron.tscn"
+spawn_tile = Vector2i(68, 5)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaCeruleanSaffronNorte"]
+shape = SubResource("Shape_rota_hub_cerulean")
+
+[node name="WarpRotaCeruleanSaffronSul" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(31808, 8640)
+target_map = "res://scenes/world/maps/RotaCeruleanSaffron.tscn"
+spawn_tile = Vector2i(40, 3994)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaCeruleanSaffronSul"]
+shape = SubResource("Shape_rota_hub_saffron_n")
+
+[node name="WarpRotaSaffronVermilionNorte" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(31808, 13120)
+target_map = "res://scenes/world/maps/RotaSaffronVermilion.tscn"
+spawn_tile = Vector2i(57, 5)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaSaffronVermilionNorte"]
+shape = SubResource("Shape_rota_hub_saffron_s")
+
+[node name="WarpRotaSaffronVermilionSul" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(31808, 17088)
+target_map = "res://scenes/world/maps/RotaSaffronVermilion.tscn"
+spawn_tile = Vector2i(41, 1994)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaSaffronVermilionSul"]
+shape = SubResource("Shape_rota_hub_vermilion")
+
+[node name="WarpRotaSaffronCeladonOeste" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(22976, 10944)
+target_map = "res://scenes/world/maps/RotaSaffronCeladon.tscn"
+spawn_tile = Vector2i(5, 65)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaSaffronCeladonOeste"]
+shape = SubResource("Shape_rota_hub_celadon")
+
+[node name="WarpRotaSaffronCeladonLeste" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(28224, 10944)
+target_map = "res://scenes/world/maps/RotaSaffronCeladon.tscn"
+spawn_tile = Vector2i(3994, 40)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpRotaSaffronCeladonLeste"]
+shape = SubResource("Shape_rota_hub_saffron_w")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 

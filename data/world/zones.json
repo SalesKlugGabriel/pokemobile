@@ -187,6 +187,69 @@
       "npcs": []
     },
     {
+      "id": "rota_cerulean_saffron",
+      "map_id": "rota_cerulean_saffron",
+      "name": "Rota Cerulean-Saffron",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 4000
+      },
+      "bgm": "route_5",
+      "wild_pokemon": [
+        {"id": 52, "name": "Meowth", "level_min": 12, "level_max": 18, "weight": 25},
+        {"id": 39, "name": "Jigglypuff", "level_min": 12, "level_max": 16, "weight": 20},
+        {"id": 43, "name": "Oddish", "level_min": 12, "level_max": 16, "weight": 20},
+        {"id": 69, "name": "Bellsprout", "level_min": 12, "level_max": 16, "weight": 20},
+        {"id": 32, "name": "Nidoran-M", "level_min": 12, "level_max": 16, "weight": 8},
+        {"id": 29, "name": "Nidoran-F", "level_min": 12, "level_max": 16, "weight": 7}
+      ],
+      "npcs": []
+    },
+    {
+      "id": "rota_saffron_vermilion",
+      "map_id": "rota_saffron_vermilion",
+      "name": "Rota Saffron-Vermilion",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 2000
+      },
+      "bgm": "route_6",
+      "wild_pokemon": [
+        {"id": 52, "name": "Meowth", "level_min": 14, "level_max": 20, "weight": 30},
+        {"id": 39, "name": "Jigglypuff", "level_min": 14, "level_max": 18, "weight": 20},
+        {"id": 88, "name": "Grimer", "level_min": 14, "level_max": 18, "weight": 25},
+        {"id": 27, "name": "Sandshrew", "level_min": 14, "level_max": 18, "weight": 15},
+        {"id": 100, "name": "Voltorb", "level_min": 14, "level_max": 18, "weight": 10}
+      ],
+      "npcs": []
+    },
+    {
+      "id": "rota_saffron_celadon",
+      "map_id": "rota_saffron_celadon",
+      "name": "Rota Saffron-Celadon",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 4000,
+        "h": 100
+      },
+      "bgm": "route_7",
+      "wild_pokemon": [
+        {"id": 43, "name": "Oddish", "level_min": 13, "level_max": 18, "weight": 30},
+        {"id": 69, "name": "Bellsprout", "level_min": 13, "level_max": 18, "weight": 30},
+        {"id": 48, "name": "Venonat", "level_min": 13, "level_max": 18, "weight": 25},
+        {"id": 63, "name": "Abra", "level_min": 13, "level_max": 18, "weight": 15}
+      ],
+      "npcs": []
+    },
+    {
       "id": "rota_pewter_cerulean",
       "map_id": "rota_pewter_cerulean",
       "name": "Rota Pewter-Cerulean",

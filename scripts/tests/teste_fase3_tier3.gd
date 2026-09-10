@@ -33,17 +33,38 @@ func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
 
-	# ---- 1. Corredor N-S contínuo de Cerulean até Vermilion (col 247-249,
-	# de r=37 até o fim de Vermilion) ----
+	# ---- 1. O atalho reto Cerulean→Saffron→Vermilion, DENTRO do world_map
+	# antigo, está SELADO em Rota 5 e Rota 6 — 🔴 achado em 10/09 (Fase 3 da
+	# reestruturação geográfica): esta asserção ERA "corredor contínuo, sem
+	# quebra nenhuma" (desenho do próprio Tier 3) — e é o oposto do que a
+	# escala real exige. A distância real mora em RotaCeruleanSaffron.tscn
+	# (4km) e RotaSaffronVermilion.tscn (2km), ver teste_no_central_
+	# saffron.gd. Saffron e Vermilion continuam com corredor interno
+	# andável — só as DUAS FAIXAS de rota entre elas viraram floresta.
+	var quebra_rota5 := false
+	for r in range(MapLayouts.ROUTE5_SUL_START, MapLayouts.SAFFRON_ROW_INICIO):
+		if tiles[r][248] == "P":
+			quebra_rota5 = true
+	_assert(not quebra_rota5, "Rota 5 (o atalho antigo Cerulean-Saffron) está selada, sem tile andável na col 248")
+
+	var quebra_rota6 := false
+	for r in range(MapLayouts.SAFFRON_ROW_INICIO + MapLayouts.SAFFRON_ROWS, MapLayouts.VERMILION_ROW_INICIO):
+		if tiles[r][248] == "P":
+			quebra_rota6 = true
+	_assert(not quebra_rota6, "Rota 6 (o atalho antigo Saffron-Vermilion) está selada, sem tile andável na col 248")
+
 	# "~" é permitido: dentro de Vermilion, col 248 (cc=28) cai na decoração
-	# esparsa da doca (cidade portuária) — mesmo padrão de sempre, não é
-	# quebra de verdade (o resto do corredor sempre tem P/./I do lado).
-	var quebras := 0
-	for r in range(MapLayouts.ROUTE5_SUL_START, MapLayouts.VERMILION_ROW_INICIO + MapLayouts.VERMILION_ROWS):
+	# esparsa da doca (cidade portuária) — mesmo padrão de sempre.
+	var quebras_cidades := 0
+	for r in range(MapLayouts.SAFFRON_ROW_INICIO, MapLayouts.SAFFRON_ROW_INICIO + MapLayouts.SAFFRON_ROWS):
 		var ch : String = tiles[r][248]
-		if ch != "P" and ch != "." and ch != "I" and ch != "~":
-			quebras += 1
-	_assert(quebras == 0, "corredor N-S de Cerulean até Vermilion (col 248) é contínuo (%d quebras)" % quebras)
+		if ch != "P" and ch != "." and ch != "I":
+			quebras_cidades += 1
+	for r in range(MapLayouts.VERMILION_ROW_INICIO, MapLayouts.VERMILION_ROW_INICIO + MapLayouts.VERMILION_ROWS):
+		var ch2 : String = tiles[r][248]
+		if ch2 != "P" and ch2 != "." and ch2 != "I" and ch2 != "~":
+			quebras_cidades += 1
+	_assert(quebras_cidades == 0, "Saffron e Vermilion continuam com corredor interno andável (%d quebras)" % quebras_cidades)
 
 	# ---- 2. Ginásio e Centro Pokémon de Vermilion existem, na posição real ----
 	var vc0 := MapLayouts.SPINE_COL_INICIO

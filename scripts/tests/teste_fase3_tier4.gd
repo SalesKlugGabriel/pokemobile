@@ -32,13 +32,20 @@ func _teste_geral() -> void:
 	var layout = MapLayouts.get_layout("world_map")
 	var tiles : Array = layout["tiles"]
 
-	# ---- 1. Caminho contínuo de Saffron até Celadon (corredor r16-20) ----
+	# ---- 1. O atalho reto Saffron↔Celadon, DENTRO do world_map antigo,
+	# está SELADO — 🔴 achado em 10/09 (Fase 3 da reestruturação
+	# geográfica): esta asserção ERA "sem quebra nenhuma, caminho
+	# contínuo" (desenho do próprio Tier 4) — e é o oposto do que a escala
+	# real exige agora. A distância real (4km) mora na
+	# RotaSaffronCeladon.tscn nova (ver teste_no_central_saffron.gd);
+	# Celadon e Saffron continuam intocadas, só a Rota 7 entre elas virou
+	# floresta impassável.
 	var r0 := MapLayouts.SAFFRON_ROW_INICIO
-	var quebras := 0
+	var quebra := false
 	for c in range(MapLayouts.CELADON_COL_INICIO, MapLayouts.SPINE_COL_INICIO):
-		if tiles[r0 + 18][c] != "P" and tiles[r0 + 18][c] != ".":
-			quebras += 1
-	_assert(quebras == 0, "caminho de Celadon até Saffron é contínuo (%d quebras)" % quebras)
+		if tiles[r0 + 18][c] == "P":
+			quebra = true
+	_assert(not quebra, "Rota 7 (o atalho antigo Celadon-Saffron) está selada, sem tile andável na linha do corredor")
 
 	var ce0 := MapLayouts.CELADON_COL_INICIO
 	_assert(tiles[r0 + 10][ce0 + 16] == "I", "Celadon: interior do Ginásio (Erika) é piso")

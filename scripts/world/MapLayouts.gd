@@ -638,31 +638,23 @@ static func _route11_digletts_cell(dist: int, vr: int) -> String:
 # em toda cidade do jogo desde sempre, a rota entra e vira grama "." comum
 # (só as próprias rotas têm o tile de caminho "P" de verdade).
 # ──────────────────────────────────────────────────────────────────────────────
+## 🔴 10/09 (Fase 3 da reestruturação geográfica): Rota 5 (Cerulean→Saffron)
+## e Rota 6 (Saffron→Vermilion) SELADAS — mesmo achado das Fases 1/2: eram
+## atalhos retos de ~30 tiles cada que ficariam andáveis por baixo das
+## rotas novas (RotaCeruleanSaffron.tscn 4km, RotaSaffronVermilion.tscn
+## 2km). Antes de selar, conferido: zero NPC cadastrado nessas bandas.
+## Cerulean, Saffron e Vermilion CONTINUAM exatamente como estavam.
 static func _sul_de_cerulean_cell(cc: int, sr: int) -> String:
-	# ── Rota 5 (Cerulean → Saffron) ──
 	if sr < ROUTE5_SUL_ROWS:
-		if cc >= 27 and cc <= 29:
-			return "P"
-		if _espalhar_sal(cc, sr, 9) < 2:
-			return "T"
-		if _espalhar_sal(cc, sr, 10) < 2:
-			return "F"
-		return "."
+		return _forest_variant(cc, sr)
 
 	var sfr := sr - ROUTE5_SUL_ROWS
 	if sfr < SAFFRON_ROWS:
 		return _saffron_cell(cc, sfr)
 
-	# ── Rota 6 (Saffron → Vermilion) ──
 	var vr6 := sfr - SAFFRON_ROWS
 	if vr6 < ROUTE6_SUL_ROWS:
-		if cc >= 27 and cc <= 29:
-			return "P"
-		if _espalhar_sal(cc, sr, 11) < 2:
-			return "T"
-		if _espalhar_sal(cc, sr, 12) < 2:
-			return "F"
-		return "."
+		return _forest_variant(cc, sr)
 
 	var vmr := vr6 - ROUTE6_SUL_ROWS
 	if vmr < VERMILION_ROWS:
@@ -749,19 +741,11 @@ static func _vermilion_cell(cc: int, r: int) -> String:
 
 	return "."
 
-## Rota 7 (Saffron → Celadon, pra oeste). `dist` cresce se afastando de
-## Saffron (0 = colado nela). Estrada alargada de 5 pra 8 tiles (03/09,
-## pedido do Gabriel: "estradas 6 a 10 pisos de largura, mais perto do
-## formato original") — esta rota não tem nenhum prédio/moldura de caverna
-## por perto, então alargar foi seguro sem mexer em mais nada.
+## 🔴 10/09 (Fase 3 da reestruturação geográfica): Rota 7 (Saffron→Celadon)
+## SELADA — mesmo achado de Rota 5/6 acima. Substituída por
+## RotaSaffronCeladon.tscn (4km). Saffron e Celadon continuam intocadas.
 static func _route7_cell(dist: int, r: int) -> String:
-	if r >= 14 and r <= 21:
-		return "P"
-	if _espalhar_sal(dist, r, 14) < 2:
-		return "T"
-	if _espalhar_sal(dist, r, 15) < 2:
-		return "F"
-	return "."
+	return _forest_variant(dist, r)
 
 ## Celadon City — Ginásio (Erika)/Centro/Loja de Departamentos/Rocket
 ## Hideout/Jardins, exatamente como sempre. Fica a OESTE de Saffron; a
@@ -2610,6 +2594,124 @@ static func _rpc_campo_cell(c: int, r: int, H: int) -> String:
 	return _forest_variant(c, r)
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Nó central: Cerulean→Saffron + Saffron→Celadon + Saffron→Vermilion — Fase
+# 3, 10/09. Saffron é um cruzamento de verdade (já tinha Ginásio/Centro/
+# Silph Co. de sempre); aqui ela ganha 3 saídas novas pra cenas próprias
+# (norte/oeste/sul). A 4ª saída dela (leste, pra Rota 8→Rock Tunnel→
+# Lavender) NÃO muda nesta fase — fica exatamente como está, é trabalho de
+# uma fase futura ("Saffron→Lavender", não "Cerulean→Lavender" como o
+# blueprint original sugeria — ver nota em docs/mundo-novo-escala.md sobre
+# essa correção de topologia).
+#
+# As 3 rotas são deliberadamente mais simples que a Pewter-Cerulean (o
+# blueprint do Gabriel não detalhou biomas específicos pra elas) — campo
+# aberto com mato alto, árvores esparsas e transição orgânica pra floresta
+# nas bordas, mesmo espírito da Rota Viridian-Pallet (Fase 1).
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Cerulean→Saffron — 100×4.000 (4km), norte-sul. r=0 é o lado de Cerulean,
+## r=H-1 é o lado de Saffron.
+const ROTA_CS_W : int = 100
+const ROTA_CS_H : int = 4000
+
+static func _gen_rota_cerulean_saffron() -> Array:
+	var grid : Array = []
+	for r in ROTA_CS_H:
+		var row := ""
+		for c in ROTA_CS_W:
+			row += _rota_campo_ns_cell(c, r, ROTA_CS_W, ROTA_CS_H, 90)
+		grid.append(row)
+	return grid
+
+## Saffron→Vermilion — 100×2.000 (2km), norte-sul. r=0 é o lado de Saffron,
+## r=H-1 é o lado de Vermilion.
+const ROTA_SV_W : int = 100
+const ROTA_SV_H : int = 2000
+
+static func _gen_rota_saffron_vermilion() -> Array:
+	var grid : Array = []
+	for r in ROTA_SV_H:
+		var row := ""
+		for c in ROTA_SV_W:
+			row += _rota_campo_ns_cell(c, r, ROTA_SV_W, ROTA_SV_H, 91)
+		grid.append(row)
+	return grid
+
+## Célula genérica de campo aberto norte-sul, reaproveitada por Cerulean→
+## Saffron e Saffron→Vermilion — `sal` diferencia a variação de cada rota
+## (sem isso as duas ficariam com o mesmo desenho, só o comprimento mudando).
+static func _rota_campo_ns_cell(c: int, r: int, W: int, H: int, sal: int) -> String:
+	if r <= 1 or r >= H - 2:
+		return _forest_variant(c, r)
+	if c <= 0 or c >= W - 1:
+		return _forest_variant(c, r)
+
+	var centro := 50 + int(15.0 * sin(float(r) * 0.0008 + float(sal)) + 6.0 * sin(float(r) * 0.003 + float(sal) * 0.5))
+	var dist : int = absi(c - centro)
+	var largura_caminho : int = 9 + (_espalhar_sal(0, r / 12, sal) % 5)
+	if dist <= largura_caminho:
+		return "P"
+	if dist <= largura_caminho + 8:
+		if _espalhar_sal(c, r, sal + 1) < 8:
+			return "A"
+		return "."
+	if dist <= largura_caminho + 18:
+		if _espalhar_sal(c, r, sal + 2) < 3:
+			return "F"
+		return "."
+	var progresso : float = clampf(float(dist - (largura_caminho + 18)) / 20.0, 0.0, 1.0)
+	var campo := func(cc: int, rr: int) -> String:
+		if _espalhar_sal(cc, rr, sal + 3) < 2:
+			return "F"
+		return "."
+	var floresta := func(cc: int, rr: int) -> String:
+		return _forest_variant(cc, rr)
+	return _misturar_bioma_cell(c, r, progresso, campo, floresta, sal + 4)
+
+## Saffron→Celadon — 4.000×100 (4km), leste-oeste. c=0 é o lado de Celadon
+## (oeste), c=W-1 é o lado de Saffron (leste) — mesma convenção de "menor
+## coordenada = mais a oeste" da Pewter-Cerulean.
+const ROTA_SC_W : int = 4000
+const ROTA_SC_H : int = 100
+
+static func _gen_rota_saffron_celadon() -> Array:
+	var grid : Array = []
+	for r in ROTA_SC_H:
+		var row := ""
+		for c in ROTA_SC_W:
+			row += _rota_campo_leste_oeste_cell(c, r, ROTA_SC_W, ROTA_SC_H)
+		grid.append(row)
+	return grid
+
+static func _rota_campo_leste_oeste_cell(c: int, r: int, W: int, H: int) -> String:
+	if c <= 1 or c >= W - 2:
+		return _forest_variant(c, r)
+	if r <= 0 or r >= H - 1:
+		return _forest_variant(c, r)
+
+	var centro := 50 + int(14.0 * sin(float(c) * 0.0008 + 2.1) + 6.0 * sin(float(c) * 0.003 + 0.7))
+	var dist : int = absi(r - centro)
+	var largura_caminho : int = 9 + (_espalhar_sal(c / 12, 0, 92) % 5)
+	if dist <= largura_caminho:
+		return "P"
+	if dist <= largura_caminho + 8:
+		if _espalhar_sal(c, r, 93) < 8:
+			return "A"
+		return "."
+	if dist <= largura_caminho + 18:
+		if _espalhar_sal(c, r, 94) < 3:
+			return "F"
+		return "."
+	var progresso : float = clampf(float(dist - (largura_caminho + 18)) / 20.0, 0.0, 1.0)
+	var campo := func(cc: int, rr: int) -> String:
+		if _espalhar_sal(cc, rr, 95) < 2:
+			return "F"
+		return "."
+	var floresta := func(cc: int, rr: int) -> String:
+		return _forest_variant(cc, rr)
+	return _misturar_bioma_cell(c, r, progresso, campo, floresta, 96)
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Mt Moon — 20×30, cena própria (é caverna/subterrâneo — a ÚNICA situação em
 # que o Gabriel pediu warp de verdade, 31/08). Entrada ao sul (vem da Rota 3),
 # saída ao norte (sai na Rota 4) — sem volta pela superfície, tem que atravessar.
@@ -3155,6 +3257,15 @@ static func get_layout(map_id: String) -> Dictionary:
 		"rota_pewter_cerulean":
 			var tiles := _gen_rota_pewter_cerulean()
 			return {"tiles": tiles, "width": ROTA_PC_W, "height": ROTA_PC_H}
+		"rota_cerulean_saffron":
+			var tiles := _gen_rota_cerulean_saffron()
+			return {"tiles": tiles, "width": ROTA_CS_W, "height": ROTA_CS_H}
+		"rota_saffron_vermilion":
+			var tiles := _gen_rota_saffron_vermilion()
+			return {"tiles": tiles, "width": ROTA_SV_W, "height": ROTA_SV_H}
+		"rota_saffron_celadon":
+			var tiles := _gen_rota_saffron_celadon()
+			return {"tiles": tiles, "width": ROTA_SC_W, "height": ROTA_SC_H}
 		"mt_moon":
 			var tiles := _gen_mtmoon()
 			return {"tiles": tiles, "width": 20, "height": 30}

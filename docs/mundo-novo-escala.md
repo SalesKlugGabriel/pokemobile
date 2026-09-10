@@ -188,9 +188,35 @@ que `ZoneManager.find_zone_id()` já usa).
    `get_used_cells()`, chamada só em teste, não em gameplay real. Vale
    remedir quando a Fase 5 (12.000 tiles, quase o dobro desta) for
    construída.
-3. **Nó central**: Cerulean→Saffron (4.000) + Saffron→Celadon (4.000) +
-   Saffron→Vermilion (2.000).
-4. **Cerulean→Lavender** (5.000 tiles).
+3. ✅ **Nó central — FEITO, testado (48 conferências + suíte inteira 92/0),
+   publicado (10/09/2026).** Cerulean→Saffron (4.000) + Saffron→Vermilion
+   (2.000) + Saffron→Celadon (4.000). `RotaCeruleanSaffron.tscn` +
+   `RotaSaffronVermilion.tscn` (norte-sul) + `RotaSaffronCeladon.tscn`
+   (leste-oeste, como a Pewter-Cerulean) — campo aberto com mato alto e
+   transição orgânica pra floresta, mais simples que a Pewter-Cerulean (o
+   blueprint do Gabriel não detalhou biomas específicos aqui). Saffron
+   ganhou 3 saídas novas (norte/sul/oeste); a 4ª saída dela (leste, ver
+   abaixo) NÃO mudou nesta fase. Rota 5/6/7 antigas seladas — zero NPC
+   encontrado nelas (igual à Fase 2, nenhuma migração necessária). 6 testes
+   antigos ajustados, mesma classe de correção das Fases 1/2 ("corredor
+   contínuo" virou "confirma que está selado").
+   🔴 **Correção de topologia, achada ao investigar antes de construir**:
+   o item 4 abaixo dizia "Cerulean→Lavender" (baseado nas âncoras Y=0 de
+   ambas) — mas a implementação JÁ EXISTENTE liga Lavender a **Saffron**
+   (não a Cerulean), reaproveitando Rock Tunnel: Saffron→Rota 8→Rota 9→
+   Rock Tunnel→Rota 10→Lavender, tudo na mesma faixa de linhas de Saffron
+   (não na de Cerulean). Forçar a topologia do blueprint teria exigido
+   desmontar Rock Tunnel/Route8-9-10/Lavender/Fuchsia já construídos e
+   testados — risco desnecessário. O item 4 foi renomeado pra
+   "Saffron→Lavender" pra bater com o mapa real; nada foi tocado nela
+   nesta fase (fica pra quando essa fase específica chegar).
+4. **Saffron→Lavender** (5.000 tiles — nome corrigido, ver achado de
+   topologia acima; era "Cerulean→Lavender" na primeira versão deste doc).
+   Reaproveita o comprimento e a boca de Rock Tunnel que já existem
+   (Rota 8 = Rota 9 + Rock Tunnel + Rota 10, todas já no jogo). Retrofit
+   de Rock Tunnel pra caverna não-linear (se ainda não for — conferir:
+   pode já ter sido construída não-linear desde o início, diferente de Mt
+   Moon).
 5. **Lavender→Fuchsia** (12.000 tiles, 7 segmentos de bioma — a maior jornada do
    mapa, ver texto original do Gabriel pra sequência exata: Dry Grasslands→Dense
    Forest→River Valley→Wetlands→Tropical Forest→Coastal Plains→outskirts).

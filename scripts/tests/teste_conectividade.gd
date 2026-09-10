@@ -23,12 +23,13 @@ var _fail := 0
 var _rodou := false
 
 ## Cidades alcançáveis a pé DIRETO no world_map (sem trocar de cena) —
-## desde a Fase 1/2 da reestruturação geográfica (10/09), Viridian, Pewter
-## e Cerulean saíram desta lista: viram cadeia (ver `_alcancavel_via_rota`
-## abaixo).
+## desde as Fases 1/2/3 da reestruturação geográfica (10/09), Viridian,
+## Pewter, Cerulean, Saffron, Vermilion e Celadon saíram desta lista: viram
+## cadeia (ver `_alcancavel_via_rota` abaixo). Lavender/Fuchsia continuam
+## aqui porque a ligação delas (Saffron→Rock Tunnel→Route8/9/10→Lavender→
+## Fuchsia) ainda não entrou na reestruturação — é uma fase futura.
 const A_PE : Array[String] = [
-	"saffron_city",
-	"vermilion_city", "celadon_city", "lavender_town", "fuchsia_city",
+	"lavender_town", "fuchsia_city",
 ]
 
 ## Alcançáveis só por mar ou por trava de progressão — com o motivo.
@@ -89,12 +90,37 @@ func _process(_delta: float) -> bool:
 	_assert(origem_cerulean.x != -9999,
 		"Cerulean alcançável por cadeia: Pewter → warp → RotaPewterCerulean.tscn (rota+Mt Moon, provada à parte) → Cerulean")
 
+	# Nó central de Saffron (Fase 3): Cerulean→Saffron, depois Saffron
+	# ramifica pra Vermilion e Celadon. As 3 rotas novas são provadas à
+	# parte em teste_no_central_saffron.gd.
+	var origem_saffron := Vector2i(-9999, -9999)
+	if origem_cerulean.x != -9999:
+		origem_saffron = _alcancavel_via_rota(tm, origem_cerulean,
+			"WarpRotaCeruleanSaffronNorte", "WarpRotaCeruleanSaffronSul", "saffron_city")
+	_assert(origem_saffron.x != -9999,
+		"Saffron alcançável por cadeia: Cerulean → warp → RotaCeruleanSaffron.tscn (provada à parte) → Saffron")
+
+	var origem_vermilion := Vector2i(-9999, -9999)
+	if origem_saffron.x != -9999:
+		origem_vermilion = _alcancavel_via_rota(tm, origem_saffron,
+			"WarpRotaSaffronVermilionNorte", "WarpRotaSaffronVermilionSul", "vermilion_city")
+	_assert(origem_vermilion.x != -9999,
+		"Vermilion alcançável por cadeia: Saffron → warp → RotaSaffronVermilion.tscn (provada à parte) → Vermilion")
+
+	var origem_celadon := Vector2i(-9999, -9999)
+	if origem_saffron.x != -9999:
+		origem_celadon = _alcancavel_via_rota(tm, origem_saffron,
+			"WarpRotaSaffronCeladonLeste", "WarpRotaSaffronCeladonOeste", "celadon_city")
+	_assert(origem_celadon.x != -9999,
+		"Celadon alcançável por cadeia: Saffron → warp → RotaSaffronCeladon.tscn (provada à parte) → Celadon")
+
 	# ---- 1b. As cidades que continuam ligadas direto no world_map (ainda
-	# não entraram nesta reestruturação) — origem passa a ser CERULEAN, não
-	# mais Pallet, já que a cadeia acima é quem prova que dá pra chegar até
-	# ela. Se origem_cerulean falhou, usa Pallet mesmo (evita mascarar erro
-	# duplo com "sem retângulo").
-	var origem_resto := origem_cerulean if origem_cerulean.x != -9999 else origem
+	# não entraram nesta reestruturação: Lavender/Fuchsia, via Saffron→Rock
+	# Tunnel→Route8/9/10, sem mudança nesta fase) — origem passa a ser
+	# SAFFRON, não mais Pallet, já que a cadeia acima é quem prova que dá
+	# pra chegar até ela. Se origem_saffron falhou, usa Pallet mesmo (evita
+	# mascarar erro duplo com "sem retângulo").
+	var origem_resto := origem_saffron if origem_saffron.x != -9999 else origem
 	var ilhadas : Array[String] = []
 	for zona in A_PE:
 		var ret := AjudaMapa.retangulo_da_zona(zona)
@@ -106,8 +132,8 @@ func _process(_delta: float) -> bool:
 			ilhadas.append("%s (nenhum tile andável dentro dela)" % zona)
 			continue
 		if not AjudaMapa.caminho_a_pe(tm, origem_resto, destino):
-			ilhadas.append("%s (sem caminho a pé desde Cerulean)" % zona)
-	_assert(ilhadas.is_empty(), "as demais cidades de terra firme são alcançáveis a pé desde Cerulean — %s" % (
+			ilhadas.append("%s (sem caminho a pé desde Saffron)" % zona)
+	_assert(ilhadas.is_empty(), "as demais cidades de terra firme são alcançáveis a pé desde Saffron — %s" % (
 		"ok" if ilhadas.is_empty() else str(ilhadas)))
 
 	# ---- 2. As de mar/trava têm chão andável (existem de verdade) --------
