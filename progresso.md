@@ -9,6 +9,61 @@
 
 ---
 
+## Corrigido: "não consegui andar" + HUD novo invisível no celular (2026-09-09)
+
+Feedback real do Gabriel, mandado pelo próprio app: *"Fiz o teste no móbile e não
+consegui andar, fiz um feedback para informar, também não vi a melhoria da Pokédex
+e as alterações que combinamos"*. Reproduzido ao vivo contra a produção com toque/
+mouse sintéticos (Playwright, iPhone 13 emulado) — dois bugs reais, nada relacionado
+a deploy atrasado (o build já estava no ar havia mais de meia hora quando ele testou).
+
+**1. Joystick de verdade não fazia o personagem andar — a causa raiz do "não
+consegui andar".** `ControlesDeToque._injetar()` simulava segurar uma direção
+montando um `InputEventAction` na mão e mandando com `Input.parse_input_event()`.
+Isso ATÉ chega em quem escuta o evento diretamente (por isso menu, diálogo e
+escolha de inicial sempre funcionaram tocando na tela) — mas **nunca atualiza**
+`Input.is_action_pressed()`, que é exatamente o que `TrainerEntity` usa pra saber
+se uma direção está sendo segurada. O eixo invisível desenhava, a ação "era
+injetada", e o personagem nunca se mexia. Provado com um arrasto sintético de
+verdade (mouse down→move→segurar 2,5s→up) e um print temporário mostrando
+`is_action_pressed` sempre falso mesmo logo depois da injeção. Corrigido trocando
+por `Input.action_press()`/`Input.action_release()` — a função certa do Godot pra
+simular segurar uma ação, atualiza os dois caminhos de uma vez. Prova ao vivo
+depois da correção: o contador de passos do objetivo foi de 27 pra 37 sozinho
+durante o teste de arrasto.
+
+**2. Pokédex e a barra de Pokébola/remédio (as duas melhorias de 09/09) nasciam
+fora da tela.** `PokedexRapida.gd`/`BarraDeAcaoRapida.gd` usavam
+`set_anchors_preset()` seguido de `position=`/`custom_minimum_size=` — um Control
+cujo pai direto é uma `CanvasLayer` (não outro Control) calcula a área do pai como
+0×0 nesse instante, e o resultado nascia LITERAL na posição pedida (ex: `(-70,10)`)
+em vez de ancorado de verdade no canto da tela. Corrigido ancorando com offsets
+explícitos (`anchor_left/top/right/bottom` + `offset_left/top/right/bottom`), o
+mesmo jeito que `_botoes`/`_desenho` em `ControlesDeToque.gd` e o `$HBox` do
+próprio `OverworldHUD.tscn` já faziam sem esse bug. Achado extra no caminho: a
+tira de retratos do time (mira de remédio) entrava direto no mapa (`Node2D`, herda
+a transformação da câmera) em vez da `CanvasLayer` do HUD — corrigido pra entrar
+como irmã de `BarraDeAcaoRapida` (tela fixa de verdade).
+
+2 testes novos (`teste_controles_de_toque.gd` ganhou 2 conferências,
+`teste_hud_novo_ancoragem.gd` é novo, 7 conferências) travando as duas correções —
+os dois checam o CÓDIGO, não só a explicação em comentário (achado no caminho: uma
+primeira versão dessas conferências dava falso-negativo porque o próprio
+comentário explicando o bug antigo continha o texto que a conferência procurava).
+80 arquivos de teste, 0 com falha. Publicado e confirmado ao vivo contra a URL
+real (Playwright), não só pelos testes automáticos.
+
+**Lição nova pro glossário de armadilhas do projeto:** `Input.parse_input_event()`
+com um `InputEventAction` feito na mão não é intercambiável com
+`Input.action_press()`/`action_release()` — o primeiro alimenta a fila de eventos
+(`_input`/`_unhandled_input`), o segundo atualiza o estado de poll
+(`is_action_pressed`/`is_action_just_pressed`). Qualquer controle virtual (joystick,
+botão de ação) que precise SEGURAR um estado tem que usar `action_press`/
+`action_release` — `parse_input_event()` só serve pra um pulso único que algo vai
+escutar via `_unhandled_input()`.
+
+---
+
 ## Ponte de recado nos outros projetos (2026-09-09)
 
 Item 06 — o último da fila, e o único que não é do jogo. Pedido do Gabriel:

@@ -25,9 +25,20 @@ var _botoes          : Dictionary = {}   # item_id -> Button
 var _tira_time       : PanelContainer = null
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	custom_minimum_size = Vector2(240, 60)
-	position = Vector2(10, -70)
+	# 🔴 Mesmo achado do PokedexRapida.gd (09/09, celular do Gabriel): um
+	# Control cujo pai direto é um CanvasLayer calcula a área do pai como 0x0
+	# no instante de set_anchors_preset()+position= — a barra nascia em
+	# (10, -70) LITERAL, pra fora da tela por cima, em vez de ancorada no
+	# canto inferior esquerdo de verdade. Offsets explícitos não dependem de
+	# ler o tamanho do pai.
+	anchor_left = 0.0
+	anchor_right = 0.0
+	anchor_top = 1.0
+	anchor_bottom = 1.0
+	offset_left = 10.0
+	offset_right = 250.0
+	offset_top = -70.0
+	offset_bottom = -10.0
 
 	_linha = HBoxContainer.new()
 	_linha.add_theme_constant_override("separation", 6)
@@ -132,11 +143,28 @@ func _mostrar_tira_de_time() -> void:
 		return
 
 	_tira_time = PanelContainer.new()
-	# Entra na árvore ANTES de montar o conteúdo: set_anchors_preset() com o
-	# painel ainda vazio (tamanho 0x0) calcula um offset errado — achado já
-	# registrado em OverworldHUD._build_skill_cooldown_bars(), mesma causa.
-	var raiz := get_tree().current_scene if get_tree().current_scene else self
+	# 🔴 Achado ao vivo no celular do Gabriel (09/09): isto entrava em
+	# get_tree().current_scene — o MAPA (Node2D) — não numa CanvasLayer. Um
+	# Control dentro de um Node2D herda a transformação da CÂMERA (é
+	# CanvasItem igual o mapa), então a tira nascia em coordenada de MUNDO,
+	# não de tela — some da vista dependendo de onde a câmera está. Corrigido
+	# entrando na MESMA CanvasLayer do resto do HUD (o pai de `self`), que é
+	# tela fixa de verdade. Ancorado com offsets explícitos (não
+	# set_anchors_preset()+position=) pela mesma razão do `_ready()` acima —
+	# um Control fora de outro Control calcula a área do pai como 0x0 nesse
+	# instante.
+	var raiz : Node = get_parent() if get_parent() else self
 	raiz.add_child(_tira_time)
+	_tira_time.anchor_left = 0.5
+	_tira_time.anchor_right = 0.5
+	_tira_time.anchor_top = 1.0
+	_tira_time.anchor_bottom = 1.0
+	var largura_estimada : float = 80.0 * time.size()
+	_tira_time.offset_left = -largura_estimada * 0.5
+	_tira_time.offset_right = largura_estimada * 0.5
+	_tira_time.offset_top = -90.0 - 44.0
+	_tira_time.offset_bottom = -90.0
+
 	var linha := HBoxContainer.new()
 	linha.add_theme_constant_override("separation", 8)
 	_tira_time.add_child(linha)
@@ -152,9 +180,6 @@ func _mostrar_tira_de_time() -> void:
 		btn.add_theme_font_size_override("font_size", 9)
 		btn.pressed.connect(_on_alvo_de_time_escolhido.bind(i))
 		linha.add_child(btn)
-
-	_tira_time.set_anchors_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_KEEP_SIZE)
-	_tira_time.position -= Vector2(0, 90)
 
 func _esconder_tira_de_time() -> void:
 	if _tira_time and is_instance_valid(_tira_time):

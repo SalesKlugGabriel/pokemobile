@@ -13,8 +13,25 @@ var _mirando : bool = false
 var _botao : Button
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	position = Vector2(-70, 10)
+	# 🔴 NÃO usar set_anchors_preset()+position= aqui: um Control cujo pai
+	# direto é um CanvasLayer (não outro Control) calcula a área do pai como
+	# 0x0 nesse instante — a MESMA classe de bug que o comentário em
+	# OverworldHUD._build_skill_cooldown_bars() já tinha achado uma vez, só
+	# que ali a correção usou set_anchors_preset(..., KEEP_SIZE) que por
+	# acaso escapa do problema; aqui (09/09, achado ao vivo no celular do
+	# Gabriel — "não vi a melhoria da Pokédex") o ícone nascia em (-70, 10)
+	# LITERAL, fora da tela pra cima e pra esquerda, porque o anchor de 1.0
+	# multiplicava por um tamanho de pai zerado. Ancorar com offsets
+	# explícitos (como `_botoes`/`_desenho` em ControlesDeToque.gd já fazem)
+	# não depende de ler o tamanho do pai nenhuma vez — funciona sempre.
+	anchor_left = 1.0
+	anchor_right = 1.0
+	anchor_top = 0.0
+	anchor_bottom = 0.0
+	offset_right = -10.0
+	offset_left = -70.0
+	offset_top = 10.0
+	offset_bottom = 46.0
 
 	_botao = Button.new()
 	_botao.custom_minimum_size = Vector2(60, 36)

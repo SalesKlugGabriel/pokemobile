@@ -185,11 +185,22 @@ func _ligar(novas: Array[String]) -> void:
 			_injetar(a, true)
 	_acoes_ligadas = novas.duplicate()
 
+## 🔴 Achado ao vivo (09/09, celular do Gabriel — "não consegui andar"):
+## Input.parse_input_event() com um InputEventAction MONTADO NA MÃO entrega o
+## evento pra quem escuta via _unhandled_input()+event.is_action_pressed()
+## (por isso menu/diálogo/seleção de inicial sempre funcionaram tocando na
+## tela) mas NÃO atualiza o estado global que Input.is_action_pressed()
+## consulta — e é exatamente esse poll global que TrainerEntity usa pra
+## segurar uma direção (_direcao_segurada()) e pra "interact"
+## (is_action_just_pressed no _process()). Resultado: o eixo desenhava, a
+## ação chegava a ser "apertada" no papel, e o personagem nunca andava.
+## Input.action_press()/action_release() são a função certa do Godot pra
+## simular segurar uma ação — atualiza os dois caminhos de uma vez.
 func _injetar(acao: String, apertada: bool) -> void:
-	var e := InputEventAction.new()
-	e.action = acao
-	e.pressed = apertada
-	Input.parse_input_event(e)
+	if apertada:
+		Input.action_press(acao)
+	else:
+		Input.action_release(acao)
 
 # ──────────────────────────────────────────────────────────────────────────
 # Toque único = ação. É o que o Gabriel pediu no lugar de uma botoeira.

@@ -74,9 +74,36 @@ func _process(_delta: float) -> bool:
 	_assert(toque.contains("const ESPIAO : bool = false"),
 		"o espião de eventos está desligado (mas continua no arquivo, foi ele que resolveu)")
 
+	# 8. 🔴 Achado ao vivo no celular do Gabriel (09/09, "não consegui andar"):
+	# Input.parse_input_event() com InputEventAction montado na mão NUNCA
+	# atualizava Input.is_action_pressed() — o eixo desenhava, a ação "era
+	# injetada", mas TrainerEntity._direcao_segurada() (que faz o poll global
+	# pra segurar uma direção) sempre via falso. Trocado por
+	# Input.action_press()/action_release(), a função certa do Godot pra
+	# simular segurar uma ação — prova viva: 2,5s de drag sintético real
+	# (mouse down+move+hold+up via Playwright) só moveu o personagem depois
+	# dessa troca. Sem regressão de propósito: nunca mais voltar a
+	# parse_input_event()+InputEventAction aqui.
+	var toque_sem_comentario := _sem_comentarios(toque)
+	_assert(toque.contains("Input.action_press(acao)") and toque.contains("Input.action_release(acao)"),
+		"segurar direção usa Input.action_press()/action_release(), não parse_input_event()")
+	_assert(not toque_sem_comentario.contains("Input.parse_input_event"),
+		"parse_input_event() não volta como CHAMADA de verdade — não atualiza is_action_pressed() pra ação sintética")
+
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	quit(1 if _fail > 0 else 0)
 	return true
+
+## Tira linhas de comentário puro (começam com # depois de aparar espaço) —
+## usado só pra não confundir uma explicação em comentário com código de
+## verdade nas conferências de "isso não deve mais existir".
+func _sem_comentarios(src: String) -> String:
+	var linhas := src.split("\n")
+	var mantidas : Array[String] = []
+	for l in linhas:
+		if not l.strip_edges().begins_with("#"):
+			mantidas.append(l)
+	return "\n".join(mantidas)
 
 func _assert(cond: bool, msg: String) -> void:
 	if cond:
