@@ -15,9 +15,9 @@
 [sub_resource type="RectangleShape2D" id="Shape_saida"]
 size = Vector2(512, 128)
 
-[node name="SafariZone" type="Node2D"]
+[node name="SafariZone_A2" type="Node2D"]
 script = ExtResource("1_basemap")
-map_id = "safari_zone"
+map_id = "safari_a2"
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = ExtResource("6_tileset")
@@ -39,12 +39,6 @@ limit_right = 38400
 limit_bottom = 38400
 zoom = Vector2(0.5, 0.5)
 
-[node name="GuardaFlorestal" parent="Entities" instance=ExtResource("3_npc")]
-position = Vector2(19392, 37696)
-npc_name = "Guarda Florestal"
-dialog_id = "guarda_safari"
-is_patrolling = false
-
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("4_zm")
 
@@ -55,15 +49,15 @@ script = ExtResource("5_sm")
 
 [node name="WarpSaida" parent="WarpZones" instance=ExtResource("11_warpzone")]
 position = Vector2(19136, 38336)
-target_map = "res://scenes/world/maps/WorldMap.tscn"
-spawn_tile = Vector2i(454, 166)
+target_map = "res://scenes/world/maps/SafariZone.tscn"
+spawn_tile = Vector2i(149, 3)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpSaida"]
 shape = SubResource("Shape_saida")
 
 [node name="WarpArea2" parent="WarpZones" instance=ExtResource("11_warpzone")]
 position = Vector2(19136, 64)
-target_map = "res://scenes/world/maps/SafariZone_A2.tscn"
+target_map = "res://scenes/world/maps/SafariZone_A3.tscn"
 spawn_tile = Vector2i(149, 296)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpArea2"]

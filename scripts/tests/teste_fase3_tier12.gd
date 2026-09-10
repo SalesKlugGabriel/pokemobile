@@ -28,13 +28,19 @@ func _assert(cond: bool, label: String) -> void:
 		print("  FALHA - %s" % label)
 
 func _teste_geral() -> void:
-	# ---- 1. Layout interno: 44x44, cercado, portão único ----
+	# ---- 1. Layout interno: 300x300, cercado, portões sul (saída) e norte
+	# (avança pra Área 2) ----
+	# 🔴 10/09 (Fase 6, parte 2): a Zona Safari virou 5 ÁREAS ENCADEADAS de
+	# 300x300 — era uma sala única de 44x44. Esta é a Área 1 (Centro), que
+	# manteve o map_id "safari_zone" porque é ela que o portão de Fuchsia
+	# abre. As outras 4 têm cobertura própria em teste_safari_5_areas.gd.
 	var layout = MapLayouts.get_layout("safari_zone")
 	var tiles : Array = layout["tiles"]
-	_assert(layout["width"] == 44 and layout["height"] == 44, "safari_zone tem 44x44")
+	_assert(layout["width"] == 300 and layout["height"] == 300, "safari_zone tem 300x300")
 	_assert(tiles[0][10] == "E", "borda norte é cerca (reserva controlada, não árvore)")
-	_assert(tiles[43][10] == "E", "borda sul (fora do portão) é cerca")
-	_assert(tiles[43][21] == "P", "portão único existe na borda sul (warp fica aqui)")
+	_assert(tiles[299][10] == "E", "borda sul (fora do portão) é cerca")
+	_assert(tiles[299][149] == "P", "portão sul existe (saída pra Fuchsia, warp fica aqui)")
+	_assert(tiles[0][149] == "P", "portão norte existe (avança pra Área 2)")
 
 	# ---- 2. Lagoas de contorno orgânico existem ----
 	var achou_lagoa := false
@@ -98,7 +104,7 @@ func _teste_geral() -> void:
 	var by_id := {}
 	for z in data["zones"]:
 		by_id[z["id"]] = z
-	_assert(int(by_id["safari_zone"]["tile_rect"]["w"]) == 44, "zones.json: safari_zone com coordenada local nova (44x44)")
+	_assert(int(by_id["safari_zone"]["tile_rect"]["w"]) == 300, "zones.json: safari_zone com coordenada local nova (300x300)")
 	var achou_tauros := false
 	for w in by_id["safari_zone"].get("wild_pokemon", []):
 		if int(w.get("id", 0)) == 128:

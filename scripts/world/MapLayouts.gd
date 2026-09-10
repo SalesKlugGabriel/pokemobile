@@ -3513,61 +3513,136 @@ static func _cinnabar_terreno_selvagem(c: int, r: int) -> String:
 	return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Zona Safari — 44×44, cena própria (Tier 12, 01/09). Pedido do Gabriel: usa
-# warp mesmo não sendo caverna/subterrâneo/submarino — reserva cercada,
-# entrada única com guarda, mesma lógica de "espaço fechado só acessível por
-# um ponto" que já vale pra caverna. Cercada por CERCA ("E"), não árvore —
-# dá identidade de reserva controlada, diferente de mata selvagem. Duas
-# lagoas de formato orgânico (mesma técnica sin()/distância do litoral/
-# Cinnabar) — regra de tematização de bioma. Mecânica de captura especial
-# (Bola Safari, sem fugir durante o turno do jogador) FICA PRA DEPOIS
-# ("mecânicas" — item 3 da ordem geral); por ora captura normal, igual ao
-# resto do jogo, já que é sistema de batalha, não de mapa.
+# Zona Safari — 5 ÁREAS ENCADEADAS de 300×300 (Fase 6, parte 2, 10/09).
+#
+# Era UMA sala de 44×44 (Tier 12, 01/09). O blueprint da reestruturação
+# sempre pediu "Safari Zone (5 zonas encadeadas)" — nunca tinha sido
+# construído. Agora são 5 áreas de verdade, cada uma com identidade
+# própria de terreno (regra de tematização de bioma do Gabriel), ligadas
+# em fila pelo portão norte de cada uma:
+#
+#   Área 1 (Centro, `safari_zone`) — entrada, campo aberto e duas lagoas.
+#            É ela que o portão de Fuchsia abre; mantém o map_id de sempre
+#            pra não quebrar warp/quest/zona que já apontavam pra cá.
+#   Área 2 (`safari_a2`) — mata fechada: mato alto e árvore por toda parte.
+#   Área 3 (`safari_a3`) — pedregal seco: rocha andável e pedregulho.
+#   Área 4 (`safari_a4`) — brejo: chão de pântano, junco e água parada.
+#   Área 5 (`safari_a5`) — o fim da reserva, com a CASA SECRETA no centro.
+#
+# Toda área é cercada por CERCA ("E"), não árvore — identidade de reserva
+# controlada. E toda área tem uma ESTRADA garantida ligando o portão sul
+# ao norte: a lição que a Cinnabar cobrou caro nesta mesma fase — terreno
+# decorativo aleatório sozinho não garante que dá pra atravessar.
 # ──────────────────────────────────────────────────────────────────────────────
-static func _gen_safarizone() -> Array:
-	var W := 44
-	var H := 44
+const SAFARI_L : int = 300
+const SAFARI_A : int = 300
+## Quantas áreas a reserva tem. A última não tem portão norte (é o fim).
+const SAFARI_AREAS : int = 5
+
+static func _gen_safari_area(area: int) -> Array:
 	var grid : Array = []
-	for r in H:
+	for r in SAFARI_A:
 		var row := ""
-		for c in W:
-			row += _safarizone_cell(c, r, W, H)
+		for c in SAFARI_L:
+			row += _safari_area_cell(c, r, area)
 		grid.append(row)
 	return grid
 
-static func _safarizone_cell(c: int, r: int, W: int, H: int) -> String:
-	# Cerca ao redor (reserva controlada, não mata selvagem) ──
-	if c == 0 or c == W - 1 or r == 0 or r == H - 1:
-		if r == H - 1 and c >= 20 and c <= 23:
-			return "P"  # portão único (entrada/saída, warp aqui)
+## Coluna do centro da estrada em cada linha — serpenteia devagar, mas
+## nunca sai da área. `area` muda a fase da onda pra cada uma ter um
+## traçado próprio.
+static func _safari_estrada_centro(r: int, area: int) -> int:
+	return SAFARI_L / 2 + int(38.0 * sin(float(r) * 0.008 + float(area)) \
+		+ 14.0 * sin(float(r) * 0.021 + float(area) * 2.0))
+
+static func _safari_area_cell(c: int, r: int, area: int) -> String:
+	var meio : int = SAFARI_L / 2
+
+	# ── Portões: sul (volta) sempre; norte (avança) em todas menos a última ──
+	if r == SAFARI_A - 1:
+		if c >= meio - 1 and c <= meio:
+			return "P"
+		return "E"
+	if r == 0:
+		if area < SAFARI_AREAS and c >= meio - 1 and c <= meio:
+			return "P"
+		return "E"
+	if c == 0 or c == SAFARI_L - 1:
 		return "E"
 
-	# Caminho do portão pra dentro ──
-	if c >= 20 and c <= 23 and r >= H - 4 and r <= H - 2:
+	# ── Estrada garantida portão-a-portão (ver cabeçalho: a lição da
+	# Cinnabar). Nas duas pontas ela se alinha ao portão, pra não sobrar
+	# um degrau intransponível bem na porta. ──
+	var centro : int = _safari_estrada_centro(r, area)
+	if r < 12:
+		centro = meio + int(float(centro - meio) * float(r) / 12.0)
+	elif r > SAFARI_A - 13:
+		centro = meio + int(float(centro - meio) * float(SAFARI_A - 1 - r) / 12.0)
+	if absi(c - centro) <= 4:
 		return "P"
 
-	# Duas lagoas de contorno orgânico ──
-	var lagoa1_dx := float(c - 12)
-	var lagoa1_dy := float(r - 15)
-	var lagoa1_dist := sqrt(lagoa1_dx * lagoa1_dx + lagoa1_dy * lagoa1_dy)
-	var lagoa1_raio := 5.0 + 1.5 * sin(atan2(lagoa1_dy, lagoa1_dx) * 4.0)
-	if lagoa1_dist < lagoa1_raio:
-		return "~"
+	# ── Casa Secreta (só na última área) — a recompensa do fim da reserva ──
+	if area == SAFARI_AREAS and c >= 140 and c <= 152 and r >= 140 and r <= 148:
+		if c == 140 or c == 152: return "w"
+		if r == 140: return "H"
+		if r == 148:
+			if c >= 145 and c <= 147: return "P"
+			return _parede_frontal(c, r)
+		return "I"
+	if area == SAFARI_AREAS and r >= 148 and r <= 149 and c >= 145 and c <= 147:
+		return "P"
 
-	var lagoa2_dx := float(c - 32)
-	var lagoa2_dy := float(r - 28)
-	var lagoa2_dist := sqrt(lagoa2_dx * lagoa2_dx + lagoa2_dy * lagoa2_dy)
-	var lagoa2_raio := 6.0 + 2.0 * sin(atan2(lagoa2_dy, lagoa2_dx) * 3.0)
-	if lagoa2_dist < lagoa2_raio:
-		return "~"
+	# ── Lagoas de contorno orgânico — 2 na área 1, 3 no brejo da área 4 ──
+	var lagoas : Array = []
+	if area == 1:
+		lagoas = [[80.0, 100.0, 34.0], [215.0, 195.0, 40.0]]
+	elif area == 4:
+		lagoas = [[70.0, 80.0, 30.0], [220.0, 120.0, 36.0], [150.0, 230.0, 44.0]]
+	elif area == 2:
+		lagoas = [[60.0, 220.0, 22.0]]
+	for lg in lagoas:
+		var dx := float(c) - float(lg[0])
+		var dy := float(r) - float(lg[1])
+		var dist := sqrt(dx * dx + dy * dy)
+		var raio : float = float(lg[2]) + 6.0 * sin(atan2(dy, dx) * 3.0) \
+			+ 2.5 * sin(atan2(dy, dx) * 7.0)
+		if dist < raio - 4.0:
+			return "~"
+		if dist < raio:
+			return "S"
 
-	# Mato alto esparso (usa "G" — grama diferente da "." padrão do resto do
-	# jogo, pra dar identidade própria de reserva/mato fechado) ──
-	if _espalhar_sal(c, r, 47) < 4:
-		return "G"
-	if _espalhar_sal(c, r, 48) < 1:
-		return "T"
-	return "."
+	# ── Terreno próprio de cada área ──
+	match area:
+		2:   # mata fechada
+			if _espalhar_sal(c, r, 160) < 7:
+				return "G"
+			if _espalhar_sal(c, r, 161) < 4:
+				return _forest_variant(c, r)
+			if _espalhar_sal(c, r, 162) < 3:
+				return "A"
+			return "."
+		3:   # pedregal seco
+			if _espalhar_sal(c, r, 163) < 3:
+				return ">"
+			if _espalhar_sal(c, r, 164) < 8:
+				return "^"
+			if _espalhar_sal(c, r, 165) < 3:
+				return "_"
+			return "."
+		4:   # brejo
+			if _espalhar_sal(c, r, 166) < 3:
+				return "0"
+			if _espalhar_sal(c, r, 167) < 4:
+				return "("
+			if _espalhar_sal(c, r, 168) < 9:
+				return "z"
+			return "."
+		_:   # áreas 1 e 5: campo aberto de reserva
+			if _espalhar_sal(c, r, 47) < 4:
+				return "G"
+			if _espalhar_sal(c, r, 48) < 1:
+				return "T"
+			return "."
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Rocket Hideout — 18×14, cena própria (Tier 15, 01/09). Porão sob a entrada
@@ -3684,8 +3759,12 @@ static func get_layout(map_id: String) -> Dictionary:
 			var tiles := _gen_cinnabar()
 			return {"tiles": tiles, "width": CINNABAR_W, "height": CINNABAR_H}
 		"safari_zone":
-			var tiles := _gen_safarizone()
-			return {"tiles": tiles, "width": 44, "height": 44}
+			# Área 1 (Centro) — mantém o map_id de sempre: é ela que o portão
+			# de Fuchsia abre, e quest/zona/warp antigos continuam valendo.
+			return {"tiles": _gen_safari_area(1), "width": SAFARI_L, "height": SAFARI_A}
+		"safari_a2", "safari_a3", "safari_a4", "safari_a5":
+			var na := int(map_id.substr(map_id.length() - 1))
+			return {"tiles": _gen_safari_area(na), "width": SAFARI_L, "height": SAFARI_A}
 		"rocket_hideout":
 			var tiles := _gen_rockethideout()
 			return {"tiles": tiles, "width": 18, "height": 14}
