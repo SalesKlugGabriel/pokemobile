@@ -9,6 +9,80 @@
 
 ---
 
+## 4 bugs reais do feedback jogando + agentes CCGS de arte/UX (2026-09-10)
+
+Gabriel jogou de verdade (celular E desktop) e mandou 14 recados pelo próprio botão de
+feedback do jogo. Revisão completa: 4 bugs REAIS corrigidos (2 deles compartilham a MESMA
+causa raiz), 2 achados que são comportamento intencional (não-bug), e uma lista de
+pedidos de arte/design/balanceamento que precisam da decisão do Gabriel antes de mexer.
+
+**O achado do dia — `physics_object_picking` desligado.** Explica sozinho dois recados
+diferentes: *"não é possivel iniciar combate, nem clicando no pokemon selvagem"* e
+*"pokedex quando vc clica no pokemon, não abre a pokedex dele"*. `Viewport.
+physics_object_picking` vem DESLIGADO por padrão no Godot 4 — sem ele, nenhum Area2D com
+`input_pickable=true` (hurtbox do selvagem, do Follower, corpo desmaiado) recebe clique
+NENHUM. No celular ninguém notava porque `ControlesDeToque._mais_perto()` já resolve por
+busca de distância, sem depender de física nenhuma — mas em qualquer JANELA LARGA (desktop,
+inclusive a do próprio Gabriel, testado em 1280×720 e 1592×720) essa muleta está desligada,
+e o clique nativo do Godot simplesmente nunca chegava a lugar nenhum. Provado ao vivo contra
+produção: 0 cliques registrados em ~3600 tentativas (grades densas, várias rodadas) antes da
+correção, 234 de 400 tentativas logo depois — só ligando a flag em `BaseMap._ready()`.
+
+**Barra de HP do líder congelada durante combate** (*"meu pokemon morre no primeiro ataque
+que recebe, e a barra de vida continua cheia"*). `FollowerPokemon.take_damage()` sempre
+emitiu `EventBus.follower_hp_changed` — mas o único ouvinte no jogo inteiro era o
+`TutorialManager` (aviso de "use uma poção"). O HUD só redesenhava a barra via `_refresh()`,
+disparado por `game_saved`, que lê `hp_current` do SAVE — e o save não é escrito a cada
+golpe. Corrigido: `OverworldHUD` agora escuta `follower_hp_changed` direto e atualiza a
+barra + cor na hora, sem depender de save nenhum.
+
+**Prof. Carvalho "não existe"** — na verdade existe, só que a seta/contador de passos da
+quest MAIN-01 apontava pro lugar errado. `location_tile` em `quests.json` dizia (55,158);
+o NPC de verdade (`ProfCarvalho`, `WorldMap.tscn`) está em (26,159) — 29 tiles de distância.
+Corrigido pra bater com a posição real.
+
+**Pokédex "mostrando coisas que não tem nada a ver"** — aba Evolução do Wartortle pulava de
+Blastoise (forma final, não evolui mais) direto pra Ivysaur/Venusaur (linha do Bulbasaur,
+zero relação) com "(false false)" no lugar do nível. Causa: `species.json` guarda
+`evolution_to: null` pra quem não evolui mais, e `int(null)` é ERRO DE EXECUÇÃO no Godot
+("Nonexistent 'int' constructor") — silencioso, não trava o jogo, mas deixa a variável
+inválida e o loop de exibição vaza pra outra linha evolutiva. Corrigido com um helper que
+trata `null` como "não evolui" antes de converter pra número.
+
+**Vara de pescar sem aviso de uso** (*"ganhei a ROD, mas não encontro o item e não tem como
+usá-lo"*) — a vara ia certinho pra Mochila (aba "Chave") e pescar já funcionava (de frente
+pra água + [interagir], automático), só nunca tinha NENHUM aviso dizendo isso. Adicionado
+tutorial novo, disparado no momento em que o NPC dá a vara.
+
+**Dois achados que são intencionais, não-bug** — registrados aqui pra não virarem confusão
+de novo: (1) Giovanni "em cima do prédio" é o Ginásio de Viridian FECHADO (vira parede até
+a MAIN-08 completar — comportamento já documentado e testado desde 04/09); (2) Tauros bem
+maior que Spearow/Charmander é o sistema de escala por ALTURA REAL da Pokédex
+(`PokemonScale.gd`, pedido do próprio Gabriel em 03/09: "Pikachu < Charmander < Bulbasaur
+< Charizard << Onix") funcionando como projetado — Tauros=1,4m vs Spearow=0,3m dá ~2x de
+diferença visual, não é escala errada.
+
+**Pendente de decisão do Gabriel (arte/design, não mexi sem confirmar)**: paredes laterais
+de casa usando a mesma sprite da frente (feio, já reportado 2x — 09/09 e 10/09); cor/
+centralização dos tocos de árvore cortados; árvores grandes ficarem no estilo das pequenas
+(que ele achou mais bonitas); visão da Pokédex "pobre e sem graça" (ele mandou referência
+visual); densidade/nível de Pokémon selvagem — quer fraco perto do início, forte em
+ilha/floresta densa/dungeon; uma estrutura que bloqueia o caminho mas dá pra contornar
+(parece erro de nível, não decidi sozinho se remove ou fecha de vez).
+
+**87 arquivos de teste, 0 falhas.** Publicado e conferido ao vivo contra produção (Playwright
+real, desktop 1280×720 — o mesmo formato de tela do Gabriel).
+
+**Também hoje**: trazidos 3 agentes + 4 skills do kit comunitário Claude-Code-Game-Studios
+(`art-director`, `godot-specialist`, `ux-designer` + `/art-bible`, `/asset-audit`,
+`/consistency-check`, `/ux-review`) — pedido do Gabriel pra atacar os pontos de arte/UX
+acima com ferramenta especializada em vez de eu inventar sozinho. Só essas 7 peças, nada
+dos outros 46 agentes/69 comandos do kit completo. `.claude/` estava todo no `.gitignore`
+(tratado como metadado de sessão) — abertas exceções só pra `agents/` e `skills/`, que são
+configuração de projeto de propósito.
+
+---
+
 ## Lista de imersão: 3 dos 3 itens restantes entregues (2026-09-09, mais tarde)
 
 Gabriel pediu pra seguir com as melhorias pendentes enquanto ele testava a correção do
