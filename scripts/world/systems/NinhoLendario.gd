@@ -65,6 +65,10 @@ static func povoar(mapa: Node, map_id: String) -> void:
 	# defesa +50%, e as 6 funções de repertório com enrage aos 4 minutos.
 	ChefeLendario.instalar(inst, especie)
 	EventBus.legendary_encountered.emit(especie, str(dados["nome"]))
+	# Cutscene curta de entrada (09/09, lista de imersão) — o sinal acima já
+	# existia desde 05/09 sem ninguém escutar; CutsceneLendario.gd é o
+	# primeiro listener dele.
+	CutsceneLendario.tocar(mapa, str(dados["nome"]))
 
 static func _ja_derrotado(especie: int) -> bool:
 	var mundo : Dictionary = SaveManager.save_data.get("world", {})

@@ -9,6 +9,54 @@
 
 ---
 
+## Lista de imersão: 3 dos 3 itens restantes entregues (2026-09-09, mais tarde)
+
+Gabriel pediu pra seguir com as melhorias pendentes enquanto ele testava a correção do
+joystick. Os 3 itens que faltavam da lista de imersão (clima dinâmico, trainers vagando,
+cutscene de lendário) tinham em comum o mesmo padrão: **o gancho já existia no motor, sem
+ninguém do outro lado escutando** — nenhum sistema novo teve que ser inventado do zero.
+
+**1. Trainers vagando pelo mundo.** `NpcEntity.gd` já tinha patrulha por waypoints inteira
+(`patrol_route`/`is_patrolling`, estados `PATROL_MOVE`/`PATROL_WAIT`) desde antes desta
+sessão — **mas zero NPC do jogo usava** (`grep` em todos os `.tscn`: nenhum
+`patrol_route = [`). Sistema nunca testado também. Escrito `teste_npc_patrulha.gd` (14
+conferências, prova o loop entre waypoints, a espera, e que conversar no meio pausa e
+retoma a patrulha) — achado no caminho: **atribuir um `Array[Vector2i]` a uma variável SEM
+tipo estático falha em silêncio** ("Invalid set index"), só funciona com o tipo declarado
+(`var npc : NpcEntity = ...`); sem isso o teste entrava num loop infinito de erro porque
+faltava também a guarda `_rodou` padrão desta suíte — os dois achados viraram lição nova
+(ver `memory/project_pokemobile.md`). Com o sistema provado, dei rota de 2 tiles (verificada
+tile a tile contra o mapa real, todas andáveis) pra 6 NPCs: 3 treinadores de rota no mundo
+aberto (Treinador1, Colecionador de Insetos, TreinadorRota24) e os 3 Marinheiros do S.S.
+Anne. Líderes de ginásio, Elite Four e capangas de covil ficaram parados de propósito —
+convenção clássica de Pokémon (esperam o desafiante no lugar).
+
+**2. Cutscene de entrada de lendário.** `EventBus.legendary_encountered` existia desde
+05/09 (`NinhoLendario.povoar()`), emitido no instante exato em que o lendário nasce no fim
+do covil — **e nunca teve um único listener**. `CutsceneLendario.gd` (novo, chamado direto,
+não por sinal) é o primeiro: trava o jogador (mesmo `lock_input()`/`unlock_input()` do
+diálogo), mostra um aviso ("Um Articuno selvagem desperta..." — reaproveita o toast do
+tutorial), toca o jingle "encounter" que todo selvagem já usa, e a câmera aproxima e volta
+(`Camera2D.zoom`, ~1,6s do início ao jogador recuperar o controle). Zero arte nova. 4
+conferências (`teste_cutscene_lendario.gd`), incluindo o caso sem câmera achável (não pode
+travar o jogador esperando um tween que nunca roda).
+
+**3. Clima dinâmico.** Novo autoload `ClimaDinamico.gd` (mesmo molde do `CicloDoDia.gd`
+de mais cedo hoje): sorteia limpo/chuva por 1,5–4 min de cada vez, só no mundo aberto —
+dungeon/interior não tem céu, e sair do mapa aberto sempre desliga a chuva (ninguém quer
+voltar de um covil com o efeito "ligado" por trás sem overlay pra mostrar). `ChuvaOverlay.gd`
+(CanvasLayer própria — a MESMA lição do bug da tira de remédio de hoje mais cedo: só
+CanvasLayer garante espaço de TELA, independente de onde a câmera está) desenha a chuva com
+`CPUParticles2D` **sem textura nova** (o quad branco padrão do motor, esticado e tingido de
+azul-acinzentado). 8 conferências (`teste_clima_dinamico.gd`): o relógio só corre com
+`ativar(true)`, sair do mundo aberto desliga a chuva e avisa quem estiver escutando, e o
+overlay liga/desliga a partícula de verdade.
+
+83 arquivos de teste, 0 falhas. Detalhe técnico completo (achados, decisões, por que só
+chuva por enquanto) nos próprios arquivos citados acima.
+
+---
+
 ## Corrigido: "não consegui andar" + HUD novo invisível no celular (2026-09-09)
 
 Feedback real do Gabriel, mandado pelo próprio app: *"Fiz o teste no móbile e não

@@ -131,7 +131,8 @@ npc_name = "Treinador"
 dialog_id = "route_1_trainer_1"
 is_trainer = true
 trainer_team = Array[Dictionary]([{"species_id": 19, "level": 4}])
-is_patrolling = false
+patrol_route = Array[Vector2i]([Vector2i(51, 131), Vector2i(49, 131)])
+is_patrolling = true
 
 [node name="Campista" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(6400, 15360)
@@ -186,7 +187,8 @@ npc_name = "Colecionador de Insetos"
 dialog_id = "route2_bugcatcher"
 is_trainer = true
 trainer_team = Array[Dictionary]([{"species_id": 10, "level": 6}, {"species_id": 13, "level": 7}])
-is_patrolling = false
+patrol_route = Array[Vector2i]([Vector2i(62, 55), Vector2i(60, 55)])
+is_patrolling = true
 
 [node name="Brock" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(3392, 1344)
@@ -325,7 +327,8 @@ npc_name = "Treinador"
 dialog_id = "rota24_treinador"
 is_trainer = true
 trainer_team = Array[Dictionary]([{"species_id": 29, "level": 22}, {"species_id": 32, "level": 22}])
-is_patrolling = false
+patrol_route = Array[Vector2i]([Vector2i(249, -9), Vector2i(247, -9)])
+is_patrolling = true
 
 [node name="PescadorVermilionPraia" parent="Entities" instance=ExtResource("3_npc")]
 position = Vector2(30144, 21952)

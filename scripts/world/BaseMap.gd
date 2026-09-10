@@ -55,6 +55,7 @@ func _ready() -> void:
 	if map_id == "world_map":
 		QuestManager.quest_completed.connect(_on_quest_completed_repaint)
 		_ligar_ciclo_do_dia()
+		_ligar_clima_dinamico()
 
 func _on_quest_completed_repaint(_quest_id: String) -> void:
 	_paint_tiles()
@@ -69,6 +70,17 @@ func _ligar_ciclo_do_dia() -> void:
 	_canvas_modulate.name = "CicloDoDiaModulate"
 	add_child(_canvas_modulate)
 	CicloDoDia.registrar_modulate(_canvas_modulate)
+
+## Clima dinâmico (09/09) — só no mundo aberto, mesmo escopo do dia/noite.
+var _chuva_overlay : CanvasLayer = null
+
+func _ligar_clima_dinamico() -> void:
+	_chuva_overlay = preload("res://scripts/world/systems/ChuvaOverlay.gd").new()
+	_chuva_overlay.name = "ChuvaOverlay"
+	add_child(_chuva_overlay)
+	_chuva_overlay.set_chovendo(ClimaDinamico.chovendo)
+	ClimaDinamico.clima_mudou.connect(_chuva_overlay.set_chovendo)
+	ClimaDinamico.ativar(true)
 
 func _setup_world_systems() -> void:
 	if not player:
@@ -94,6 +106,10 @@ func _exit_tree() -> void:
 	WorldManager.unregister_map()
 	if _canvas_modulate:
 		CicloDoDia.desregistrar_modulate(_canvas_modulate)
+	if _chuva_overlay:
+		ClimaDinamico.ativar(false)
+		if ClimaDinamico.clima_mudou.is_connected(_chuva_overlay.set_chovendo):
+			ClimaDinamico.clima_mudou.disconnect(_chuva_overlay.set_chovendo)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Polimento visual

@@ -51,7 +51,8 @@ npc_name = "Marinheiro"
 dialog_id = "marinheiro_ssanne_1"
 is_trainer = true
 trainer_team = Array[Dictionary]([{"species_id": 72, "level": 20}, {"species_id": 98, "level": 21}])
-is_patrolling = false
+patrol_route = Array[Vector2i]([Vector2i(6, 5), Vector2i(4, 5)])
+is_patrolling = true
 
 [node name="Marinheiro2" parent="Entities" instance=ExtResource("11_npc")]
 position = Vector2(1472, 1088)
@@ -59,7 +60,8 @@ npc_name = "Marinheiro"
 dialog_id = "marinheiro_ssanne_2"
 is_trainer = true
 trainer_team = Array[Dictionary]([{"species_id": 66, "level": 22}, {"species_id": 21, "level": 21}])
-is_patrolling = false
+patrol_route = Array[Vector2i]([Vector2i(12, 8), Vector2i(10, 8)])
+is_patrolling = true
 
 [node name="ZoneManager" type="Node" parent="."]
 script = ExtResource("3_zm")
