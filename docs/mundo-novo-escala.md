@@ -397,3 +397,84 @@ cidade em `MapLayouts.gd` já pinta por COORDENADA LOCAL (offset a partir de
 um ponto-âncora) — mover é mudar onde o bloco entra no despacho do
 `_world_cell()`, não reescrever a pintura. NPCs/quests/spawns/patrulhas
 daquela cidade precisariam do MESMO offset em lote.
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# REVISÃO FINAL — plano original × executado (10/09/2026)
+# ══════════════════════════════════════════════════════════════════════════
+
+Auditoria pedida pelo Gabriel ao fim da reestruturação. Tudo abaixo foi
+MEDIDO no código gerado (script de auditoria rodando `get_layout` de cada
+mapa e BFS no TileMap pintado), não conferido de memória.
+
+## 1. Distâncias — a tabela do prompt original, medida uma a uma
+
+| Trecho | km pedido | tiles pedidos | tiles entregues | bate? |
+|---|---|---|---|---|
+| Viridian–Pallet | 1 | 1.000 | 1.000 | ✅ |
+| Viridian–Pewter | 3 | 3.000 | 3.000 | ✅ |
+| Pewter–Cerulean | 7 | 7.000 | 7.000 | ✅ |
+| Cerulean–Saffron | 4 | 4.000 | 4.000 | ✅ |
+| Saffron–Celadon | 4 | 4.000 | 4.000 | ✅ |
+| Saffron–Vermilion | 2 | 2.000 | 2.000 | ✅ |
+| Saffron–Lavender | 5 | 5.000 | 5.000 | ✅ |
+| Lavender–Fuchsia | 12 | 12.000 | 12.000 | ✅ |
+
+**8 de 8 batem exato.** Total: 38.000 tiles de rota — 38 km na régua de
+"1 km = 1.000 passos" que o Gabriel confirmou como literal.
+
+## 2. Atalhos antigos — todos selados (medido tile a tile)
+
+Rota 1, 2, 3, 4, 5 e 6 (as ligações curtas de dentro do `world_map`
+original): **todas seladas**, zero tile andável sobrando na coluna/linha do
+corredor de cada uma. Era o achado mais importante da reestruturação — sem
+isso, as rotas novas seriam decoração.
+
+## 3. O que o prompt pediu × o que foi entregue
+
+| Pedido original | Situação | Observação honesta |
+|---|---|---|
+| 1 km ≈ 1.000 passos, literal | ✅ | 8/8 medidos |
+| Rotas divididas em segmentos com biomas distintos | ⚠️ parcial | Os biomas variados existem (a Lavender–Fuchsia tem os 7 segmentos pedidos), mas como FAIXAS dentro de uma cena por rota, não como vários arquivos de mapa. Pro jogador é melhor (não há carregamento no meio da rota); pro texto do pedido, é uma leitura mais livre |
+| Distância relativa perceptível | ✅ | 1km a 12km na mesma régua |
+| Transição gradual de bioma | ✅ | `_misturar_bioma_cell()` com ruído, sem corte seco |
+| Bioma de montanha de verdade | ✅ | Pewter–Viridian e Pewter–Cerulean, com rocha/falésia/cume/trilha |
+| Caverna não-linear onde a rota atravessa montanha | ✅ | CavernaMontanhaPV (nova) + Mt Moon retrofitada; Rock Tunnel já era |
+| Costa orgânica, sem forma quadrada | ✅ nas ilhas/costa | Cinnabar usa 3 harmônicas; o litoral do world_map segue o de sempre |
+| "Sem paredes de árvore" | ⚠️ parcial | Vale pra COSTA (nenhuma borda de mar é árvore). Mas as rotas novas são corredores delimitados por mata densa nas laterais — é uma parede de árvore, ainda que com variedade de espécie e borda irregular. Se a intenção era valer também pro interior, isso precisa de outra passada |
+| Ilhas orgânicas, nem quadradas nem redondas | ✅ | Cinnabar (1.200×1.200) com contorno de 3 harmônicas |
+| Cidades mantêm posição relativa | ✅ | Nenhuma cidade se moveu; só as distâncias entre elas cresceram |
+| Distribuição ecológica de Pokémon | ⬜ pendente | Adiada de propósito desde o começo — é a etapa seguinte (`pokemobile_matriz_ecologica.md`), não faz parte deste blueprint |
+
+## 4. Fases 1–6 — estado final
+
+| Fase | Entrega | Estado |
+|---|---|---|
+| 1 | Pallet↔Viridian↔Pewter (1km + 3km) | ✅ publicado |
+| 2 | Pewter→Cerulean (7km) + Mt Moon não-linear | ✅ publicado |
+| 3 | Nó central de Saffron (4+2+4 km) | ✅ publicado |
+| 4 | Saffron→Lavender (5km) + Rock Tunnel | ✅ publicado |
+| 5 | Lavender→Fuchsia (12km, 7 biomas) + correção crítica de performance | ✅ publicado |
+| 6 | Cinnabar (1.200×1.200) + Zona Safari (5 áreas de 300×300) | ✅ publicado |
+| — | Acessos aos 3 covis lendários | ✅ publicado |
+
+## 5. O que continua em aberto (honestamente)
+
+1. **Matriz ecológica** — a fauna por bioma/rota/horário. Sempre foi a
+   etapa seguinte; as rotas hoje têm spawn temático razoável, mas não a
+   matriz completa que o Gabriel escreveu.
+2. **Surf e Fly não existem** — e isso trava conteúdo já construído:
+   Seafoam Islands, Arquipélago Tropical, Ilha do Deserto, a **Usina
+   (Zapdos)** e a **Ilha Gélida (Articuno)** ficam num ponto do mapa que
+   não dá pra alcançar a pé. As duas cadeias de covil estão inteiras e
+   testadas — só falta a mecânica que leva até a porta. **Moltres é o
+   único dos três alcançável hoje** (barco do Capitão → Cinnabar → trilha
+   → cratera). Isso é "mecânicas", não geografia.
+3. **Tempo de carregamento** das rotas maiores: 3–6s nas maiores
+   (Lavender–Fuchsia, Cinnabar, Pewter–Cerulean) depois da correção da
+   Fase 5. Aceitável, mas não instantâneo — se incomodar, o próximo passo
+   seria pintar por pedaços (chunk) em vez de o mapa inteiro de uma vez.
+4. **Mt Moon / Rock Tunnel não têm subsolo.** As 5 cenas que existiam
+   (`MtMoon_B1..B3`, `RockTunnel_B1..B2`) eram cascas vazias da
+   arquitetura antiga e foram apagadas. Se a intenção original era ter
+   esses andares, é conteúdo novo a construir.
