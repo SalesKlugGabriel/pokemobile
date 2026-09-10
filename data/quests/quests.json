@@ -5,8 +5,8 @@
     "category": "main",
     "npc_id": "professor_oak",
     "location_tile": {
-      "x": 55,
-      "y": 158
+      "x": 26,
+      "y": 159
     },
     "objectives": [
       {

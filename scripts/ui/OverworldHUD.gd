@@ -139,6 +139,7 @@ func _ready() -> void:
 	EventBus.movement_mode_changed.connect(_on_movement_mode_changed)
 	EventBus.follower_skill_cooldown_updated.connect(_on_skill_cooldown_updated)
 	EventBus.follower_changed.connect(_on_follower_changed)
+	EventBus.follower_hp_changed.connect(_on_follower_hp_changed)
 	EventBus.mewtwo_choice_requested.connect(_show_mewtwo_choice)
 	EventBus.notification_requested.connect(_mostrar_aviso)
 	btn_fly.pressed.connect(_on_btn_fly_pressed)
@@ -285,19 +286,34 @@ func _refresh() -> void:
 	var species_name : String = GameData.get_species(int(lead.get("species_id", 1))).get("name", "???")
 	var nickname     : String = lead.get("nickname", "")
 	var display_name : String = nickname if nickname != "" else species_name
-	var hp_cur : int = lead.get("hp_current", 0)
-	var hp_max : int = lead.get("hp_max", 1)
 	label_lead.text  = "%s  Lv.%d" % [display_name, lead.get("level", 1)]
-	bar_hp.max_value = hp_max
+	_aplicar_hp(int(lead.get("hp_current", 0)), int(lead.get("hp_max", 1)))
+
+## Cor + valor da barra de HP do líder, num lugar só — chamado tanto pelo
+## _refresh() (lê do save, só correto entre batalhas) quanto pelo listener
+## de follower_hp_changed abaixo (lê do combate ao vivo).
+func _aplicar_hp(hp_cur: int, hp_max: int) -> void:
+	bar_hp.max_value = maxi(1, hp_max)
 	bar_hp.value     = hp_cur
-	# Coloração da barra por HP%
-	var pct : float = float(hp_cur) / float(hp_max)
+	var pct : float = float(hp_cur) / float(maxi(1, hp_max))
 	if pct > 0.5:
 		bar_hp.modulate = Color(0.2, 0.85, 0.2)
 	elif pct > 0.25:
 		bar_hp.modulate = Color(1.0, 0.85, 0.1)
 	else:
 		bar_hp.modulate = Color(0.9, 0.15, 0.15)
+
+## 🔴 Achado ao vivo (10/09, feedback real: "meu pokemon morre no primeiro
+## ataque que recebe, e a barra de vida continua cheia no mostrador").
+## FollowerPokemon.take_damage() sempre emitiu follower_hp_changed — só que
+## o ÚNICO listener no jogo inteiro era o TutorialManager (pro aviso de
+## "use uma poção"). O HUD nunca escutava: a barra só era redesenhada via
+## _refresh(), disparado por game_saved — e o save só grava hp_current no
+## fim da batalha (ou quando algo explícito chama), não a cada golpe. Dano
+## em combate ficava invisível na tela até o próximo save, inclusive o
+## desmaio: a barra congelava no valor de ANTES da luta começar.
+func _on_follower_hp_changed(current: int, maximum: int) -> void:
+	_aplicar_hp(current, maximum)
 
 func _on_battle_ended(_result) -> void:
 	_refresh()

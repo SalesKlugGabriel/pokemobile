@@ -23,6 +23,20 @@ extends Node2D
 @onready var player  : TrainerEntity = $Entities/Player
 
 func _ready() -> void:
+	# 🔴 Achado ao vivo (10/09, feedback real do Gabriel: "não é possivel
+	# iniciar combate, nem clicando no pokemon selvagem" + "pokedex quando vc
+	# clica no pokemon, não abre a pokedex dele"). `Viewport.
+	# physics_object_picking` vem DESLIGADO por padrão no Godot 4 — sem isso,
+	# NENHUM Area2D com `input_pickable=true` recebe clique/toque (hurtbox do
+	# selvagem, do Follower, o corpo desmaiado pra capturar). No celular
+	# (janela estreita) ninguém notava porque ControlesDeToque._mais_perto()
+	# já resolvia por busca de distância, sem depender de física — mas em
+	# QUALQUER janela larga (desktop, inclusive a do Gabriel) essa muleta
+	# está desligada (`_e_celular()`), e o clique nativo do Godot simplesmente
+	# nunca chegava a lugar nenhum. Provado ao vivo: zero cliques registrados
+	# em ~1200 tentativas (grade densa) antes desta linha, 234 depois, sem
+	# mudar mais nada.
+	get_viewport().physics_object_picking = true
 	# ANTES de qualquer coisa (06/09): entrar numa dungeon lacra a mochila e
 	# liga o teto de nível, e o Follower nasce logo em seguida já rebaixado.
 	# Se isto rodasse depois, o Pokémon entraria com o nível cheio no primeiro

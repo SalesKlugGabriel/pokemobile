@@ -13,13 +13,14 @@ extends Node
 # jogou nada de Pokémon — não assume que "PP" ou "follower" já fazem sentido.
 const DICAS := {
 	"movimento": "Use as setas ou WASD pra andar. Aperte [interagir] perto de alguém ou de algo pra falar/usar.",
-	"combate": "Combate é em TEMPO REAL — sem turnos. Aperte 1-4 pra usar os golpes do seu Pokémon líder enquanto ele luta ao seu lado. Desviar de golpes de área funciona de verdade: saia da marcação no chão antes do impacto.",
+	"combate": "Combate é em TEMPO REAL — sem turnos. Clique no Pokémon selvagem pra mirar nele, depois aperte 1-4 (ou clique no golpe na tela) pra atacar com seu Pokémon líder. Desviar de golpes de área funciona de verdade: saia da marcação no chão antes do impacto.",
 	"desmaiado": "Esse Pokémon caiu, não sumiu — agora dá pra tentar capturar. Escolha uma Pokébola e clique nele.",
 	"pos_captura": "Capturado! Ele entra no seu time (ou no PC, se o time já tiver 6). Veja o time e os golpes dele no menu de Pausa.",
 	"cura": "Seu Pokémon líder tomou dano. Use uma Poção quando puder — sem cura, ele pode desmaiar em combate.",
 	"level_up": "Subir de nível deixa seu Pokémon mais forte e pode destravar evolução. Fique de olho no HP máximo crescendo.",
 	"pokedex_clique": "O ícone Pokédex funciona em 2 cliques: aperte ele, depois clique em qualquer Pokémon (seu ou selvagem) pra ver a ficha completa.",
 	"loja": "Fale com o vendedor e escolha Comprar ou Vender — são telas separadas. Vender itens de loot dá dinheiro pra comprar o que precisar.",
+	"pesca": "Você ganhou uma vara de pescar! Fique de frente pra água (bem na beira) e aperte [interagir] — não precisa escolher a vara na Mochila, é automático.",
 }
 
 func _ready() -> void:

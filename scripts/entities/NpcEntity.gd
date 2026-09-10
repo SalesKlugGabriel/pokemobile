@@ -238,6 +238,14 @@ func _on_dialog_ended() -> void:
 	if not gift_item_id.is_empty() and not SaveManager.has_item(gift_item_id, 1):
 		SaveManager.add_item(gift_item_id, gift_quantity)
 		AudioManager.play_sfx("item_get")
+		# 🔴 Achado ao vivo (10/09, feedback real: "segundo o NPC eu ganhei a
+		# ROD, mas não encontro o item e não tem como usá-lo"). O item ia
+		# certinho pra Mochila (aba "Chave"), e pescar já funcionava (de
+		# frente pra água + [interagir], automático) — só nunca tinha aviso
+		# nenhum dizendo isso, então parecia quebrado. Só dispara pra vara de
+		# pescar (as únicas 3 dessa categoria no jogo).
+		if gift_item_id in ["old_rod", "good_rod", "super_rod"]:
+			TutorialManager.mostrar("pesca")
 	if not starts_quest_id.is_empty():
 		QuestManager.start_quest(starts_quest_id)
 	# Viagem (barco etc.) — só acontece se a quest exigida já estiver completa;

@@ -155,10 +155,11 @@ func _aba_evolucao(dados: Dictionary) -> void:
 		var d := GameData.get_species(passo)
 		var marca : String = "  ← você está aqui" if passo == _especie else ""
 		_texto("%s%s" % [str(d.get("name", "?")), marca])
-		var seguinte : int = int(d.get("evolution_to", 0))
+		var seguinte : int = _evolution_to_seguro(d)
 		if seguinte <= 0:
 			break
-		var cond : Dictionary = d.get("evolution_condition", {})
+		var cond_bruto = d.get("evolution_condition")
+		var cond : Dictionary = cond_bruto if cond_bruto is Dictionary else {}
 		var como := "nível %d" % int(cond.get("value", 0)) if str(cond.get("type", "")) == "level" \
 			else str(cond.get("type", "?")) + " " + str(cond.get("value", ""))
 		_texto("      ↓  (%s)" % como)
@@ -205,8 +206,9 @@ func _historia(dados: Dictionary) -> String:
 	var hab := str(dados.get("ability", ""))
 	if hab != "":
 		partes.append("Sua habilidade natural é %s." % hab)
-	if int(dados.get("evolution_to", 0)) > 0:
-		var cond : Dictionary = dados.get("evolution_condition", {})
+	if _evolution_to_seguro(dados) > 0:
+		var cond_bruto = dados.get("evolution_condition")
+		var cond : Dictionary = cond_bruto if cond_bruto is Dictionary else {}
 		if str(cond.get("type", "")) == "level":
 			partes.append("Ainda vai evoluir: acontece por volta do nível %d." % int(cond.get("value", 0)))
 		else:
@@ -237,9 +239,21 @@ func _learnset() -> Array:
 func _quem_evolui_para(destino: int) -> int:
 	for id in range(1, 152):
 		var d := GameData.get_species(id)
-		if int(d.get("evolution_to", 0)) == destino:
+		if _evolution_to_seguro(d) == destino:
 			return id
 	return 0
+
+## 🔴 Achado ao vivo (10/09, feedback real: "está bugada a pokedex, mostrando
+## coisas que não tem nada a ver"). species.json guarda `evolution_to: null`
+## pra quem não evolui mais (Blastoise, Venusaur...) — e `int(null)` é erro
+## de execução no Godot ("Nonexistent 'int' constructor"), não vira 0
+## sozinho. O erro é silencioso (só imprime, não trava o jogo), mas deixa a
+## variável seguinte inválida — e foi isso que fez a aba Evolução do
+## Wartortle pular de Blastoise (que não evolui) direto pra Ivysaur/Venusaur
+## (outra linha evolutiva inteira, sem relação nenhuma com Squirtle).
+func _evolution_to_seguro(dados: Dictionary) -> int:
+	var bruto = dados.get("evolution_to")
+	return int(bruto) if bruto != null else 0
 
 func _meu_exemplar() -> Dictionary:
 	for poke in SaveManager.get_team():
