@@ -3380,6 +3380,14 @@ static func _gen_cinnabar() -> Array:
 ## em terra seca dependendo de quanto a costa orgânica balança ali.
 const CINNABAR_RAIO_SUL : float = 392.0
 
+## Boca da Cratera do Vulcão (covil do Moltres), no alto do planalto — fica
+## na ponta norte da trilha que sai do vilarejo (a trilha em r=198 passa
+## centrada em c≈632, ver `_cinnabar_cell`). A cena
+## (CinnabarIsland.tscn) planta o WarpZone exatamente aqui, e a volta do
+## Cratera_B1 aterrissa 3 tiles ao sul, já na trilha.
+const CINNABAR_CRATERA_C : int = 632
+const CINNABAR_CRATERA_R : int = 198
+
 static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 	# Cais de madeira — sai da praia sul rumo ao mar, é onde o barco atraca
 	# (warp de volta pra Vermilion fica na ponta). Tamanho original mantido,
@@ -3388,6 +3396,14 @@ static func _cinnabar_cell(c: int, r: int, W: int, H: int) -> String:
 	var cais_r_inicio : int = int(CINNABAR_CENTRO.y + CINNABAR_RAIO_SUL) - 4
 	var cais_r_fim : int = cais_r_inicio + 48
 	if c >= 598 and c <= 601 and r >= cais_r_inicio and r <= cais_r_fim:
+		return "D"
+
+	# ── Boca da Cratera do Vulcão (covil do Moltres) — no alto do planalto,
+	# na ponta norte da trilha. Marcador visual; o WarpZone de verdade é
+	# plantado em cima destes tiles, na cena (CinnabarIsland.tscn →
+	# Cratera_B1.tscn). Checado ANTES da trilha/planalto pra vencer os dois.
+	if c >= CINNABAR_CRATERA_C - 1 and c <= CINNABAR_CRATERA_C + 1 \
+	and r >= CINNABAR_CRATERA_R - 1 and r <= CINNABAR_CRATERA_R + 1:
 		return "D"
 
 	# ── Ginásio de Cinnabar (Blaine) — tamanho original, cols 480-492 ──

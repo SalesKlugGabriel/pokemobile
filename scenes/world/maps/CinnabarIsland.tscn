@@ -21,6 +21,9 @@ size = Vector2(384, 256)
 [sub_resource type="RectangleShape2D" id="Shape_mansion"]
 size = Vector2(384, 128)
 
+[sub_resource type="RectangleShape2D" id="Shape_cratera"]
+size = Vector2(384, 384)
+
 [node name="CinnabarIsland" type="Node2D"]
 script = ExtResource("1_basemap")
 map_id = "cinnabar_island"
@@ -84,6 +87,14 @@ spawn_tile = Vector2i(445, 27)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpBarcoVolta"]
 shape = SubResource("Shape_barco")
+
+[node name="WarpCrateraVulcao" parent="WarpZones" instance=ExtResource("11_warpzone")]
+position = Vector2(80960, 25408)
+target_map = "res://scenes/world/dungeons/Cratera_B1.tscn"
+spawn_tile = Vector2i(9, 1)
+
+[node name="CollisionShape2D" parent="WarpZones/WarpCrateraVulcao"]
+shape = SubResource("Shape_cratera")
 
 [node name="WarpPokemonMansion" parent="WarpZones" instance=ExtResource("11_warpzone")]
 position = Vector2(73792, 115968)
