@@ -2094,6 +2094,47 @@ static func _gen_rota_viridian_pallet() -> Array:
 static func _rota_vp_centro_caminho(r: int) -> int:
 	return 50 + int(14.0 * sin(float(r) * 0.006) + 6.0 * sin(float(r) * 0.021 + 2.0))
 
+
+## 🔴 10/09 (pedido do Gabriel "corrija tudo", item das PAREDES DE ÁRVORE):
+## a regra dele era "sem paredes de árvore" — valia pra costa (nenhuma
+## borda de mar virou árvore), mas as rotas novas estavam todas cercadas
+## pela MESMA mata densa nas laterais, independente do bioma. Numa rota de
+## montanha ou de pântano isso é exatamente a parede de árvore que ele não
+## queria: um muro uniforme que não tem nada a ver com o lugar.
+##
+## Agora cada bioma fecha a própria borda com o material DELE — rocha na
+## montanha, água parada e tronco morto no brejo, areia e mar na costa,
+## mata só onde é mata mesmo. Continua intransponível (a rota precisa ter
+## margem), mas deixa de ser um muro genérico e passa a ser paisagem.
+static func _borda_de_bioma(c: int, r: int, estilo: String) -> String:
+	match estilo:
+		"rocha":
+			if _espalhar_sal(c, r, 180) < 6:
+				return ">"
+			if _espalhar_sal(c, r, 181) < 3:
+				return "^"
+			return "/"
+		"brejo":
+			if _espalhar_sal(c, r, 182) < 8:
+				return "0"
+			if _espalhar_sal(c, r, 183) < 5:
+				return ")"
+			if _espalhar_sal(c, r, 184) < 4:
+				return "("
+			return _forest_variant(c, r)
+		"costa":
+			if _espalhar_sal(c, r, 185) < 12:
+				return "~"
+			return "S"
+		"seco":
+			if _espalhar_sal(c, r, 186) < 5:
+				return ">"
+			if _espalhar_sal(c, r, 187) < 6:
+				return "_"
+			return _forest_variant(c, r)
+		_:
+			return _forest_variant(c, r)
+
 static func _rota_viridian_pallet_cell(c: int, r: int, W: int, H: int) -> String:
 	# Bordas norte/sul: as duas pontas da cena, onde os WarpZone entram — uns
 	# tiles de transição antes do warp, não o warp em si (isso é nó de cena,
@@ -2482,6 +2523,8 @@ static func _rota_pewter_cerulean_cell(c: int, r: int, W: int, H: int) -> String
 ## caverna virava decoração em vez de travessia obrigatória (mesma regra
 ## da CavernaMontanhaPV, na Fase 1).
 static func _rpc_highlands_cell(c: int, r: int, H: int) -> String:
+	if r <= 0 or r >= H - 1:
+		return _borda_de_bioma(c, r, "rocha")
 	var centro := _rota_pc_centro_caminho(c)
 	var dist : int = absi(r - centro)
 
@@ -2549,7 +2592,7 @@ static func _rpc_river_cell(c: int, r: int, H: int) -> String:
 		if _espalhar_sal(c, r, 78) < 3:
 			return "F"
 		return "."
-	return _forest_variant(c, r)
+	return _borda_de_bioma(c, r, "costa")
 
 ## Open Fields — encosta em Cerulean, mesmo espírito do campo perto de
 ## Viridian (Fase 1).
@@ -2861,7 +2904,7 @@ static func _lf_campo_seco_cell(c: int, r: int) -> String:
 		if _espalhar_sal(c, r, 123) < 2:
 			return "T"
 		return "."
-	return _forest_variant(c, r)
+	return _borda_de_bioma(c, r, "seco")
 
 ## 2. Mata Fechada — primeira vez que o bioma "9" (chão de sombra, já
 ## existia no CHAR_MAP desde 05/09) aparece pintado em algum lugar do
@@ -2933,7 +2976,7 @@ static func _lf_pantano_cell(c: int, r: int) -> String:
 		if _espalhar_sal(c, r, 135) < 1:
 			return "!"
 		return "z"
-	return _forest_variant(c, r)
+	return _borda_de_bioma(c, r, "brejo")
 
 ## 5. Floresta Tropical — mato alto denso, mais fechado que a floresta
 ## comum (mais "A"/"F" que "."), clima mais quente/úmido que a Mata
