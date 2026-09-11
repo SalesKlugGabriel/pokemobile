@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/BaseMap.gd" id="1_basemap"]
 [ext_resource type="PackedScene" path="res://scenes/entities/TrainerEntity.tscn" id="2_trainer"]
@@ -11,15 +11,14 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/PartyScene.tscn" id="9_party"]
 [ext_resource type="PackedScene" path="res://scenes/world/WarpZone.tscn" id="10_warpzone"]
 
-[sub_resource type="RectangleShape2D" id="Shape_south"]
-size = Vector2(256, 128)
-
-[sub_resource type="RectangleShape2D" id="Shape_escada"]
+[sub_resource type="RectangleShape2D" id="Shape_warp"]
 size = Vector2(128, 128)
 
-[node name="RockTunnel" type="Node2D"]
+[node name="RockTunnel_B1" type="Node2D"]
 script = ExtResource("1_basemap")
-map_id = "rock_tunnel"
+map_id = "rocktunnel_b1"
+structure_id = "rock_tunnel"
+floor_number = 1
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = ExtResource("5_tileset")
@@ -29,8 +28,10 @@ format = 2
 
 [node name="WildPokemons" type="Node2D" parent="Entities"]
 
+[node name="NPCs" type="Node2D" parent="Entities"]
+
 [node name="Player" parent="Entities" instance=ExtResource("2_trainer")]
-position = Vector2(2240, 4224)
+position = Vector2(2368, 3520)
 
 [node name="Camera2D" type="Camera2D" parent="Entities/Player"]
 position_smoothing_enabled = true
@@ -38,7 +39,7 @@ position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
 limit_right = 4608
-limit_bottom = 4608
+limit_bottom = 3840
 zoom = Vector2(0.5, 0.5)
 
 [node name="ZoneManager" type="Node" parent="."]
@@ -49,29 +50,21 @@ script = ExtResource("4_sm")
 
 [node name="WarpZones" type="Node2D" parent="."]
 
-[node name="WarpSouth" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(2240, 4480)
-target_map = "res://scenes/world/maps/RotaSaffronLavender.tscn"
-spawn_tile = Vector2i(3450, 32)
+[node name="SubirSul" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(2368, 3392)
+target_map = "res://scenes/world/maps/RockTunnel.tscn"
+spawn_tile = Vector2i(19, 34)
 
-[node name="CollisionShape2D" parent="WarpZones/WarpSouth"]
-shape = SubResource("Shape_south")
+[node name="CollisionShape2D" parent="WarpZones/SubirSul"]
+shape = SubResource("Shape_warp")
 
-[node name="DescerSul" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(2496, 4288)
-target_map = "res://scenes/world/dungeons/RockTunnel_B1.tscn"
-spawn_tile = Vector2i(18, 27)
+[node name="SubirNorte" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(832, 448)
+target_map = "res://scenes/world/maps/RockTunnel.tscn"
+spawn_tile = Vector2i(14, 15)
 
-[node name="CollisionShape2D" parent="WarpZones/DescerSul"]
-shape = SubResource("Shape_escada")
-
-[node name="DescerNorte" parent="WarpZones" instance=ExtResource("10_warpzone")]
-position = Vector2(1856, 1856)
-target_map = "res://scenes/world/dungeons/RockTunnel_B1.tscn"
-spawn_tile = Vector2i(6, 4)
-
-[node name="CollisionShape2D" parent="WarpZones/DescerNorte"]
-shape = SubResource("Shape_escada")
+[node name="CollisionShape2D" parent="WarpZones/SubirNorte"]
+shape = SubResource("Shape_warp")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 

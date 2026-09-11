@@ -458,23 +458,87 @@ isso, as rotas novas seriam decoração.
 | 6 | Cinnabar (1.200×1.200) + Zona Safari (5 áreas de 300×300) | ✅ publicado |
 | — | Acessos aos 3 covis lendários | ✅ publicado |
 
-## 5. O que continua em aberto (honestamente)
+## 5. "Corrija tudo" — o que aconteceu com cada item em aberto (10/09)
 
-1. **Matriz ecológica** — a fauna por bioma/rota/horário. Sempre foi a
-   etapa seguinte; as rotas hoje têm spawn temático razoável, mas não a
-   matriz completa que o Gabriel escreveu.
-2. **Surf e Fly não existem** — e isso trava conteúdo já construído:
-   Seafoam Islands, Arquipélago Tropical, Ilha do Deserto, a **Usina
-   (Zapdos)** e a **Ilha Gélida (Articuno)** ficam num ponto do mapa que
-   não dá pra alcançar a pé. As duas cadeias de covil estão inteiras e
-   testadas — só falta a mecânica que leva até a porta. **Moltres é o
-   único dos três alcançável hoje** (barco do Capitão → Cinnabar → trilha
-   → cratera). Isso é "mecânicas", não geografia.
-3. **Tempo de carregamento** das rotas maiores: 3–6s nas maiores
-   (Lavender–Fuchsia, Cinnabar, Pewter–Cerulean) depois da correção da
-   Fase 5. Aceitável, mas não instantâneo — se incomodar, o próximo passo
-   seria pintar por pedaços (chunk) em vez de o mapa inteiro de uma vez.
-4. **Mt Moon / Rock Tunnel não têm subsolo.** As 5 cenas que existiam
-   (`MtMoon_B1..B3`, `RockTunnel_B1..B2`) eram cascas vazias da
-   arquitetura antiga e foram apagadas. Se a intenção original era ter
-   esses andares, é conteúdo novo a construir.
+A revisão acima listou 4 itens em aberto. O Gabriel respondeu **"Corrija
+tudo então"**. Item por item, o que de fato aconteceu:
+
+### 1. Matriz ecológica — ✅ aplicada
+Cada rota deixou de ter UMA lista de bicho do começo ao fim e virou
+**faixas de bioma**: 32 faixas novas, seguindo os segmentos que o próprio
+Gabriel escreveu. Cidades ganharam identidade ecológica (Saffron urbana,
+Lavender com fantasma, Vermilion portuária, Celadon vegetal), Safari
+mapeada nas 5 zonas da matriz, Cinnabar repartida em planalto vulcânico e
+ilha/costa. O motor já suportava — `ZoneManager.find_zone_id` casa por
+`map_id` **e** `tile_rect`, então várias faixas no mesmo mapa funcionam
+sem mudar uma linha de código.
+
+Depois entrou o último pedaço da matriz, **variação por horário e clima**:
+cada espécie pode trazer `bonus` (multiplica o peso na condição) e `so_em`
+(só aparece nesses períodos) — fantasma de Lavender ×4 à noite, aquáticos
+×2 na chuva em 7 zonas de água, Zubat só de noite/amanhecer em 2
+florestas. A regra mora em `PesoDeSpawn.gd`, **separada** do SpawnManager,
+porque o SpawnManager depende de autoload e autoload não é identificador
+em teste headless — a regra ficaria inalcançável justamente pro teste que
+prova que ela está certa.
+
+`teste_matriz_ecologica.gd` (136 conferências) + `teste_spawn_horario_clima.gd`
+(13). O primeiro pegou **3 violações da regra 5 do próprio Gabriel**
+(faixas vizinhas precisam compartilhar espécie) nas MINHAS listas.
+
+### 2. Surf e Fly — 🔴 não havia o que corrigir; a revisão é que estava errada
+Surf e Fly **existem desde 03/09**. Eu tinha medido alcançabilidade com uma
+busca que só considera CAMINHADA, partindo de cidades que nem se ligam mais
+por terra ao destino — e concluí que a mecânica não existia. Medindo do jeito
+certo: Articuno, Zapdos, Seafoam, Arquipélago e Ilha do Deserto são **todos**
+alcançáveis surfando. Travado em `teste_alcance_surf.gd` (15 conferências),
+que também prova a contraparte: nenhum deles pode ser alcançável **a pé**,
+senão a ilha deixou de ser ilha.
+
+### 3. Tempo de carregamento — ✅ atacado onde o profiling apontou
+Metade do custo da pintura eram as **duas chamadas de função por tile**
+(2,4 milhões de chamadas numa rota de 1,2 milhão de tiles); o laço quente
+passou a fazer o mesmo cálculo inline. Medido: rota de 12 km 5153→4121 ms,
+Pewter–Cerulean 3401→2928 ms, Cinnabar 6139→5416 ms. Uma tentativa de cache
+de dicionário no meio do caminho **piorou** (1,1 s→1,9 s) e foi revertida —
+fica registrada pra ninguém tentar de novo.
+
+### 4. Subsolos de Mt Moon e Rock Tunnel — ✅ construídos
+Os 3 andares novos (`mtmoon_b1`, `mtmoon_b2`, `rocktunnel_b1`) nascem do
+gerador `_gen_subsolo`, mesma técnica não-linear do resto do jogo, com uma
+diferença: **a ligação entre escadas é garantida por construção** (a
+caminhada dá a forma orgânica, um corredor em L fecha o que faltou). Andar
+de subsolo não pode depender de sorte de sorteio — quem desce tem que
+conseguir subir.
+
+Cada um só existe porque tem um motivo, que é exatamente a lição do item 4
+original (casca vazia não é andar):
+
+| Andar | Motivo de existir |
+|---|---|
+| Mt Moon B1F (30×40) | galeria do miolo da montanha, fauna 3-4 níveis acima da de cima; é o caminho pro B2 |
+| Mt Moon B2F (26×26) | **Câmara da Pedra da Lua** — sala aberta no centro, único lugar do jogo com Clefairy comum e Clefable |
+| Rock Tunnel B1F (36×30) | segundo trajeto pela caverna (as 2 escadas caem a 31 passos uma da outra lá em cima) e **único lugar do Rock Tunnel com Machop** |
+
+🔴 **Uma afirmação minha foi desmentida pelo próprio teste e corrigida em vez
+de forçada**: eu ia vender o Rock Tunnel B1 como "atalho". Medido, o trajeto
+por baixo dá **35 passos contra 30 por cima** — o andar de cima é pequeno
+demais pra ter atalho (o diâmetro inteiro dele é 35 passos). Em vez de mexer
+no gerador até o número fechar, a afirmação virou a que os números
+sustentam. Fica registrado pra ninguém "corrigir" isso depois achando que
+era pra ser mais curto.
+
+`teste_subsolos_cavernas.gd` (51 conferências) não prova que o andar existe —
+prova que ele **não é casca**: piso escavado de verdade, escada alcança
+escada a pé, ida e volta se apontam, tile de chegada é andável no destino
+(ninguém nasce preso na pedra) e cada andar tem fauna própria.
+
+### O que ainda não foi feito
+Duas leituras do prompt original seguem parciais, e continuam parciais de
+propósito (ver a tabela da seção 3): as rotas são **faixas dentro de uma cena
+por rota**, não vários arquivos de mapa — pro jogador é melhor, porque não há
+carregamento no meio da rota; e as laterais das rotas ainda delimitam o
+corredor, embora `_borda_de_bioma()` tenha acabado com a "parede de árvore"
+uniforme (agora a borda é rocha, brejo, costa ou mato seco conforme o bioma da
+faixa). Se a intenção do Gabriel era mais que isso em qualquer um dos dois,
+é outra passada — não uma pendência escondida.

@@ -3208,6 +3208,182 @@ static func _cerulean_cave_cell(c: int, r: int, W: int, H: int, floor_n: int, te
 	return "I"
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Subsolos de Mt Moon e Rock Tunnel (10/09)
+# ──────────────────────────────────────────────────────────────────────────────
+## Último item em aberto da auditoria da reestruturação geográfica
+## (`docs/mundo-novo-escala.md`, seção 5, item 4): existiam 5 cenas
+## `MtMoon_B1..B3` / `RockTunnel_B1..B2` que eram CASCAS VAZIAS da
+## arquitetura antiga — apagadas durante a Fase 2, porque casca vazia não é
+## andar, é um buraco que engole o jogador.
+##
+## Aqui eles nascem de verdade, e cada um só existe porque tem um MOTIVO —
+## a lição do próprio item 4 é que andar sem motivo vira casca de novo:
+##
+##   mtmoon_b1     galeria larga, o miolo da montanha. Fauna mais forte que a
+##                 do andar de cima, e é o caminho pro B2.
+##   mtmoon_b2     a Câmara da Pedra da Lua — sala aberta no centro, onde os
+##                 Clefairy aparecem. É o prêmio: o único lugar do jogo com
+##                 Clefairy/Clefable no chão.
+##   rocktunnel_b1 galeria funda, com DUAS escadas — uma perto da boca sul do
+##                 Rock Tunnel, outra no fundo norte, 31 passos de distância
+##                 uma da outra lá em cima. É um segundo trajeto pela
+##                 caverna, e o único lugar do Rock Tunnel com Machop.
+##                 (Não é atalho: medido, o trajeto por baixo dá 35 passos
+##                 contra 30 por cima — o andar de cima é pequeno demais
+##                 pra ter atalho. Fica registrado pra ninguém "corrigir"
+##                 isso depois achando que era pra ser mais curto.)
+##
+## Mesma técnica de caverna não-linear do resto do jogo (caminhada aleatória
+## com viés, `_rocktunnel_carve`), com uma diferença importante: aqui a
+## ligação entre escadas é GARANTIDA POR CONSTRUÇÃO — a caminhada dá a forma
+## orgânica e um corredor em L fecha o que faltou. Andar de subsolo não pode
+## depender de sorte de sorteio: quem desce tem que conseguir subir.
+const SUBSOLOS := {
+	"mtmoon_b1": {
+		"w": 30, "h": 40, "seed": 20260910401, "piso": "I", "ramos": 5,
+		"escadas": [Vector2i(15, 4), Vector2i(10, 35)], "camara": false,
+	},
+	"mtmoon_b2": {
+		"w": 26, "h": 26, "seed": 20260910402, "piso": "I", "ramos": 3,
+		"escadas": [Vector2i(13, 22)], "camara": true,
+	},
+	"rocktunnel_b1": {
+		"w": 36, "h": 30, "seed": 20260910403, "piso": "D", "ramos": 4,
+		"escadas": [Vector2i(18, 26), Vector2i(6, 3)], "camara": false,
+	},
+}
+
+## Meia-largura/altura da Câmara da Pedra da Lua (mtmoon_b2). Sala aberta de
+## 9x7, grande o suficiente pra caber o grupo de Clefairy sem eles nascerem
+## dentro da parede.
+const CAMARA_MEIA_L : int = 4
+const CAMARA_MEIA_A : int = 3
+
+static func _gen_subsolo(map_id: String) -> Array:
+	var cfg : Dictionary = SUBSOLOS[map_id]
+	var W : int = int(cfg["w"])
+	var H : int = int(cfg["h"])
+	var piso : String = String(cfg["piso"])
+
+	var grid_chars : Array = []
+	for r in H:
+		var row : Array = []
+		for c in W:
+			row.append("R")
+		grid_chars.append(row)
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(cfg["seed"])
+
+	# Os pontos que o andar PRECISA ligar: as escadas, mais a câmara quando
+	# existe (senão o prêmio ficaria emparedado).
+	var alvos : Array = []
+	for e in cfg["escadas"]:
+		alvos.append(e)
+	if bool(cfg.get("camara", false)):
+		var centro := Vector2i(W / 2, H / 2 - 2)
+		for dy in range(-CAMARA_MEIA_A, CAMARA_MEIA_A + 1):
+			for dx in range(-CAMARA_MEIA_L, CAMARA_MEIA_L + 1):
+				var cc := centro.x + dx
+				var rr := centro.y + dy
+				if cc >= 1 and cc <= W - 2 and rr >= 1 and rr <= H - 2:
+					grid_chars[rr][cc] = piso
+		alvos.append(centro)
+
+	var visitados : Array = []
+	for i in range(alvos.size() - 1):
+		_cavar_enviesado(grid_chars, W, H, alvos[i], alvos[i + 1], piso, rng, visitados)
+
+	# Ramos secundários — sempre a partir de tile JÁ escavado, então nunca
+	# nascem isolados (mesma regra do `_rocktunnel_carve`).
+	for i in int(cfg["ramos"]):
+		if visitados.is_empty():
+			break
+		var pt : Vector2i = visitados[rng.randi_range(0, visitados.size() - 1)]
+		_cavar_livre(grid_chars, W, H, pt, 120, piso, rng, visitados)
+
+	# As escadas por último, pra nenhum ramo apagar uma delas.
+	for e in cfg["escadas"]:
+		grid_chars[e.y][e.x] = "P"
+
+	var grid : Array = []
+	for r in H:
+		var linha := ""
+		for c in W:
+			linha += str(grid_chars[r][c])
+		grid.append(linha)
+	return grid
+
+## Caminhada com viés na direção do alvo (dá a forma sinuosa) e, no fim, um
+## corredor em L do ponto onde parou até o alvo — é esse L que transforma
+## "provavelmente liga" em "liga, sempre".
+static func _cavar_enviesado(grid_chars: Array, W: int, H: int, de: Vector2i, para: Vector2i,
+	piso: String, rng: RandomNumberGenerator, visitados: Array) -> void:
+	var c := clampi(de.x, 1, W - 2)
+	var r := clampi(de.y, 1, H - 2)
+	var passos := 0
+	var teto := (absi(para.x - de.x) + absi(para.y - de.y)) * 12 + 200
+	while passos < teto and Vector2i(c, r) != para:
+		if grid_chars[r][c] != piso:
+			grid_chars[r][c] = piso
+			visitados.append(Vector2i(c, r))
+		# 60% anda pro lado do alvo, 40% vagueia — o vaguear é o que faz a
+		# galeria não virar uma diagonal reta.
+		if rng.randf() < 0.6:
+			if absi(para.x - c) > absi(para.y - r):
+				c += signi(para.x - c)
+			else:
+				r += signi(para.y - r)
+		else:
+			match rng.randi_range(0, 3):
+				0: r -= 1
+				1: r += 1
+				2: c -= 1
+				_: c += 1
+		c = clampi(c, 1, W - 2)
+		r = clampi(r, 1, H - 2)
+		passos += 1
+	_ligar_em_L(grid_chars, W, H, Vector2i(c, r), para, piso, visitados)
+
+## Corredor em L (primeiro horizontal, depois vertical). Curto e burro de
+## propósito: é a rede de segurança, não a estética.
+static func _ligar_em_L(grid_chars: Array, W: int, H: int, de: Vector2i, para: Vector2i,
+	piso: String, visitados: Array) -> void:
+	var c := clampi(de.x, 1, W - 2)
+	var r := clampi(de.y, 1, H - 2)
+	var alvo_c := clampi(para.x, 1, W - 2)
+	var alvo_r := clampi(para.y, 1, H - 2)
+	while c != alvo_c:
+		c += signi(alvo_c - c)
+		if grid_chars[r][c] != piso:
+			grid_chars[r][c] = piso
+			visitados.append(Vector2i(c, r))
+	while r != alvo_r:
+		r += signi(alvo_r - r)
+		if grid_chars[r][c] != piso:
+			grid_chars[r][c] = piso
+			visitados.append(Vector2i(c, r))
+
+## Caminhada solta a partir de um tile já escavado — os ramos sem saída que
+## dão cara de caverna de verdade (e escondem canto pra fauna aparecer).
+static func _cavar_livre(grid_chars: Array, W: int, H: int, de: Vector2i, passos: int,
+	piso: String, rng: RandomNumberGenerator, visitados: Array) -> void:
+	var c := de.x
+	var r := de.y
+	for i in passos:
+		if r >= 1 and r <= H - 2 and c >= 1 and c <= W - 2:
+			if grid_chars[r][c] != piso:
+				grid_chars[r][c] = piso
+				visitados.append(Vector2i(c, r))
+		match rng.randi_range(0, 3):
+			0: r -= 1
+			1: r += 1
+			2: c -= 1
+			_: c += 1
+		c = clampi(c, 1, W - 2)
+		r = clampi(r, 1, H - 2)
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Rock Tunnel — 36×36, cena própria (caverna/subterrâneo, mesma exceção de
 # warp do Mt Moon). Tier 10 (01/09): PRIMEIRA caverna construída depois da
 # regra de tematização de bioma do Gabriel — diferente do Mt Moon (retângulo
@@ -3795,6 +3971,9 @@ static func get_layout(map_id: String) -> Dictionary:
 		"mt_moon":
 			var tiles := _gen_mtmoon()
 			return {"tiles": tiles, "width": 20, "height": 30}
+		"mtmoon_b1", "mtmoon_b2", "rocktunnel_b1":
+			var cfg : Dictionary = SUBSOLOS[map_id]
+			return {"tiles": _gen_subsolo(map_id), "width": int(cfg["w"]), "height": int(cfg["h"])}
 		"rock_tunnel":
 			var tiles := _gen_rocktunnel()
 			return {"tiles": tiles, "width": 36, "height": 36}

@@ -18,6 +18,9 @@ size = Vector2(256, 128)
 [sub_resource type="RectangleShape2D" id="Shape_north"]
 size = Vector2(128, 128)
 
+[sub_resource type="RectangleShape2D" id="Shape_escada"]
+size = Vector2(128, 128)
+
 [node name="MtMoon" type="Node2D"]
 script = ExtResource("1_basemap")
 map_id = "mt_moon"
@@ -73,6 +76,14 @@ spawn_tile = Vector2i(1151, 58)
 
 [node name="CollisionShape2D" parent="WarpZones/WarpNorth"]
 shape = SubResource("Shape_north")
+
+[node name="DescerB1" parent="WarpZones" instance=ExtResource("10_warpzone")]
+position = Vector2(960, 2880)
+target_map = "res://scenes/world/dungeons/MtMoon_B1.tscn"
+spawn_tile = Vector2i(15, 5)
+
+[node name="CollisionShape2D" parent="WarpZones/DescerB1"]
+shape = SubResource("Shape_escada")
 
 [node name="DialogBox" parent="." instance=ExtResource("6_dialog")]
 

@@ -2210,6 +2210,141 @@
       "npcs": []
     },
     {
+      "id": "mtmoon_b1",
+      "map_id": "mtmoon_b1",
+      "name": "Mt. Moon B1F",
+      "region": "kanto",
+      "notes": "Subsolo de Mt Moon (10/09). Mesma fauna do andar de cima, 3-4 niveis acima — descer tem que valer alguma coisa. Zubat so aparece de noite/madrugada aqui? Nao: caverna nao tem dia, entao sem 'so_em' — a regra de horario vale pra ceu aberto.",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 30,
+        "h": 40
+      },
+      "bgm": "mt_moon",
+      "wild_pokemon": [
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 11,
+          "level_max": 16,
+          "weight": 45
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 11,
+          "level_max": 16,
+          "weight": 30
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 11,
+          "level_max": 15,
+          "weight": 15
+        },
+        {
+          "id": 35,
+          "name": "Clefairy",
+          "level_min": 12,
+          "level_max": 15,
+          "weight": 10
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "mtmoon_b2",
+      "map_id": "mtmoon_b2",
+      "name": "Camara da Pedra da Lua",
+      "region": "kanto",
+      "notes": "O fundo de Mt Moon (10/09). E o UNICO lugar do jogo onde Clefairy e comum e Clefable aparece — e o motivo do andar existir.",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 26,
+        "h": 26
+      },
+      "bgm": "mt_moon",
+      "wild_pokemon": [
+        {
+          "id": 35,
+          "name": "Clefairy",
+          "level_min": 14,
+          "level_max": 18,
+          "weight": 50
+        },
+        {
+          "id": 36,
+          "name": "Clefable",
+          "level_min": 16,
+          "level_max": 20,
+          "weight": 8
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 13,
+          "level_max": 17,
+          "weight": 27
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 13,
+          "level_max": 17,
+          "weight": 15
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "rocktunnel_b1",
+      "map_id": "rocktunnel_b1",
+      "name": "Rock Tunnel B1F",
+      "region": "kanto",
+      "notes": "Galeria inferior do Rock Tunnel (10/09). Duas escadas, uma perto da boca sul e outra no fundo norte — 31 passos de distancia uma da outra la em cima, entao e um SEGUNDO TRAJETO pela caverna. Nao e atalho: medido, 35 passos por baixo contra 30 por cima (o andar de cima e pequeno demais pra ter atalho). A razao de descer e a fauna: Machop so existe aqui.",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 36,
+        "h": 30
+      },
+      "bgm": "rock_tunnel",
+      "wild_pokemon": [
+        {
+          "id": 95,
+          "name": "Onix",
+          "level_min": 26,
+          "level_max": 32,
+          "weight": 35
+        },
+        {
+          "id": 66,
+          "name": "Machop",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 25
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 25,
+          "level_max": 31,
+          "weight": 25
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 15
+        }
+      ],
+      "npcs": []
+    },
+    {
       "id": "safari_zone",
       "map_id": "safari_zone",
       "name": "Safari Zone",
