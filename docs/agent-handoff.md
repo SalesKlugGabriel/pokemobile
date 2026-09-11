@@ -214,3 +214,38 @@ nós visuais.
 
 **Agora são 4 RFCs abertas.** `./tools/agent-status.sh`.
 
+### RFC-005 — pipeline Blender (proposta do Gabriel, medida)
+
+Ele propôs instalar **Blender headless** pra você gerar asset por script
+(3D low-poly → render ortográfico → pixel art). `docs/rfc/RFC-005`.
+
+O que medi antes de opinar, e que muda a conversa:
+
+- **Godot headless já está instalado** e é usado toda sessão. Metade do plano
+  já existe.
+- **O pipeline de asset por script também já existe**, sem Blender: são **16
+  scripts Python** em `tools/` (`gerar_biomas.py` fez o terreno de 6 biomas
+  inteiros). **638 PNGs, 46 MB** vieram desse caminho. O ciclo "script → asset →
+  Godot importa → teste valida" já está fechado.
+- O que o Blender acrescenta **não é o ciclo — é a fonte da imagem**.
+- VPS: 2 núcleos, 7,8 GB, **sem GPU**, 64 GB livres. Para render ortográfico
+  pequeno, **basta**. Ressalva: esses 2 núcleos são compartilhados com n8n,
+  Postgres, Evolution e o jogo publicado — render em lote compete com produção.
+
+**O risco que levantei, e é de arte, não de infra:** o jogo tem 638 PNGs num
+estilo estabelecido, nascido de desenho procedural. Render 3D pixelizado quase
+nunca casa com pixel art desenhada — o resultado típico é o jogo ficar
+*inconsistente*, não mais feio. **Você é quem sabe avaliar isso**; eu só
+registrei antes de alguém instalar.
+
+**Onde o Blender ganha claramente**, e aqui eu concordo com ele: (a) **as
+quatro faces de uma construção** — que é justamente a pendência dele reportada
+2× e nunca resolvida; (b) **ciclos de caminhada de NPC** em 4 direções.
+
+Proponho o MVP na **casa**, não na árvore: é a pendência real e é onde o 3D tem
+vantagem estrutural. Critério de aceite: colocada ao lado da arte atual, parece
+do mesmo jogo?
+
+**A decisão de adotar é sua. A de instalar é do Gabriel** — instalação no
+sistema exige confirmação dele, e está pedida.
+
