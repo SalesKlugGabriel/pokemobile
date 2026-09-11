@@ -4576,3 +4576,71 @@ empurrado até fechar.
 
 **Testado**: suíte inteira, **100 arquivos, 0 falhas** (12 arquivos novos no
 dia). Publicado.
+
+---
+
+## 11/09/2026 — Reengenharia completa do sistema de combate
+
+Pedido do Gabriel em 53 itens, com uma regra no topo: **auditar antes de alterar**,
+e não criar sistema duplicado. Então a primeira coisa foi rodar as fórmulas reais
+do jogo contra os dados reais e MEDIR o que estava errado. Relatório em
+`docs/auditoria-combate.md`.
+
+**As quatro causas-raiz, todas medidas:**
+
+1. **A fórmula de dano não tinha o NÍVEL.** O dano vivia na escala do `power`
+   (40-120) e a vida na escala do `base_hp` (40-100) — e nada fazia as duas se
+   encontrarem. Pikachu matava um Spearow do MESMO nível com um golpe, em 100%
+   dos níveis de 10 a 100. Não era sorte nem crítico: era a fórmula.
+2. **Subir de nível quase não mudava nada.** 40 níveis davam +58% de dano
+   enquanto a vida crescia 2,5×. Ou seja, quanto mais alto o nível, MAIS LONGA a
+   briga — o oposto de progressão.
+3. **sp_atk e sp_def existiam nos dados e nunca chegavam ao combate.** Alakazam
+   (sp_atk 135, attack 50) atacava com 50. Todo Pokémon especial estava quebrado.
+4. **Havia TRÊS fórmulas de stat no projeto**, discordando entre si. Pikachu Lv20
+   tinha 47 de vida no menu e 72 na luta — o número que o jogador via não era o
+   número com que ele lutava.
+
+**O que foi preservado** (e é a maior parte): telegraph de área, sensação de
+impacto, status persistente, captura, XP/loot/quest, o chefe lendário, a tabela de
+tipos, os itens equipados, os 4 botões de skill da HUD, a barra de vida. O motor
+não era ruim — o miolo matemático é que estava.
+
+**O que mudou.** Fórmula clássica da série, com o nível dentro e a razão
+ataque/defesa no lugar da mitigação separada; ATK/DEF em golpe físico, SP_ATK/
+SP_DEF em especial; STAB, variação de ±10%, crítico de 5%. Todo número de
+equilíbrio foi pra um arquivo só (`CombatBalance`) — antes estavam espalhados por
+6 arquivos, com a conta de recarga literalmente COPIADA em dois.
+
+Mais duas redes de segurança: **teto** de 90% da vida por golpe (mata o hit-kill na
+raiz, mesmo com 70 níveis de vantagem) e **piso** de 2% (mata a "defesa infinita =
+dano zero").
+
+**Também:** 7 personalidades de selvagem com bando (mesma espécie, raio de 4 tiles,
+no máximo 5, e a corrente de aggro limitada a 1 salto pra não acordar o mapa
+inteiro), coleira que agora vale perseguindo e não só passeando, e regeneração ao
+voltar pra casa; 4 golpes dos dois lados (o selvagem tinha UM, sempre o de nível 1
+da espécie); formas de área de verdade — Surf varre uma LINHA, Tornado abre um
+CONE; alcance e tempo de conjuração por golpe; e um depurador que responde "por que
+esse golpe deu tanto?" linha a linha.
+
+**🔴 Três coisas que a própria execução desmentiu, corrigidas em vez de empurradas:**
+
+- A simulação de balanceamento mostrou Quick Attack dando **1,2 de dano num Onix —
+  96 golpes, 100 segundos**. Meu próprio teste não pegou porque eu tinha escrito o
+  limite frouxo. É a "defesa infinita" que o pedido proíbe; daí o piso de 2%.
+- Uma medição minha de desempenho estava **errada por 35×**: medi a busca de alvos
+  com os 60 bichos espalhados longe demais, quase nenhum dentro do raio, e anotei
+  2 µs. O real é 71 µs. O erro ficou registrado dentro do próprio teste.
+- **24 golpes citados nos learnsets não existiam** em `moves.json` — 40 das 151
+  espécies tinham slot morto. 22 foram criados; 2 eram só divergência de nome.
+
+**Ritmo medido depois (TTK):** ataque básico 11-13 golpes em todo nível; golpe
+forte com vantagem de tipo, 3 golpes — nunca 1. Lv.20 derruba um Lv.10 em 4
+golpes; um Lv.10 precisa de 28 contra o Lv.20. Lv.21 contra Lv.20 ainda precisa de
+11 (não apaga). Um Lv.30 numa área de Lv.50 precisa de 30 golpes por bicho.
+
+**Testado**: 178 + 15 conferências novas, suíte inteira **102 arquivos, 0 falhas**.
+Publicado. **Não foi jogado em navegador ainda** — vale o Gabriel andar no mato e
+sentir o ritmo antes de eu ajustar mais número.
+
