@@ -4509,3 +4509,70 @@ parados), cutscene curta ao entrar na arena de um lendário, conteúdo pós-
 Elite Four. O pós-jogo em especial precisa de uma decisão de escopo do
 Gabriel antes de eu inventar sozinho (área nova? recompensa repetível?
 desafio estilo Battle Tower?) — os outros 3 dá pra seguir sem perguntar.
+
+---
+
+## 10/09/2026 — O mundo em escala real (1 km = 1.000 passos), de ponta a ponta
+
+Dia inteiro numa coisa só: reconstruir a geografia de Kanto na régua literal
+que o Gabriel pediu — **1 km ≈ 1.000 tiles de caminhada**, seguindo uma planta
+desenhada à mão. O blueprint, as fases e a revisão final moram em
+`docs/mundo-novo-escala.md`; aqui fica o resumo do que mudou no jogo.
+
+**A decisão que definiu tudo, achada NA HORA de construir a Fase 1**: o
+gerador pinta a grade inteira (`W×H` denso). Um mapa único de 38 km não cabe
+— seriam centenas de milhões de tiles. Então **cada rota virou uma cena
+própria**, ligada por `WarpZone`, e **nenhuma cidade se moveu de lugar**. Isso
+foi o que tornou a régua literal viável sem jogar fora meses de conteúdo.
+
+**As 6 fases, todas publicadas**: Pallet↔Viridian↔Pewter (1+3 km) ·
+Pewter→Cerulean (7 km) + Mt Moon retrofitada pra caverna não-linear · nó
+central de Saffron (4+2+4 km) · Saffron→Lavender (5 km) + Rock Tunnel ·
+Lavender→Fuchsia (12 km, os 7 biomas que o Gabriel escreveu) · Cinnabar
+(1.200×1.200, ilha de exploração de verdade, a pedido dele: *"quase uma DLC"*)
++ Zona Safari em 5 áreas encadeadas. Mais os acessos aos 3 covis lendários.
+
+**A disciplina que o Gabriel impôs no começo** (*"cuide para não sobrescrever
+mapa e ficar tudo bagunçado, quero um mundo 100% explorável"*) virou um passo
+fixo de cada fase: rota nova é ADITIVA, então o corredor antigo continuava
+andável e o jogador cortaria caminho por ele. A cada fase: procurar NPC/
+conteúdo na faixa velha, **depois** selar, e provar com busca tile a tile. 6
+atalhos antigos selados, medidos um a um.
+
+**Revisão final (plano × executado)**: 8 de 8 distâncias batem exato
+(38.000 tiles). Duas leituras do prompt ficaram deliberadamente livres, e
+estão escritas como tal — rota é faixa dentro de uma cena, não vários
+arquivos; e as laterais ainda delimitam o corredor.
+
+**Aí o Gabriel disse "corrija tudo então"**, e os 4 itens em aberto viraram:
+
+1. **Matriz ecológica aplicada** — 32 faixas de bioma novas, cidades com
+   identidade ecológica, Safari e Cinnabar repartidas por habitat. Depois, o
+   último pedaço: **spawn reage a horário e clima** (fantasma de Lavender ×4 à
+   noite, aquáticos ×2 na chuva, Zubat só no escuro), orientado a dado
+   (`bonus`/`so_em` em `zones.json`), não a lista no código.
+2. **🔴 Surf/Fly: não havia o que corrigir — minha revisão é que estava
+   errada.** Existem desde 03/09; eu tinha medido alcance com uma busca que só
+   considera CAMINHADA. Medindo certo, os 5 destinos ilhados são todos
+   alcançáveis surfando. Travado em teste, que também prova a contraparte
+   (nenhum pode ser alcançável a pé, senão a ilha deixou de ser ilha).
+3. **Carregamento** — atacado onde o profiling apontou, não onde eu achava:
+   metade do custo eram 2,4 milhões de CHAMADAS de função por tile. Rota de
+   12 km 5153→4121 ms. Um cache de dicionário no meio do caminho **piorou** e
+   foi revertido (fica registrado pra ninguém tentar de novo).
+4. **Subsolos de Mt Moon e Rock Tunnel construídos** — 3 andares novos, cada
+   um com um motivo declarado (a Câmara da Pedra da Lua é o único lugar do
+   jogo com Clefairy comum e Clefable). Existiam 5 cenas de subsolo que eram
+   cascas vazias e foram apagadas na Fase 2; o teste novo não prova que o
+   andar existe, prova que ele **não é casca**.
+
+**Duas correções de afirmação minha, além do Surf** — as duas registradas no
+código pra não voltarem: eu tinha declarado a performance "verificada e
+resolvida" na Fase 2 medindo no lugar errado (`_initialize()` dava ~600 ms; o
+caminho real do jogo dava 12–17 s); e eu ia vender o Rock Tunnel B1 como
+"atalho" até o teste medir 35 passos por baixo contra 30 por cima — a
+afirmação foi trocada pela que os números sustentam, em vez de o gerador ser
+empurrado até fechar.
+
+**Testado**: suíte inteira, **100 arquivos, 0 falhas** (12 arquivos novos no
+dia). Publicado.
