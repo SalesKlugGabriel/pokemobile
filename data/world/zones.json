@@ -296,14 +296,20 @@
           "name": "Psyduck",
           "level_min": 12,
           "level_max": 17,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 60,
           "name": "Poliwag",
           "level_min": 12,
           "level_max": 17,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 43,
@@ -324,21 +330,30 @@
           "name": "Goldeen",
           "level_min": 12,
           "level_max": 17,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 129,
           "name": "Magikarp",
           "level_min": 10,
           "level_max": 15,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 116,
           "name": "Horsea",
           "level_min": 12,
           "level_max": 17,
-          "weight": 5
+          "weight": 5,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 25,
@@ -356,7 +371,7 @@
         }
       ],
       "npcs": [],
-      "notes": "Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
+      "notes": "Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie. Bônus de CHUVA (matriz ecológica): aquáticos aparecem mais com chuva."
     },
     {
       "id": "vermilion_city",
@@ -642,25 +657,34 @@
           "name": "Gastly",
           "level_min": 19,
           "level_max": 24,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "noite": 4.0
+          }
         },
         {
           "id": 96,
           "name": "Drowzee",
           "level_min": 19,
           "level_max": 24,
-          "weight": 5
+          "weight": 5,
+          "bonus": {
+            "noite": 4.0
+          }
         },
         {
           "id": 93,
           "name": "Haunter",
           "level_min": 22,
           "level_max": 27,
-          "weight": 1
+          "weight": 1,
+          "bonus": {
+            "noite": 4.0
+          }
         }
       ],
       "npcs": [],
-      "notes": "(coordenada atualizada na reorganização geográfica de 02/09). Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09). Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie. Bônus de NOITE (matriz ecológica): fantasmas/Drowzee/Zubat aumentam muito depois do anoitecer."
     },
     {
       "id": "celadon_city",
@@ -2401,35 +2425,50 @@
           "name": "Psyduck",
           "level_min": 24,
           "level_max": 30,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 60,
           "name": "Poliwag",
           "level_min": 24,
           "level_max": 30,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 79,
           "name": "Slowpoke",
           "level_min": 24,
           "level_max": 30,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 118,
           "name": "Goldeen",
           "level_min": 24,
           "level_max": 30,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 129,
           "name": "Magikarp",
           "level_min": 22,
           "level_max": 28,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 29,
@@ -2447,7 +2486,7 @@
         }
       ],
       "npcs": [],
-      "notes": "Cena própria (SafariZone_A4.tscn), 4ª das 5 áreas encadeadas (Fase 6, 10/09). Coordenada local 0-based. Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
+      "notes": "Cena própria (SafariZone_A4.tscn), 4ª das 5 áreas encadeadas (Fase 6, 10/09). Coordenada local 0-based. Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie. Bônus de CHUVA (matriz ecológica): aquáticos aparecem mais com chuva."
     },
     {
       "id": "safari_a5",
@@ -5704,10 +5743,21 @@
           "level_min": 9,
           "level_max": 13,
           "weight": 1
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 10,
+          "level_max": 16,
+          "weight": 10,
+          "so_em": [
+            "noite",
+            "amanhecer"
+          ]
         }
       ],
       "npcs": [],
-      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código. Zubat SÓ à noite/amanhecer (matriz: a floresta muda de fauna no escuro)."
     },
     {
       "id": "rota_pv_campo",
@@ -5904,28 +5954,40 @@
           "name": "Poliwag",
           "level_min": 10,
           "level_max": 14,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 54,
           "name": "Psyduck",
           "level_min": 10,
           "level_max": 14,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 129,
           "name": "Magikarp",
           "level_min": 8,
           "level_max": 12,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 118,
           "name": "Goldeen",
           "level_min": 10,
           "level_max": 14,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 43,
@@ -5943,7 +6005,7 @@
         }
       ],
       "npcs": [],
-      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código. Bônus de CHUVA (matriz ecológica): aquáticos aparecem mais com chuva."
     },
     {
       "id": "rota_pc_campos",
@@ -6081,28 +6143,40 @@
           "name": "Psyduck",
           "level_min": 12,
           "level_max": 17,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 60,
           "name": "Poliwag",
           "level_min": 12,
           "level_max": 17,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 129,
           "name": "Magikarp",
           "level_min": 10,
           "level_max": 15,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 118,
           "name": "Goldeen",
           "level_min": 12,
           "level_max": 17,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 43,
@@ -6116,11 +6190,14 @@
           "name": "Horsea",
           "level_min": 12,
           "level_max": 16,
-          "weight": 5
+          "weight": 5,
+          "bonus": {
+            "chuva": 2.0
+          }
         }
       ],
       "npcs": [],
-      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código. Bônus de CHUVA (matriz ecológica): aquáticos aparecem mais com chuva."
     },
     {
       "id": "rota_cs_floresta",
@@ -6671,14 +6748,20 @@
           "name": "Psyduck",
           "level_min": 16,
           "level_max": 21,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 60,
           "name": "Poliwag",
           "level_min": 16,
           "level_max": 21,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 43,
@@ -6699,7 +6782,10 @@
           "name": "Magikarp",
           "level_min": 14,
           "level_max": 19,
-          "weight": 5
+          "weight": 5,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 52,
@@ -6710,7 +6796,7 @@
         }
       ],
       "npcs": [],
-      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código. Bônus de CHUVA (matriz ecológica): aquáticos aparecem mais com chuva."
     },
     {
       "id": "rota_sl_bosque",
@@ -6935,18 +7021,24 @@
           "name": "Gastly",
           "level_min": 19,
           "level_max": 24,
-          "weight": 5
+          "weight": 5,
+          "bonus": {
+            "noite": 4.0
+          }
         },
         {
           "id": 96,
           "name": "Drowzee",
           "level_min": 19,
           "level_max": 24,
-          "weight": 5
+          "weight": 5,
+          "bonus": {
+            "noite": 4.0
+          }
         }
       ],
       "npcs": [],
-      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código. Bônus de NOITE (matriz ecológica): fantasmas/Drowzee/Zubat aumentam muito depois do anoitecer."
     },
     {
       "id": "rota_lf_campo_seco",
@@ -7082,10 +7174,21 @@
           "level_min": 21,
           "level_max": 26,
           "weight": 5
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 10,
+          "level_max": 16,
+          "weight": 10,
+          "so_em": [
+            "noite",
+            "amanhecer"
+          ]
         }
       ],
       "npcs": [],
-      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código. Zubat SÓ à noite/amanhecer (matriz: a floresta muda de fauna no escuro)."
     },
     {
       "id": "rota_lf_vale_rio",
@@ -7105,35 +7208,50 @@
           "name": "Poliwag",
           "level_min": 22,
           "level_max": 27,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 54,
           "name": "Psyduck",
           "level_min": 22,
           "level_max": 27,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 118,
           "name": "Goldeen",
           "level_min": 22,
           "level_max": 27,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 129,
           "name": "Magikarp",
           "level_min": 20,
           "level_max": 25,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 98,
           "name": "Krabby",
           "level_min": 22,
           "level_max": 27,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 69,
@@ -7147,11 +7265,14 @@
           "name": "Slowpoke",
           "level_min": 22,
           "level_max": 27,
-          "weight": 5
+          "weight": 5,
+          "bonus": {
+            "chuva": 2.0
+          }
         }
       ],
       "npcs": [],
-      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código. Bônus de CHUVA (matriz ecológica): aquáticos aparecem mais com chuva."
     },
     {
       "id": "rota_lf_pantano",
@@ -7171,7 +7292,10 @@
           "name": "Psyduck",
           "level_min": 23,
           "level_max": 28,
-          "weight": 30
+          "weight": 30,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 88,
@@ -7199,7 +7323,10 @@
           "name": "Poliwag",
           "level_min": 23,
           "level_max": 28,
-          "weight": 15
+          "weight": 15,
+          "bonus": {
+            "chuva": 2.0
+          }
         },
         {
           "id": 43,
@@ -7224,7 +7351,7 @@
         }
       ],
       "npcs": [],
-      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código. Bônus de CHUVA (matriz ecológica): aquáticos aparecem mais com chuva."
     },
     {
       "id": "rota_lf_tropical",

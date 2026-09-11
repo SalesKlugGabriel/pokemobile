@@ -450,22 +450,51 @@ func _despawn_by_distance() -> void:
 # Utilitários
 # ──────────────────────────────────────────────────────────────────────────────
 ## Sorteio por peso: entry deve ter campo "weight" (int).
+##
+## 🔴 10/09 — CONDIÇÕES VARIÁVEIS (horário/clima), o último pedaço da matriz
+## ecológica do Gabriel: "floresta muda fauna de dia pra noite; área de rio
+## aumenta aquáticos na chuva". Os dois sistemas já existiam (CicloDoDia
+## desde 09/09, ClimaDinamico desde 09/09) — faltava o spawn escutar.
+##
+## É orientado a DADO, não a lista no código: cada entrada de
+## `wild_pokemon` pode trazer
+##   "bonus":  {"noite": 4.0, "chuva": 2.0}   multiplica o peso na condição
+##   "so_em":  ["noite"]                      só aparece nesses períodos
+## Sem esses campos, nada muda — toda zona que não quis variar continua
+## exatamente como era.
 func _weighted_pick(table: Array) -> Dictionary:
-	var total : int = 0
-	for entry in table:
-		total += entry.get("weight", 1)
+	var periodo := _periodo_agora()
+	var chovendo := _esta_chovendo()
 
-	if total <= 0:
+	var pesos : Array[float] = []
+	var total : float = 0.0
+	for entry in table:
+		pesos.append(PesoDeSpawn.efetivo(entry, periodo, chovendo))
+		total += pesos[pesos.size() - 1]
+
+	if total <= 0.0:
 		return {}
 
-	var roll : int = RNGManager.randi_range(0, total - 1)
-	var acc  : int = 0
-	for entry in table:
-		acc += entry.get("weight", 1)
+	var roll : float = RNGManager.randf() * total
+	var acc  : float = 0.0
+	for i in table.size():
+		acc += pesos[i]
 		if roll < acc:
-			return entry
+			return table[i]
 
 	return table[table.size() - 1]
+
+func _periodo_agora() -> String:
+	var ciclo = get_node_or_null("/root/CicloDoDia")
+	if ciclo == null or not ciclo.has_method("periodo_de"):
+		return "dia"
+	return String(ciclo.periodo_de(ciclo.hora_atual()))
+
+func _esta_chovendo() -> bool:
+	var clima = get_node_or_null("/root/ClimaDinamico")
+	if clima == null:
+		return false
+	return bool(clima.chovendo)
 
 func _find_player() -> Node2D:
 	var players := get_tree().get_nodes_in_group("player")
