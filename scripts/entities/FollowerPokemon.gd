@@ -76,6 +76,8 @@ var types          : Array = ["Normal"]
 var nature         : String = ""
 
 ## Slots de move (4 IDs de string consultados do GameData)
+## 🔴 Fase 2: era fixo em 4. Agora o tamanho vem de `KitDeCombate.capacidade()`
+## — 4 na base, até 8 num Pokémon de forma final em nível alto.
 var move_slots     : Array[String] = ["", "", "", ""]
 
 ## Cooldowns individuais restantes em segundos
@@ -284,86 +286,33 @@ func _fire_passive_reflect() -> void:
 		alvo.take_damage(_passive_dmg_since, self)
 		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -184), "Reflexo!", Color(0.8, 0.6, 1.0))
 
-## 🔴 11/09: reescrito. A queixa do Gabriel ("meu Pokémon só tem 2 ataques")
-## não era falta de arquitetura — os 4 slots existem desde 02/09 — era falta de
-## DADO. A regra antiga pegava os 4 últimos golpes aprendíveis, e no começo do
-## jogo não existem 4: medido, no nível 5 só 20 das 151 espécies tinham os 4
-## slots cheios, e 82 tinham UM só golpe que causa dano (o resto eram Growl,
-## Tail Whip e afins, que não tiram vida nenhuma).
+## 🔴 Fase 2: o número de slots deixou de ser 4 fixo.
 ##
-## A regra nova monta o time de golpes com intenção:
-##   1. os golpes de DANO mais recentes entram primeiro (são o que o jogador usa);
-##   2. um golpe de status entra só depois, se ainda sobrar espaço;
-##   3. se mesmo assim faltar, completa com o golpe básico do PRIMEIRO tipo da
-##      espécie — assim ninguém fica sem ter o que apertar, e o preenchimento
-##      respeita a identidade do bicho em vez de dar Tackle pra todo mundo.
-const GOLPE_BASICO_POR_TIPO : Dictionary = {
-	"Normal": "tackle", "Fire": "ember", "Water": "water_gun", "Grass": "vine_whip",
-	"Electric": "thundershock", "Ice": "ice_beam", "Fighting": "karate_chop",
-	"Poison": "poison_sting", "Ground": "bonemerang", "Flying": "gust",
-	"Psychic": "confusion", "Bug": "fury_cutter", "Rock": "rock_throw",
-	"Ghost": "lick", "Dragon": "dragon_rage",
-}
-
+## Pedido do Gabriel: *"conforme o pokemon vai subindo de nível ele poderia ter
+## mais skills... um charmander lvl 100 em vez de 4 skills > 6, um charmeleon
+## 7, um charizard 8... para que não seja possível derrotar um moltres lvl 5
+## com um magikarp lvl 100 que só tem surf"*. A conta e o porquê moram em
+## `KitDeCombate`; aqui só se lê o resultado.
+##
+## A montagem também passou a respeitar as faixas do item 13 (iniciante 1-2
+## golpes ofensivos, intermediário 2-3, avançado 3-4+) — a versão da Fase 1
+## enchia os 4 slots de todo mundo com golpes básicos do tipo, e um Pokémon de
+## nível 5 abria o jogo com 4 botões, que é cedo demais.
 func _load_move_slots() -> void:
-	move_slots = ["", "", "", ""]
-	var learnable : Array = GameData.get_learnable_moves(pokemon_species_id, pokemon_level)
+	var capacidade : int = KitDeCombate.capacidade(pokemon_species_id, pokemon_level, GameData.species)
+	move_slots.resize(capacidade)
+	for i in capacidade:
+		move_slots[i] = ""
+	_cooldowns.resize(capacidade)
+	for i in capacidade:
+		_cooldowns[i] = 0.0
 
-	var de_dano : Array[String] = []
-	var de_status : Array[String] = []
-	for entry in learnable:
-		var mid : String = str(entry.get("move", ""))
-		if mid.is_empty() or mid in de_dano or mid in de_status:
-			continue
-		var dados : Dictionary = GameData.get_move(mid)
-		if int(dados.get("power", 0)) > 0:
-			de_dano.append(mid)
-		else:
-			de_status.append(mid)
-
-	# Mais recentes primeiro (o fim da lista de aprendizado é o golpe mais forte).
-	de_dano.reverse()
-	de_status.reverse()
-
-	var escolhidos : Array[String] = []
-	for mid in de_dano:
-		if escolhidos.size() >= 4:
-			break
-		escolhidos.append(mid)
-	for mid in de_status:
-		if escolhidos.size() >= 4:
-			break
-		escolhidos.append(mid)
-
-	# Completa o que faltar com o golpe BÁSICO de cada tipo da espécie, e só
-	# depois com o Normal. É isso que faz um Pokémon de nível 5 ter 3-4 coisas
-	# pra apertar em vez de 2 — sem inventar learnset e sem dar Tackle pra todo
-	# mundo: um Squirtle completa com Water Gun, um Geodude com Rock Throw.
-	for tipo in (types + ["Normal"]):
-		if escolhidos.size() >= 4:
-			break
-		var socorro : String = str(GOLPE_BASICO_POR_TIPO.get(str(tipo), ""))
-		if socorro.is_empty() or socorro in escolhidos:
-			continue
-		if GameData.get_move(socorro).is_empty():
-			continue
-		escolhidos.append(socorro)
-
-	# Um golpe que TIRA VIDA sempre no slot 1: sem isso um Pokémon cujo
-	# learnset só tem Growl/Tail Whip abre o jogo sem conseguir machucar nada.
-	if de_dano.is_empty() and not escolhidos.is_empty():
-		var primeiro_de_dano : int = -1
-		for i in escolhidos.size():
-			if int(GameData.get_move(escolhidos[i]).get("power", 0)) > 0:
-				primeiro_de_dano = i
-				break
-		if primeiro_de_dano > 0:
-			var golpe : String = escolhidos[primeiro_de_dano]
-			escolhidos.remove_at(primeiro_de_dano)
-			escolhidos.push_front(golpe)
-
-	for i in mini(4, escolhidos.size()):
-		move_slots[i] = escolhidos[i]
+	var escolhidos : Array = KitDeCombate.montar(
+		pokemon_species_id, pokemon_level,
+		GameData.get_learnable_moves(pokemon_species_id, pokemon_level),
+		GameData.moves, types, GameData.species)
+	for i in mini(capacidade, escolhidos.size()):
+		move_slots[i] = str(escolhidos[i])
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Loop principal
@@ -385,6 +334,35 @@ func _process(delta: float) -> void:
 ## entidade está.
 const PE_OFFSET : Vector2 = Vector2(0, 24)
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Empurrão (knockback) — ver Empurrao.gd
+# ──────────────────────────────────────────────────────────────────────────────
+## Estado puro, sem timer e sem nó novo: o `_physics_process` que já roda
+## consome isto. Enquanto `_empurrao_restante > 0`, o movimento normal cede a
+## vez pro empurrão.
+var _empurrao_restante : float = 0.0
+var _empurrao_direcao  : Vector2 = Vector2.ZERO
+var _empurrao_veloc    : float = 0.0
+
+func receber_empurrao(direcao: Vector2, distancia_px: float) -> void:
+	if distancia_px <= 0.0 or direcao.length_squared() <= 0.0:
+		return
+	_empurrao_direcao  = direcao.normalized()
+	_empurrao_restante = Empurrao.DURACAO_SEG
+	_empurrao_veloc    = distancia_px / Empurrao.DURACAO_SEG
+
+## true enquanto estiver sendo empurrado — e já move o corpo neste quadro.
+## O movimento usa o MESMO caminho de sempre (`_mover_com_colisao`), então
+## parede, pedra, água e limite de mapa param o empurrão exatamente como param
+## um passo normal. Nada atravessa nada.
+func _consumiu_empurrao(delta: float) -> bool:
+	if _empurrao_restante <= 0.0:
+		return false
+	_empurrao_restante -= delta
+	velocity = _empurrao_direcao * _empurrao_veloc
+	_mover_com_colisao()
+	return true
+
 func _mover_com_colisao() -> void:
 	# permitir_agua=true: acompanha o Treinador quando ele surfa, senão ficaria
 	# preso na praia enquanto o jogador entra no mar.
@@ -392,6 +370,8 @@ func _mover_com_colisao() -> void:
 	move_and_slide()
 
 func _physics_process(delta: float) -> void:
+	if _consumiu_empurrao(delta):
+		return
 	if _is_fainted:
 		return
 	_tick_status(delta)
@@ -520,7 +500,7 @@ func _fora_de_combate() -> bool:
 	return true
 
 func _tick_cooldowns(delta: float) -> void:
-	for i in 4:
+	for i in _cooldowns.size():
 		if _cooldowns[i] > 0.0:
 			_cooldowns[i] = max(0.0, _cooldowns[i] - delta)
 			var move_data := GameData.get_move(move_slots[i])
@@ -533,14 +513,14 @@ func _tick_cooldowns(delta: float) -> void:
 # ──────────────────────────────────────────────────────────────────────────────
 
 func _handle_skill_input() -> void:
-	for i in 4:
+	for i in mini(move_slots.size(), KeybindManager.SLOTS_DE_SKILL):
 		var action := "skill_%d" % (i + 1)
 		if Input.is_action_just_pressed(action):
 			use_skill(i)
 
 ## Executa a skill do slot indicado (0-3). Chamável externamente também.
 func use_skill(slot: int) -> void:
-	if slot < 0 or slot >= 4:
+	if slot < 0 or slot >= move_slots.size():
 		return
 	if move_slots[slot].is_empty():
 		return
@@ -675,11 +655,19 @@ func _apply_damage_area(move_data: Dictionary) -> void:
 	for alvo in alvos:
 		if not alvo.has_method("take_damage"):
 			continue
+		var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
+		# A precisão é sorteada POR ALVO: um Blizzard de 70% pode pegar dois e
+		# errar o terceiro, que é o comportamento clássico e o que torna o
+		# golpe uma aposta de verdade.
+		if not StatusEffectController.acertou(move_data):
+			continue
+		var mult_tipo : float = DamageCalculator.get_type_multiplier(
+			str(move_data.get("type", "Normal")), defender_stats.get("types", ["Normal"]))
 		if not is_status_move:
-			var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
 			var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
 			alvo.take_damage(dmg, self)
-		StatusEffectController.try_apply(alvo, move_data)
+		Empurrao.aplicar(alvo, centro, move_data)
+		StatusEffectController.try_apply(alvo, move_data, mult_tipo)
 
 ## Pra onde o golpe de área aponta: o alvo travado, se houver; senão a
 ## direção em que o Pokémon está virado. Só importa em cone/linha/retângulo —
@@ -702,11 +690,24 @@ func _apply_damage_direct(move_data: Dictionary) -> void:
 		defender_stats = current_target.get_combat_stats()
 	# Golpe puro de status (ex: Thunder Wave, power=0) não causa dano nenhum
 	# — só o efeito, aplicado abaixo via StatusEffectController (03/09).
+	# Precisão (item 8): o golpe pode errar. Errou, não sai dano NEM status.
+	if not StatusEffectController.acertou(move_data):
+		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184),
+			"Errou!", Color(0.8, 0.8, 0.85))
+		return
+	var mult_tipo : float = DamageCalculator.get_type_multiplier(
+		str(move_data.get("type", "Normal")), defender_stats.get("types", ["Normal"]))
 	if move_data.get("category", "physical") != "status":
 		var damage := DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
 		current_target.take_damage(damage, self)
-		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184), str(move_data.get("name", "")), Color(1.0, 0.9, 0.3))
-	StatusEffectController.try_apply(current_target, move_data)
+		var rotulo : String = str(move_data.get("name", ""))
+		if mult_tipo <= 0.0:
+			rotulo += " — não afeta!"
+		elif mult_tipo >= 2.0:
+			rotulo += " — é super eficaz!"
+		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184), rotulo, Color(1.0, 0.9, 0.3))
+	Empurrao.aplicar(current_target, global_position, move_data)
+	StatusEffectController.try_apply(current_target, move_data, mult_tipo)
 
 func _spawn_projectile(move_data: Dictionary) -> void:
 	# O ProjectileBase é instanciado pela cena — aqui apenas notificamos

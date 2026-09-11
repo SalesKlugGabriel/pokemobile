@@ -213,15 +213,12 @@ static func detalhar(
 	if tipo_mult <= 0.0:
 		return _relatorio(move_data, attacker_stats, defender_stats, ataque, defesa,
 			base, tipo_mult, stab, crit_mult, variacao, hab_mult, status_mult,
-			item_mult, bonus_ext, 0, 0, critico, especial)
+			item_mult, bonus_ext, 0, 0, critico, especial, 0)
 
 	var final : int = maxi(CombatBalance.MIN_DAMAGE, int(floor(bruto)))
-
-	# Piso proporcional: defesa alta REDUZ muito, mas nunca transforma o golpe
-	# em cócegas de 1 de dano (item 10). Ver a explicação em CombatBalance.
-	var vida_maxima : int = int(defender_stats.get("max_hp", 0))
-	if vida_maxima > 0:
-		final = maxi(final, int(floor(float(vida_maxima) * CombatBalance.DANO_MINIMO_FRACAO_HP)))
+	# Sem piso proporcional: `MIN_DAMAGE = 1` é o único piso. Ver a explicação
+	# (com os números que mataram a ideia) em CombatBalance.
+	var sem_piso : int = final
 
 	# ── O para-quedas contra hit-kill (a rede, não o balanceamento) ───────────
 	# Nenhum golpe tira mais que 90% da vida MÁXIMA do alvo de uma vez. Vale
@@ -243,14 +240,14 @@ static func detalhar(
 
 	return _relatorio(move_data, attacker_stats, defender_stats, ataque, defesa,
 		base, tipo_mult, stab, crit_mult, variacao, hab_mult, status_mult,
-		item_mult, bonus_ext, final, teto_aplicado, critico, especial)
+		item_mult, bonus_ext, final, teto_aplicado, critico, especial, sem_piso)
 
 ## Monta o dicionário de saída. Separado só pra `detalhar()` não ter duas
 ## saídas copiadas (a de imunidade e a normal) que podem divergir.
 static func _relatorio(move_data: Dictionary, atacante: Dictionary, defensor: Dictionary,
 		ataque: int, defesa: int, base: float, tipo: float, stab: float, crit: float,
 		variacao: float, habilidade: float, status: float, item: float, externo: float,
-		final: int, teto_cru: int, foi_critico: bool, especial: bool) -> Dictionary:
+		final: int, teto_cru: int, foi_critico: bool, especial: bool, sem_piso: int = 0) -> Dictionary:
 	return {
 		"final": final,
 		"golpe": str(move_data.get("name", move_data.get("id", "?"))),
@@ -273,6 +270,7 @@ static func _relatorio(move_data: Dictionary, atacante: Dictionary, defensor: Di
 		"mult_externo": externo,
 		# > 0 significa que o para-quedas segurou: este seria o dano sem teto.
 		"segurado_pelo_teto": teto_cru,
+		"sem_piso": sem_piso,
 	}
 
 ## STAB: +25% quando o golpe é do mesmo tipo do Pokémon que o usa (item 15).

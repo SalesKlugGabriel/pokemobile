@@ -468,6 +468,35 @@ func _fire_passive_reflect() -> void:
 ## entidade está.
 const PE_OFFSET : Vector2 = Vector2(0, 24)
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Empurrão (knockback) — ver Empurrao.gd
+# ──────────────────────────────────────────────────────────────────────────────
+## Estado puro, sem timer e sem nó novo: o `_physics_process` que já roda
+## consome isto. Enquanto `_empurrao_restante > 0`, o movimento normal cede a
+## vez pro empurrão.
+var _empurrao_restante : float = 0.0
+var _empurrao_direcao  : Vector2 = Vector2.ZERO
+var _empurrao_veloc    : float = 0.0
+
+func receber_empurrao(direcao: Vector2, distancia_px: float) -> void:
+	if distancia_px <= 0.0 or direcao.length_squared() <= 0.0:
+		return
+	_empurrao_direcao  = direcao.normalized()
+	_empurrao_restante = Empurrao.DURACAO_SEG
+	_empurrao_veloc    = distancia_px / Empurrao.DURACAO_SEG
+
+## true enquanto estiver sendo empurrado — e já move o corpo neste quadro.
+## O movimento usa o MESMO caminho de sempre (`_mover_com_colisao`), então
+## parede, pedra, água e limite de mapa param o empurrão exatamente como param
+## um passo normal. Nada atravessa nada.
+func _consumiu_empurrao(delta: float) -> bool:
+	if _empurrao_restante <= 0.0:
+		return false
+	_empurrao_restante -= delta
+	velocity = _empurrao_direcao * _empurrao_veloc
+	_mover_com_colisao()
+	return true
+
 func _mover_com_colisao() -> void:
 	velocity = WorldManager.filtrar_velocidade(global_position + PE_OFFSET, velocity)
 	move_and_slide()
@@ -489,6 +518,11 @@ func _physics_process(delta: float) -> void:
 		recargas[i] = max(0.0, float(recargas[i]) - delta)
 	_tick_passive(delta)
 	_tick_status(delta)
+
+	# Empurrão tem prioridade sobre andar: quem levou um Tornado vai pra trás,
+	# não continua marchando pra frente no mesmo quadro.
+	if _consumiu_empurrao(delta):
+		return
 
 	_relogio_de_combate -= delta
 	if _relogio_de_combate <= 0.0:
@@ -595,6 +629,10 @@ func responder_ao_grito(quem_gritou: Node2D, saltos: int) -> void:
 	_find_target()
 	if target == null:
 		return
+	# Chega com atraso: o bando ataca em ONDA, não em bloco (ver a medição em
+	# CombatBalance.ATRASO_DO_BANDO_MIN).
+	_attack_cd = maxf(_attack_cd, RNGManager.randf_range(
+		CombatBalance.ATRASO_DO_BANDO_MIN, CombatBalance.ATRASO_DO_BANDO_MAX))
 	_entrar_em_briga(saltos)
 
 ## Volta pra casa e se cura no caminho (item 26: "pode recuperar HP"). É o que
@@ -713,19 +751,48 @@ func _hit_self_confused() -> void:
 	_apply_status_damage(maxi(1, roundi(dmg)))
 	FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -220), "Confuso!", Color(0.9, 0.5, 0.9))
 
+## 🔴 Fase 2: era "o primeiro Follower vivo que eu achar na lista" — a ordem
+## da árvore de cena decidia a briga. Agora cada candidato recebe uma nota
+## (distância, se me bateu, vida, invasão de território, Pokémon antes do
+## treinador) e o maior ganha. Ver `ComportamentoSelvagem.nota_do_alvo`.
 func _find_target() -> void:
-	# Prioridade: Follower ativo → Treinador
-	var followers := get_tree().get_nodes_in_group("follower_pokemon")
-	for f in followers:
-		if f.has_method("is_fainted") and not f.is_fainted():
-			target = f
-			return
+	var candidatos : Array = []
 
-	var players := get_tree().get_nodes_in_group("player")
-	if not players.is_empty():
-		target = players[0]
-	else:
+	for f in get_tree().get_nodes_in_group("follower_pokemon"):
+		if not (f is Node2D) or not is_instance_valid(f):
+			continue
+		if f.has_method("is_fainted") and f.is_fainted():
+			continue
+		candidatos.append(_ficha_de_alvo(f, false))
+
+	for pl in get_tree().get_nodes_in_group("player"):
+		if not (pl is Node2D) or not is_instance_valid(pl):
+			continue
+		candidatos.append(_ficha_de_alvo(pl, true))
+
+	if candidatos.is_empty():
 		target = null
+		return
+	target = ComportamentoSelvagem.escolher_alvo(
+		candidatos, personalidade, global_position, _spawn_pos)
+
+## O que a nota precisa saber sobre um candidato a alvo.
+func _ficha_de_alvo(no: Node2D, e_treinador: bool) -> Dictionary:
+	var fracao : float = 1.0
+	if no.has_method("get_hp_ratio"):
+		fracao = float(no.get_hp_ratio())
+	elif no.has_method("get_combat_stats"):
+		var cs : Dictionary = no.get_combat_stats()
+		var mx : int = int(cs.get("max_hp", 0))
+		if mx > 0:
+			fracao = float(cs.get("hp", mx)) / float(mx)
+	return {
+		"no": no,
+		"distancia": global_position.distance_to(no.global_position),
+		"me_atacou": no in _recent_attackers,
+		"fracao_vida": fracao,
+		"e_treinador": e_treinador,
+	}
 
 # ──────────────────────────────────────────────────────────────────────────────
 # PATROL
@@ -803,7 +870,7 @@ func _perform_attack() -> void:
 	if golpes.is_empty() or target == null:
 		return
 	var dist : float = global_position.distance_to(target.global_position)
-	var slot : int = ComportamentoSelvagem.escolher_golpe(golpes, recargas, dist)
+	var slot : int = ComportamentoSelvagem.escolher_golpe(golpes, recargas, dist, _contexto_de_briga())
 	if slot < 0:
 		return   # nada pronto ou nada alcança — o `_decidir()` aproxima no próximo tick
 	var move : Dictionary = golpes[slot]
@@ -815,7 +882,9 @@ func _perform_attack() -> void:
 	_attack_cd = maxf(CombatBalance.MIN_COOLDOWN_SEC, recarga * 0.5)
 	_usar_golpe(move)
 
-func _usar_golpe(default_move: Dictionary) -> void:
+## `golpe` em vez de `default_move`: o parâmetro estava com o MESMO nome da
+## variável de membro, o que é um convite a erro de leitura.
+func _usar_golpe(golpe: Dictionary) -> void:
 
 	# Paralisia: chance por TENTATIVA de falhar o golpe inteiro (mesma regra
 	# de BattlePokemon.can_move() — 25%, StatusEffectController.03/09).
@@ -830,18 +899,18 @@ func _usar_golpe(default_move: Dictionary) -> void:
 
 	# Tempo de conjuração: a janela em que o jogador vê o golpe vindo e pode
 	# sair de perto (item 19). Golpe rápido tem cast 0 e sai na hora.
-	var cast : float = float(default_move.get("cast_time", 0.0))
+	var cast : float = float(golpe.get("cast_time", 0.0))
 	if cast > 0.0:
 		await get_tree().create_timer(cast).timeout
 		if not is_instance_valid(self) or state == State.DEAD:
 			return
 
-	if default_move.get("target_type", "single") == "area":
-		_apply_damage_area(default_move)
+	if golpe.get("target_type", "single") == "area":
+		_apply_damage_area(golpe)
 		return
 
 	# O alvo saiu do alcance durante a conjuração? O golpe falha.
-	if target and not FormaDeArea.no_alcance(global_position, target, default_move):
+	if target and not FormaDeArea.no_alcance(global_position, target, golpe):
 		return
 
 	if target and target.has_method("take_damage"):
@@ -851,11 +920,44 @@ func _usar_golpe(default_move: Dictionary) -> void:
 			defender_stats = target.get_combat_stats()
 		# Golpe puro de status (ex: Thunder Wave, power=0) não causa dano
 		# nenhum — só o efeito, aplicado abaixo via StatusEffectController.
-		if default_move.get("category", "physical") != "status":
-			var damage := DamageCalculator.calculate_damage(default_move, attacker_stats, defender_stats)
+		if not StatusEffectController.acertou(golpe):
+			FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184),
+				"Errou!", Color(0.8, 0.8, 0.85))
+			return
+		var mult_tipo : float = DamageCalculator.get_type_multiplier(
+			str(golpe.get("type", "Normal")), defender_stats.get("types", ["Normal"]))
+		if golpe.get("category", "physical") != "status":
+			var damage := DamageCalculator.calculate_damage(golpe, attacker_stats, defender_stats)
 			target.take_damage(damage, self)
-			FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184), str(default_move.get("name", "")), Color(1.0, 0.4, 0.4))
-		StatusEffectController.try_apply(target, default_move)
+			FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184), str(golpe.get("name", "")), Color(1.0, 0.4, 0.4))
+		Empurrao.aplicar(target, global_position, golpe)
+		StatusEffectController.try_apply(target, golpe, mult_tipo)
+
+## O que a escolha de golpe precisa saber da situação: contra que tipos estou,
+## quão machucado está o alvo, quão machucado estou eu, e quantos alvos há
+## agrupados (é isso que faz golpe de área valer a pena só quando vale).
+func _contexto_de_briga() -> Dictionary:
+	var tipos_do_alvo : Array = []
+	var vida_do_alvo : float = 1.0
+	if target and is_instance_valid(target):
+		if target.has_method("get_combat_stats"):
+			var cs : Dictionary = target.get_combat_stats()
+			tipos_do_alvo = cs.get("types", [])
+			var mx : int = int(cs.get("max_hp", 0))
+			if mx > 0:
+				vida_do_alvo = float(cs.get("hp", mx)) / float(mx)
+	var agrupados : int = 0
+	var raio : float = CombatBalance.TILE_PX * 3.0
+	for grupo in ["follower_pokemon", "player"]:
+		for n in get_tree().get_nodes_in_group(grupo):
+			if n is Node2D and global_position.distance_to(n.global_position) <= raio:
+				agrupados += 1
+	return {
+		"tipos_do_alvo": tipos_do_alvo,
+		"fracao_vida_alvo": vida_do_alvo,
+		"minha_fracao_vida": get_hp_ratio(),
+		"alvos_agrupados": maxi(agrupados, 1),
+	}
 
 ## Mesmo formato de attacker_stats usado no ataque direto, na área e na
 ## passiva — centralizado aqui pra não divergir. "status" (03/09): usado por
@@ -899,11 +1001,16 @@ func _apply_damage_area(move_data: Dictionary) -> void:
 	for alvo in alvos:
 		if not alvo.has_method("take_damage"):
 			continue
+		var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
+		if not StatusEffectController.acertou(move_data):
+			continue
+		var mult_tipo : float = DamageCalculator.get_type_multiplier(
+			str(move_data.get("type", "Normal")), defender_stats.get("types", ["Normal"]))
 		if not is_status_move:
-			var defender_stats : Dictionary = alvo.get_combat_stats() if alvo.has_method("get_combat_stats") else {}
 			var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
 			alvo.take_damage(dmg, self)
-		StatusEffectController.try_apply(alvo, move_data)
+		Empurrao.aplicar(alvo, centro, move_data)
+		StatusEffectController.try_apply(alvo, move_data, mult_tipo)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Receber dano
@@ -1043,34 +1150,33 @@ func get_combat_stats() -> Dictionary:
 		"max_hp": max_hp, "hp": current_hp,
 	}
 
-## Monta o repertório: até 4 golpes de DANO, os mais recentes que a espécie já
-## aprendeu neste nível. Golpe de status fica de fora de propósito — um
-## selvagem que gasta a vez dele em Growl não é um desafio, é um incômodo.
+## Monta o repertório do selvagem.
+##
+## 🔴 Fase 2 (item 14): um selvagem comum NÃO é um mini-jogador. Ele carrega
+## **até 3** golpes; um Alpha carrega 4. O jogador é quem tem o repertório
+## grande (4 a 8, conforme evolução e nível — ver `KitDeCombate`), e é isso
+## que faz o time dele valer mais que a soma dos stats.
+##
+## Antes da Fase 1 era UM golpe só, sempre o primeiro aprendível da espécie
+## (quase sempre o Tackle de nível 1); na Fase 1 virou 4 pra todo mundo, o que
+## era generoso demais do lado errado da mesa.
 func _montar_golpes() -> void:
+	var teto : int = KitDeCombate.SLOTS_SELVAGEM_ALPHA if is_alpha \
+		else KitDeCombate.SLOTS_SELVAGEM_COMUM
+	var ids : Array = KitDeCombate.montar(
+		species_id, wild_level,
+		GameData.get_learnable_moves(species_id, wild_level),
+		GameData.moves, types, GameData.species, teto)
+
 	golpes = []
-	recargas = [0.0, 0.0, 0.0, 0.0]
-	var aprendidos : Array = GameData.get_learnable_moves(species_id, wild_level)
-	var ids : Array[String] = []
-	for entrada in aprendidos:
-		var mid : String = str(entrada.get("move", ""))
-		if mid.is_empty() or mid in ids:
-			continue
-		if int(GameData.get_move(mid).get("power", 0)) <= 0:
-			continue
-		ids.append(mid)
-	ids.reverse()   # o mais recente é o mais forte
-
 	for mid in ids:
-		if golpes.size() >= 4:
-			break
-		golpes.append(GameData.get_move(mid))
+		var dados : Dictionary = GameData.get_move(str(mid))
+		if not dados.is_empty():
+			golpes.append(dados)
 
-	# Nenhum golpe de dano no learnset? Cai no primeiro aprendível, seja qual
-	# for — é melhor um Growl inútil que um bicho parado sem nada pra fazer.
-	if golpes.is_empty() and not aprendidos.is_empty():
-		var socorro : Dictionary = GameData.get_move(str(aprendidos[0].get("move", "")))
-		if not socorro.is_empty():
-			golpes.append(socorro)
+	recargas = []
+	for i in maxi(golpes.size(), 1):
+		recargas.append(0.0)
 
 	default_move = golpes[0] if not golpes.is_empty() else {}
 

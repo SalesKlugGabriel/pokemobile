@@ -37,12 +37,34 @@ extends Node
 # Números (seção 7 do plano)
 # ──────────────────────────────────────────────────────────────────────────
 const NIVEL           : int   = 100    ## pedido do Gabriel: sempre o teto do jogo
-const MULT_HP         : float = 7.0    ## a luta tem que durar o repertório inteiro 2x
+## 🔴 Fase 2: o nível virou variável (continua nascendo em NIVEL) porque o
+## item 10 pede simulação do chefe em Lv30/50/75/100 — sem isso não dá pra
+## medir a luta, só torcer.
+var nivel : int = NIVEL
+## 🔴 Fase 2, medido: com ×7 a luta contra o chefe durava 218-265s e SEMPRE
+## alcançava o enrage (que dispara aos 240s) — ou seja, a fase de fúria não era
+## uma punição por demorar, era o final garantido de toda luta. Com ×5 a luta
+## bem jogada fecha em ~160s e o enrage volta a ser o que deveria: o preço de
+## errar demais. O chefe continua com 5x a vida de um selvagem do mesmo nível.
+const MULT_HP         : float = 5.0
 const MULT_DEFESA     : float = 1.5
 const MULT_ATAQUE     : float = 1.35
 const ENRAGE_SEG      : float = 240.0  ## 4 minutos
 const ENRAGE_DANO     : float = 2.0
 const ENRAGE_ESPERA   : float = 0.7    ## −30%
+
+## 🔴 Fase 2: o `dano` de cada função do repertório era um multiplicador solto
+## aplicado em `atk_stat × 0.35` — ou seja, o chefe batia FORA da fórmula do
+## jogo: ignorava defesa, ignorava tipo, ignorava STAB e, o mais grave,
+## ignorava o teto de 90% que impede hit-kill. Um golpe de área do chefe
+## enfurecido apagava um Pokémon de nível médio sem passar por conferência
+## nenhuma.
+##
+## Agora o `dano` é convertido em POWER (a mesma escala de moves.json) e o
+## golpe passa pelo `DamageCalculator` como qualquer outro. O chefe continua
+## perigoso — é o ataque e o HP dele que fazem isso — mas agora resistir a
+## Gelo realmente ajuda contra Articuno, e nada mata de um.
+const POWER_POR_ESCALA : float = 70.0
 
 const FRACAO_PERCENTUAL : float = 0.35 ## quanto a função 5 tira da vida MÁXIMA
 const ESCUDO_SEG        : float = 4.0
@@ -127,7 +149,7 @@ func _ready() -> void:
 func _turbinar() -> void:
 	if not ("max_hp" in _chefe):
 		return
-	_chefe.wild_level = NIVEL
+	_chefe.wild_level = nivel
 	var base_hp : int = int(_chefe.max_hp)
 	_chefe.max_hp = int(round(base_hp * MULT_HP))
 	_chefe.current_hp = _chefe.max_hp
@@ -243,15 +265,43 @@ func _anunciar(texto: String) -> void:
 func _bater(alvo: Node2D, escala: float) -> void:
 	if not alvo.has_method("take_damage"):
 		return
-	var dano : int = maxi(1, int(round(_dano_base() * escala * _mult_dano())))
-	alvo.take_damage(dano, _chefe)
+	alvo.take_damage(dano_em(alvo, escala), _chefe)
 
-## Base do dano do chefe: sai do ataque dele, não de uma tabela solta — assim
-## turbinar o chefe (ou enfurecê-lo) muda tudo de uma vez só.
-func _dano_base() -> float:
-	if "atk_stat" in _chefe:
-		return float(_chefe.atk_stat) * 0.35
-	return 30.0
+## Quanto este golpe do chefe tira DESTE alvo — pela fórmula do jogo, com
+## defesa, tipo, STAB, variação e o teto anti-hit-kill valendo.
+func dano_em(alvo: Node, escala: float) -> int:
+	var golpe : Dictionary = {
+		"power": int(round(POWER_POR_ESCALA * escala * _mult_dano())),
+		"type": _tipo_em_maiuscula(),
+		"category": "special",
+		"name": str(_dados.get("nome", "Chefe")),
+	}
+	var defensor : Dictionary = {}
+	if alvo.has_method("get_combat_stats"):
+		defensor = alvo.get_combat_stats()
+	return DamageCalculator.calculate_damage(golpe, _atacante(), defensor)
+
+## O chefe como atacante. `spa` e `atk` saem do WildPokemon em que ele está
+## pendurado — turbinar o chefe continua mudando tudo de uma vez só.
+func _atacante() -> Dictionary:
+	var a : int = 60
+	var sa : int = 60
+	if _chefe != null:
+		if "atk_stat" in _chefe:
+			a = int(_chefe.atk_stat)
+		if "spa_stat" in _chefe:
+			sa = int(_chefe.spa_stat)
+	return {
+		"atk": a, "spa": sa, "level": nivel,
+		"types": [_tipo_em_maiuscula()],
+	}
+
+## "ice" -> "Ice". A tabela de tipos usa maiúscula; o repertório usa minúscula
+## (porque a cor do telegraph usa minúscula). Converter num lugar só evita o
+## bug silencioso de o tipo nunca casar e toda efetividade virar x1.
+func _tipo_em_maiuscula() -> String:
+	var s : String = str(_dados.get("tipo", "ice"))
+	return s.substr(0, 1).to_upper() + s.substr(1)
 
 # ── 2. Área telegrafada ───────────────────────────────────────────────────
 func _area(f: Dictionary, nome: String) -> void:
@@ -267,9 +317,14 @@ func _area(f: Dictionary, nome: String) -> void:
 		return
 	# Mira quem está dentro AGORA, não quem estava quando o golpe começou —
 	# é o que faz desviar funcionar de verdade.
-	for a in AreaTargeting.find_targets_in_radius(centro, raio, ["follower_pokemon", "player"]):
+	var golpe_area : Dictionary = {
+		"area_type": "circle", "radius": raio,
+		"max_targets": CombatBalance.MAX_ALVOS_PADRAO,
+	}
+	for a in FormaDeArea.alvos(centro, Vector2.RIGHT, golpe_area,
+			["follower_pokemon", "player"], [_chefe]):
 		if a.has_method("take_damage"):
-			a.take_damage(maxi(1, int(round(_dano_base() * float(f.get("dano", 1.5)) * _mult_dano()))), _chefe)
+			a.take_damage(dano_em(a, float(f.get("dano", 1.5))), _chefe)
 
 # ── 3. Controle ───────────────────────────────────────────────────────────
 func _lentidao_no_jogador() -> void:

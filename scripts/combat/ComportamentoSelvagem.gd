@@ -148,32 +148,154 @@ static func chama_o_bando(personalidade: String) -> bool:
 # Escolha de golpe (item 29: previsível e barata, não uma IA esperta)
 # ──────────────────────────────────────────────────────────────────────────────
 
-## Qual dos golpes usar agora.
+## Qual golpe usar agora — por PONTUAÇÃO, não por "o mais forte que couber".
 ##
-## A regra é deliberadamente simples e LEGÍVEL pelo jogador — o item 29 pede
-## "previsibilidade e performance", não esperteza: entre os golpes prontos
-## (fora de recarga) e que alcançam o alvo, usa o de maior potência. Se nenhum
-## alcança, devolve -1 e quem chamou aproxima.
+## 🔴 Fase 2: a primeira versão escolhia o golpe de maior `power` entre os
+## prontos e no alcance. Dava dois comportamentos bobos: gastava a ultimate num
+## alvo quase morto, e insistia num golpe forte mas ineficaz (Normal contra
+## Fantasma = 0) enquanto tinha um fraco e super eficaz na mão.
 ##
-## Ler a briga fica possível: se o bicho está longe, você sabe que vem o golpe
-## de longe; se ele encostou, vem o forte de perto.
-static func escolher_golpe(golpes: Array, recargas: Array, distancia: float) -> int:
+## A conta agora é a do item 11:
+##
+##   nota = power × efetividade × adequação-de-alcance × potencial-de-alvos
+##          × valor-tático × fator-aleatório
+##
+## Continua barata (uma passada por até 4 golpes) e PREVISÍVEL: o jogador
+## consegue aprender que bicho encurralado usa área, que bicho longe usa o
+## golpe de longe, e que ninguém desperdiça a ultimate num alvo com 5 de vida.
+##
+## `contexto` traz o que a conta precisa saber do mundo: tipos do alvo, fração
+## de vida do alvo e a minha, e quantos alvos estão agrupados.
+static func escolher_golpe(golpes: Array, recargas: Array, distancia: float,
+		contexto: Dictionary = {}) -> int:
 	var melhor : int = -1
-	var melhor_power : int = -1
+	var melhor_nota : float = 0.0
 	for i in golpes.size():
 		var dados : Dictionary = golpes[i]
 		if dados.is_empty():
 			continue
 		if i < recargas.size() and float(recargas[i]) > 0.0:
 			continue
-		var alcance : float = FormaDeArea.alcance_px(dados)
-		if distancia > alcance:
+		if distancia > FormaDeArea.alcance_px(dados):
 			continue
-		var power : int = int(dados.get("power", 0))
-		if power > melhor_power:
-			melhor_power = power
+		var nota : float = nota_do_golpe(dados, distancia, contexto)
+		if nota > melhor_nota:
+			melhor_nota = nota
 			melhor = i
 	return melhor
+
+## A nota de um golpe. Separada pra poder ser conferida sozinha num teste —
+## "por que ele escolheu esse?" tem que ter resposta.
+static func nota_do_golpe(golpe: Dictionary, distancia: float, contexto: Dictionary = {}) -> float:
+	var power : float = maxf(float(golpe.get("power", 0)), 1.0)
+
+	# 1. Efetividade contra o tipo do alvo. Imune zera a nota — nunca escolher
+	#    um golpe que não vai fazer nada.
+	var tipos_do_alvo : Array = contexto.get("tipos_do_alvo", [])
+	var efetividade : float = 1.0
+	if not tipos_do_alvo.is_empty():
+		efetividade = DamageCalculator.get_type_multiplier(
+			str(golpe.get("type", "Normal")), tipos_do_alvo)
+	if efetividade <= 0.0:
+		return 0.0
+
+	# 2. Adequação do alcance: vale mais o golpe feito pra ESTA distância.
+	#    Usar um golpe de 6 tiles com o alvo colado desperdiça alcance; usar um
+	#    de 1,5 tile no limite dele é arriscado (o alvo sai andando).
+	var alcance : float = maxf(FormaDeArea.alcance_px(golpe), 1.0)
+	var folga : float = clampf(distancia / alcance, 0.0, 1.0)
+	var adequacao : float = 1.0 - absf(folga - 0.6) * 0.5   # ótimo a ~60% do alcance
+
+	# 3. Potencial de alvos: área só vale mais quando há mais de um alvo perto.
+	var agrupados : int = int(contexto.get("alvos_agrupados", 1))
+	var potencial : float = 1.0
+	if str(golpe.get("area_type", "single")) != "single":
+		potencial = 1.0 + 0.35 * float(mini(agrupados, int(golpe.get("max_targets", 1))) - 1)
+
+	# 4. Valor tático: não desperdiçar golpe caro em alvo quase morto, e dar
+	#    preferência a golpe rápido quando eu mesmo estou mal (preciso acertar
+	#    algo AGORA, não conjurar por um segundo).
+	var vida_do_alvo : float = float(contexto.get("fracao_vida_alvo", 1.0))
+	var minha_vida : float = float(contexto.get("minha_fracao_vida", 1.0))
+	var tatico : float = 1.0
+	var caro : bool = power >= 100.0 or float(golpe.get("cooldown", 0.0)) >= 6.0
+	if caro and vida_do_alvo < 0.25:
+		tatico *= 0.35                      # o alvo já está caindo, guarde
+	if minha_vida < 0.35 and float(golpe.get("cast_time", 0.0)) >= 0.8:
+		tatico *= 0.5                       # conjuração longa é luxo de quem está bem
+	if float(golpe.get("status_chance", 0.0)) > 0.0 and vida_do_alvo > 0.6:
+		tatico *= 1.15                      # status rende mais cedo na briga
+
+	# 5. Um empurrãozinho aleatório pra não ser um robô 100% previsível — o
+	#    suficiente pra variar entre dois golpes parecidos, nunca pra escolher
+	#    o pior de dois muito diferentes.
+	var sorte : float = RNGManager.randf_range(0.92, 1.08)
+
+	return power * efetividade * adequacao * potencial * tatico * sorte
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Prioridade de alvo (item 12)
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Qual alvo perseguir, entre os candidatos.
+##
+## 🔴 Fase 2: antes era literalmente "o primeiro Follower vivo que eu achar na
+## lista" — a ordem da árvore de cena decidia a briga. Agora cada candidato
+## recebe uma nota e o maior ganha.
+##
+## `dados` por candidato: {"no": Node2D, "distancia": float,
+##   "me_atacou": bool, "fracao_vida": float, "e_treinador": bool}
+static func escolher_alvo(candidatos: Array, personalidade: String,
+		minha_posicao: Vector2, meu_lar: Vector2) -> Node2D:
+	var melhor : Node2D = null
+	var melhor_nota : float = -1.0
+	for c in candidatos:
+		var no : Node2D = c.get("no")
+		if no == null or not is_instance_valid(no):
+			continue
+		var nota : float = nota_do_alvo(c, personalidade, minha_posicao, meu_lar)
+		if nota > melhor_nota:
+			melhor_nota = nota
+			melhor = no
+	return melhor
+
+## A nota de um alvo. Quanto maior, mais ele me interessa.
+static func nota_do_alvo(dados: Dictionary, personalidade: String,
+		minha_posicao: Vector2, meu_lar: Vector2) -> float:
+	var nota : float = 100.0
+
+	# 1. Distância: perto vale mais, sempre. Cai suave, não em degrau, pra não
+	#    ficar trocando de alvo a cada passo do jogador.
+	var dist_tiles : float = float(dados.get("distancia", 9999.0)) / CombatBalance.TILE_PX
+	nota /= (1.0 + dist_tiles * 0.35)
+
+	# 2. Quem me bateu vira prioridade — é a regra mais importante pro combate
+	#    "fazer sentido" (o item 12 cita exatamente este caso).
+	if bool(dados.get("me_atacou", false)):
+		nota *= 3.0
+
+	# 3. Alvo machucado atrai: é o instinto do predador, e faz o jogador ter que
+	#    proteger o Pokémon ferido em vez de só empurrar o mais forte pra frente.
+	var vida : float = clampf(float(dados.get("fracao_vida", 1.0)), 0.05, 1.0)
+	if personalidade == PREDADOR:
+		nota *= 1.0 + (1.0 - vida) * 1.2
+	else:
+		nota *= 1.0 + (1.0 - vida) * 0.4
+
+	# 4. Territorial persegue quem INVADIU, não quem está longe do ninho.
+	if personalidade == TERRITORIAL and meu_lar != Vector2.ZERO:
+		var no : Node2D = dados.get("no")
+		if no != null and is_instance_valid(no):
+			var invasao : float = meu_lar.distance_to(no.global_position) / CombatBalance.TILE_PX
+			nota *= clampf(2.0 - invasao * 0.15, 0.3, 2.0)
+
+	# 5. O Pokémon do jogador vem antes do treinador — é ele que está na frente
+	#    pra brigar. Bater no treinador direto, com o Pokémon vivo ao lado, lê
+	#    como bug mesmo quando a conta permite.
+	if bool(dados.get("e_treinador", false)):
+		nota *= 0.45
+
+	return nota
 
 ## O alcance do golpe MAIS LONGO que este bicho tem — é a distância em que ele
 ## para de correr e começa a atacar. Antes isso era uma constante

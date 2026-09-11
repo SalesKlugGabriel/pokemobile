@@ -5,6 +5,10 @@
 ## botões a funções" — pra experiência ficar fluida sem depender só do WASD.
 extends Node
 
+## Quantos slots de golpe existem no máximo (o teto de `KitDeCombate`). Mora
+## aqui porque é o que define quantas AÇÕES de entrada o jogo registra.
+const SLOTS_DE_SKILL : int = 8
+
 const SAVE_PATH := "user://keybinds.cfg"
 
 ## Só essas ações aparecem na tela de Controles. As demais definidas no
@@ -16,7 +20,8 @@ const SAVE_PATH := "user://keybinds.cfg"
 const REBINDABLE_ACTIONS : Array[String] = [
 	"move_up", "move_down", "move_left", "move_right",
 	"run", "interact", "pause", "menu_bag", "menu_team", "open_pokedex",
-	"skill_1", "skill_2", "skill_3", "skill_4", "pokeball",
+	"skill_1", "skill_2", "skill_3", "skill_4",
+	"skill_5", "skill_6", "skill_7", "skill_8", "pokeball",
 ]
 
 const ACTION_LABELS := {
@@ -34,6 +39,13 @@ const ACTION_LABELS := {
 	"skill_2":      "Skill 2 do Pokémon",
 	"skill_3":      "Skill 3 do Pokémon",
 	"skill_4":      "Skill 4 do Pokémon",
+	# 🔴 Fase 2: slots 5-8 existem porque o número de golpes deixou de ser fixo
+	# em 4 — um Pokémon de forma final em nível alto chega a 8 (ver
+	# KitDeCombate). Os atalhos só aparecem pra quem realmente tem o slot.
+	"skill_5":      "Skill 5 do Pokémon",
+	"skill_6":      "Skill 6 do Pokémon",
+	"skill_7":      "Skill 7 do Pokémon",
+	"skill_8":      "Skill 8 do Pokémon",
 	"pokeball":     "Jogar Pokébola",
 }
 

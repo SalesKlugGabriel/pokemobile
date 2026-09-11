@@ -50,20 +50,21 @@ const LEVEL_SCALE : float = 5.0
 ## tipo, que é tratada separado e devolve 0 de verdade).
 const MIN_DAMAGE : int = 1
 
-## 🔴 Piso proporcional (11/09, achado pela própria simulação de
-## balanceamento). O item 10 do pedido diz: "nunca permitir defesa infinita =
-## dano zero". Com a razão ataque/defesa pura isso acontecia na prática — um
-## golpe fraco, resistido, contra um tanque dava **1,2 de dano e 96 golpes pra
-## matar** (Quick Attack num Onix: quase 3 minutos batendo). Não é dano zero
-## no papel, mas é dano zero na mão do jogador.
+## 🔴 REMOVIDO em 11/09 (Fase 2). Eu tinha criado um piso proporcional
+## (`DANO_MINIMO_FRACAO_HP = 0.02`) pra resolver "golpe fraco num tanque dá 1,2
+## de dano". Medido com calma, ele não resolvia nada e distorcia outra coisa:
 ##
-## Então todo golpe que ACERTA tira pelo menos esta fração da vida máxima do
-## alvo. 2% = no pior caso possível são ~50 golpes: continua gritando "você
-## está usando o golpe errado" (com o golpe certo o mesmo Onix cai em ~8), mas
-## deixa de ser uma parede intransponível.
+##   Onix, Quick Attack:  com piso 58 golpes · sem piso 93 golpes
+##   Rhyhorn, idem:       com piso 61 golpes · sem piso 89 golpes
 ##
-## Imunidade de tipo NÃO passa por aqui: x0 continua sendo 0 de verdade.
-const DANO_MINIMO_FRACAO_HP : float = 0.02
+## 58 golpes continua injogável — o piso só mascarava. E como ele era 2% da
+## vida MÁXIMA, um golpe fraco passava a bater proporcionalmente mais forte
+## justamente em quem tem muita vida, que é o contrário do que faz sentido.
+##
+## A regra agora é a que o Gabriel pediu: imunidade = 0 de verdade, qualquer
+## outro golpe = no mínimo 1. Golpe errado contra tanque DEVE doer de usar —
+## o jogador tem 4 slots pra escolher, e com o golpe certo o mesmo Onix cai em
+## 3 golpes.
 
 ## Teto de segurança: nenhum golpe pode tirar mais que esta fração da vida
 ## MÁXIMA do alvo de uma vez. É a rede contra o hit-kill — mesmo com crítico,
@@ -149,13 +150,27 @@ const MAX_ALVOS_PADRAO : int = 6
 # Alpha (o selvagem raro e forte)
 # ──────────────────────────────────────────────────────────────────────────────
 
-## 🔴 Recalibrados em 11/09. Eram HP ×5 / ATK ×3 / DEF ×2.5 em cima de uma
-## fórmula que já causava hit-kill: medido na auditoria, um Rhyhorn Alpha Lv30
-## dava 929 de dano num alvo de 98 de vida. Um Alpha tem que ser uma PAREDE que
-## dura, não um golpe que apaga a tela — então o HP subiu e o ataque desceu.
-const ALPHA_HP_MULT   : float = 6.0
-const ALPHA_ATK_MULT  : float = 1.35
-const ALPHA_DEF_MULT  : float = 1.40
+## 🔴 Recalibrados DUAS vezes, e a segunda foi medida contra três modelos.
+##
+## Fase 1: eram HP ×5 / ATK ×3 / DEF ×2.5 sobre a fórmula velha (um Rhyhorn
+## Alpha dava 929 de dano num alvo de 98 de vida). Virou HP ×6 / ATK ×1.35.
+##
+## Fase 2: o Gabriel pediu pra conferir se HP ×6 não estava criando luta longa
+## demais. Estava. Medido contra um Charizard Lv30, com o kit real de cada
+## Alpha:
+##
+##   modelo            vida    luta do jogador   dano devolvido
+##   A  HP×6 ATK×1.35  1098    69 golpes 265s    8% da vida por golpe
+##   B  HP×3 ATK×1.20   549    30 golpes 115s    8% da vida por golpe
+##   C  HP×3 ATK×1.60   549    31 golpes 119s   10% da vida por golpe
+##
+## O modelo A é exatamente o "saco de HP" que ele não queria: quatro minutos e
+## meio batendo em algo que mal machuca. O B corrige a duração e não melhora a
+## ameaça. O **C** é o adotado — metade da luta do A, com 20-30% mais dano.
+## Um Alpha tem que ser um SUSTO, não uma maratona.
+const ALPHA_HP_MULT   : float = 3.0
+const ALPHA_ATK_MULT  : float = 1.60
+const ALPHA_DEF_MULT  : float = 1.25
 const ALPHA_SPD_MULT  : float = 1.20
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -167,6 +182,17 @@ const PACK_RADIUS_TILES  : float = 4.0    ## até onde o grito de um chama os ou
 const LEASH_RADIUS_TILES : float = 12.0   ## até onde persegue antes de desistir
 const PATROL_LEASH_TILES : float = 6.0    ## até onde passeia quando está em paz
 const MAX_PACK_SIZE      : int   = 5      ## quantos no máximo respondem ao chamado
+
+## 🔴 Fase 2, medido: cinco Beedrill Lv.25 derrubam um Wartortle Lv.25 em
+## 5,1 segundos se atacarem todos no mesmo instante. Cinco atacantes dão cinco
+## vezes o dano — isso é aritmética, não desequilíbrio —, mas chegar todos
+## juntos no mesmo quadro tira a janela de reação e faz parecer injusto.
+##
+## Quem responde ao grito entra com um atraso sorteado nesta faixa. O bando
+## passa a chegar em ONDA, não em bloco: dá pra ver o primeiro, recuar, usar
+## área. Custa zero (é só o relógio de ataque que já existe começando cheio).
+const ATRASO_DO_BANDO_MIN : float = 0.4
+const ATRASO_DO_BANDO_MAX : float = 1.8
 
 ## Quantos "saltos" o aggro pode dar de um bicho pro outro. 1 = quem ouviu o
 ## grito NÃO grita de novo. É o que impede a corrente que acorda o mapa inteiro

@@ -35,11 +35,16 @@ func _process(_delta: float) -> bool:
 	_rodou = true
 	GameData = root.get_node("GameData")
 
+	_tabela_de_dano()
 	_tabela_mesmo_nivel()
 	_tabela_desnivelada()
 	_tabela_por_potencia()
 	_tabela_aoe()
 	_criterios_de_sucesso()
+	_tabela_de_stats_por_nivel()
+	_tabela_ttk_por_tipo_de_ataque()
+	_simulacao_de_bando()
+	_stress()
 
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	quit(1 if _fail > 0 else 0)
@@ -107,6 +112,39 @@ func _linha(rotulo: String, r: Dictionary) -> void:
 	print("  %-22s dano %4d/%6.1f/%4d  vida %4d  golpes %3d  DPS %6.1f  TTK %5.1fs"
 		% [rotulo, int(r["min"]), float(r["medio"]), int(r["max"]),
 			int(r["hp_alvo"]), int(r["golpes"]), float(r["dps"]), float(r["ttk"])])
+
+# ──────────────────────────────────────────────────────────────────────────
+# Item 5 — a tabela de dano, no formato pedido
+# ──────────────────────────────────────────────────────────────────────────
+func _tabela_de_dano() -> void:
+	print("\n-- Tabela de dano --")
+	print("  | Atacante   | Nv  | Golpe        | Alvo       | Nv  |   Dano |")
+	print("  |------------|----:|--------------|------------|----:|-------:|")
+	var linhas := []
+	for n in NIVEIS:
+		linhas.append(["Pikachu", n, "thunderbolt", "Rattata", n])
+	for par in [[20, 10], [10, 20], [30, 50], [50, 30], [50, 100], [100, 50]]:
+		linhas.append(["Pikachu", par[0], "thunderbolt", "Rattata", par[1]])
+
+	var negativos : Array[String] = []
+	for L in linhas:
+		var a : Dictionary = _base(str(L[0]))
+		var d : Dictionary = _base(str(L[3]))
+		var m : Dictionary = GameData.get_move(str(L[2]))
+		var sa : Dictionary = StatsDePokemon.conjunto(a.get("base_stats", {}), int(L[1]))
+		var sd : Dictionary = StatsDePokemon.conjunto(d.get("base_stats", {}), int(L[4]))
+		var soma : int = 0
+		for i in AMOSTRA:
+			soma += DamageCalculator.calculate_damage(m,
+				{"atk": sa["atk"], "spa": sa["spa"], "level": int(L[1]), "types": a.get("types", [])},
+				{"def": sd["def"], "spd": sd["spd"], "types": d.get("types", []),
+					"max_hp": sd["hp"], "hp": sd["hp"], "level": int(L[4])})
+		var medio : float = float(soma) / float(AMOSTRA)
+		print("  | %-10s | %3d | %-12s | %-10s | %3d | %6.1f |"
+			% [str(L[0]), int(L[1]), str(m.get("name", L[2])), str(L[3]), int(L[4]), medio])
+		if medio <= 0.0:
+			negativos.append("%s Lv%d -> %s Lv%d" % [L[0], L[1], L[3], L[4]])
+	_assert(negativos.is_empty(), "nenhum confronto da tabela dá dano zero (%s)" % str(negativos))
 
 # ──────────────────────────────────────────────────────────────────────────
 # 1. Mesmo nível
@@ -287,9 +325,12 @@ func _criterios_de_sucesso() -> void:
 	# ter motivo pra escolher golpe.
 	var com_golpe_certo := _confronto("Squirtle", "Onix", "water_gun", 30, 30)
 	_linha("vs Onix (golpe certo)", com_golpe_certo)
-	_assert(int(contra_tanque["golpes"]) <= 60,
-		"nem o pior golpe contra o maior tanque vira parede intransponível (%d golpes)"
-			% int(contra_tanque["golpes"]))
+	# 🔴 Fase 2: sem o piso de 2%, o pior golpe contra o maior tanque volta a
+	# levar ~93 golpes. Isso é DE PROPÓSITO — é o preço de usar a ferramenta
+	# errada, e o jogador tem 4 slots pra escolher. O que o teste cobra é que
+	# ainda saia dano (nunca zero por defesa) e que o golpe certo resolva.
+	_assert(int(contra_tanque["min"]) >= 1,
+		"mesmo o pior golpe contra o maior tanque tira pelo menos 1 (%d)" % int(contra_tanque["min"]))
 	_assert(int(com_golpe_certo["golpes"]) * 4 < int(contra_tanque["golpes"]),
 		"o golpe CERTO resolve o tanque muito mais rápido que o errado (%d x %d golpes) — escolher importa"
 			% [int(com_golpe_certo["golpes"]), int(contra_tanque["golpes"])])
@@ -319,6 +360,263 @@ func _criterios_de_sucesso() -> void:
 	_assert(gemeos.size() < 30,
 		"a maioria dos golpes tem identidade própria (%d pares idênticos em %d golpes)"
 			% [gemeos.size(), GameData.moves.size()])
+
+# ──────────────────────────────────────────────────────────────────────────
+# Item 7 — a escada de stats por nível
+# ──────────────────────────────────────────────────────────────────────────
+func _tabela_de_stats_por_nivel() -> void:
+	print("\n-- Escada de stats por nível (Charizard, IV 31, nature neutra) --")
+	var base : Dictionary = _base("Charizard").get("base_stats", {})
+	var anterior : Dictionary = {}
+	var sempre_sobe := true
+	var quebrou : Array[String] = []
+	for n in NIVEIS:
+		var s : Dictionary = StatsDePokemon.conjunto(base, n)
+		print("  Lv%-4d HP %4d  ATK %3d  DEF %3d  SP_ATK %3d  SP_DEF %3d  SPEED %3d"
+			% [n, s["hp"], s["atk"], s["def"], s["spa"], s["spd"], s["spe"]])
+		if not anterior.is_empty():
+			for chave in StatsDePokemon.CHAVES:
+				if int(s[chave]) <= int(anterior[chave]):
+					sempre_sobe = false
+					quebrou.append("%s no Lv%d" % [chave, n])
+		anterior = s
+	_assert(sempre_sobe, "todo stat cresce a cada degrau de nível, sem exceção (%s)" % str(quebrou))
+
+	# Sobrevivência e dano também têm que subir junto.
+	var alvo : Dictionary = _base("Rattata").get("base_stats", {})
+	var golpe : Dictionary = GameData.get_move("quick_attack")
+	var antes_dano : float = 0.0
+	var antes_sobrevida : float = 0.0
+	var mono_dano := true
+	var mono_vida := true
+	print("  (contra um alvo FIXO Lv.30, quanto o Charizard causa e quanto aguenta)")
+	for n in NIVEIS:
+		var s : Dictionary = StatsDePokemon.conjunto(base, n)
+		var sd : Dictionary = StatsDePokemon.conjunto(alvo, 30)
+		var soma : int = 0
+		for i in 200:
+			soma += DamageCalculator.calculate_damage(golpe,
+				{"atk": s["atk"], "spa": s["spa"], "level": n, "types": ["Fire", "Flying"]},
+				{"def": sd["def"], "spd": sd["spd"], "types": ["Normal"],
+					"max_hp": sd["hp"], "hp": sd["hp"], "level": 30})
+		var dano : float = float(soma) / 200.0
+		# sobrevivência: quantos golpes do alvo Lv30 ele aguenta
+		var s2 : int = 0
+		for i in 200:
+			s2 += DamageCalculator.calculate_damage(golpe,
+				{"atk": sd["atk"], "spa": sd["spa"], "level": 30, "types": ["Normal"]},
+				{"def": s["def"], "spd": s["spd"], "types": ["Fire", "Flying"],
+					"max_hp": s["hp"], "hp": s["hp"], "level": n})
+		var aguenta : float = float(s["hp"]) / maxf(float(s2) / 200.0, 1.0)
+		print("    Lv%-4d causa %6.1f por golpe · aguenta %5.1f golpes" % [n, dano, aguenta])
+		if dano <= antes_dano:
+			mono_dano = false
+		if aguenta <= antes_sobrevida:
+			mono_vida = false
+		antes_dano = dano
+		antes_sobrevida = aguenta
+	_assert(mono_dano, "o dano cresce a cada degrau de nível")
+	_assert(mono_vida, "a sobrevivência cresce a cada degrau de nível")
+
+	# Diferenças pequenas não podem dar resultado absurdo.
+	var saltos : Array[String] = []
+	for n in range(20, 41):
+		var a : Dictionary = StatsDePokemon.conjunto(base, n)
+		var b : Dictionary = StatsDePokemon.conjunto(base, n + 1)
+		for chave in StatsDePokemon.CHAVES:
+			var razao : float = float(b[chave]) / maxf(float(a[chave]), 1.0)
+			if razao > 1.08:
+				saltos.append("%s Lv%d->%d x%.2f" % [chave, n, n + 1, razao])
+	_assert(saltos.is_empty(),
+		"um nível a mais nunca dá mais que +8%% num stat (%s)" % str(saltos.slice(0, 4)))
+
+# ──────────────────────────────────────────────────────────────────────────
+# Item 6 — TTK por tipo de ataque
+# ──────────────────────────────────────────────────────────────────────────
+func _tabela_ttk_por_tipo_de_ataque() -> void:
+	print("\n-- TTK por tipo de ataque (atacante e alvo Lv.30) --")
+	var a : Dictionary = _base("Pikachu")
+	var sa : Dictionary = StatsDePokemon.conjunto(a.get("base_stats", {}), 30)
+	var casos := [
+		["básico (Quick Attack)",   "Rattata",  "quick_attack", 1.0],
+		["médio (Swift)",           "Rattata",  "swift",        1.0],
+		["forte (Thunderbolt)",     "Rattata",  "thunderbolt",  1.0],
+		["super efetivo",           "Spearow",  "thunderbolt",  1.0],
+		["resistido (x0.5)",        "Bulbasaur","thunderbolt",  1.0],
+		["imune (x0)",              "Geodude",  "thunderbolt",  1.0],
+		["com crítico garantido",   "Rattata",  "thunderbolt",  CombatBalance.CRIT_MULTIPLIER],
+		["contra tanque (Onix)",    "Onix",     "quick_attack", 1.0],
+		["contra frágil (Abra)",    "Abra",     "thunderbolt",  1.0],
+	]
+	for caso in casos:
+		var d : Dictionary = _base(str(caso[1]))
+		var m : Dictionary = GameData.get_move(str(caso[2]))
+		if d.is_empty() or m.is_empty():
+			print("  %-24s (sem dado)" % str(caso[0]))
+			continue
+		var sd : Dictionary = StatsDePokemon.conjunto(d.get("base_stats", {}), 30)
+		var menor : int = 1 << 30
+		var maior : int = 0
+		var soma : int = 0
+		for i in AMOSTRA:
+			var dm : int = int(round(float(DamageCalculator.calculate_damage(m,
+				{"atk": sa["atk"], "spa": sa["spa"], "level": 30, "types": a.get("types", [])},
+				{"def": sd["def"], "spd": sd["spd"], "types": d.get("types", []),
+					"max_hp": sd["hp"], "hp": sd["hp"], "level": 30})) * float(caso[3])))
+			menor = mini(menor, dm); maior = maxi(maior, dm); soma += dm
+		var medio : float = float(soma) / float(AMOSTRA)
+		var espera : float = CombatBalance.recarga(float(m.get("cooldown", 2.0)), int(sa["spe"])) \
+			+ float(m.get("cast_time", 0.0))
+		if medio <= 0.0:
+			# Imunidade: não existe "golpes pra matar" — nunca mata.
+			print("  %-24s dano 0 · NUNCA mata (imunidade de tipo)" % str(caso[0]))
+			continue
+		var golpes : int = int(ceil(float(sd["hp"]) / medio))
+		print("  %-24s dano %4d/%6.1f/%4d  vida %4d  golpes %3d  DPS %6.1f  TTK %5.1fs"
+			% [str(caso[0]), menor, medio, maior, int(sd["hp"]), golpes,
+				medio / maxf(espera, 0.01), float(golpes) * espera])
+	_assert(true, "tabela de TTK por tipo de ataque impressa acima")
+
+# ──────────────────────────────────────────────────────────────────────────
+# Item 16 — bandos de 1 a 5
+# ──────────────────────────────────────────────────────────────────────────
+func _simulacao_de_bando() -> void:
+	# 🔴 O primeiro exemplo que escrevi aqui era Beedrill contra CHARIZARD, e
+	# dava 1,0 de dano por golpe: Inseto/Veneno contra Fogo/Voador é x0.25. A
+	# tabela media a tabela de TIPOS, não a força do bando. Trocado por um alvo
+	# neutro (Rattata/Normal), que é o confronto que responde a pergunta do
+	# item 16.
+	# Wartortle: um Pokémon de TIME de verdade (o que o jogador leva pro mato
+	# no nível 25) e confronto neutro — Inseto e Veneno contra Água são x1.
+	print("\n-- Bando de Beedrill Lv.25 contra o Pokémon do jogador (Wartortle Lv.25) --")
+	var b : Dictionary = _base("Beedrill")
+	var p : Dictionary = _base("Wartortle")
+	var sb : Dictionary = StatsDePokemon.conjunto(b.get("base_stats", {}), 25)
+	var sp : Dictionary = StatsDePokemon.conjunto(p.get("base_stats", {}), 25)
+	# O golpe que um Beedrill selvagem realmente carrega (teto de 3 slots).
+	var kit : Array = KitDeCombate.montar(15, 25, GameData.get_learnable_moves(15, 25),
+		GameData.moves, b.get("types", []), GameData.species, KitDeCombate.SLOTS_SELVAGEM_COMUM)
+	var melhor : Dictionary = {}
+	for mid in kit:
+		var m : Dictionary = GameData.get_move(str(mid))
+		if int(m.get("power", 0)) > int(melhor.get("power", 0)):
+			melhor = m
+	if melhor.is_empty():
+		melhor = GameData.get_move("tackle")
+
+	var soma : int = 0
+	for i in AMOSTRA:
+		soma += DamageCalculator.calculate_damage(melhor,
+			{"atk": sb["atk"], "spa": sb["spa"], "level": 25, "types": b.get("types", [])},
+			{"def": sp["def"], "spd": sp["spd"], "types": p.get("types", []),
+				"max_hp": sp["hp"], "hp": sp["hp"], "level": 25})
+	var por_golpe : float = float(soma) / float(AMOSTRA)
+	var espera : float = CombatBalance.recarga(float(melhor.get("cooldown", 2.0)), int(sb["spe"]))
+
+	var segundos_por_tamanho := {}
+	for quantos in [1, 2, 3, 4, 5]:
+		var dps : float = por_golpe * float(quantos) / maxf(espera, 0.01)
+		var ate_morrer : float = float(sp["hp"]) / maxf(dps, 0.01)
+		segundos_por_tamanho[quantos] = ate_morrer
+		print("  %d Beedrill: %5.1f de dano/golpe cada · DPS do grupo %6.1f · o jogador cai em %5.1fs"
+			% [quantos, por_golpe, dps, ate_morrer])
+
+	_assert(por_golpe > 2.0,
+		"o golpe do bando causa dano de verdade (%.1f) — se cair no piso de 1, a tabela está medindo tipo, não bando"
+			% por_golpe)
+	_assert(int(segundos_por_tamanho[1]) > 20,
+		"um Beedrill sozinho não é ameaça séria (%.0fs pra derrubar)" % float(segundos_por_tamanho[1]))
+	_assert(float(segundos_por_tamanho[5]) < float(segundos_por_tamanho[1]) * 0.3,
+		"cinco juntos são MUITO mais perigosos que um (%.0fs contra %.0fs) — o bando é uma ameaça de verdade"
+			% [float(segundos_por_tamanho[5]), float(segundos_por_tamanho[1])])
+	# 🔴 O número real, sem maquiagem: 5 atacantes dão 5x o dano, e o alvo cai
+	# em ~5s se todos baterem no mesmo instante. Isso é aritmética. O que se
+	# corrigiu não foi o dano — foi a SIMULTANEIDADE: quem responde ao grito
+	# entra com 0,4 a 1,8s de atraso (CombatBalance.ATRASO_DO_BANDO_*), então
+	# na prática o quinto Beedrill só começa a bater quando o jogador já viu os
+	# dois primeiros e teve chance de recuar, usar área ou fugir (a coleira é
+	# de 12 tiles). O teste cobra o piso da janela de reação.
+	_assert(float(segundos_por_tamanho[5]) > 4.0,
+		"mesmo o bando cheio deixa alguns segundos de reação (%.1fs) — e chega escalonado, não em bloco"
+			% float(segundos_por_tamanho[5]))
+	_assert(CombatBalance.ATRASO_DO_BANDO_MAX > 1.0,
+		"quem é chamado pelo bando chega com atraso de até %.1fs" % CombatBalance.ATRASO_DO_BANDO_MAX)
+	_assert(CombatBalance.MAX_PACK_SIZE <= 5,
+		"o bando não passa de %d, mesmo com 20 do mesmo bicho na tela" % CombatBalance.MAX_PACK_SIZE)
+	_assert(CombatBalance.AGGRO_CHAIN_MAX_HOPS == 1,
+		"quem foi chamado não chama mais ninguém (a corrente para em 1 salto)")
+
+# ──────────────────────────────────────────────────────────────────────────
+# Item 18 — cenário de stress
+# ──────────────────────────────────────────────────────────────────────────
+func _stress() -> void:
+	print("\n-- Stress: 60 selvagens + jogador + 4 do time, com IA, área e status --")
+	print("   (headless: não há renderização, então o que se mede é o CUSTO DE CPU")
+	print("    da lógica de combate, não FPS real. Ver a limitação registrada no relatório.)")
+
+	var molde := GDScript.new()
+	molde.source_code = "extends Node2D\nvar species_id : int = 1\n"
+	molde.reload()
+	var pais := Node2D.new()
+	root.add_child(pais)
+
+	var selvagens : Array[Node2D] = []
+	for i in 60:
+		var n : Node2D = molde.new()
+		n.add_to_group("stress_selvagem")
+		pais.add_child(n)
+		n.global_position = Vector2(cos(float(i)) * 900.0, sin(float(i) * 1.7) * 900.0)
+		selvagens.append(n)
+	for i in 5:   # o jogador + 4 do time
+		var n : Node2D = molde.new()
+		n.add_to_group("stress_jogador")
+		pais.add_child(n)
+		n.global_position = Vector2(float(i) * 60.0, 0)
+
+	var golpe_area : Dictionary = GameData.get_move("earthquake")
+	var golpe_unico : Dictionary = GameData.get_move("thunderbolt")
+	var atacante := {"atk": 120, "spa": 120, "level": 30, "types": ["Ground"]}
+	var defensor := {"def": 90, "spd": 90, "types": ["Normal"], "max_hp": 200, "hp": 200, "level": 30}
+
+	# Um "segundo de jogo" pesado: 60 bichos decidindo 5x por segundo (300
+	# decisões), 30 ataques comuns e 6 golpes de área.
+	var t0 := Time.get_ticks_usec()
+	for i in 300:
+		ComportamentoSelvagem.escolher_alvo([
+			{"no": selvagens[i % 60], "distancia": 300.0, "fracao_vida": 0.8},
+			{"no": selvagens[(i + 7) % 60], "distancia": 700.0, "fracao_vida": 1.0, "me_atacou": true},
+		], ComportamentoSelvagem.AGRESSIVO, Vector2.ZERO, Vector2.ZERO)
+		ComportamentoSelvagem.escolher_golpe([golpe_unico, golpe_area], [0.0, 0.0], 300.0,
+			{"tipos_do_alvo": ["Normal"], "alvos_agrupados": 3})
+	var us_ia := float(Time.get_ticks_usec() - t0)
+
+	t0 = Time.get_ticks_usec()
+	for i in 30:
+		DamageCalculator.calculate_damage(golpe_unico, atacante, defensor)
+	for i in 6:
+		var alvos : Array = FormaDeArea.alvos(Vector2.ZERO, Vector2.RIGHT, golpe_area, "stress_selvagem")
+		for a in alvos:
+			DamageCalculator.calculate_damage(golpe_area, atacante, defensor)
+	var us_golpes := float(Time.get_ticks_usec() - t0)
+
+	t0 = Time.get_ticks_usec()
+	for i in 65:
+		StatusEffectController.tick_damage("poison", 200, 0)
+	var us_status := float(Time.get_ticks_usec() - t0)
+
+	var total := us_ia + us_golpes + us_status
+	print("   IA (300 decisões/s) .............. %7.0f us" % us_ia)
+	print("   golpes (30 simples + 6 de área) .. %7.0f us" % us_golpes)
+	print("   status (65 tiques) ............... %7.0f us" % us_status)
+	print("   TOTAL por segundo de jogo ........ %7.0f us  (1 segundo = 1.000.000 us)" % total)
+	print("   ou seja, %.2f%% de um núcleo, e %.1f%% do orçamento de UM quadro a 60 FPS"
+		% [total / 10000.0, total / 166.66])
+
+	_assert(total < 100000.0,
+		"a lógica de combate de um segundo cheio custa %.0f us — menos de 10%% de um núcleo" % total)
+	_assert(us_ia / 300.0 < 100.0,
+		"cada decisão de IA custa %.1f us" % (us_ia / 300.0))
+	pais.queue_free()
 
 func _assert(cond: bool, msg: String) -> void:
 	if cond:

@@ -207,8 +207,15 @@ func _hp_que_persiste() -> void:
 # ──────────────────────────────────────────────────────────────────────────
 func _chefe() -> void:
 	_assert(ChefeLendario.NIVEL == 100, "lendário é sempre nível 100 (pedido do Gabriel)")
-	_assert(ChefeLendario.MULT_HP >= 6.0,
-		"e tem HP muito acima do normal (×%.0f) — a luta precisa durar o repertório 2x" % ChefeLendario.MULT_HP)
+	# 🔴 Fase 2: o limite era ×6. Medido, ×7 fazia a luta durar 218-265s e
+	# SEMPRE alcançar o enrage (que dispara aos 240s) — a fase de fúria deixava
+	# de ser punição por demorar e virava o final garantido de toda luta. Com
+	# ×5 a luta bem jogada fecha em ~160s. O que o teste cobra continua sendo o
+	# mesmo: o chefe tem que durar MUITO mais que um selvagem comum.
+	_assert(ChefeLendario.MULT_HP >= 4.0,
+		"e tem HP muito acima do normal (×%.0f) — a luta precisa durar o repertório inteiro" % ChefeLendario.MULT_HP)
+	_assert(ChefeLendario.MULT_HP * 30.0 < ChefeLendario.ENRAGE_SEG,
+		"...e não tanto que o enrage vire o final obrigatório de toda luta")
 	_assert(ChefeLendario.MULT_DEFESA > 1.0, "defesa acima do normal, pra não morrer antes de jogar")
 
 	# As SEIS funções, e cada uma existe pra punir um erro diferente. É a

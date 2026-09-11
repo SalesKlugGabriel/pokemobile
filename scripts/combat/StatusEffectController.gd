@@ -61,14 +61,58 @@ static func resolve_confuse_effect(effect: String, default_chance: int = -1) -> 
 ## default_chance: 100 se o golpe é puro de status (category=="status", ex:
 ## Thunder Wave — garantido, igual ao combate por turno), -1 se é um golpe de
 ## dano com efeito secundário (só a chance embutida no nome conta).
-static func try_apply(target: Node, move_data: Dictionary) -> void:
+## `mult_tipo` é o multiplicador de efetividade que o golpe teve contra ESTE
+## alvo. Serve pra uma trava que faltava (achado na auditoria da Fase 2): um
+## golpe IMUNE — Thunderbolt num Pokémon de Terra — causava 0 de dano e mesmo
+## assim tentava paralisar. Agora imunidade barra o status junto com o dano,
+## que é a ordem que o item 8 do pedido descreve: tipo → acerto → imunidade →
+## só então o sorteio do status.
+static func try_apply(target: Node, move_data: Dictionary, mult_tipo: float = 1.0) -> void:
 	if not is_instance_valid(target) or not target.has_method("apply_move_effect"):
+		return
+	if mult_tipo <= 0.0:
 		return
 	var effect : String = move_data.get("effect", "none")
 	if effect == "none" or effect == "":
 		return
-	var default_chance : int = 100 if move_data.get("category", "physical") == "status" else -1
-	target.apply_move_effect(effect, default_chance)
+	target.apply_move_effect(effect, chance_do_golpe(move_data))
+
+## A chance de status deste golpe, em PORCENTAGEM (0-100).
+##
+## Três fontes, nesta ordem de precedência:
+##   1. `status_chance` nos dados (0.20 = 20%) — o campo que o item 8 pediu.
+##      Existia em moves.json desde a Fase 1 e não era lido por ninguém.
+##   2. o número embutido no nome do efeito ("burn_10" = 10%) — o jeito antigo,
+##      que continua valendo pra quem não declarou `status_chance`.
+##   3. golpe puro de status (category == "status") = 100%, garantido.
+##
+## Um golpe de DANO sem nenhuma das três não aplica status nenhum (-1) — é o
+## que impede um golpe comum de virar status garantido por descuido de dado.
+static func chance_do_golpe(move_data: Dictionary) -> int:
+	var declarada : float = float(move_data.get("status_chance", 0.0))
+	if declarada > 0.0:
+		# Aceita tanto 0.20 quanto 20 — quem escrever o dado de um jeito ou do
+		# outro obtém o mesmo resultado, em vez de um bug silencioso de 100x.
+		return int(round(declarada * 100.0)) if declarada <= 1.0 else int(round(declarada))
+	return 100 if move_data.get("category", "physical") == "status" else -1
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Acerto (item 8: "a aplicação deve ocorrer depois de validar ... hit")
+# ──────────────────────────────────────────────────────────────────────────────
+
+## O golpe acertou?
+##
+## 🔴 Achado na auditoria da Fase 2: os 192 golpes têm `accuracy` nos dados e
+## NINGUÉM lia. Blizzard, com 70 de precisão, nunca errava — o que tirava dela
+## exatamente o que a torna uma aposta em vez de uma escolha óbvia.
+##
+## `accuracy <= 0` significa "não se erra" (é como os golpes de efeito puro,
+## tipo Whirlwind, estão cadastrados) — não é 0% de chance.
+static func acertou(move_data: Dictionary) -> bool:
+	var precisao : int = int(move_data.get("accuracy", 100))
+	if precisao <= 0 or precisao >= 100:
+		return true
+	return RNGManager.chance(float(precisao) / 100.0)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Dano de fim-de-turno — mesmas frações de BattlePokemon.tick_status()

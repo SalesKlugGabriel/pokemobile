@@ -101,17 +101,18 @@ func _1_dano_fisico() -> void:
 	var contra_muralha := _medio(_golpe(60), _atacante(50, 10), _defensor(9999, 10))
 	_assert(contra_muralha >= 1.0, "defesa altíssima reduz, mas nunca zera o dano (%.2f)" % contra_muralha)
 
-	# E o piso PROPORCIONAL: contra um alvo com vida declarada, o golpe mais
-	# fraco possível ainda tira 2% da vida máxima dele. Sem isso a simulação
-	# mostrou Quick Attack dando 1,2 de dano num Onix — 96 golpes, quase 3
-	# minutos, que na prática é a "defesa infinita = dano zero" proibida.
+	# 🔴 Fase 2: o piso proporcional de 2% foi REMOVIDO (ver CombatBalance).
+	# A regra é a mais simples possível: imunidade dá 0, qualquer outro golpe
+	# que acerta dá pelo menos 1. Nunca 0 por defesa alta.
 	var tanque := {"def": 99999, "spd": 99999, "types": ["Rock"],
 		"max_hp": 500, "hp": 500, "level": 30}
 	var no_tanque : int = DamageCalculator.calculate_damage(_golpe(20), _atacante(10, 10, 5), tanque)
-	_assert(no_tanque >= int(500 * CombatBalance.DANO_MINIMO_FRACAO_HP),
-		"o golpe mais fraco contra a maior defesa ainda tira 2%% da vida (%d de 500)" % no_tanque)
-	_assert(no_tanque < 500,
-		"...e continua sendo pouquíssimo — o piso não transforma golpe errado em bom (%d)" % no_tanque)
+	_assert(no_tanque == 1,
+		"a maior defesa possível reduz o golpe a 1 — nunca a 0 (%d)" % no_tanque)
+	var imune_mesmo : int = DamageCalculator.calculate_damage(
+		_golpe(200, "Electric", "special"), _atacante(999, 999, 100),
+		{"def": 1, "spd": 1, "types": ["Ground"], "max_hp": 500, "hp": 500})
+	_assert(imune_mesmo == 0, "imunidade continua sendo 0 de verdade (%d)" % imune_mesmo)
 
 	# O nível participa da conta — era exatamente isto que faltava.
 	var lv10 := _medio(_golpe(60), _atacante(100, 10, 10), _defensor(100, 10))

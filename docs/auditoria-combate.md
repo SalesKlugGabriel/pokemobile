@@ -425,3 +425,294 @@ aguenta 8. Com o golpe CERTO (Water Gun no Onix): 3 golpes.
 
 *FASE 1 escrita antes de qualquer alteração; o restante registrado após a
 execução, com os números medidos.*
+
+---
+
+# COMBAT SYSTEM — PHASE 2 VALIDATION
+
+> Revisão crítica da Fase 1: auditar → corrigir → testar → simular.
+> Suíte: **103 arquivos, 0 falhas** (253 conferências novas). Publicado
+> (carimbo 1789132999).
+
+## Auditoria da Fase 1 — o que eu mesmo tinha deixado errado
+
+| Achado | Gravidade |
+|---|---|
+| **`accuracy` nunca era lido.** Os 192 golpes têm precisão nos dados e nenhum código consultava. Blizzard, com 70, nunca errava | 🔴 |
+| **Status aplicava mesmo na imunidade.** Thunderbolt num Pokémon de Terra causava 0 de dano e ainda podia paralisar | 🔴 |
+| **O chefe batia FORA da fórmula** (`atk_stat × 0.35`): ignorava defesa, tipo, STAB e — o mais grave — o teto anti-hit-kill | 🔴 |
+| **`status_chance` e `knockback` existiam nos dados e ninguém lia** | 🟡 |
+| **`knockback` do Tornado estava em PIXELS (96.0)**; a unidade correta é tile, então valeria 96 tiles | 🟡 |
+| `_usar_golpe(default_move)` sombreava a variável de membro de mesmo nome | 🟡 |
+| `ChefeLendario` ainda usava `AreaTargeting` (só círculo) em vez de `FormaDeArea` | 🟡 |
+| Itens 2 e 3 do pedido (`BASE_DAMAGE_MULTIPLIER`, `HP_SCALE`) **já estavam feitos** na Fase 1 — nada hardcoded | ✅ |
+
+## 1. Fórmula final
+
+```
+dano = ( (2×nível/5 + 2) × power × (ataque/defesa) / 50 + 2 )
+       × BASE_DAMAGE_MULTIPLIER
+       × tipo × STAB × crítico × variação
+       × habilidade × status × item × bônus-externo
+```
+
+Teto: 90% da vida máxima por golpe (não vale abaixo de 15% de vida).
+Piso: **1** — o piso proporcional de 2% foi **removido** (item 4).
+
+## 2. HP final
+
+```
+HP = floor((2×base + IV + floor(EV/4)) × nível / 100 × HP_SCALE) + nível + 10
+```
+
+## 3. Stats por nível (Charizard, IV 31, nature neutra)
+
+| Nv | HP | ATK | DEF | SP_ATK | SP_DEF | SPEED |
+|---:|---:|---:|---:|---:|---:|---:|
+| 10 | 66 | 24 | 23 | 29 | 25 | 28 |
+| 20 | 123 | 44 | 42 | 54 | 45 | 51 |
+| 30 | 180 | 64 | 61 | 79 | 65 | 74 |
+| 50 | 293 | 104 | 98 | 129 | 105 | 120 |
+| 75 | 435 | 154 | 145 | 191 | 155 | 178 |
+| 100 | 577 | 204 | 192 | 254 | 206 | 236 |
+
+Todos os 6 stats crescem em todo degrau. **Um nível a mais nunca dá mais que
++8% num stat** (medido de 20 a 41, todos os stats). Contra alvo fixo Lv.30:
+dano 2,5 → 97,0 e sobrevivência 3,9 → 192,3 golpes, ambos monotônicos.
+
+## 4. Tabela de dano (Thunderbolt, média de 300 golpes)
+
+| Atacante | Nv | Alvo | Nv | Dano |
+|---|---:|---|---:|---:|
+| Pikachu | 10 | Rattata | 10 | 9,9 |
+| Pikachu | 20 | Rattata | 20 | 16,7 |
+| Pikachu | 30 | Rattata | 30 | 23,3 |
+| Pikachu | 50 | Rattata | 50 | 36,1 |
+| Pikachu | 75 | Rattata | 75 | 53,1 |
+| Pikachu | 100 | Rattata | 100 | 69,6 |
+| Pikachu | 20 | Rattata | 10 | 26,9 |
+| Pikachu | 10 | Rattata | 20 | 6,5 |
+| Pikachu | 30 | Rattata | 50 | 15,2 |
+| Pikachu | 50 | Rattata | 30 | 57,1 |
+| Pikachu | 50 | Rattata | 100 | 19,3 |
+| Pikachu | 100 | Rattata | 50 | 129,9 |
+
+## 5. TTK por tipo de ataque (Lv.30 × Lv.30)
+
+| Situação | Dano mín/médio/máx | Golpes | DPS | TTK |
+|---|---|---:|---:|---:|
+| básico (Quick Attack) | 8 / 9,1 / 15 | 12 | 5,3 | 20,7 s |
+| médio (Swift) | 11 / 12,5 / 20 | 9 | 4,3 | 26,0 s |
+| forte (Thunderbolt) | 20 / 23,3 / 37 | 5 | 5,3 | 21,9 s |
+| super efetivo | 45 / 51,0 / 82 | 3 | 11,6 | 13,2 s |
+| resistido (×0,5) | 7 / 7,6 / 12 | 18 | 1,7 | 79,0 s |
+| imune (×0) | 0 | — | — | **nunca mata** |
+| crítico garantido | 30 / 35,4 / 56 | 4 | 8,1 | 17,6 s |
+| tanque (Onix) | 1 / 1,2 / 3 | 96 | 0,7 | 165,9 s |
+| frágil (Abra) | 15 / 17,7 / 28 | 6 | 4,0 | 26,3 s |
+
+**TTK por nível, ataque básico**: 11 a 13 golpes do Lv.10 ao Lv.100.
+**Escada de potência (Lv.25)**: 35 → 14 golpes · 50 → 10 · 65 → 8 · 85 → 6 ·
+110 → 5 · 150 → 4.
+
+## 6. O piso de 2% — por que saiu
+
+| | com piso | sem piso |
+|---|---:|---:|
+| Onix, Quick Attack | 58 golpes | 93 golpes |
+| Rhyhorn, idem | 61 | 89 |
+| Golem, idem | 61 | 102 |
+| Geodude / Cloyster / Abra / Rattata | sem diferença | sem diferença |
+
+O piso não resolvia nada (58 golpes continua injogável) e distorcia o dano
+contra alvos de vida alta. Regra atual: **imune = 0, qualquer outro = mínimo 1**.
+Golpe errado contra tanque **deve** doer — com o golpe certo o mesmo Onix cai
+em **3 golpes** (Water Gun), contra 96 do Quick Attack.
+
+## 7. Alpha — três modelos medidos (Lv.30, kit real)
+
+| Modelo | Vida | Luta do jogador | Dano devolvido |
+|---|---:|---|---|
+| A (era) HP×6 ATK×1,35 | 1098 | 69 golpes, 265 s | 8% da vida/golpe |
+| B (sugerido) HP×3 ATK×1,20 | 549 | 30 golpes, 115 s | 8% |
+| **C (adotado) HP×3 ATK×1,60 DEF×1,25** | **549** | **31 golpes, 119 s** | **10%** |
+
+O modelo A era literalmente o "saco de HP": 4½ minutos batendo em algo que mal
+machuca. O C corta a duração pela metade e aumenta a ameaça.
+
+## 8. Chefe — recalibrado por medição
+
+O dano do chefe passou a percorrer o `DamageCalculator`. `MULT_HP` 7,0 → **5,0**.
+
+| Nível | Pressão | Área | Área enfurecida (pior caso) | Luta |
+|---:|---|---|---|---|
+| 30 | 21% da vida | 37% | 71% (**90%**) | 43 golpes, 186 s |
+| 50 | 20% | 36% | 70% (**90%**) | 46 golpes, 180 s |
+| 75 | 20% | 35% | 69% (**90%**) | 48 golpes, 163 s |
+| 100 | 19% | 34% | 68% (**90%**) | 49 golpes, 157 s |
+
+O "pior caso 90%" é o teto anti-hit-kill agindo: **nada mata de um golpe**, nem
+o chefe enfurecido. Com ×7 a luta durava 218-265 s e **sempre** alcançava o
+enrage (240 s) — a fase de fúria era o final garantido de toda luta. Com ×5,
+volta a ser o preço de demorar.
+
+## 9. AoE
+
+Testados **Earthquake, Blizzard, Surf, Tornado e Petal Dance** em 1, 2, 5,
+máximo e máximo+4 alvos; alvo fora da área; alvo na borda de dentro e de fora;
+alvo que sai durante o cast; alvo morto antes do impacto. Em todos:
+**cada entidade recebe dano no máximo uma vez por cast**.
+A precisão é sorteada **por alvo** — um Blizzard de 70% pode pegar dois e errar
+o terceiro.
+
+## 10. IA — escolha de golpe por pontuação
+
+```
+nota = power × efetividade × adequação-de-alcance
+       × potencial-de-alvos × valor-tático × fator-aleatório
+```
+
+Medido: contra alvo imune ao golpe forte, usa o fraco que funciona · a ultimate
+vale 65% menos contra alvo com 10% de vida · golpe de área vale 1,7× mais com 5
+alvos juntos · golpe fora de alcance ou em recarga nunca entra · com tudo
+recarregando devolve "não ataco" em vez de inventar. Custo: **14,5 µs** por
+decisão.
+
+## 11. Prioridade de alvo
+
+```
+nota = 100 / (1 + distância) × (3,0 se me atacou) × (bônus por vida baixa)
+       × (invasão de território) × (0,45 se for o treinador)
+```
+
+Antes era "o primeiro Follower vivo da lista" — a ordem da árvore de cena
+decidia a briga.
+
+## 12. Aggro, bando e coleira
+
+| | valor |
+|---|---|
+| Aggro (agressivo / predador / defensivo) | 5 / 10 / 2,25 tiles |
+| Bando | 4 tiles, máx. 5, **mesma espécie** |
+| Corrente de aggro | 1 salto |
+| **Atraso de entrada no bando (novo)** | **0,4 a 1,8 s** |
+| Coleira | 12 tiles (territorial 7,2 · predador 19,2) |
+
+**Bando contra Wartortle Lv.25** (confronto neutro):
+
+| Tamanho | DPS do grupo | Jogador cai em |
+|---:|---:|---:|
+| 1 | 5,0 | 25,4 s |
+| 2 | 10,1 | 12,7 s |
+| 3 | 15,1 | 8,5 s |
+| 4 | 20,1 | 6,4 s |
+| 5 | 25,2 | 5,1 s |
+
+Cinco atacantes dão cinco vezes o dano — isso é aritmética. O que se corrigiu
+não foi o dano: foi a **simultaneidade**. Quem responde ao grito entra com
+atraso sorteado, então o bando chega em onda e o jogador vê os primeiros antes
+de estar cercado.
+
+## 13. Status e precisão
+
+`status_chance` é lido dos dados (aceita 0.20 e 20, sem diferença de 100×),
+com três fontes em ordem: o campo → o número embutido no nome do efeito
+(`burn_10`) → 100% para golpe puro de status. **Imunidade barra o status junto
+com o dano.** 32 golpes declaram chance. Precisão medida: um golpe de 70 acerta
+70% (±6%).
+
+## 14. Knockback
+
+`knockback` em **TILES**. Empurra pra longe de quem bateu, com resistência por
+defesa (até −70%, nunca zero). Usa o mesmo caminho de andar
+(`WorldManager.filtrar_velocidade` + `move_and_slide`), então **parede, água,
+pedra e limite de mapa param o empurrão** — nada atravessa nada. **Sem timer e
+sem nó novo**: é estado consumido pelo `_physics_process` que já rodava. 17
+golpes têm empurrão; os outros 175 custam uma comparação.
+
+## 15. Kit por evolução e nível — a ideia do Gabriel
+
+```
+slots = 4 (base) + estágio evolutivo (0-2) + bônus de nível (0-2, em Lv.40 e Lv.80)
+```
+
+| | Lv.5 | Lv.25 | Lv.50 | Lv.100 |
+|---|---:|---:|---:|---:|
+| Charmander (estágio 0) | 4 | 4 | 5 | **6** |
+| Charmeleon (estágio 1) | 5 | 5 | 6 | **7** |
+| Charizard (estágio 2) | 6 | 6 | 7 | **8** |
+
+O caso que motivou a ideia, resolvido **sem nenhuma regra especial**:
+
+- **Magikarp Lv.100**: 6 slots, mas o learnset dele só tem 3 golpes → kit
+  `[flail, tackle, splash]`.
+- **Gyarados Lv.100**: 7 slots e learnset pra encher → `[hyper_beam,
+  hydro_pump, bite, water_gun, tackle, leer, dragon_rage]`.
+
+Evoluir passou a mudar **como se joga**, não só os números.
+
+🔴 **Um bug que quase matou a ideia**: `evolution_to` é `null` nas formas finais
+e `int(null)` lança erro, interrompendo o laço — **todas as 151 espécies saíam
+como estágio 0** e a escada não existia. Achado porque a primeira medição
+mostrou Charizard e Charmander com a mesma capacidade.
+
+Loadout por faixa (item 13): iniciante 1-2 ofensivos, intermediário 2-3,
+avançado 3-4+. Média medida: **1,9 → 2,4 → 3,2** golpes ofensivos (Lv.5 → 25 →
+60). Nenhuma das 151 espécies fica sem golpe de dano, e nenhuma fica com kit só
+de status. **Selvagem comum: 3 golpes. Alpha: 4.** Um Charizard *selvagem*
+Lv.100 tem 3, não 8.
+
+## 16. Performance
+
+Cenário: 60 selvagens + jogador + 4 do time, um segundo de jogo cheio
+(300 decisões de IA, 30 golpes simples, 6 de área com alvos múltiplos, 65
+tiques de status):
+
+| | custo |
+|---|---:|
+| IA (300 decisões) | 4.362 µs |
+| Golpes (30 + 6 de área) | 1.034 µs |
+| Status (65 tiques) | 32 µs |
+| **Total por segundo** | **5.428 µs** |
+
+0,54% de um núcleo. Busca de alvo de área: 71 µs. Conta de dano: 14,6 µs.
+Decisão de IA: 14,5 µs.
+
+⚠️ **Limitação declarada**: o ambiente é headless, sem renderização — o que foi
+medido é o **custo de CPU da lógica de combate**, não FPS real. FPS depende de
+desenho de sprite, TileMap e shader, que este ambiente não executa. A meta de
+60 FPS **não foi verificada**; só se sabe que a lógica de combate consome uma
+fração pequena do orçamento.
+
+## 17. Testes executados
+
+| Arquivo | Conferências |
+|---|---:|
+| `teste_fase2_combate.gd` (novo) | 223 |
+| `teste_balanceamento_combate.gd` (ampliado) | 30 + 6 tabelas impressas |
+| `teste_reengenharia_combate.gd` | 179 |
+| **Suíte completa** | **103 arquivos, 0 falhas** |
+
+## 18. Problemas restantes
+
+1. **FPS real não medido** (ver limitação acima). Só um teste em navegador
+   responde isso.
+2. **Tanque com golpe errado leva 96 golpes** (165 s). É de propósito — com o
+   golpe certo são 3 —, mas se em jogo parecer castigo, o knob é
+   `BASE_DAMAGE_MULTIPLIER` ou uma compressão da razão ataque/defesa.
+3. **Traits combináveis (item 17) não foram migrados** — a arquitetura permite
+   (cada regra é uma função isolada que recebe a personalidade), mas a
+   personalidade continua sendo um rótulo único. Migrar quando houver
+   necessidade real.
+4. **`priority` dos golpes ainda não é lido** — o campo existe, o motor de
+   tempo real não tem fila de turnos onde ele faria sentido. Precisa de
+   desenho antes de código.
+5. **Passiva e ultimate por espécie** continuam sem dado escrito.
+6. **O chefe usa um repertório fixo de 6 funções**, não o `KitDeCombate`. São
+   sistemas diferentes de propósito, mas vale unificar se o repertório crescer.
+7. **Nada foi jogado em navegador ainda.** Toda a validação até aqui é
+   headless: fórmula, simulação e regra. O playtest é o próximo passo.
+
+---
+
+*Fase 2 registrada após a execução, com os números medidos.*
