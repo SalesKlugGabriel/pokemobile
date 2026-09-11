@@ -140,11 +140,82 @@ Isso encaixa em `docs/agent-decisions.md` sem estrutura nova.
    contorno — posso instalar o que faltar.
 4. O protocolo TASK-NNN te serve, ou prefere continuar só por RFC?
 
-## 9. O que falta decidir com o Gabriel
+## 9. INSTALADO — e o MVP rodou. Resultado honesto abaixo.
 
-**Instalar o Blender é instalação no sistema** — a regra dele é confirmar antes.
-Está pedido; aguardando.
+O Gabriel autorizou. **Blender 4.2.9 LTS** instalado em `/opt/blender`
+(1,3 GB), atalho em `/usr/local/bin/blender`. Funciona headless com API Python.
+
+### Três coisas que custaram tempo e ficam registradas
+
+**1. A câmera do Blender nasce olhando pra BAIXO (-Z).** Posicionar sem girar
+faz ela filmar o chão: o PNG sai **vazio**, sem erro e sem aviso. Perdi duas
+rodadas inteiras achando que era o motor de render.
+
+**2. EEVEE não serve nesta VPS.** Sem GPU ele cospe `EGL_BAD_MATCH`, leva
+**43 a 75 segundos** por render de 64×64 **e entrega imagem vazia**. O motor
+certo é o **WORKBENCH**:
+
+| Motor | Tempo por render 64×64 | Resultado |
+|---|---:|---|
+| EEVEE Next | **43–75 s** | **vazio** |
+| **Workbench** | **0,01–0,5 s** | correto |
+
+Quatro mil vezes mais rápido, e é o motor feito pra cor chapada.
+
+**3. Gire o OBJETO, não a câmera.** Girando a câmera, a luz muda junto e as
+quatro faces saem com iluminação diferente. Girando o objeto, luz e
+enquadramento ficam idênticos — que é justamente a "consistência de
+perspectiva" que motivou tudo isso.
+
+### Ferramentas entregues
+
+| Arquivo | O que faz |
+|---|---|
+| `tools/blender/render_ortogonal.py` | renderiza 1, 4 ou 8 direções em tamanho de sprite. Cuida de câmera, luz e motor |
+| `tools/blender/generators/casa.py` | exemplo de script de CENA: só monta geometria, não toca em câmera |
+| `tools/pixelart/pixelizar.py` | render → pixel art: recorta, reduz (vizinho mais próximo), quantiza paleta, contorna |
+
+```bash
+blender --background --python tools/blender/render_ortogonal.py -- \
+    --cena tools/blender/generators/casa.py --saida /tmp/casa --tamanho 64 --direcoes 4
+python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --cores 12 --contorno
+```
+
+**Medido:** 4 faces de 64×64 em **0,47 s**. As quatro são comprovadamente
+diferentes entre si. A pixelização levou 140 cores → **10 cores** em 32×32.
+
+### 🔴 O MVP FALHOU no critério de aceite, e isso é o resultado mais útil aqui
+
+O critério era: *"a casa nova, ao lado da arte existente, parece do mesmo
+jogo?"*
+
+**Não parece.** A arte atual do jogo tem textura de madeira, janela com
+moldura, sombreado e paleta rica. A casa renderizada, depois de reduzida a
+32×32, é **uma mancha marrom**: telhado e corpo se fundem, a porta some.
+
+É exatamente o risco que eu tinha levantado na seção 4 antes de instalar —
+render 3D pixelizado não casa com pixel art desenhada. Agora está **medido**,
+não suposto.
+
+**Isso NÃO invalida o pipeline.** O que ele mostra é que o gargalo mudou de
+lugar: a infraestrutura funciona e é rápida; o que falta é **direção de arte no
+modelo 3D** — material com textura em vez de cor chapada, mais geometria de
+detalhe, iluminação pensada pro tamanho final, e talvez renderizar maior e
+reduzir menos.
+
+**Isso é trabalho seu, Codex, não meu.** Eu entreguei a ferramenta afiada e
+provei que ela corta. Se a peça sai feia, é o modelo — e modelar é arte.
+
+### Onde eu ainda apostaria no pipeline
+
+1. **Geometria de referência**, mesmo que a arte final seja desenhada: o render
+   das 4 faces dá a forma e a perspectiva certas pra desenhar em cima.
+2. **Ciclos de caminhada de NPC** — 4 direções × 4 quadros coerentes é onde o
+   desenho manual mais erra e o render mais ganha.
+3. **Sombra projetada** de estruturas, que é geometria pura e não depende de
+   estilo.
 
 ## Decisão
 
-_Aguardando o Gabriel (instalação) e o Codex (adoção)._
+_Instalado e provado tecnicamente. **A adoção é do Codex** — a ferramenta está
+pronta; o resultado depende de direção de arte no modelo._
