@@ -85,6 +85,99 @@ propósito, até a MAIN-08.
 
 ---
 
+## P0 — Segunda leva de pedidos (11/09, mesmo dia)
+
+> *"também envie para ele as demandas de melhoria de HUD, NPC's, tela inicial,
+> itens, estruturas, diversidade de tiles, diversidade de biomas, geografia em
+> geral (montanhas, tuneis, caminhos subterraneos, ilhas, área submersa,
+> dungeons, etc)"*
+
+Medi cada uma antes de repassar. Os números abaixo são do jogo de hoje.
+
+### 10. Diversidade de TILES ❌ — o achado mais forte
+
+| Medida | Valor |
+|---|---|
+| Atlas (`overworld.png`) | 1024 × 3200 px = **3.200 células de 32 px** |
+| Tiles definidos no TileSet | **185** |
+| Chars que o gerador conhece (`CHAR_MAP`) | **92** |
+
+**O gerador alcança ~3% do atlas.** Há arte lá dentro que o mapa nunca pinta.
+
+E o uso real é ainda mais concentrado — quantos chars cobrem **90%** de cada mapa:
+
+| Mapa | Chars distintos | **Chars que cobrem 90%** |
+|---|---:|---:|
+| **mapa-múndi** | 27 | **4** |
+| Cinnabar | 16 | 5 |
+| Safari | 7 | 3 |
+| Rota Lavender–Fuchsia | 21 | 11 |
+| Rota Pewter–Cerulean | 16 | 10 |
+| Mt Moon | 3 | **2** |
+| Rock Tunnel | 3 | **2** |
+| Victory Road | 3 | **2** |
+| Caverna Cerulean | 5 | 3 |
+
+**Quatro texturas cobrem 90% do mapa-múndi.** As rotas novas estão bem (10–11);
+**as cavernas são praticamente monocromáticas** — duas texturas cada.
+
+### 11. Diversidade de BIOMAS ⚠️
+As **rotas** têm 32 faixas de bioma com transição gradual (`_misturar_bioma_cell`)
+— isso está feito e funciona. O **mapa-múndi** e as **cavernas** não têm
+nenhuma. É o mesmo diagnóstico do item 4, com o número acima.
+
+### 12. Geografia — o que existe e o que não existe
+
+| Categoria | Cenas hoje | Estado |
+|---|---:|---|
+| Cavernas e túneis | 11 | ✅ não-lineares (Rock Tunnel, Mt Moon, Victory Road, Digletts) |
+| Caminhos subterrâneos / subsolos | 18 | ✅ existem (Mt Moon B1/B2, Rock Tunnel B1, covis) |
+| Ilhas | 18 | ✅ Cinnabar, Gélida, Seafoam, Deserto, Arquipélago |
+| Dungeons | 36 cenas | ✅ covis lendários, Silph, Rocket, Torre, Mansão |
+| **Montanha como lugar explorável** | **1** | ⚠️ só a Caverna da Montanha PV; o resto é bioma de rota, não lugar |
+| **Área submersa** | **0** | ❌ **não existe nada** |
+
+Total: **76 mapas gerados**, 53 cenas de mapa + 36 de dungeon.
+
+**Área submersa é o único item da lista dele que não tem NADA.** Se for pra
+existir, precisa de decisão de design antes de arte: como se entra, como se
+respira/sai, o que tem lá. Vale uma RFC própria.
+
+### 13. HUD ⚠️
+A HUD tem **10 nós**: nome do líder, barra de HP, dinheiro, minimapa, painel de
+modo (andar/bicicleta/teleporte), botão de voar, nome da zona — mais as barras
+de skill criadas por código (4 a 8, ver RFC-001).
+
+**Não mostra:** status do Pokémon (queimado/envenenado/paralisado), nível e XP
+do líder, alvo selecionado, quest ativa (existe `QuestHUD` separado), acesso
+rápido a item. Nenhuma dessas é decisão minha — só estou registrando o que o
+estado do gameplay já expõe e a tela ainda não desenha. Os sinais existem:
+`status_applied`, `pokemon_level_up`, `wild_pokemon_selected`,
+`wild_pokemon_hp_changed`.
+
+### 14. Tela inicial ⚠️
+`TitleScreen.tscn` tem **5 nós visuais** em 78 linhas. É funcional e simples.
+Não tenho medida de "bonito" — é sua área inteira.
+
+### 15. NPCs ⚠️
+**40 NPCs** no mapa-múndi, **27 cenas** com NPC, **72 diálogos** cadastrados.
+Eles existem e falam. O que não medi (e é seu): variedade de sprite, se andam,
+se têm rotina, se parecem gente diferente ou o mesmo boneco repintado.
+
+### 16. Itens ⚠️
+**213 itens**: 58 loot · 50 MT/MO · 34 held · 20 chave · 17 remédio · 10 bola ·
+8 vitamina · 7 batalha · 5 pedra · 4 campo.
+
+O dado está rico. O que não sei dizer é se **aparecem bem na tela** — ícone,
+Mochila, loja, descrição. Isso é apresentação.
+
+### 17. Estruturas ⚠️
+Prédios, casas, ginásios e Centros Pokémon são gerados por char no
+`MapLayouts`. Aqui entra a pendência antiga mais repetida dele: **parede lateral
+de casa usando a sprite da frente** (item 5 acima, reportado 2×).
+
+---
+
 ## O que é meu, e como eu ajudo
 
 Se a mudança visual mexer em **tile, colisão, warp ou zona**, ela cruza pro meu

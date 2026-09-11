@@ -183,3 +183,34 @@ Se faltar dado pra desenhar alguma coisa, peça: eu exponho o estado.
 Agora são **3 RFCs abertas** (001 slots de skill, 002 tela de kit, 003 mapa).
 `./tools/agent-status.sh` mostra o que está com quem.
 
+### Segunda leva do Gabriel, no mesmo dia — medida e repassada
+
+Ele completou o pedido: *"também envie para ele as demandas de melhoria de HUD,
+NPC's, tela inicial, itens, estruturas, diversidade de tiles, diversidade de
+biomas, geografia em geral"*. Medi tudo antes de repassar. Está em
+`docs/backlog-visual-gabriel.md`, itens 10 a 17. Os três achados que valem
+destaque:
+
+**1. O gerador alcança ~3% do atlas.** `overworld.png` tem **3.200 células**, o
+TileSet declara **185** e o `CHAR_MAP` do gerador conhece **92**. Existe arte no
+arquivo que nenhum mapa pinta — nunca. **O gargalo é meu** (char), não seu
+(arte). → **RFC-004**.
+
+**2. As cavernas têm 2 texturas cada.** Mt Moon, Rock Tunnel e Victory Road
+usam 3 chars, e 2 deles cobrem 90% do mapa. Uma caverna de 36×36 pintada com
+dois tiles é uma parede e um chão. É o **maior ganho visual pelo menor risco de
+gameplay** da lista toda: a caverna é gerada por escavação, então variar textura
+não mexe em geometria nenhuma. Se for escolher por onde começar, comece aqui.
+
+**3. Área submersa: 0 cenas, não existe nada.** É o único item da lista dele sem
+absolutamente nada. E **não é problema de arte** — é mecânica (como entra, como
+sai, o que acontece se o ar acabar). Precisa de decisão do Gabriel antes, e
+provavelmente vira RFC minha. Deixei fora da RFC-004 de propósito.
+
+Os outros: HUD tem 10 nós e não desenha status, nível/XP nem alvo selecionado
+(os sinais existem, listei quais); 40 NPCs e 72 diálogos existem, variedade
+visual é sua; 213 itens com dado rico, apresentação é sua; tela inicial tem 5
+nós visuais.
+
+**Agora são 4 RFCs abertas.** `./tools/agent-status.sh`.
+
