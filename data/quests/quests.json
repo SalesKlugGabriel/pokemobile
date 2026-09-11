@@ -1804,5 +1804,55 @@
     ],
     "unlocks": [],
     "_ajuste_editorial": "A porta da Liga (MapLayouts._liga_liberada()) já exige as 8 insígnias pra sequer entrar — por isso nenhuma quest desta cadeia tem 'requires' de insígnia: a barreira física do mapa já garante isso, igual o Ginásio de Viridian faz com MAIN-08. Cada andar só destrava o próximo por 'unlocks', não por posição no mapa (o jogador já anda em ordem 1->5 de qualquer forma, não tem como pular andar)."
+  },
+  "MAR-01": {
+    "id": "MAR-01",
+    "title": "A Roupa do Velho Mergulhador",
+    "category": "util",
+    "npc_id": "velho_mergulhador",
+    "location_tile": {
+      "x": 236,
+      "y": 176
+    },
+    "objectives": [
+      {
+        "type": "talk",
+        "target": "velho_mergulhador_intro"
+      },
+      {
+        "type": "collect_count",
+        "target": "water_fragmento",
+        "count": 8,
+        "zone": "mar_raso"
+      },
+      {
+        "type": "defeat_count",
+        "target": "tentacruel",
+        "count": 3,
+        "zone": "mar_algas"
+      },
+      {
+        "type": "find_count",
+        "target": "respiradouro",
+        "count": 5,
+        "zone": "fundo_do_mar"
+      },
+      {
+        "type": "talk",
+        "target": "velho_mergulhador_entrega"
+      }
+    ],
+    "rewards": {
+      "exp_trainer": 900,
+      "items": [
+        {
+          "id": "roupa_de_mergulho",
+          "quantity": 1
+        }
+      ]
+    },
+    "requires": [],
+    "unlocks": [],
+    "_nota": "Criada em 11/09 junto do bioma submarino. O desenho segue o pedido do Gabriel: a roupa DEVOLVE a velocidade e permite respirar no fundo. Os objetivos acontecem todos debaixo d'água de propósito — o jogador aprende a lutar contra o cronômetro antes de ganhar o direito de ignorá-lo."
   }
 }

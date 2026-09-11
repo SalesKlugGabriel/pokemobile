@@ -14,6 +14,11 @@ signal trainer_skill_tree_updated()
 ## de aparência por marcha, isso cobre o feedback visual por ora).
 signal movement_mode_changed(mode: String)
 
+## Fôlego do mergulho (11/09). `atual` e `maximo` em segundos.
+## A BARRA é do Codex — aqui só sai o estado, como manda o AGENTS.md.
+## Só corre quando o jogador está num mapa submarino; fora dele, recupera.
+signal oxigenio_mudou(atual: float, maximo: float)
+
 # --- POKÉMON FOLLOWER ---
 signal follower_changed(pokemon_data: Dictionary)
 signal follower_hp_changed(current: int, maximum: int)

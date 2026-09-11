@@ -116,6 +116,30 @@ const CHAR_MAP : Dictionary = {
 	"y": Vector2i(4, 9),   # telhado — canto inferior direito
 	"a": Vector2i(5, 9),   # parede — lateral esquerda
 	"p": Vector2i(6, 9),   # parede — lateral direita
+	# ── FUNDO DO MAR (11/09) — linha 25 do atlas ──────────────────────────────
+	# 🔴 Estes chars são UNICODE, e isso é uma decisão, não capricho.
+	#
+	# O alfabeto ASCII imprimível do gerador ACABOU: dos 94 caracteres, 92 já
+	# estavam em uso e sobravam só `"` e `\`, que são justamente os dois
+	# impossíveis de escrever confortavelmente dentro de uma string GDScript.
+	#
+	# Testado antes de adotar: Godot 4 indexa String por CARACTERE (não por
+	# byte), então `linha[c]` devolve "α" corretamente, dicionário aceita chave
+	# Unicode e comparação funciona. O alfabeto deixou de ser um teto — o que
+	# também destrava a RFC-004 (diversidade de tiles), que esbarrava no mesmo
+	# limite.
+	#
+	# Escolhi símbolos que LEMBRAM a coisa, pra o mapa continuar legível quando
+	# alguém abrir o gerador: α alga, ψ coral, Ω rocha, ≈ abismo.
+	"≡": Vector2i(0, 25),   # areia clara — o recife raso
+	"±": Vector2i(1, 25),   # areia com coral morto (variação do raso)
+	"φ": Vector2i(2, 25),   # jardim de algas — a faixa do meio
+	"≈": Vector2i(3, 25),   # abismo — o fundo
+	"ψ": Vector2i(4, 25),   # coral (BLOQUEIA)
+	"Ω": Vector2i(5, 25),   # rocha submersa (BLOQUEIA)
+	"α": Vector2i(6, 25),   # alga alta (atravessa, esconde)
+	"°": Vector2i(7, 25),   # respiradouro — devolve ar
+
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -3384,6 +3408,103 @@ static func _cavar_livre(grid_chars: Array, W: int, H: int, de: Vector2i, passos
 		r = clampi(r, 1, H - 2)
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Fundo do Mar — o bioma submarino (11/09)
+# ──────────────────────────────────────────────────────────────────────────────
+## Pedido do Gabriel: *"um bioma 100% submarino com algas, corais,
+## profundidades diferentes"*.
+##
+## O mapa desce: entra no topo, no recife raso, e quanto mais fundo você vai,
+## mais ar gasta e melhor a fauna (ver `Mergulho.PROFUNDIDADES` e as faixas em
+## `zones.json`). A profundidade não é decoração — é a régua de risco.
+##
+##   linhas   0- 70   RASO      areia clara, coral colorido, muita luz
+##   linhas  70-150   MEIO      jardim de algas, alga alta que esconde
+##   linhas 150-240   ABISMO    azul profundo, rocha submersa
+##
+## A transição é GRADUAL (`_progresso_transicao` + ruído), igual às rotas —
+## corte seco entre biomas foi o que o Gabriel reprovou lá em cima.
+const MAR_L : int = 120
+const MAR_A : int = 240
+const MAR_FIM_RASO : int = 70
+const MAR_FIM_MEIO : int = 150
+
+## Respiradouros: os pontos que devolvem ar. Ficam em coordenada FIXA, não
+## sorteada, por um motivo de jogo — o jogador precisa poder aprender onde eles
+## estão e planejar a rota. Respiradouro aleatório seria sorte, não plano.
+const MAR_RESPIRADOUROS : Array[Vector2i] = [
+	Vector2i(30, 52), Vector2i(92, 64),
+	Vector2i(24, 118), Vector2i(70, 132), Vector2i(104, 104),
+	Vector2i(40, 186), Vector2i(86, 208),
+]
+
+static func _gen_fundo_do_mar() -> Array:
+	var grid : Array = []
+	for r in MAR_A:
+		var linha := ""
+		for c in MAR_L:
+			linha += _fundo_do_mar_cell(c, r)
+		grid.append(linha)
+
+	# Respiradouros por último, pra nenhum obstáculo cair em cima deles.
+	for p in MAR_RESPIRADOUROS:
+		if p.y >= 0 and p.y < MAR_A and p.x >= 0 and p.x < MAR_L:
+			var l : String = grid[p.y]
+			grid[p.y] = l.substr(0, p.x) + "°" + l.substr(p.x + 1)
+
+	# A entrada (onde o mergulho deposita o jogador) tem que ser chão livre.
+	for dy in range(-2, 3):
+		for dx in range(-2, 3):
+			var y : int = 8 + dy
+			var x : int = 60 + dx
+			if y >= 0 and y < MAR_A and x >= 0 and x < MAR_L:
+				var l2 : String = grid[y]
+				grid[y] = l2.substr(0, x) + "≡" + l2.substr(x + 1)
+	return grid
+
+static func _fundo_do_mar_cell(c: int, r: int) -> String:
+	# Borda do mapa: rocha submersa. É parede que pertence ao lugar — não é
+	# "parede de árvore" nem quadrado vazio (a regra do Gabriel vale aqui).
+	if c == 0 or c == MAR_L - 1 or r == 0 or r == MAR_A - 1:
+		return "Ω"
+
+	var sal : int = _espalhar_sal(c, r, 2511)
+
+	# ── RASO ────────────────────────────────────────────────────────────────
+	if r < MAR_FIM_RASO:
+		var mistura : float = _progresso_transicao(r, MAR_FIM_RASO, 14)
+		if mistura > 0.0 and sal < int(mistura * 14.0):
+			return _fundo_meio_cell(c, r, sal)
+		if sal == 0:
+			return "ψ"          # coral: bloqueia, e é o que dá cor ao recife
+		if sal < 4:
+			return "±"          # areia com coral morto
+		return "≡"
+
+	# ── MEIO ────────────────────────────────────────────────────────────────
+	if r < MAR_FIM_MEIO:
+		var m2 : float = _progresso_transicao(r - MAR_FIM_RASO, MAR_FIM_MEIO - MAR_FIM_RASO, 16)
+		if m2 > 0.0 and sal < int(m2 * 14.0):
+			return _fundo_abisso_cell(c, r, sal)
+		return _fundo_meio_cell(c, r, sal)
+
+	# ── ABISMO ──────────────────────────────────────────────────────────────
+	return _fundo_abisso_cell(c, r, sal)
+
+static func _fundo_meio_cell(c: int, r: int, sal: int) -> String:
+	if sal < 3:
+		return "α"              # alga alta: atravessa e esconde o encontro
+	if sal == 3:
+		return "ψ"
+	return "φ"
+
+static func _fundo_abisso_cell(c: int, r: int, sal: int) -> String:
+	if sal < 2:
+		return "Ω"              # rocha: o obstáculo do fundo
+	if sal == 2:
+		return "α"
+	return "≈"
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Rock Tunnel — 36×36, cena própria (caverna/subterrâneo, mesma exceção de
 # warp do Mt Moon). Tier 10 (01/09): PRIMEIRA caverna construída depois da
 # regra de tematização de bioma do Gabriel — diferente do Mt Moon (retângulo
@@ -3974,6 +4095,8 @@ static func get_layout(map_id: String) -> Dictionary:
 		"mtmoon_b1", "mtmoon_b2", "rocktunnel_b1":
 			var cfg : Dictionary = SUBSOLOS[map_id]
 			return {"tiles": _gen_subsolo(map_id), "width": int(cfg["w"]), "height": int(cfg["h"])}
+		"fundo_do_mar":
+			return {"tiles": _gen_fundo_do_mar(), "width": MAR_L, "height": MAR_A}
 		"rock_tunnel":
 			var tiles := _gen_rocktunnel()
 			return {"tiles": tiles, "width": 36, "height": 36}

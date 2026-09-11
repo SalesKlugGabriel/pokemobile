@@ -21,7 +21,7 @@ const REBINDABLE_ACTIONS : Array[String] = [
 	"move_up", "move_down", "move_left", "move_right",
 	"run", "interact", "pause", "menu_bag", "menu_team", "open_pokedex",
 	"skill_1", "skill_2", "skill_3", "skill_4",
-	"skill_5", "skill_6", "skill_7", "skill_8", "pokeball",
+	"skill_5", "skill_6", "skill_7", "skill_8", "pokeball", "mergulhar",
 ]
 
 const ACTION_LABELS := {
@@ -46,6 +46,7 @@ const ACTION_LABELS := {
 	"skill_6":      "Skill 6 do Pokémon",
 	"skill_7":      "Skill 7 do Pokémon",
 	"skill_8":      "Skill 8 do Pokémon",
+	"mergulhar":    "Mergulhar (em mar aberto, surfando)",
 	"pokeball":     "Jogar Pokébola",
 }
 

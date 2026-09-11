@@ -2727,6 +2727,179 @@
       "npcs": []
     },
     {
+      "id": "mar_raso",
+      "map_id": "fundo_do_mar",
+      "name": "Recife Raso",
+      "region": "kanto",
+      "notes": "Faixa RASA do fundo do mar (Mergulho.RASO). Consome menos ar. Fauna de recife: nada que mate um mergulhador sem roupa de primeira.",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 120,
+        "h": 70
+      },
+      "bgm": "seafoam",
+      "wild_pokemon": [
+        {
+          "id": 72,
+          "name": "Tentacool",
+          "level_min": 18,
+          "level_max": 26,
+          "weight": 35
+        },
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 18,
+          "level_max": 25,
+          "weight": 25
+        },
+        {
+          "id": 98,
+          "name": "Krabby",
+          "level_min": 19,
+          "level_max": 26,
+          "weight": 20
+        },
+        {
+          "id": 116,
+          "name": "Horsea",
+          "level_min": 18,
+          "level_max": 25,
+          "weight": 15
+        },
+        {
+          "id": 120,
+          "name": "Staryu",
+          "level_min": 20,
+          "level_max": 27,
+          "weight": 5
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "mar_algas",
+      "map_id": "fundo_do_mar",
+      "name": "Jardim de Algas",
+      "region": "kanto",
+      "notes": "Faixa do MEIO (Mergulho.MEIO). Alga alta esconde o encontro, como mato alto. Consome 1,6x de ar.",
+      "tile_rect": {
+        "x": 0,
+        "y": 70,
+        "w": 120,
+        "h": 80
+      },
+      "bgm": "seafoam",
+      "wild_pokemon": [
+        {
+          "id": 73,
+          "name": "Tentacruel",
+          "level_min": 30,
+          "level_max": 38,
+          "weight": 25
+        },
+        {
+          "id": 99,
+          "name": "Kingler",
+          "level_min": 30,
+          "level_max": 37,
+          "weight": 20
+        },
+        {
+          "id": 91,
+          "name": "Cloyster",
+          "level_min": 30,
+          "level_max": 37,
+          "weight": 20
+        },
+        {
+          "id": 61,
+          "name": "Poliwhirl",
+          "level_min": 29,
+          "level_max": 36,
+          "weight": 20
+        },
+        {
+          "id": 117,
+          "name": "Seadra",
+          "level_min": 31,
+          "level_max": 38,
+          "weight": 15
+        }
+      ],
+      "npcs": []
+    },
+    {
+      "id": "mar_abisso",
+      "map_id": "fundo_do_mar",
+      "name": "Abismo",
+      "region": "kanto",
+      "notes": "Faixa FUNDA (Mergulho.ABISSO). Consome 2,4x de ar — sem a roupa de mergulho, quase não dá pra chegar e voltar. É onde mora o que vale a pena.",
+      "tile_rect": {
+        "x": 0,
+        "y": 150,
+        "w": 120,
+        "h": 90
+      },
+      "bgm": "seafoam",
+      "wild_pokemon": [
+        {
+          "id": 130,
+          "name": "Gyarados",
+          "level_min": 40,
+          "level_max": 50,
+          "weight": 25,
+          "bonus": {
+            "chuva": 1.5
+          }
+        },
+        {
+          "id": 73,
+          "name": "Tentacruel",
+          "level_min": 38,
+          "level_max": 48,
+          "weight": 20
+        },
+        {
+          "id": 61,
+          "name": "Poliwhirl",
+          "level_min": 36,
+          "level_max": 44,
+          "weight": 15
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level_min": 42,
+          "level_max": 52,
+          "weight": 8
+        },
+        {
+          "id": 134,
+          "name": "Vaporeon",
+          "level_min": 40,
+          "level_max": 50,
+          "weight": 7
+        },
+        {
+          "id": 121,
+          "name": "Starmie",
+          "level_min": 40,
+          "level_max": 48,
+          "weight": 15
+        },
+        {
+          "id": 62,
+          "name": "Poliwrath",
+          "level_min": 42,
+          "level_max": 52,
+          "weight": 10
+        }
+      ],
+      "npcs": []
+    },
+    {
       "id": "power_plant",
       "name": "Power Plant",
       "region": "kanto",

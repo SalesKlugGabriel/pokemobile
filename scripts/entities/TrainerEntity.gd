@@ -293,6 +293,9 @@ func _spawn_follower() -> void:
 # Movimento (tile-a-tile, herdado de BaseEntity.try_move)
 # ──────────────────────────────────────────────────────────────────────────────
 func _process(_delta: float) -> void:
+	_tick_oxigenio(_delta)
+	if Input.is_action_just_pressed("mergulhar"):
+		mergulhar()
 	if _input_locked:
 		return
 	# No gelo o jogador não escolhe: escorrega até bater. É a regra que faz o
@@ -458,6 +461,88 @@ func _deslizar_no_gelo() -> void:
 func _pode_surfar() -> bool:
 	return SaveManager.team_has_any_species(SURF_SPECIES)
 
+# ──────────────────────────────────────────────────────────────────────────────
+# MERGULHO (11/09) — ver scripts/world/Mergulho.gd pras regras e o porquê
+# ──────────────────────────────────────────────────────────────────────────────
+## Fôlego atual. Só corre quando o jogador está num mapa submarino.
+var oxigenio : float = Mergulho.OXIGENIO_MAXIMO
+var _avisou_alerta : bool = false
+
+## Estou debaixo d'água? Derivado do MAPA, não de um botão — mesma escolha de
+## `is_surfing`/`is_flying`: estado que vem do mundo não dessincroniza.
+func esta_submerso() -> bool:
+	var mapa := get_tree().current_scene
+	return mapa != null and str(mapa.get("map_id")) == "fundo_do_mar"
+
+## Tenho a roupa? Com ela: fôlego infinito e velocidade normal.
+func tem_roupa_de_mergulho() -> bool:
+	return SaveManager.has_item(Mergulho.ROUPA, 1)
+
+## Em que profundidade estou. Sai da ZONA em que piso — é o mesmo dado que já
+## define fauna e música, então profundidade e o que mora nela nunca divergem.
+func profundidade_atual() -> String:
+	var zona := ""
+	var zm = get_tree().current_scene.get_node_or_null("ZoneManager") if get_tree().current_scene else null
+	if zm != null and zm.has_method("find_zone_id"):
+		zona = str(zm.find_zone_id(grid_pos, GameData.zones, "fundo_do_mar"))
+	match zona:
+		"mar_abisso": return Mergulho.ABISSO
+		"mar_algas":  return Mergulho.MEIO
+		_:            return Mergulho.RASO
+
+## O relógio do fôlego. Chamado do _process.
+func _tick_oxigenio(delta: float) -> void:
+	var antes := oxigenio
+	if not esta_submerso():
+		oxigenio = Mergulho.recuperar(oxigenio, delta)
+		_avisou_alerta = false
+	else:
+		# Respiradouro devolve ar: é o que transforma o fundo de corredor em
+		# rota a planejar (ver Mergulho.gd).
+		if _em_respiradouro():
+			oxigenio = Mergulho.recuperar(oxigenio, delta)
+		else:
+			oxigenio = Mergulho.consumir(oxigenio, delta,
+				profundidade_atual(), tem_roupa_de_mergulho())
+
+		if Mergulho.em_alerta(oxigenio, tem_roupa_de_mergulho()) and not _avisou_alerta:
+			_avisou_alerta = true
+			EventBus.notification_requested.emit("O ar está acabando! Procure um respiradouro ou suba.")
+		if Mergulho.afogou(oxigenio):
+			_ficar_sem_ar()
+
+	if not is_equal_approx(antes, oxigenio):
+		EventBus.oxigenio_mudou.emit(oxigenio, Mergulho.OXIGENIO_MAXIMO)
+
+func _em_respiradouro() -> bool:
+	for p in MapLayouts.MAR_RESPIRADOUROS:
+		if p == grid_pos:
+			return true
+	return false
+
+## Acabou o ar: o jogador é EXPULSO pra superfície e o time apanha.
+## Não mata — afogar e perder progresso num jogo que salva sozinho seria
+## punição desonesta.
+func _ficar_sem_ar() -> void:
+	oxigenio = Mergulho.OXIGENIO_MAXIMO * 0.5
+	EventBus.notification_requested.emit("Sem ar! Você emergiu às pressas.")
+	SaveManager.machucar_time(Mergulho.DANO_AO_AFOGAR)
+	WorldManager.warp_to("res://scenes/world/maps/WorldMap.tscn", Vector2i(248, 196))
+
+
+## O comando de mergulhar. Chamado pela ação `mergulhar` (tecla) e pelo botão
+## da HUD, que é do Codex — os dois entram por aqui.
+func mergulhar() -> void:
+	var mapa := get_tree().current_scene
+	var mid := str(mapa.get("map_id")) if mapa else ""
+	var r : Dictionary = Mergulho.pode_mergulhar(mid, grid_pos, is_surfing)
+	if not bool(r["pode"]):
+		EventBus.notification_requested.emit(str(r["motivo"]))
+		return
+	var p : Dictionary = r["ponto"]
+	EventBus.notification_requested.emit("Você mergulha em %s." % str(p.get("nome", "mar aberto")))
+	WorldManager.warp_to(str(p["destino"]), p["chegada"])
+
 func _pode_voar() -> bool:
 	return SaveManager.team_has_any_species(FLY_SPECIES)
 
@@ -468,6 +553,10 @@ func _get_move_duration() -> float:
 	if is_flying:      base = FLY_DURATION
 	elif is_mounted:   base = MOUNT_DURATION
 	elif is_running:   base = RUN_DURATION   # Bicicleta
+	# Submerso sem a roupa: quase o dobro do tempo por passo. É a metade da
+	# tensão do fundo do mar — a outra metade é o fôlego. Com a roupa, some.
+	if esta_submerso():
+		base *= Mergulho.fator_de_velocidade(tem_roupa_de_mergulho())
 	# Lentidão (06/09) — a função "controle" do repertório do chefe lendário.
 	# Multiplica a marcha ATUAL em vez de cravar um valor: quem está de
 	# bicicleta continua mais rápido que quem está a pé, só que os dois ficam

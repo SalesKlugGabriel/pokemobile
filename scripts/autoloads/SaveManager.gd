@@ -228,6 +228,24 @@ func get_trainer() -> Dictionary:
 func get_team() -> Array:
 	return save_data["team"]
 
+## Tira uma fração da vida de TODO o time, sem desmaiar ninguém (piso em 1).
+##
+## Criada em 11/09 pro mergulho: ficar sem ar custa caro, mas não pode custar a
+## partida — desmaiar o time inteiro num jogo que salva sozinho seria punição
+## desonesta. Devolve quantos Pokémon foram afetados.
+func machucar_time(fracao: float) -> int:
+	var n : int = 0
+	for poke in save_data.get("team", []):
+		if not (poke is Dictionary):
+			continue
+		var maximo : int = int(poke.get("hp_max", 1))
+		var atual : int = int(poke.get("hp_current", maximo))
+		var novo : int = maxi(1, atual - int(round(maximo * fracao)))
+		if novo != atual:
+			poke["hp_current"] = novo
+			n += 1
+	return n
+
 func get_pokemon_at(index: int) -> Dictionary:
 	var team: Array = save_data["team"]
 	if index < 0 or index >= team.size():

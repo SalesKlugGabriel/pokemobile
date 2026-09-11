@@ -190,3 +190,50 @@ o resto valeu** — e é arte, não engenharia.
 - **O gargalo de decisão.** A maior espera hoje não é técnica: são as RFC-001 a
   005 e as 5 pendências de arte esperando decisão humana. Nenhuma otimização de
   ciclo conserta isso.
+
+---
+
+## 🔴 CORREÇÃO (mesmo dia) — a régua estava torta, e a conclusão caiu junto
+
+Escrevi este plano dizendo que a medição tinha invertido meu diagnóstico e
+achado o que meu olho não via. **Continuando o trabalho, descobri que a régua é
+que estava errada.**
+
+**O erro:** calibrei "densidade de detalhe" recortando o atlas em **32 px** — só
+que o tile deste jogo tem **128 px**. Eu media PEDAÇOS de tile. E a densidade
+**depende do tamanho da amostra**: o mesmo tile mede 0,48 em 128 px, 0,61 em
+64 px, 0,74 em 16 px.
+
+**O que cai com isso:**
+
+| Afirmação que escrevi | Com a régua corrigida |
+|---|---|
+| "casa 0,01 contra 0,51 do jogo, 50× mais chapada" | casa **0,26**, mediana do jogo **0,24** — dentro da faixa |
+| "NEAREST 0,09 contra LANCZOS 0,44" | NEAREST **0,42**, LANCZOS **0,46** — quase iguais |
+| "quantizar sempre piora muito" | 10 cores **0,34**, sem quantizar **0,34** — quase igual |
+
+**A medida nunca sustentou a conclusão que tirei dela.** Meu olho estava certo
+sobre a casa do Blender; minha régua é que produziu uma história dramática e
+falsa, e eu reescrevi o `pixelizar.py` inteiro em cima dela.
+
+**O que fica de pé:**
+
+- A régua agora mede num **tamanho canônico** (64 px) e é estável.
+- Recalibrada contra 40 tiles reais: mediana **0,24**, faixa 0,00 a 0,84. O
+  piso do validador caiu de 0,15 para **0,06** — pega peça extraordinariamente
+  lisa, não peça "menos texturizada que a média".
+- LANCZOS continua no `pixelizar.py`, mas pelo motivo certo e modesto: é
+  marginalmente melhor para reduzir uma fonte SUAVE. Não pelos 5× que eu disse.
+- O validador **serve** para o que é objetivo: cor fora da paleta, imagem
+  vazia, tamanho errado, faces inconsistentes. Ele **não** julga se a peça está
+  bonita, e eu tratei como se julgasse.
+
+**A lição não é "não meça".** É: **calibre a régua contra a coisa certa, e
+desconfie quando ela contar uma história boa demais.** Uma medição que confirma
+dramaticamente o que você já achava é o momento de reconferir, não de publicar.
+
+*(Onde a régua corrigida provou valor de verdade: os 8 tiles do fundo do mar
+que gerei em seguida. Três reprovaram por ficarem lisos demais, tiveram o
+granulado aumentado e passaram. Aí ela pegou um problema real que eu não tinha
+visto.)*
+

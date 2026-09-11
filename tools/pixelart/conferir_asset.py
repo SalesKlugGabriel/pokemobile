@@ -15,22 +15,42 @@ um pipeline automatizado, é um humano com passos a mais.
 Este script transforma "parece do mesmo jogo?" em medidas que qualquer um —
 pessoa ou agente — confere sem opinar.
 
-── O que descobri medindo, e que inverteu meu diagnóstico ────────────────────
+🔴 ── A régua estava ERRADA, e o erro produziu uma conclusão falsa ───────────
 
-Olhando, eu disse "mancha marrom, a paleta está errada". Medindo:
+Vale contar inteiro, porque é a armadilha central de medir arte por script.
 
-    distância de paleta   casa do Blender  30,8   ·  tile real do jogo  23,0
+A primeira versão media "densidade de detalhe" = cores distintas por pixel
+opaco. Calibrei contra o atlas recortando em **32px** — só que o tile deste
+jogo tem **128px**. Eu estava medindo PEDAÇOS de tile, não tiles.
 
-A paleta estava **certa**. O problema era outro:
+E a densidade **depende do tamanho da amostra**: o MESMO tile mede 0,48 em
+128px, 0,61 em 64px, 0,74 em 16px. Quanto menor o recorte, maior o número.
 
-    densidade de detalhe  tiles do jogo    0,51 (até 0,96)
-                          casa pixelizada  0,01      ← 50x mais chapada
+Com a régua torta, a conta deu uma história dramática — "a casa do Blender tem
+0,01 contra 0,51 do jogo, 50 vezes mais chapada" — e eu reescrevi o
+`pixelizar.py` inteiro em cima dela.
 
-**A arte deste jogo é DENSA** — quase um tom por pixel, porque nasceu de
-geração procedural com ruído. Meu pixelizador quantizou pra 10 cores e achatou
-exatamente o que dá identidade ao estilo.
+**Medindo sempre no mesmo tamanho (64px), a história some:**
 
-Eu não teria achado isso olhando. A medida achou.
+    tiles do jogo        mediana 0,24  ·  faixa 0,00 a 0,84
+    casa "chapada"       0,26          ← dentro da faixa
+    casa "corrigida"     0,28          ← praticamente igual
+
+Os dois estavam dentro do normal do jogo. **A medida não sustentava a
+conclusão que eu tirei dela.**
+
+── O que fica de verdade ─────────────────────────────────────────────────────
+
+1. A régua agora mede num **tamanho canônico** e é estável (0,61 / 0,61 / 0,64
+   para a mesma imagem entrando em 128, 64 e 32px).
+2. Ela pega bem o que é medível: cor fora da paleta, imagem vazia, sprite fora
+   de tamanho, faces inconsistentes entre si.
+3. Ela **não mede se a peça está bonita**. A casa do Blender parece ruim por
+   silhueta e falta de forma — e isso nenhuma dessas contas captura.
+
+O meu olho estava certo e a minha régua estava errada. A lição não é "não
+meça": é **calibrar a régua contra a coisa certa, e desconfiar quando ela
+contar uma história boa demais**.
 
 ── Uso ───────────────────────────────────────────────────────────────────────
 
@@ -59,11 +79,19 @@ ATLAS = "assets/tilesets/overworld.png"
 ## mediu 23. Acima de 45 a peça começa a parecer de outro lugar.
 PALETA_LIMITE = 45.0
 
-## Cores distintas por pixel opaco. Os tiles do jogo medem 0,51 em média
-## (min 0,00 em superfície chapada de propósito, max 0,96). Abaixo de 0,15 a
-## peça fica visivelmente mais lisa que a vizinhança — foi o caso da casa do
-## Blender, em 0,01.
-DETALHE_MINIMO = 0.15
+## Tamanho em que a densidade é SEMPRE medida. Sem isso a medida não é
+## comparável entre peças de tamanhos diferentes — ver a nota do cabeçalho.
+TAMANHO_CANONICO = 64
+
+## Cores distintas por pixel opaco, medidas em TAMANHO_CANONICO. Amostrando 40
+## tiles reais do jogo: mediana 0,24, faixa de 0,00 (superfície chapada de
+## propósito) a 0,84.
+##
+## O piso é baixo de propósito — 0,06 — porque a faixa do jogo é larguíssima e
+## uma régua apertada aqui reprova arte legítima. Isto pega peça
+## EXTRAORDINARIAMENTE lisa, não peça "menos texturizada que a média".
+DETALHE_MINIMO = 0.06
+DETALHE_TIPICO = 0.24
 
 ## Quanto do quadro o sprite ocupa. Muito pouco = sumiu; muito = vai encostar
 ## nos vizinhos no tile ao lado.
@@ -99,6 +127,13 @@ def medir(caminho, paleta):
         return {"arquivo": os.path.basename(caminho), "tamanho": im.size,
                 "vazio": True}
 
+    # Densidade num tamanho canônico: é o que torna peças de tamanhos
+    # diferentes comparáveis entre si (ver a nota do cabeçalho).
+    canonica = im if im.size == (TAMANHO_CANONICO, TAMANHO_CANONICO) \
+        else im.resize((TAMANHO_CANONICO, TAMANHO_CANONICO), Image.LANCZOS)
+    opacos_c = [p for p in canonica.getdata() if p[3] > 200]
+    densidade = (len(set(p[:3] for p in opacos_c)) / len(opacos_c)) if opacos_c else 0.0
+
     unicas = set(p[:3] for p in opacos)
     if paleta:
         ds = [min(_distancia(c, p) for p in paleta) for c in unicas]
@@ -114,7 +149,7 @@ def medir(caminho, paleta):
         "px_opacos": len(opacos),
         "ocupacao": len(opacos) / total,
         "cores": len(unicas),
-        "detalhe": len(unicas) / len(opacos),
+        "detalhe": densidade,
         "paleta_media": paleta_media,
         "paleta_pior": paleta_pior,
     }
@@ -133,8 +168,8 @@ def avaliar(m):
     if m["detalhe"] < DETALHE_MINIMO:
         problemas.append(
             f"CHAPADO DEMAIS — densidade {m['detalhe']:.2f}, mínimo {DETALHE_MINIMO:.2f} "
-            f"(os tiles do jogo medem ~0,51). Quantizou demais, ou o modelo 3D usa "
-            f"cor lisa sem textura.")
+            f"(a mediana do jogo é {DETALHE_TIPICO:.2f}). Quantizou demais, ou a peça é "
+            f"uma superfície lisa sem textura nenhuma.")
 
     if m["paleta_media"] > PALETA_LIMITE:
         problemas.append(
@@ -143,9 +178,11 @@ def avaliar(m):
             f"que o jogo usa.")
 
     # 🔴 A régua de ocupação só vale pra SPRITE (peça com fundo transparente).
-    # Um tile de terreno é opaco de ponta a ponta por definição — a primeira
-    # versão reprovava os tiles do próprio jogo por "ocupar 100%".
-    e_sprite = m["ocupacao"] < 0.999
+    # Um tile de terreno é opaco de ponta a ponta por definição.
+    # O corte é 90%, e não 99,9%: um tile de terreno com um canto levemente
+    # transparente (anti-serrilhado na borda) continua sendo terreno, e a
+    # primeira versão reprovava esses por "ocupar 96%".
+    e_sprite = m["ocupacao"] < 0.90
     if e_sprite and m["ocupacao"] < OCUPACAO_MINIMA:
         problemas.append(
             f"PEQUENO DEMAIS — ocupa {m['ocupacao']*100:.0f}% do quadro, mínimo "

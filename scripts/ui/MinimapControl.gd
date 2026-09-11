@@ -56,6 +56,18 @@ const COR_POR_CHAR := {
 	# puxada — a média de um tile sai sempre mais apagada que ele. Geradas
 	# assim, e não escolhidas a olho, porque 27 terrenos estavam caindo no
 	# verde genérico do fallback e o mapa mentia sobre eles.
+	# ── Fundo do mar (11/09) ─────────────────────────────────────────────────
+	# Mesma regra das de cima: cor MÉDIA do tile no atlas com a saturação
+	# puxada. Sem isto, os 8 terrenos submarinos caíam no verde genérico e o
+	# minimapa desenhava o fundo do mar como um campo.
+	"≡": Color(0.86, 0.80, 0.59),   # areia clara
+	"±": Color(0.84, 0.78, 0.57),   # areia c/ coral
+	"φ": Color(0.33, 0.48, 0.35),   # jardim de algas
+	"≈": Color(0.07, 0.17, 0.35),   # abismo
+	"ψ": Color(0.86, 0.71, 0.54),   # coral
+	"Ω": Color(0.13, 0.21, 0.35),   # rocha submersa
+	"α": Color(0.32, 0.51, 0.35),   # alga alta
+	"°": Color(0.10, 0.20, 0.36),   # respiradouro
 	".": Color(0.36, 0.63, 0.05),
 	"D": Color(0.56, 0.38, 0.15),
 	"M": Color(0.65, 0.13, 0.03),

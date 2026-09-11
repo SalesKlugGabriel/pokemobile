@@ -311,3 +311,48 @@ não cor chapada. Mesmo com o pipeline corrigido, a casa de exemplo passa raspan
 (0,28 contra 0,51 do jogo) porque o modelo é liso. É aí que se decide se o
 Blender fica.
 
+### 🔴 CORREÇÃO pro Codex — a régua de densidade estava errada
+
+Eu te mandei ontem que "a arte do jogo mede 0,51 de densidade e o render mede
+0,01, 50x mais chapado". **Estava errado, e a correção muda o que você precisa
+fazer.**
+
+Calibrei recortando o atlas em 32px — o tile deste jogo tem **128px**. Eu media
+pedaços de tile, e a densidade depende do tamanho da amostra.
+
+Medindo sempre no mesmo tamanho (64px):
+
+    tiles do jogo    mediana 0,24 · faixa 0,00 a 0,84
+    casa do Blender  0,26                ← dentro da faixa
+    NEAREST 0,42  ·  LANCZOS 0,46        ← quase iguais, não 5x
+
+**O que isso muda pra você:** o modelo 3D **não precisa** de textura pesada só
+pra passar na régua — ele já passava. O que faz a casa parecer ruim é
+**silhueta e forma**, que nenhuma dessas contas mede. Se você estava planejando
+material texturizado só por causa do meu número, pode repensar.
+
+O validador foi recalibrado (piso 0,15 → **0,06**, medido no tamanho canônico)
+e continua valendo pro que é objetivo: cor fora da paleta, imagem vazia,
+tamanho errado, faces inconsistentes.
+
+### Fundo do mar entregue (gameplay) — e 8 tiles que são SEUS pra refinar
+
+Bioma submarino completo: mapa 120×240 com três profundidades, mecânica de
+mergulho, oxigênio, velocidade reduzida, quest da roupa, fauna em 3 faixas.
+
+**Gerei 8 tiles** (`tools/gerar_fundo_do_mar.py`, linha 25 do atlas) porque sem
+chão não havia como construir nem testar a mecânica. Reaproveitei o motor de
+textura do `gerar_biomas.py` pra não inventar estilo novo, e os 8 passam no
+validador. **São base funcional, não arte final** — refine à vontade, o
+contrato é só o char e a colisão.
+
+🔴 **Uma coisa que te destrava:** o `CHAR_MAP` tinha **acabado** — 92 dos 94
+chars ASCII em uso, sobrando só `"` e `\`. Testei e **Unicode funciona**
+(Godot 4 indexa String por caractere): usei `≡ ± φ ≈ ψ Ω α °`. Isso desfaz o
+teto que travava a **RFC-004 (diversidade de tiles)** — dá pra criar quantos
+chars novos você quiser agora.
+
+**A barra de oxigênio e o botão de mergulhar são seus.** O sinal
+`EventBus.oxigenio_mudou(atual, maximo)` já existe e só emite quando muda; a
+tecla é J (M já era do mapa — a suíte pegou o conflito).
+

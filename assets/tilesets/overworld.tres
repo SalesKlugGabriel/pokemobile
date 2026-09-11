@@ -289,6 +289,16 @@ texture_region_size = Vector2i(128, 128)
 6:24/0/custom_data_0 = true
 7:24/0 = 0
 7:24/0/custom_data_0 = true
+0:25/0 = 0
+1:25/0 = 0
+2:25/0 = 0
+3:25/0 = 0
+4:25/0 = 0
+4:25/0/custom_data_0 = true
+5:25/0 = 0
+5:25/0/custom_data_0 = true
+6:25/0 = 0
+7:25/0 = 0
 [resource]
 tile_size = Vector2i(128, 128)
 custom_data_layer_0/name = "blocked"

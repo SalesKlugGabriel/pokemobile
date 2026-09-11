@@ -1903,5 +1903,13 @@
     "tier": 3,
     "price": 45000,
     "description": "100% de chance de curar sozinho um status a cada poucos segundos."
+  },
+  "roupa_de_mergulho": {
+    "id": "roupa_de_mergulho",
+    "name": "Roupa de Mergulho",
+    "category": "key",
+    "price": 0,
+    "single_use": false,
+    "description": "Devolve sua velocidade normal debaixo d'água e deixa você respirar no fundo do mar. Sem ela, o abismo é uma corrida contra o fôlego."
   }
 }
