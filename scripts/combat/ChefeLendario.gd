@@ -150,6 +150,27 @@ func _turbinar() -> void:
 	if not ("max_hp" in _chefe):
 		return
 	_chefe.wild_level = nivel
+	# 🔴 Fase 3 (item P4): o chefe passa a ser um POKÉMON DE VERDADE com
+	# mecânicas de encontro por cima, em vez de um boneco com repertório
+	# próprio e nada mais.
+	#
+	# A distinção que o Gabriel fez, e que este bloco implementa:
+	#
+	#   KIT DE POKÉMON       os 7-8 golpes que a espécie aprende, escolhidos
+	#                        pela mesma IA, passando pelo mesmo DamageCalculator,
+	#                        FormaDeArea, cooldown, status e targeting;
+	#   MECÂNICA DE ENCONTRO as seis funções deste arquivo (pressão, área,
+	#                        controle, punição, percentual, ambiente), mais
+	#                        enrage, escudo e selo.
+	#
+	# As duas coisas convivem: o chefe alterna entre bater com o kit dele e
+	# executar uma função de encontro. Antes, ele NUNCA usava um golpe de
+	# Pokémon — só as seis funções —, o que é o que fazia a luta parecer um
+	# script em vez de uma batalha.
+	if "categoria_de_encontro" in _chefe:
+		_chefe.categoria_de_encontro = "lendario"
+	if _chefe.has_method("_montar_golpes"):
+		_chefe._montar_golpes()
 	var base_hp : int = int(_chefe.max_hp)
 	_chefe.max_hp = int(round(base_hp * MULT_HP))
 	_chefe.current_hp = _chefe.max_hp
@@ -217,7 +238,36 @@ func _process(_delta: float) -> void:
 			continue
 		_proxima[funcao] = agora + int(_espera(funcao) * 1000.0)
 		_usar(funcao, alvo)
+		# 🔴 Fase 3 (P5): JANELA DE VULNERABILIDADE. Depois de gastar uma das
+		# funções PESADAS, o chefe fica exposto por alguns segundos e recebe
+		# mais dano.
+		#
+		# É a mecânica que faz o KIT importar, que era o pedido: quem tem golpe
+		# de BURST guardado aproveita a janela e a luta encurta de verdade; quem
+		# só tem dano constante não perde nada, mas também não ganha. Deixar de
+		# usar a ultimate na hora errada passa a ser uma decisão, não um
+		# detalhe. Sem isso, o chefe era só uma barra grande com um cronômetro.
+		if funcao in FUNCOES_QUE_EXPOEM:
+			_vulneravel_ate_msec = agora + int(VULNERAVEL_SEG * 1000.0)
+			_anunciar("Exposto!")
 		return
+
+## Quais funções deixam o chefe exposto. As três mais caras — as que ele
+## "carrega" pra usar. A pressão (o golpe barato e frequente) não expõe, senão
+## ele passaria a luta inteira vulnerável e a mecânica perderia o sentido.
+const FUNCOES_QUE_EXPOEM : Array[String] = ["percentual", "ambiente", "area"]
+const VULNERAVEL_SEG : float = 4.0
+const VULNERAVEL_MULT : float = 1.6
+
+var _vulneravel_ate_msec : int = 0
+
+## Está exposto agora? Lido pelo WildPokemon na hora de receber dano.
+func esta_vulneravel() -> bool:
+	return Time.get_ticks_msec() < _vulneravel_ate_msec
+
+## Quanto o dano recebido é multiplicado agora.
+func multiplicador_de_dano_recebido() -> float:
+	return VULNERAVEL_MULT if esta_vulneravel() else 1.0
 
 func _alvo() -> Node2D:
 	var arvore := get_tree()

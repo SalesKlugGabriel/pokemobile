@@ -519,19 +519,24 @@ func _media_ofensivos(nivel: int) -> float:
 # Item 14 — o selvagem não é um mini-jogador
 # ──────────────────────────────────────────────────────────────────────────
 func _p1_selvagem_nao_e_jogador() -> void:
-	_assert(KitDeCombate.SLOTS_SELVAGEM_COMUM <= 3, "selvagem comum carrega no máximo 3 golpes")
-	_assert(KitDeCombate.SLOTS_SELVAGEM_ALPHA == 4, "o Alpha carrega 4")
-	_assert(KitDeCombate.SLOTS_SELVAGEM_COMUM < KitDeCombate.SLOTS_MAXIMO,
-		"o jogador sempre pode ter mais repertório que um selvagem comum")
+	# 🔴 Fase 3: o teto do selvagem deixou de ser universal. O que se cobra aqui
+	# passou a ser a RELAÇÃO (selvagem sempre abaixo do jogador), não o número
+	# fixo — o número agora vem de `slots_de_selvagem()` e varia por nível,
+	# estágio e categoria. Ver teste_fase3_progressao.gd para a tabela inteira.
+	var comum_alto : int = KitDeCombate.slots_de_selvagem(6, 100, "comum", GameData.species)
+	var alpha_alto : int = KitDeCombate.slots_de_selvagem(6, 100, "alpha", GameData.species)
+	_assert(comum_alto < KitDeCombate.SLOTS_MAXIMO,
+		"nem o selvagem comum mais forte chega ao teto do jogador (%d de %d)"
+			% [comum_alto, KitDeCombate.SLOTS_MAXIMO])
+	_assert(alpha_alto > comum_alto, "o Alpha carrega mais que o comum (%d > %d)" % [alpha_alto, comum_alto])
 
 	var fonte := FileAccess.get_file_as_string("res://scripts/entities/WildPokemon.gd")
-	_assert(fonte.contains("SLOTS_SELVAGEM_ALPHA") and fonte.contains("SLOTS_SELVAGEM_COMUM"),
-		"o selvagem usa os tetos de verdade")
+	_assert(fonte.contains("KitDeCombate.slots_de_selvagem("),
+		"o selvagem calcula o próprio teto pela régua (não usa mais um número fixo)")
 
-	# Na prática: mesmo um selvagem de nível 100 não passa do teto.
-	var kit : Array = KitDeCombate.montar(6, 100, GameData.get_learnable_moves(6, 100),
-		GameData.moves, ["Fire", "Flying"], GameData.species, KitDeCombate.SLOTS_SELVAGEM_COMUM)
-	_assert(kit.size() <= 3, "um Charizard SELVAGEM Lv.100 tem 3 golpes, não 8 (%d)" % kit.size())
+	# Um Pidgey de nível 3 continua sendo um Pidgey de nível 3.
+	var pidgey : int = KitDeCombate.slots_de_selvagem(16, 3, "comum", GameData.species)
+	_assert(pidgey <= 2, "um Pidgey Lv.3 carrega 2 golpes, não 4 (%d)" % pidgey)
 
 # ──────────────────────────────────────────────────────────────────────────
 # Item 15 — Alpha

@@ -206,14 +206,21 @@ static func detalhar(
 		str(attacker_stats.get("held_item", "")), mv_type)
 	var bonus_ext : float = 1.0 + float(move_data.get("damage_bonus", 0.0))
 
+	# Sinergia (Fase 3, P7): golpe que rende mais por causa do que já
+	# aconteceu — alvo queimando, chuva no campo, alvo quase caindo. Vem do
+	# DADO (`sinergia` em moves.json), nunca de comparação por nome. Quem
+	# ataca preenche `contexto_de_sinergia`; sem contexto, não há bônus.
+	var sinergia : float = Sinergia.multiplicador(
+		move_data, attacker_stats.get("contexto_de_sinergia", {}))
+
 	var bruto : float = base * tipo_mult * stab * crit_mult * variacao \
-		* hab_mult * status_mult * item_mult * bonus_ext
+		* hab_mult * status_mult * item_mult * bonus_ext * sinergia
 
 	# ── Imunidade é zero de verdade, não "1 de dano" ──────────────────────────
 	if tipo_mult <= 0.0:
 		return _relatorio(move_data, attacker_stats, defender_stats, ataque, defesa,
 			base, tipo_mult, stab, crit_mult, variacao, hab_mult, status_mult,
-			item_mult, bonus_ext, 0, 0, critico, especial, 0)
+			item_mult, bonus_ext, 0, 0, critico, especial, 0, sinergia)
 
 	var final : int = maxi(CombatBalance.MIN_DAMAGE, int(floor(bruto)))
 	# Sem piso proporcional: `MIN_DAMAGE = 1` é o único piso. Ver a explicação
@@ -240,14 +247,15 @@ static func detalhar(
 
 	return _relatorio(move_data, attacker_stats, defender_stats, ataque, defesa,
 		base, tipo_mult, stab, crit_mult, variacao, hab_mult, status_mult,
-		item_mult, bonus_ext, final, teto_aplicado, critico, especial, sem_piso)
+		item_mult, bonus_ext, final, teto_aplicado, critico, especial, sem_piso, sinergia)
 
 ## Monta o dicionário de saída. Separado só pra `detalhar()` não ter duas
 ## saídas copiadas (a de imunidade e a normal) que podem divergir.
 static func _relatorio(move_data: Dictionary, atacante: Dictionary, defensor: Dictionary,
 		ataque: int, defesa: int, base: float, tipo: float, stab: float, crit: float,
 		variacao: float, habilidade: float, status: float, item: float, externo: float,
-		final: int, teto_cru: int, foi_critico: bool, especial: bool, sem_piso: int = 0) -> Dictionary:
+		final: int, teto_cru: int, foi_critico: bool, especial: bool, sem_piso: int = 0,
+		sinergia: float = 1.0) -> Dictionary:
 	return {
 		"final": final,
 		"golpe": str(move_data.get("name", move_data.get("id", "?"))),
@@ -268,6 +276,7 @@ static func _relatorio(move_data: Dictionary, atacante: Dictionary, defensor: Di
 		"mult_status": status,
 		"mult_item": item,
 		"mult_externo": externo,
+		"mult_sinergia": sinergia,
 		# > 0 significa que o para-quedas segurou: este seria o dano sem teto.
 		"segurado_pelo_teto": teto_cru,
 		"sem_piso": sem_piso,

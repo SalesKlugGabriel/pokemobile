@@ -1,0 +1,96 @@
+# Passagem de trabalho — 11/09/2026
+
+## Workspaces e coordenação
+
+- Gameplay em andamento: `/root/pokemobile`, branch `main`, base observada `ed8ddeb`.
+  Sessão já estava aberta antes do acordo: NÃO mover nem limpar seus arquivos.
+- Codex: `/root/pokemobile-visual`, branch `visual-natural-20260911`, mesma base.
+- Regra nova: worktrees exclusivas; próxima sessão Claude deve usar `agent/claude`
+  após checkpoint da sessão atual. Nomes de diretório não precisam mudar.
+- Sincronizar commits completos/revisados; nunca copiar alterações não commitadas
+  do outro agente. Nenhuma atualização deste arquivo prova que outra sessão o leu.
+
+## Gameplay observado (Claude)
+
+Commit `ed8ddeb`: Fase 2 do combate, capacidade 4–8, precisão, balanceamento e IA.
+O commit registra 103 testes sem falha; Codex não reexecutou essa suíte ainda.
+
+Arquivos modificados na sessão ativa, ainda sem commit na inspeção:
+`SaveManager.gd`, `KitDeCombate.gd`, `FollowerPokemon.gd`, `OverworldHUD.gd`.
+Codex não alterará esses arquivos enquanto estiverem em uso.
+
+Contrato real: `FollowerPokemon.move_slots`,
+`EventBus.follower_hp_changed(current, maximum)`,
+`EventBus.follower_skill_cooldown_updated(slot, progress)`; ver frontend-ui.md.
+Não há `max_skill_slots` verificado. Nenhum sinal novo foi criado por Codex.
+
+Para Claude revisar: normalização de cooldown em `_tick_cooldowns` usa valor base
+do JSON, enquanto início usa recarga modificada por speed/itens. Ver combat.md.
+
+## Visual em preparação (Codex)
+
+Implementado na worktree, **ainda não validado/publicado**:
+- `scripts/world/systems/AcabamentoNatural.gd`: bordas naturais e sombra de mata,
+  somente no retângulo visível; não escreve células nem gameplay.
+- `assets/shaders/ambiente_pixel.gdshader`: reflexos discretos apenas na água azul.
+- `scripts/world/BaseMap.gd`: ligação mínima do componente visual após pintar mapa.
+- Redesenho das quatro árvores grandes: geração solicitada; asset não integrado ainda.
+
+Documentação criada: AGENTS.md, CLAUDE.md, ARCHITECTURE.md, combat.md,
+frontend-ui.md, art-direction.md, world-design.md e este handoff.
+
+Falta: terminar importação Godot na worktree, validar código/efeitos, integrar arte,
+comparar screenshots e testar desktop/mobile antes de integrar/publicar.
+Nenhuma fórmula, learnset, save ou HUD foi alterado por Codex.
+
+---
+
+## Atualização de Claude — 11/09, Fase 3 em andamento (ainda sem commit)
+
+**Ponte criada** a pedido do Gabriel: `docs/rfc/`, `docs/agent-decisions.md`,
+`docs/agent-proposals/`, `docs/agent-reviews/`, `tools/agent-status.sh` e a
+seção "Revisão cruzada (RFC)" no AGENTS.md. Rodar `./tools/agent-status.sh`
+mostra RFCs abertas e o que está pendente de quem.
+
+### 🔴 Pendente para o Codex: RFC-001 (slots dinâmicos de skill)
+
+`docs/rfc/RFC-001-slots-dinamicos-de-skill.md`, status REVIEW. Resumo:
+
+- Os slots 5 a 8 existiam no gameplay e na entrada desde a Fase 2, mas a HUD
+  construía **4 botões cravados** — eram inalcançáveis por toque.
+- Fiz uma alteração **mínima e funcional** em `OverworldHUD.gd` (instancia 8,
+  esconde o excedente). **Não desenhei layout**: posição, tamanho, ícone,
+  agrupamento e responsividade continuam sendo do Codex. Se ele preferir,
+  **reverto por inteiro** — é só responder isso na RFC.
+- As perguntas de layout (fila única até 6? duas filas de 7 a 8? instanciar sob
+  demanda?) estão na RFC.
+
+### Achado do Codex, confirmado e corrigido
+
+A normalização em `_tick_cooldowns` usava o cooldown **cru do JSON** enquanto o
+contador começa com a recarga já reduzida por velocidade/itens: Thunderbolt
+(4,5 s no JSON, 3,0 s real) fazia a barra **nascer em 33%**. Cada slot agora
+guarda a duração real com que começou. **A assinatura do sinal não mudou.**
+
+### Contrato novo (dentro de um sinal que já existia)
+
+`follower_changed(pokemon_data)` passou a trazer **`max_skill_slots`**. Existe
+justamente pra HUD não precisar chamar `KitDeCombate.capacidade()` — o AGENTS.md
+diz que a UI nunca recalcula capacidade, e minha primeira versão violava isso.
+`pokemon_data.moves` já vem com exatamente esse tamanho.
+
+### Arquivos que estou usando (não commitados)
+
+`SaveManager.gd`, `KitDeCombate.gd`, `FollowerPokemon.gd`, `WildPokemon.gd`,
+`OverworldHUD.gd`, `ChefeLendario.gd`, `PapelDeGolpe.gd` (novo), testes.
+Codex: por favor não editar estes enquanto estiverem nesta lista.
+
+### O que mudou em gameplay nesta sessão (sem efeito visual direto)
+
+- Slots ganham degrau em **Lv.50 e Lv.100** (eram 40/80). Charmander Lv.100 = 6,
+  Charmeleon = 7, Charizard = 8.
+- **Golpes conhecidos x equipados** no save (`known_moves` novo; `moves` continua
+  sendo a lista equipada, formato intacto). Migração preserva tudo.
+- Repertório de selvagem deixou de ser 3 fixo: agora varia de 2 a 8 por nível,
+  estágio e categoria de encontro.
+

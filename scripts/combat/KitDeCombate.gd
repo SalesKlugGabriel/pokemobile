@@ -38,14 +38,63 @@ extends RefCounted
 const SLOTS_BASE : int = 4
 const SLOTS_MAXIMO : int = 8
 
-## Em que níveis o Pokémon ganha um slot extra. Dois degraus: um no meio da
-## jornada, outro perto do teto.
-const NIVEIS_DE_SLOT_EXTRA : Array[int] = [40, 80]
+## Em que níveis o Pokémon ganha um slot extra.
+##
+## 🔴 Fase 3: eram 40 e 80. O Gabriel fixou a régua em **Lv.50 e Lv.100** —
+## os dois marcos que o jogador reconhece (metade do caminho e o teto), em vez
+## de dois números sem significado. O resultado obrigatório continua o mesmo:
+## Charmander Lv.100 = 6, Charmeleon = 7, Charizard = 8.
+const NIVEIS_DE_SLOT_EXTRA : Array[int] = [50, 100]
 
-## Teto de golpes de um selvagem comum (item 14: "não transformar todo Pokémon
-## selvagem em um mini-player completo").
+## 🔴 Fase 3: o teto do selvagem deixou de ser universal.
+##
+## Na Fase 2 era 3 pra qualquer selvagem e 4 pro Alpha. O Gabriel apontou o que
+## isso produzia: *"um Pidgey Lv3 não precisa de quatro golpes; um Charizard
+## Lv100 selvagem não deveria ter somente três"*. Os dois casos estavam
+## errados pelo mesmo motivo — um número só pra situações que não se parecem.
+##
+## Agora o repertório do selvagem cresce por nível, estágio evolutivo e
+## CATEGORIA do encontro, com um piso e um teto por categoria:
+##
+##   comum      2 a 5     (um Pidgey Lv3 fica em 2; um Dragonite Lv90, em 5)
+##   alpha      5 a 6
+##   mini_boss  6 a 7
+##   lendario   7 a 8
+##
+## Estes dois nomes antigos seguem porque meia dúzia de lugares lê deles; o
+## valor real vem de `slots_de_selvagem()`.
 const SLOTS_SELVAGEM_COMUM : int = 3
-const SLOTS_SELVAGEM_ALPHA : int = 4
+const SLOTS_SELVAGEM_ALPHA : int = 5
+
+## Piso e teto por categoria de encontro.
+const CATEGORIAS_DE_ENCONTRO : Dictionary = {
+	"comum":     {"min": 2, "max": 5},
+	"alpha":     {"min": 5, "max": 6},
+	"mini_boss": {"min": 6, "max": 7},
+	"lendario":  {"min": 7, "max": 8},
+}
+
+## A partir deste nível um selvagem comum ganha o primeiro golpe extra.
+const NIVEL_SELVAGEM_INTERMEDIARIO : int = 15
+## E a partir deste, a forma final ganha o último.
+const NIVEL_SELVAGEM_VETERANO : int = 80
+
+## Quantos golpes este selvagem carrega.
+##
+## A conta cresce por MÉRITO — nível e evolução —, não por sorteio, então dá
+## pra olhar um bicho na tela e saber mais ou menos o que esperar dele.
+static func slots_de_selvagem(species_id: int, nivel: int, categoria: String,
+		especies: Dictionary) -> int:
+	var faixa : Dictionary = CATEGORIAS_DE_ENCONTRO.get(categoria,
+		CATEGORIAS_DE_ENCONTRO["comum"])
+	var estagio : int = estagio_evolutivo(species_id, especies)
+	var slots : int = int(faixa["min"])
+	if nivel >= NIVEL_SELVAGEM_INTERMEDIARIO:
+		slots += 1
+	slots += estagio                                   # +1 médio, +2 final
+	if estagio >= 2 and nivel >= NIVEL_SELVAGEM_VETERANO:
+		slots += 1
+	return clampi(slots, int(faixa["min"]), int(faixa["max"]))
 
 ## As faixas do item 13 — quantos golpes OFENSIVOS o Pokémon do jogador deveria
 ## ter em cada fase do jogo. Não é trava: é o alvo que o preenchimento

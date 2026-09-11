@@ -82,6 +82,9 @@ var move_slots     : Array[String] = ["", "", "", ""]
 
 ## Cooldowns individuais restantes em segundos
 var _cooldowns     : Array[float]  = [0.0, 0.0, 0.0, 0.0]
+## A duração com que cada recarga COMEÇOU — é ela que normaliza a barra, não o
+## valor do JSON (ver `_tick_cooldowns`).
+var _cooldown_total : Array[float] = [0.0, 0.0, 0.0, 0.0]
 
 ## Referência ao Treinador e ao inimigo mais próximo (injetadas externamente)
 var trainer        : Node2D = null
@@ -304,15 +307,44 @@ func _load_move_slots() -> void:
 	for i in capacidade:
 		move_slots[i] = ""
 	_cooldowns.resize(capacidade)
+	_cooldown_total.resize(capacidade)
 	for i in capacidade:
 		_cooldowns[i] = 0.0
+		_cooldown_total[i] = 0.0
 
+	# 🔴 Fase 3: o que vale são os golpes EQUIPADOS no save, não uma lista
+	# remontada do learnset a cada carregamento. Antes disso, uma MT ensinada
+	# pelo jogador simplesmente não aparecia no combate de verdade: o
+	# `_load_move_slots` reconstruía tudo do zero e jogava a escolha dele fora.
+	var equipados : Array = _golpes_equipados_no_save()
+	if not equipados.is_empty():
+		for i in mini(capacidade, equipados.size()):
+			move_slots[i] = str(equipados[i])
+		return
+
+	# Sem save (teste, cena solta, Pokémon que não é o líder): monta pelo
+	# learnset, como antes.
 	var escolhidos : Array = KitDeCombate.montar(
 		pokemon_species_id, pokemon_level,
 		GameData.get_learnable_moves(pokemon_species_id, pokemon_level),
 		GameData.moves, types, GameData.species)
 	for i in mini(capacidade, escolhidos.size()):
 		move_slots[i] = str(escolhidos[i])
+
+## Os ids equipados no meu registro do save, na ordem dos slots. Lista vazia
+## significa "não tenho registro" — quem chama monta do learnset.
+func _golpes_equipados_no_save() -> Array:
+	var salvo : Dictionary = _meu_registro_no_save()
+	if salvo.is_empty():
+		return []
+	var ids : Array = []
+	for m in salvo.get("moves", []):
+		ids.append(str(m.get("id", "")))
+	# Tudo vazio conta como "sem registro" — não adianta equipar 4 nadas.
+	for id in ids:
+		if not str(id).is_empty():
+			return ids
+	return []
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Loop principal
@@ -499,14 +531,18 @@ func _fora_de_combate() -> bool:
 			return false
 	return true
 
+## 🔴 Bug reportado pelo Codex em 11/09 e confirmado: a normalização usava o
+## cooldown CRU do JSON, enquanto `_cooldowns[i]` recebe a recarga já reduzida
+## por velocidade e item. Com Thunderbolt (4,5s no JSON) reduzido pra 3,0s, a
+## barra nascia em 33% em vez de 0 — o jogador via a recarga "pular" no começo.
+## Agora cada slot guarda a duração REAL com que começou.
 func _tick_cooldowns(delta: float) -> void:
 	for i in _cooldowns.size():
 		if _cooldowns[i] > 0.0:
 			_cooldowns[i] = max(0.0, _cooldowns[i] - delta)
-			var move_data := GameData.get_move(move_slots[i])
-			var total_cd  : float = move_data.get("cooldown", 2.0)
-			var progress  : float = 1.0 - (_cooldowns[i] / total_cd) if total_cd > 0.0 else 1.0
-			EventBus.follower_skill_cooldown_updated.emit(i, progress)
+			var total_cd : float = _cooldown_total[i] if i < _cooldown_total.size() else 0.0
+			var progress : float = 1.0 - (_cooldowns[i] / total_cd) if total_cd > 0.0 else 1.0
+			EventBus.follower_skill_cooldown_updated.emit(i, clampf(progress, 0.0, 1.0))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Input de skills
@@ -554,9 +590,11 @@ func use_skill(slot: int) -> void:
 	# Recarga: velocidade encurta, item encurta mais, e os dois juntos batem no
 	# teto da régua central — sem teto, um Pokémon muito rápido atacaria quase
 	# sem intervalo e o combate viraria botão travado.
-	_cooldowns[slot] = CombatBalance.recarga(
+	var recarga : float = CombatBalance.recarga(
 		float(move_data.get("cooldown", 2.0)), speed_stat,
 		ItensEquipados.valor_do_lider("recarga"))
+	_cooldowns[slot] = recarga
+	_cooldown_total[slot] = recarga
 
 	# Paralisia: chance por tentativa de falhar o golpe inteiro (mesma regra
 	# de WildPokemon._perform_attack() — 25%, StatusEffectController, 03/09).
@@ -612,6 +650,33 @@ func _attacker_stats() -> Dictionary:
 		# motor por turno, que não existe mais. Sem esta linha, equipar um item
 		# continuaria não fazendo nada no combate de verdade.
 		"held_item": _item_equipado(),
+	}
+
+## O que a sinergia precisa saber da situação (Fase 3, P7). Montado aqui e
+## enfiado dentro de `attacker_stats` porque a conta de dano é o único lugar
+## que vê atacante e alvo ao mesmo tempo.
+func _contexto_de_sinergia(alvo: Node) -> Dictionary:
+	var campo : Array[String] = []
+	var clima := get_node_or_null("/root/ClimaDinamico")
+	if clima != null and clima.get("chovendo"):
+		campo.append("chuva")
+	var ciclo := get_node_or_null("/root/CicloDoDia")
+	if ciclo != null and ciclo.has_method("periodo_de"):
+		campo.append(str(ciclo.periodo_de(ciclo.get("hora"))))
+
+	var alvo_status : String = "none"
+	var alvo_vida : float = 1.0
+	if alvo != null and is_instance_valid(alvo):
+		if "current_status" in alvo:
+			alvo_status = str(alvo.current_status)
+		if alvo.has_method("get_hp_ratio"):
+			alvo_vida = float(alvo.get_hp_ratio())
+	return {
+		"alvo_status": alvo_status,
+		"meu_status": current_status,
+		"campo": campo,
+		"alvo_fracao_vida": alvo_vida,
+		"minha_fracao_vida": float(current_hp) / float(max_hp) if max_hp > 0 else 1.0,
 	}
 
 ## O item que o Pokémon do slot 0 está segurando, direto do save.
@@ -685,6 +750,7 @@ func _apply_damage_direct(move_data: Dictionary) -> void:
 	if not current_target.has_method("take_damage"):
 		return
 	var attacker_stats := _attacker_stats()
+	attacker_stats["contexto_de_sinergia"] = _contexto_de_sinergia(current_target)
 	var defender_stats : Dictionary = {}
 	if current_target.has_method("get_combat_stats"):
 		defender_stats = current_target.get_combat_stats()
@@ -913,4 +979,10 @@ func _build_pokemon_data() -> Dictionary:
 		"hp":         current_hp,
 		"max_hp":     max_hp,
 		"moves":      move_slots.duplicate(),
+		# 🔴 Contrato com o Codex (AGENTS.md): "UI consome estado do gameplay;
+		# nunca recalcula capacidade". Este campo existe pra HUD não precisar
+		# chamar `KitDeCombate.capacidade()` — quantos slots este Pokémon tem é
+		# decisão de gameplay, e a apresentação só desenha o que recebe.
+		# `moves` já vem com exatamente este tamanho.
+		"max_skill_slots": move_slots.size(),
 	}

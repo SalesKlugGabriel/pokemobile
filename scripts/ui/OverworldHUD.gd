@@ -32,7 +32,10 @@ func _build_skill_cooldown_bars() -> void:
 	row.add_theme_constant_override("separation", 6)
 	add_child(row)
 
-	for i in 4:
+	# 🔴 Fase 3: eram 4 botões cravados. Desde a Fase 2 um Pokémon pode ter até
+	# 8 slots — os de 5 a 8 existiam no código e na tecla, e não tinham botão
+	# nenhum na tela. Agora a barra nasce com o teto e esconde o que não existe.
+	for i in KitDeCombate.SLOTS_MAXIMO:
 		var col := VBoxContainer.new()
 		col.add_theme_constant_override("separation", 2)
 		row.add_child(col)
@@ -80,7 +83,20 @@ func _on_skill_button_pressed(slot: int) -> void:
 ## FollowerPokemon._build_pokemon_data(), não precisa reconsultar nada.
 func _on_follower_changed(pokemon_data: Dictionary) -> void:
 	var moves : Array = pokemon_data.get("moves", [])
+	# Quantos slots este Pokémon tem. Vem PRONTO do gameplay
+	# (`max_skill_slots`), nunca recalculado aqui — contrato do AGENTS.md.
+	# ⚠️ Esta é uma implementação MÍNIMA e funcional, feita só pra os slots 5-8
+	# deixarem de ser inalcançáveis; o LAYOUT (uma fila até 6, duas de 7 a 8,
+	# ícones, responsividade) é do Codex — ver docs/rfc/RFC-001.
+	var capacidade : int = int(pokemon_data.get("max_skill_slots",
+		pokemon_data.get("moves", []).size()))
 	for i in _skill_buttons.size():
+		var existe : bool = i < capacidade
+		_skill_buttons[i].visible = existe
+		if i < _skill_bars.size():
+			_skill_bars[i].visible = existe
+		if not existe:
+			continue
 		var move_id : String = str(moves[i]) if i < moves.size() else ""
 		if move_id.is_empty():
 			# 04/09: era "—", que lê como defeito ("por que dois botões estão

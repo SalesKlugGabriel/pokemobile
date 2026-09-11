@@ -52,6 +52,7 @@ static func formatar(d: Dictionary, atacante: String = "?", defensor: String = "
 	_se_diferente(partes, "status", float(d.get("mult_status", 1.0)))
 	_se_diferente(partes, "item", float(d.get("mult_item", 1.0)))
 	_se_diferente(partes, "bônus externo", float(d.get("mult_externo", 1.0)))
+	_se_diferente(partes, "sinergia", float(d.get("mult_sinergia", 1.0)))
 	var segurado : int = int(d.get("segurado_pelo_teto", 0))
 	if segurado > 0:
 		partes.append("  ⚠ TETO         seria %d, cortado pra %d (90%% da vida máxima)" % [segurado, int(d.get("final", 0))])

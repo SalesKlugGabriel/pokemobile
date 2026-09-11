@@ -12,6 +12,11 @@ extends CharacterBody2D
 @export var wild_level : int    = 5
 @export var behavior   : String = "neutral"   # "aggressive" | "neutral" | "flee"
 @export var is_alpha   : bool   = false
+## 🔴 Fase 3: que TIPO de encontro este bicho é — decide quantos golpes ele
+## carrega (ver `KitDeCombate.CATEGORIAS_DE_ENCONTRO`). "comum" por padrão;
+## vira "alpha" sozinho quando `is_alpha`, e o ChefeLendario põe "lendario"
+## ao se instalar.
+@export var categoria_de_encontro : String = "comum"
 ## ID da zona onde nasceu (data/world/zones.json) — setado pelo SpawnManager.
 ## Usado pelo BattleManager pra saber se é uma batalha de Zona Safari
 ## ("" pros spawns sem zona conhecida, ex: pesca via spawn_specific).
@@ -370,6 +375,9 @@ func _load_species() -> void:
 	# mandado outro (aí `behavior` já veio preenchido pelo initialize).
 	var rotulo : String = behavior if not behavior.is_empty() else str(species_data.get("behavior", "neutral"))
 	personalidade = ComportamentoSelvagem.normalizar(rotulo)
+
+	if is_alpha and categoria_de_encontro == "comum":
+		categoria_de_encontro = "alpha"
 
 	if is_alpha:
 		max_hp     = int(max_hp    * ALPHA_HP_MULT)
@@ -915,6 +923,7 @@ func _usar_golpe(golpe: Dictionary) -> void:
 
 	if target and target.has_method("take_damage"):
 		var attacker_stats := _attacker_stats()
+		attacker_stats["contexto_de_sinergia"] = _contexto_de_sinergia(target)
 		var defender_stats : Dictionary = {}
 		if target.has_method("get_combat_stats"):
 			defender_stats = target.get_combat_stats()
@@ -932,6 +941,33 @@ func _usar_golpe(golpe: Dictionary) -> void:
 			FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184), str(golpe.get("name", "")), Color(1.0, 0.4, 0.4))
 		Empurrao.aplicar(target, global_position, golpe)
 		StatusEffectController.try_apply(target, golpe, mult_tipo)
+
+## O que a sinergia precisa saber da situação (Fase 3, P7). Montado aqui e
+## enfiado dentro de `attacker_stats` porque a conta de dano é o único lugar
+## que vê atacante e alvo ao mesmo tempo.
+func _contexto_de_sinergia(alvo: Node) -> Dictionary:
+	var campo : Array[String] = []
+	var clima := get_node_or_null("/root/ClimaDinamico")
+	if clima != null and clima.get("chovendo"):
+		campo.append("chuva")
+	var ciclo := get_node_or_null("/root/CicloDoDia")
+	if ciclo != null and ciclo.has_method("periodo_de"):
+		campo.append(str(ciclo.periodo_de(ciclo.get("hora"))))
+
+	var alvo_status : String = "none"
+	var alvo_vida : float = 1.0
+	if alvo != null and is_instance_valid(alvo):
+		if "current_status" in alvo:
+			alvo_status = str(alvo.current_status)
+		if alvo.has_method("get_hp_ratio"):
+			alvo_vida = float(alvo.get_hp_ratio())
+	return {
+		"alvo_status": alvo_status,
+		"meu_status": current_status,
+		"campo": campo,
+		"alvo_fracao_vida": alvo_vida,
+		"minha_fracao_vida": get_hp_ratio(),
+	}
 
 ## O que a escolha de golpe precisa saber da situação: contra que tipos estou,
 ## quão machucado está o alvo, quão machucado estou eu, e quantos alvos há
@@ -1019,6 +1055,12 @@ func _apply_damage_area(move_data: Dictionary) -> void:
 func take_damage(amount: int, attacker: Node = null) -> void:
 	if state == State.DEAD:
 		return
+	# Janela de vulnerabilidade do chefe (Fase 3, P5): logo depois de uma
+	# função pesada ele fica exposto e recebe mais dano. Só existe pra quem tem
+	# um `ChefeLendario` pendurado — um selvagem comum nem consulta.
+	var chefe := get_node_or_null("ChefeLendario")
+	if chefe != null and chefe.has_method("multiplicador_de_dano_recebido"):
+		amount = maxi(1, int(round(float(amount) * chefe.multiplicador_de_dano_recebido())))
 	current_hp = max(0, current_hp - amount)
 	EventBus.damage_dealt.emit(self, amount, false, attacker)
 	EventBus.wild_pokemon_hp_changed.emit(self, current_hp, max_hp)
@@ -1161,8 +1203,11 @@ func get_combat_stats() -> Dictionary:
 ## (quase sempre o Tackle de nível 1); na Fase 1 virou 4 pra todo mundo, o que
 ## era generoso demais do lado errado da mesa.
 func _montar_golpes() -> void:
-	var teto : int = KitDeCombate.SLOTS_SELVAGEM_ALPHA if is_alpha \
-		else KitDeCombate.SLOTS_SELVAGEM_COMUM
+	# 🔴 Fase 3: o teto vem da CATEGORIA do encontro, do nível e do estágio
+	# evolutivo — não é mais 3 pra todo mundo. `categoria_de_encontro` é
+	# "comum" por padrão e o chefe/mini-chefe sobrescreve ao se instalar.
+	var teto : int = KitDeCombate.slots_de_selvagem(
+		species_id, wild_level, categoria_de_encontro, GameData.species)
 	var ids : Array = KitDeCombate.montar(
 		species_id, wild_level,
 		GameData.get_learnable_moves(species_id, wild_level),

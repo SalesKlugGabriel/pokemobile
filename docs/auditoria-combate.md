@@ -716,3 +716,203 @@ fração pequena do orçamento.
 ---
 
 *Fase 2 registrada após a execução, com os números medidos.*
+
+---
+
+# COMBAT SYSTEM — PHASE 3 REPORT
+
+> Progressão qualitativa de kit, loadout, wild e boss.
+> Suíte: **104 arquivos, 0 falhas**. Publicado (carimbo 1789144445).
+
+## 1. Baseline antes de alterar
+
+`ed8ddeb` · **103 arquivos, 0 falhas** · árvore limpa. Auditoria dos 6 pontos
+pedidos, com o que ela encontrou:
+
+| Área | Estado encontrado |
+|---|---|
+| Slots dinâmicos | `KitDeCombate.capacidade()`, degraus em Lv.40/80 |
+| KitDeCombate | montava do learnset e **ignorava o save** — MT ensinada não chegava ao combate 🔴 |
+| HUD | construía **4 botões cravados**: slots 5-8 eram **inalcançáveis por toque** 🔴 |
+| Input | `skill_1..8` já registrados na Fase 2 ✅ |
+| Save | `learn_move` travava em **4 cravado** — a 5ª MT falhava em silêncio 🔴 |
+| Known vs equipped | **não existia** |
+| Wild | teto universal 3 (comum) / 4 (alpha) |
+| Boss | repertório próprio de 6 funções, **sem kit de Pokémon** |
+
+## 2. Arquivos modificados
+
+**Novos (3):** `PapelDeGolpe.gd`, `Sinergia.gd`, `teste_fase3_progressao.gd`.
+**Modificados (9):** `KitDeCombate.gd`, `SaveManager.gd`, `FollowerPokemon.gd`,
+`WildPokemon.gd`, `ChefeLendario.gd`, `DamageCalculator.gd`, `CombateDebug.gd`,
+`OverworldHUD.gd` (mínimo, ver RFC-001), `moves.json`.
+**Ponte entre agentes:** `docs/rfc/RFC-001`, `docs/agent-decisions.md`,
+`tools/agent-status.sh`, seção "Revisão cruzada" no `AGENTS.md`,
+`docs/playtest-fase3.md`.
+
+## 3. Regra final dos slots
+
+```
+slots = 4 (base) + estágio evolutivo (0-2) + bônus de nível
+        Lv.1–49: +0 · Lv.50–99: +1 · Lv.100: +2        teto 8
+```
+
+Centralizada em `KitDeCombate.capacidade()`. Nada hardcoded em entidade.
+
+| Espécie | Est | Lv.1 | Lv.49 | Lv.50 | Lv.99 | **Lv.100** |
+|---|---:|---:|---:|---:|---:|---:|
+| Charmander | 0 | 4 | 4 | 5 | 5 | **6** ✅ |
+| Charmeleon | 1 | 5 | 5 | 6 | 6 | **7** ✅ |
+| Charizard | 2 | 6 | 6 | 7 | 7 | **8** ✅ |
+
+## 4. Known moves × equipped moves
+
+| Campo | Onde | Observação |
+|---|---|---|
+| `moves` | save, **formato intacto** | continua sendo a lista EQUIPADA — nada que já lia quebrou |
+| `known_moves` | save, **novo** | só ids, sem teto |
+| `max_skill_slots` | `SaveManager.max_skill_slots(i)` e em `follower_changed` | **derivado**, nunca gravado — número gravado envelhece sozinho quando o bicho sobe de nível |
+
+API: `get_known_moves`, `equip_move`, `unequip_move`, `max_skill_slots`.
+Regras: só equipa o que conhece · o mesmo golpe não ocupa dois slots ·
+desequipar **não** faz esquecer · slot além da capacidade não existe.
+Ao subir de nível, o golpe novo entra nos conhecidos e ocupa slot **se houver
+espaço** — nunca substitui um equipado em silêncio.
+
+**Charizard Lv.100: 11 golpes aprendíveis, 8 slots.** A escolha passou a existir.
+
+## 5. Migração de save
+
+`versao_combate` 2 → 3. Para cada Pokémon sem `known_moves`: entram **todos os
+equipados** (inclusive MT fora do learnset) **mais** tudo que a espécie aprende
+até o nível atual. Testado: nenhum golpe se perde; a lista já nasce útil.
+
+## 6. Progressão dos wilds
+
+| Encontro | Faixa | Medido |
+|---|---|---:|
+| Pidgey Lv.3 | comum 2-5 | **2** |
+| Pidgeotto Lv.25 | comum | **4** |
+| Pidgeot Lv.45 / Lv.90 | comum | **5** |
+| Charizard selvagem Lv.100 | comum | **5** |
+| Charizard **Alpha** Lv.100 | alpha 5-6 | **6** |
+| Dragonite **mini-chefe** Lv.90 | mini_boss 6-7 | **7** |
+| **Moltres** Lv.100 | lendario 7-8 | **8** |
+
+`slots = piso da categoria + (nível ≥ 15) + estágio + (final e nível ≥ 80)`,
+limitado pela faixa. O selvagem comum **nunca** chega ao teto do jogador.
+
+## 7. Integração com o boss
+
+O chefe agora é **Pokémon + mecânica**, não dois sistemas paralelos:
+
+- monta kit real (`_montar_golpes()` com categoria `lendario`, 7-8 slots);
+- já reusava `DamageCalculator`, `FormaDeArea`, cooldown, status e targeting
+  desde a Fase 2;
+- as 6 funções de encontro (pressão, área, controle, punição, percentual,
+  ambiente) + enrage + escudo continuam sendo a **mecânica**, separada do kit.
+
+**Novo (P5): janela de vulnerabilidade.** Depois de uma função pesada (área,
+percentual, ambiente — nunca a pressão), o chefe fica **exposto por 4 s** e
+recebe **×1,6**. É a mecânica que faz o kit importar: quem guardou um BURST
+encurta a luta; quem só tem dano constante não perde nada, mas também não ganha.
+
+| Lendário | Slots | Kit | Papéis |
+|---|---:|---:|---|
+| Articuno | 8 | 6 | AOE, BURST, CONTROL, DAMAGE, DEFENSIVE, MOBILITY, UTILITY |
+| Zapdos | 8 | 6 | AOE, BURST, CONTROL, DAMAGE, UTILITY |
+| Moltres | 8 | 6 | AOE, BURST, CONTROL, DAMAGE, DOT, MOBILITY, UTILITY |
+
+## 8. Matriz Charmander / Charmeleon / Charizard (Lv.100)
+
+| | Golpes | Papéis | Tipos ofensivos |
+|---|---:|---:|---:|
+| Charmander | 6 | 5 | 2 |
+| Charmeleon | 7 | 6 | 2 |
+| Charizard | **8** | **6** | **3** |
+
+Honesto: o crescimento de **papéis** satura em 6. O que continua crescendo é
+golpes e cobertura de tipo. O teto é o **learnset**, não a arquitetura.
+
+## 9. Matriz Magikarp / Gyarados
+
+| | Golpes | Papéis | Tipos ofensivos | Área | Controle |
+|---|---:|---:|---:|---|---|
+| Magikarp Lv.100 | 3 | 3 | 1 | não | não |
+| Gyarados Lv.100 | 7 | 6 | 3 | sim | sim |
+
+Kit do Magikarp Lv.100: `flail, tackle, splash`. Nasce do learnset —
+**não há uma linha de código com o nome dele** (testado contra `== 129`,
+`== "Magikarp"` e afins nos 4 arquivos de combate).
+
+## 10. Testes de boss e o caso P6
+
+🔴 **Achado que mudou a resposta do P6:** o learnset do Moltres é **vazio entre
+o Lv.1 e o Lv.51**. Um Moltres Lv.30 tem **3 golpes** — kit tão pobre quanto o
+Magikarp Lv.100.
+
+Então a resposta honesta não é "o lendário tem kit melhor". É: **o que um
+Magikarp Lv.100 não consegue responder não é o kit — é a mecânica de encontro**,
+que não depende de learnset nem de nível. Área telegrafada, dano percentual,
+hazard de arena e janela de vulnerabilidade existem igual no Lv.30 e no Lv.100,
+e o Magikarp não tem área, controle nem cobertura pra lidar com nenhuma delas.
+
+⚠️ **O que NÃO está provado:** que o Magikarp *perde*. DPS bruto no Lv.100 é
+alto e um alvo que não reage morre. Provar o desfecho exige simular a luta com
+movimentação — **isso é playtest**.
+
+## 11. Performance
+
+Sem medição nova nesta fase. A referência da Fase 2 continua valendo: a lógica
+de combate de um segundo cheio custa **5.428 µs** (0,54% de um núcleo); escolher
+entre **8** golpes custa **~30 µs** por decisão (medido nesta fase, teto 120).
+
+⚠️ **FPS real continua NÃO medido.** O ambiente é headless, sem renderização.
+`docs/playtest-fase3.md` tem o roteiro para medir no jogo, com onde ler FPS no
+Chrome. **Não afirmo 60 FPS.**
+
+## 12. Regressões encontradas
+
+| O quê | Resolução |
+|---|---|
+| `teste_fase2_combate.gd` cobrava o teto fixo de 3/4 do selvagem | Reescrito pra cobrar a RELAÇÃO (selvagem < jogador), não o número |
+| `teste_dungeon_de_gelo.gd` exigia `MULT_HP >= 6` | Ajustado na Fase 2, com o motivo medido |
+| Nada mais | 104 arquivos, 0 falhas |
+
+🔴 **Bug do Codex, confirmado e corrigido:** `_tick_cooldowns` normalizava o
+progresso pelo cooldown **cru do JSON** enquanto o contador começa com a recarga
+já reduzida — Thunderbolt (4,5 s no JSON, 3,0 s real) fazia a barra **nascer em
+33%**. Cada slot guarda a duração real. **Assinatura do sinal inalterada.**
+
+## 13. Pontos que precisam de CONTEÚDO (não de código)
+
+**27 das 151 espécies têm learnset pobre no Lv.100** (menos de 4 golpes, menos
+de 2 tipos ofensivos, ou nenhum dano). Os casos: Caterpie, Metapod, Weedle,
+Kakuna, Ditto, Magikarp (**de propósito**), Rattata, Raticate, Clefairy,
+Clefable, Jigglypuff, Wigglytuff, Abra, Kadabra, **Alakazam**, Voltorb,
+Lickitung, Chansey, Kangaskhan, Horsea, Seadra, Pinsir, Tauros, Eevee,
+**Zapdos**, Dratini, Dragonair.
+
+Dois merecem atenção: **Alakazam** tem 8 slots e só 5 papéis / 1 tipo ofensivo;
+**Zapdos** é lendário com learnset raso. **Não inventei golpe pra preencher** —
+o pedido proibia, e inventar dado esconderia o problema.
+
+Também: **learnsets de lendário são todos back-loaded** (nada entre Lv.1 e
+Lv.51). Um lendário de nível baixo é fraco de kit por construção.
+
+## 14. Sugestões para a próxima fase
+
+1. **Preencher os learnsets rasos** — é conteúdo, não código. A ferramenta de
+   diagnóstico já aponta quem e por quê.
+2. **Tela de loadout.** `known_moves`/`equip_move` existem e **não têm
+   interface**: hoje o jogador conhece mais golpes e não consegue trocar.
+   É o maior buraco desta fase, e é do Codex (precisa de RFC).
+3. **Mais sinergias.** O mecanismo está pronto e tem 3 exemplos em dado.
+4. **Traits combináveis** (P1-17 da Fase 2) continua sem migração — arquitetura
+   permite, necessidade ainda não apareceu.
+5. **Playtest** (`docs/playtest-fase3.md`) antes de qualquer ajuste novo de
+   número.
+
+---
+
+*Fase 3 registrada após a execução, com os números medidos.*

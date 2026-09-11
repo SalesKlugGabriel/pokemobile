@@ -113,7 +113,7 @@ func load_game() -> bool:
 
 ## Versão do esquema de combate gravada no save. Sobe quando uma fórmula muda
 ## de um jeito que altera números já salvos.
-const VERSAO_DO_COMBATE : int = 2
+const VERSAO_DO_COMBATE : int = 3
 
 ## 🔴 11/09: a reengenharia do combate unificou as três fórmulas de stat do
 ## projeto numa só (`StatsDePokemon`), e isso MUDA o HP máximo de todo Pokémon
@@ -144,9 +144,38 @@ func _migrar_hp_da_reengenharia() -> void:
 				int(poke.get("hp_current", max_antigo)), max_antigo, max_novo)
 			poke["hp_max"] = max_novo
 			migrados += 1
+	_migrar_golpes_conhecidos()
 	save_data["versao_combate"] = VERSAO_DO_COMBATE
 	if migrados > 0:
 		print("[SaveManager] Reengenharia do combate: %d Pokémon tiveram o HP recalculado (fração preservada)." % migrados)
+
+## 🔴 Fase 3: save antigo não tem `known_moves`. A migração precisa garantir
+## duas coisas ao mesmo tempo:
+##   1. ninguém PERDE golpe — tudo que está equipado entra nos conhecidos,
+##      inclusive MT ensinada que não está no learnset da espécie;
+##   2. a lista fica útil na hora — recebe também tudo que a espécie aprende
+##      até o nível atual, que é o que o Pokémon "sabe" na ficção do jogo.
+## Roda uma vez só; Pokémon que já tem a chave é deixado em paz.
+func _migrar_golpes_conhecidos() -> void:
+	var tocados : int = 0
+	for lista in ["team", "pc"]:
+		for poke in save_data.get(lista, []):
+			if not (poke is Dictionary) or poke.has("known_moves"):
+				continue
+			var conhecidos : Array = []
+			for m in poke.get("moves", []):
+				var mid := str(m.get("id", ""))
+				if not mid.is_empty() and not (mid in conhecidos):
+					conhecidos.append(mid)
+			for entry in GameData.get_learnable_moves(
+					int(poke.get("species_id", 1)), int(poke.get("level", 1))):
+				var mid2 := str(entry.get("move", ""))
+				if not mid2.is_empty() and not (mid2 in conhecidos):
+					conhecidos.append(mid2)
+			poke["known_moves"] = conhecidos
+			tocados += 1
+	if tocados > 0:
+		print("[SaveManager] Golpes conhecidos: %d Pokémon migrados (nenhum golpe perdido)." % tocados)
 
 func delete_save() -> void:
 	if FileAccess.file_exists(SAVE_PATH):
@@ -282,6 +311,7 @@ func add_exp_to_pokemon(index: int, exp_gained: int) -> int:
 			var ratio := float(int(poke.get("hp_current", old_max))) / float(old_max)
 			poke["hp_max"]     = new_max
 			poke["hp_current"] = maxi(1, roundi(new_max * ratio))
+			_aprender_do_nivel(poke, int(poke["level"]), index)
 		else:
 			break
 	team[index] = poke
@@ -353,9 +383,47 @@ func _apply_evolution(index: int, new_id: int) -> void:
 	team[index] = poke
 	EventBus.pokemon_evolved.emit(old_id, new_id)
 
-## Ensina um move num slot (0-3) do Pokémon no índice — usado por TM/HM.
-## `slot_index` = -1 significa "primeiro slot vazio" (só funciona se tiver
-## menos de 4 moves); com moveset cheio, quem chamar precisa escolher o slot.
+## Subiu de nível: o que a espécie aprende NESTE nível entra nos conhecidos, e
+## ocupa um slot automaticamente se ainda houver espaço livre.
+##
+## Nunca troca um golpe já equipado sem o jogador mandar — é decisão dele, e
+## substituir em silêncio é a forma clássica de perder o golpe bom.
+func _aprender_do_nivel(poke: Dictionary, nivel: int, index: int) -> void:
+	for entry in GameData.get_learnable_moves(int(poke.get("species_id", 1)), nivel):
+		if int(entry.get("level", 0)) != nivel:
+			continue
+		var mid := str(entry.get("move", ""))
+		if mid.is_empty():
+			continue
+		var era_novo : bool = not (mid in poke.get("known_moves", []))
+		_registrar_conhecido(poke, mid)
+		if not era_novo:
+			continue
+		var moves : Array = poke.get("moves", [])
+		var teto : int = KitDeCombate.capacidade(
+			int(poke.get("species_id", 1)), nivel, GameData.species)
+		var ja_equipado := false
+		for m in moves:
+			if str(m.get("id", "")) == mid:
+				ja_equipado = true
+		if ja_equipado:
+			continue
+		if moves.size() < teto:
+			var dados := GameData.get_move(mid)
+			moves.append({"id": mid, "pp_current": int(dados.get("pp", 10)),
+				"pp_max": int(dados.get("pp", 10))})
+			poke["moves"] = moves
+			EventBus.tm_taught.emit(poke, mid, moves.size() - 1)
+
+## Ensina um move num slot do Pokémon no índice — usado por TM/HM.
+##
+## 🔴 Fase 3: o teto era **4, cravado**. Desde a Fase 2 um Pokémon pode ter até
+## 8 slots, então ensinar a quinta MT falhava em silêncio num Charizard Lv.100.
+## Agora o teto vem de `max_skill_slots()`, que é a mesma régua do resto do
+## jogo. O golpe também entra na lista de CONHECIDOS, que não tem teto.
+##
+## `slot_index` = -1 significa "primeiro slot vazio"; com os slots cheios,
+## quem chamar precisa escolher qual substituir.
 func learn_move(index: int, move_id: String, slot_index: int = -1) -> bool:
 	var team: Array = save_data["team"]
 	if index < 0 or index >= team.size():
@@ -371,7 +439,7 @@ func learn_move(index: int, move_id: String, slot_index: int = -1) -> bool:
 		"pp_max": int(move_data.get("pp", 10)),
 	}
 	if slot_index < 0:
-		if moves.size() >= 4:
+		if moves.size() >= max_skill_slots(index):
 			return false
 		moves.append(new_move)
 	else:
@@ -379,8 +447,96 @@ func learn_move(index: int, move_id: String, slot_index: int = -1) -> bool:
 			return false
 		moves[slot_index] = new_move
 	poke["moves"] = moves
+	_registrar_conhecido(poke, move_id)
 	team[index] = poke
 	return true
+
+# ──────────────────────────────────────────────────────────────────────────────
+# CONHECIDOS x EQUIPADOS (Fase 3)
+# ──────────────────────────────────────────────────────────────────────────────
+## Um Pokémon CONHECE mais golpes do que consegue levar pra briga.
+##
+## O pedido do Gabriel: *"Charizard Lv100: 12 golpes conhecidos, 8 slots, 8
+## golpes equipados"*. Antes da Fase 3 não havia separação nenhuma — o que ele
+## sabia era exatamente o que ele usava, e aprender um golpe novo com os slots
+## cheios simplesmente falhava.
+##
+## O formato escolhido é o mínimo que resolve, e é compatível com o save
+## antigo de propósito:
+##
+##   `moves`        continua sendo a lista EQUIPADA (formato intacto:
+##                  {id, pp_current, pp_max}) — nada que já lia isso quebrou;
+##   `known_moves`  lista nova, só de ids, sem teto;
+##   slots          NÃO são gravados. São derivados de `KitDeCombate` a partir
+##                  de espécie e nível — gravar seria criar um número que fica
+##                  velho sozinho toda vez que o bicho sobe de nível.
+
+## Todos os golpes que este Pokémon já aprendeu.
+func get_known_moves(index: int) -> Array:
+	var poke : Dictionary = get_pokemon_at(index)
+	if poke.is_empty():
+		return []
+	return (poke.get("known_moves", []) as Array).duplicate()
+
+## Quantos golpes ele consegue levar pra briga ao mesmo tempo.
+func max_skill_slots(index: int) -> int:
+	var poke : Dictionary = get_pokemon_at(index)
+	if poke.is_empty():
+		return KitDeCombate.SLOTS_BASE
+	return KitDeCombate.capacidade(
+		int(poke.get("species_id", 1)), int(poke.get("level", 1)), GameData.species)
+
+## Põe um golpe CONHECIDO num slot. Devolve false se ele não conhece o golpe,
+## se o slot não existe, ou se o golpe já está equipado em outro slot (equipar
+## o mesmo golpe duas vezes é sempre erro de interface, nunca intenção).
+func equip_move(index: int, move_id: String, slot_index: int) -> bool:
+	var team : Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return false
+	var poke : Dictionary = team[index]
+	if not (move_id in poke.get("known_moves", [])):
+		return false
+	if slot_index < 0 or slot_index >= max_skill_slots(index):
+		return false
+	var moves : Array = poke.get("moves", [])
+	for i in moves.size():
+		if i != slot_index and str(moves[i].get("id", "")) == move_id:
+			return false
+	var dados := GameData.get_move(move_id)
+	var entrada := {
+		"id": move_id,
+		"pp_current": int(dados.get("pp", 10)),
+		"pp_max": int(dados.get("pp", 10)),
+	}
+	while moves.size() <= slot_index:
+		moves.append({"id": "", "pp_current": 0, "pp_max": 0})
+	moves[slot_index] = entrada
+	poke["moves"] = moves
+	team[index] = poke
+	return true
+
+## Esvazia um slot. O golpe continua CONHECIDO — desequipar nunca faz esquecer.
+func unequip_move(index: int, slot_index: int) -> bool:
+	var team : Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return false
+	var poke : Dictionary = team[index]
+	var moves : Array = poke.get("moves", [])
+	if slot_index < 0 or slot_index >= moves.size():
+		return false
+	moves[slot_index] = {"id": "", "pp_current": 0, "pp_max": 0}
+	poke["moves"] = moves
+	team[index] = poke
+	return true
+
+## Anota um golpe na lista de conhecidos (sem repetir).
+func _registrar_conhecido(poke: Dictionary, move_id: String) -> void:
+	if move_id.is_empty():
+		return
+	var conhecidos : Array = poke.get("known_moves", [])
+	if not (move_id in conhecidos):
+		conhecidos.append(move_id)
+	poke["known_moves"] = conhecidos
 
 ## Equipa um item segurado no Pokémon do índice, tirando do inventário. Se ele
 ## já segurava outro item, esse item volta pro inventário (troca, não perde).
@@ -874,6 +1030,13 @@ func _make_pokemon_data(species_id: int, level: int) -> Dictionary:
 			"pp_max":     int(move_data.get("pp", 35))
 		})
 
+	# Conhecidos: TUDO que a espécie já aprendeu até este nível — não só os 4
+	# que couberam nos slots. É o que dá substância à escolha de loadout.
+	var conhecidos : Array = []
+	for entry in learnset:
+		if not (entry["move"] in conhecidos):
+			conhecidos.append(entry["move"])
+
 	return {
 		"uuid":       _make_uuid(),
 		"species_id": species_id,
@@ -887,6 +1050,7 @@ func _make_pokemon_data(species_id: int, level: int) -> Dictionary:
 		"hp_current": hp_max,
 		"hp_max":     hp_max,
 		"moves":      moves,
+		"known_moves": conhecidos,
 		"status":     "none",
 		"held_item":  "",
 		"held_combate": "",
@@ -904,6 +1068,18 @@ func make_caught_data(bp) -> Dictionary:
 		})
 	var species := GameData.get_species(bp.species_id)
 	var bs : Dictionary = species.get("base_stats", {})
+	# Um Pokémon capturado sabe o que a espécie dele aprende até o nível em que
+	# foi pego, mais o que ele estava usando na luta — senão capturar um bicho
+	# selvagem devolveria um Pokémon com menos repertório do que ele mostrou.
+	var conhecidos : Array = []
+	for m in moves:
+		var mid := str(m.get("id", ""))
+		if not mid.is_empty() and not (mid in conhecidos):
+			conhecidos.append(mid)
+	for entry in GameData.get_learnable_moves(bp.species_id, bp.level):
+		var mid2 := str(entry.get("move", ""))
+		if not mid2.is_empty() and not (mid2 in conhecidos):
+			conhecidos.append(mid2)
 	return {
 		"uuid":       _make_uuid(),
 		"species_id": bp.species_id,
@@ -917,6 +1093,7 @@ func make_caught_data(bp) -> Dictionary:
 		"hp_current": bp.hp,
 		"hp_max":     bp.max_hp,
 		"moves":      moves,
+		"known_moves": conhecidos,
 		"status":     "none",
 		"held_item":  "",
 		"held_combate": "",
