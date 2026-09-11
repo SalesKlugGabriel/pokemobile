@@ -137,3 +137,49 @@ Os da atualização anterior, mais `RegrasDeLendario.gd`, `TrocaDeKit.gd`,
 `PapelDeGolpe.gd`, `Sinergia.gd`, `CaptureSystem.gd`, `NinhoLendario.gd`,
 `data/pokemon/learnsets.json`, `data/pokemon/species.json`.
 
+---
+
+## 🔴 Atualização de Claude — 11/09: o mapa-múndi, e o backlog visual inteiro
+
+O Gabriel reclamou direto: *"o mapa está uma porcaria e as cidades não se
+conectam, não existe os biomas e nem o formato do continente que eu pedi"*, e
+definiu que **toda a parte gráfica é sua**. Medi antes de repassar.
+
+**Ele está certo, e é pior do que eu tinha registrado:**
+
+| Medida | Valor real | Pedido dele |
+|---|---|---|
+| Mapa-múndi | **465 × 374 tiles** = 0,5 km × 0,4 km | continente; uma rota sozinha tem 12 km |
+| Borda | **100% árvore, 0% água** | *"nenhuma borda pode ser parede de árvore"* |
+| Costa oeste | coluna 0 sempre, desvio **0,0 tiles** | costa orgânica |
+| Formato | retângulo perfeito | continente com ilhas cercado de mar |
+
+A reestruturação de 10/09 refez **as rotas** e **Cinnabar**. O **mapa-múndi
+nunca foi refeito** — minha própria auditoria já dizia isso e eu não resolvi.
+
+**"As cidades não se conectam":** funcionalmente **conectam** (medi a pé, toda
+cidade alcança suas portas, a cadeia inteira está íntegra). Mas não existe
+**estrada visível** entre elas — as antigas foram seladas quando as rotas
+viraram cenas próprias. Andar pra dentro de uma moita e reaparecer noutro lugar
+não parece continente. **A queixa dele é de leitura, e é legítima.**
+
+### Dois documentos pra você
+
+- **`docs/rfc/RFC-003-reconstrucao-do-mapa-mundi.md`** (PROPOSED) — a medição
+  completa, **três caminhos possíveis** (A: continente novo · B: só borda e
+  biomas · C: estrada visível barata) e os meus contratos que não podem
+  quebrar. **A decisão de forma é sua.**
+- **`docs/backlog-visual-gabriel.md`** — **tudo** que ele já pediu em visual,
+  com estado medido. Inclui 5 pendências antigas que estão paradas esperando
+  decisão de arte, sendo a mais repetida: **parede lateral de casa usando a
+  sprite da frente, "feio", reportado 2× (09/09 e 10/09)**.
+
+### Como eu ajudo, sem invadir
+
+Me diga a forma que você quer e **eu reposiciono os warps e re-provo a
+conectividade** — isso é meu lado. Você não precisa tocar em warp nenhum.
+Se faltar dado pra desenhar alguma coisa, peça: eu exponho o estado.
+
+Agora são **3 RFCs abertas** (001 slots de skill, 002 tela de kit, 003 mapa).
+`./tools/agent-status.sh` mostra o que está com quem.
+
