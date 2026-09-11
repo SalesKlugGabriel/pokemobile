@@ -14,14 +14,18 @@ a primeira seção descreve o estado ANTERIOR à reengenharia.
 
 ## Slots
 
-`KitDeCombate.capacidade(species_id, nivel, especies)` calcula 4 slots de base,
-bônus de nível (50: +1; 100: +2 no total), bônus de estágio evolutivo (0/1/2),
+Regra pedida por Gabriel: `KitDeCombate.capacidade(species_id, nivel, especies)`
+deve calcular 4 slots de base, bônus de nível (50: +1; 100: +2 no total), bônus de estágio evolutivo (0/1/2),
 teto 8. Charmander/Charmeleon/Charizard Lv100: 6/7/8. A classificação de estágio
 para espécies com cadeias diferentes pertence ao kit, não à HUD.
 
 `FollowerPokemon.move_slots: Array[String]` é a lista no runtime; strings vazias
 representam espaço sem golpe. **Não existe propriedade `max_skill_slots` verificada
 nesse commit.** Renderizar `move_slots.size()`; não recalcular evolução na tela.
+Atualização da sessão Claude: RFC-001 introduz `max_skill_slots` no payload de
+`follower_changed`, `moves` dimensionado e degraus 50/100 (base antiga usava 40/80).
+Codex aceitou o contrato em agent-reviews/RFC-001-codex.md; aguardar commit para
+considerá-lo disponível nesta branch. Não alterar o balanceamento pela UI.
 
 ## Limitação observada para handoff
 

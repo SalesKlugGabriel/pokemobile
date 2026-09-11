@@ -40,6 +40,14 @@ Não inventar classes, autoloads, sinais, nós ou APIs; não duplicar sistemas.
 
 ## Arte, mundo e desempenho
 
+Para mudanças que cruzem gameplay/apresentação, registrar proposta e revisão da
+outra parte antes de integrar o contrato. Usar `docs/rfc/` e registrar o acordo em
+`docs/agent-decisions.md` quando esses arquivos estiverem integrados na branch.
+Propostas/revisões locais podem ficar em `docs/agent-proposals/` e
+`docs/agent-reviews/`; não editar a worktree ativa do outro agente para responder.
+Não autoaprovar contratos compartilhados. Ajustes internos de arte/layout que não
+mudam contrato continuam autônomos.
+
 Seguir [direção de arte](docs/art-direction.md) e [mundo](docs/world-design.md).
 Pixel art legível, luz consistente, biomas distintos, HUD moderno e responsivo.
 Leitura do combate vem antes de efeitos decorativos. Meta: 60 FPS em gameplay normal;
