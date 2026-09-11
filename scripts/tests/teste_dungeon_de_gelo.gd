@@ -258,7 +258,15 @@ func _chefe() -> void:
 	# Pokémon selvagem forte.
 	var ninho := FileAccess.get_file_as_string("res://scripts/world/systems/NinhoLendario.gd")
 	_assert(ninho.contains("ChefeLendario.instalar("), "o ninho instala o chefe no lendário")
-	_assert(ninho.contains("ChefeLendario.NIVEL"), "e usa o nível do chefe, sem repetir o número")
+	# 🔴 11/09: o nível saiu de `ChefeLendario.NIVEL` e foi pra
+	# `RegrasDeLendario.NIVEL_SELVAGEM`. Motivo: "lendário selvagem é sempre
+	# nível 100" é regra da ESPÉCIE, não do encontro de chefe — vale pro Mewtwo
+	# e pro Mew, que não têm covil. O que o teste cobra continua o mesmo: o
+	# número não é repetido aqui, vem de uma régua.
+	_assert(ninho.contains("RegrasDeLendario.NIVEL_SELVAGEM"),
+		"e usa o nível da régua de lendário, sem repetir o número")
+	_assert(ChefeLendario.NIVEL == RegrasDeLendario.NIVEL_SELVAGEM,
+		"as duas réguas concordam (%d)" % ChefeLendario.NIVEL)
 
 	# 🔴 A regra "nasce uma vez só por partida" existia e ninguém a acionava.
 	var selvagem := FileAccess.get_file_as_string("res://scripts/entities/WildPokemon.gd")

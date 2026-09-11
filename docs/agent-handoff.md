@@ -94,3 +94,46 @@ Codex: por favor não editar estes enquanto estiverem nesta lista.
 - Repertório de selvagem deixou de ser 3 fixo: agora varia de 2 a 8 por nível,
   estágio e categoria de encontro.
 
+---
+
+## Atualização de Claude — 11/09, lendários + kit equilibrado + MO
+
+### 🔴 Pendente para o Codex: RFC-002 (tela de troca de kit)
+
+`docs/rfc/RFC-002-tela-de-troca-de-kit.md`, status PROPOSED. **A tela é sua** —
+o contrato de gameplay está pronto e testado, não falta dado nenhum do meu lado.
+
+Duas operações com peso diferente na mesma ideia: trocar golpe equipado é
+**grátis**; trocar usando uma MO custa **25 níveis** e precisa mostrar o preço
+ANTES da confirmação (`SaveManager.previsao_de_troca` devolve nível, vida e
+slots antes/depois). Se o jogador perder 25 níveis sem ter visto o preço, é
+bug de produto.
+
+RFC-001 (slots dinâmicos de skill) **continua em REVIEW** — não esqueci.
+
+### Contrato novo (funções, nenhum sinal novo)
+
+`SaveManager.usar_mo(i, hm_id)` · `previsao_de_troca(i)` · `trocar_kit(i, ids)`.
+`trocar_kit` emite `follower_changed` com `max_skill_slots` já atualizado.
+
+### Gameplay desta rodada (sem efeito visual direto)
+
+- Lendário selvagem sempre Lv.100, menor taxa de captura do jogo (3 contra 25
+  do segundo lugar) e **zerado pro nível 1 ao ser capturado** — vida, kit e
+  experiência recalculados; IV, nature e shiny preservados.
+- **Learnsets reequilibrados**: 53 espécies receberam golpes, mais 11 que não
+  tinham um único golpe de dano do próprio tipo. Sobram 6 pobres, **todas de
+  propósito** (larvas, Magikarp, Ditto).
+- Mew estava com taxa de captura 45, igual a um Bulbasaur. Corrigido.
+
+⚠️ **Atenção pra você:** `data/moves/moves.json` tem nomes misturados —
+a maioria em inglês ("Fire Blast", "Ice Beam") e alguns em português ("Bomba de
+Lodo", "Garra de Dragão", "Mega Chifre"). Isso **aparece na tela**, então é do
+seu lado decidir. Eu não mexi pra não invadir apresentação.
+
+### Arquivos que estou usando (não commitados)
+
+Os da atualização anterior, mais `RegrasDeLendario.gd`, `TrocaDeKit.gd`,
+`PapelDeGolpe.gd`, `Sinergia.gd`, `CaptureSystem.gd`, `NinhoLendario.gd`,
+`data/pokemon/learnsets.json`, `data/pokemon/species.json`.
+

@@ -529,6 +529,90 @@ func unequip_move(index: int, slot_index: int) -> bool:
 	team[index] = poke
 	return true
 
+# ──────────────────────────────────────────────────────────────────────────────
+# MO e troca de kit (11/09)
+# ──────────────────────────────────────────────────────────────────────────────
+## Usa uma MO num Pokémon do time.
+##
+## Diferença entre MT e MO, e é ela que justifica esta função existir:
+##   MT  ensina um golpe e acabou (`learn_move`);
+##   MO  ensina o golpe **e abre a troca de kit** — e cada troca custa 25
+##       níveis (ver `TrocaDeKit`).
+##
+## Aqui só acontece a parte de GAMEPLAY: o golpe entra nos conhecidos e a
+## troca fica marcada como pendente. A TELA de seleção é do Codex.
+## Devolve {"ok", "motivo", "golpe", "previsao"}.
+func usar_mo(index: int, hm_id: String) -> Dictionary:
+	var item := GameData.get_item(hm_id)
+	if item.is_empty() or not TrocaDeKit.e_mo(hm_id):
+		return {"ok": false, "motivo": "Isso não é uma MO.", "golpe": "", "previsao": {}}
+	var move_id := str(item.get("teaches", ""))
+	if move_id.is_empty() or GameData.get_move(move_id).is_empty():
+		return {"ok": false, "motivo": "Esta MO não ensina nenhum golpe conhecido.",
+			"golpe": "", "previsao": {}}
+
+	var team : Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return {"ok": false, "motivo": "Pokémon inválido.", "golpe": "", "previsao": {}}
+	var poke : Dictionary = team[index]
+
+	# A MO sempre ENSINA (isso é de graça — é a troca que custa).
+	_registrar_conhecido(poke, move_id)
+	# Se ainda tem espaço livre, ela já entra sem custo nenhum.
+	var moves : Array = poke.get("moves", [])
+	var ja : bool = false
+	for m in moves:
+		if str(m.get("id", "")) == move_id:
+			ja = true
+	if not ja and moves.size() < max_skill_slots(index):
+		var dados := GameData.get_move(move_id)
+		moves.append({"id": move_id, "pp_current": int(dados.get("pp", 10)),
+			"pp_max": int(dados.get("pp", 10))})
+		poke["moves"] = moves
+		team[index] = poke
+		return {"ok": true, "motivo": "", "golpe": move_id, "previsao": {}}
+
+	# Slots cheios: agora sim é troca, e troca custa nível.
+	poke["troca_de_kit_pendente"] = true
+	team[index] = poke
+	return {
+		"ok": true, "motivo": "", "golpe": move_id,
+		"previsao": TrocaDeKit.previsao(poke, GameData.species),
+	}
+
+## Quanto custaria trocar o kit deste Pokémon agora. A tela chama isto pra
+## mostrar o preço ANTES da confirmação — ninguém deve descobrir depois.
+func previsao_de_troca(index: int) -> Dictionary:
+	var poke : Dictionary = get_pokemon_at(index)
+	if poke.is_empty():
+		return {}
+	var previsao : Dictionary = TrocaDeKit.previsao(poke, GameData.species)
+	previsao.merge(TrocaDeKit.pode_trocar(poke))
+	return previsao
+
+## Aplica a troca de kit, cobrando os 25 níveis. `novo_equipado` são ids na
+## ordem dos slots. Devolve {"ok", "motivo"}.
+func trocar_kit(index: int, novo_equipado: Array) -> Dictionary:
+	var team : Array = save_data["team"]
+	if index < 0 or index >= team.size():
+		return {"ok": false, "motivo": "Pokémon inválido."}
+	var r : Dictionary = TrocaDeKit.aplicar(
+		team[index], novo_equipado, GameData.species, GameData.moves)
+	if not bool(r["ok"]):
+		return {"ok": false, "motivo": str(r["motivo"])}
+	var poke : Dictionary = r["poke"]
+	poke.erase("troca_de_kit_pendente")
+	team[index] = poke
+	EventBus.follower_changed.emit({
+		"species_id": int(poke.get("species_id", 1)),
+		"level": int(poke.get("level", 1)),
+		"hp": int(poke.get("hp_current", 1)),
+		"max_hp": int(poke.get("hp_max", 1)),
+		"moves": novo_equipado.duplicate(),
+		"max_skill_slots": max_skill_slots(index),
+	})
+	return {"ok": true, "motivo": ""}
+
 ## Anota um golpe na lista de conhecidos (sem repetir).
 func _registrar_conhecido(poke: Dictionary, move_id: String) -> void:
 	if move_id.is_empty():

@@ -7966,7 +7966,7 @@
       "sp_def": 100,
       "speed": 100
     },
-    "catch_rate": 45,
+    "catch_rate": 3,
     "evolution_to": null,
     "evolution_condition": null,
     "biomes": [

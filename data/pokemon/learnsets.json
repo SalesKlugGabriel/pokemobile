@@ -380,11 +380,11 @@
   "12": [
     {
       "level": 1,
-      "move": "tackle"
+      "move": "string_shot"
     },
     {
       "level": 1,
-      "move": "string_shot"
+      "move": "tackle"
     },
     {
       "level": 12,
@@ -417,6 +417,18 @@
     {
       "level": 38,
       "move": "rage"
+    },
+    {
+      "level": 58,
+      "move": "fury_cutter"
+    },
+    {
+      "level": 78,
+      "move": "drill_peck"
+    },
+    {
+      "level": 96,
+      "move": "gust"
     }
   ],
   "13": [
@@ -471,6 +483,10 @@
     {
       "level": 35,
       "move": "agility"
+    },
+    {
+      "level": 96,
+      "move": "sludge"
     }
   ],
   "16": [
@@ -615,9 +631,21 @@
     {
       "level": 34,
       "move": "super_fang"
+    },
+    {
+      "level": 67,
+      "move": "rolling_kick"
+    },
+    {
+      "level": 96,
+      "move": "ancient_power"
     }
   ],
   "20": [
+    {
+      "level": 1,
+      "move": "quick_attack"
+    },
     {
       "level": 1,
       "move": "tackle"
@@ -625,10 +653,6 @@
     {
       "level": 1,
       "move": "tail_whip"
-    },
-    {
-      "level": 1,
-      "move": "quick_attack"
     },
     {
       "level": 7,
@@ -649,16 +673,24 @@
     {
       "level": 38,
       "move": "screech"
+    },
+    {
+      "level": 69,
+      "move": "submission"
+    },
+    {
+      "level": 96,
+      "move": "rock_slide"
     }
   ],
   "21": [
     {
       "level": 1,
-      "move": "peck"
+      "move": "growl"
     },
     {
       "level": 1,
-      "move": "growl"
+      "move": "peck"
     },
     {
       "level": 9,
@@ -679,13 +711,17 @@
     {
       "level": 36,
       "move": "agility"
+    },
+    {
+      "level": 68,
+      "move": "swift"
+    },
+    {
+      "level": 96,
+      "move": "rolling_kick"
     }
   ],
   "22": [
-    {
-      "level": 1,
-      "move": "peck"
-    },
     {
       "level": 1,
       "move": "growl"
@@ -693,6 +729,10 @@
     {
       "level": 1,
       "move": "leer"
+    },
+    {
+      "level": 1,
+      "move": "peck"
     },
     {
       "level": 9,
@@ -713,6 +753,18 @@
     {
       "level": 43,
       "move": "agility"
+    },
+    {
+      "level": 62,
+      "move": "egg_bomb"
+    },
+    {
+      "level": 81,
+      "move": "jump_kick"
+    },
+    {
+      "level": 96,
+      "move": "gust"
     }
   ],
   "23": [
@@ -748,15 +800,15 @@
   "24": [
     {
       "level": 1,
-      "move": "wrap"
-    },
-    {
-      "level": 1,
       "move": "leer"
     },
     {
       "level": 1,
       "move": "poison_sting"
+    },
+    {
+      "level": 1,
+      "move": "wrap"
     },
     {
       "level": 10,
@@ -781,6 +833,10 @@
     {
       "level": 44,
       "move": "slam"
+    },
+    {
+      "level": 96,
+      "move": "sludge_bomb"
     }
   ],
   "25": [
@@ -858,11 +914,11 @@
   "27": [
     {
       "level": 1,
-      "move": "scratch"
+      "move": "sand_attack"
     },
     {
       "level": 1,
-      "move": "sand_attack"
+      "move": "scratch"
     },
     {
       "level": 11,
@@ -879,6 +935,10 @@
     {
       "level": 28,
       "move": "fury_swipes"
+    },
+    {
+      "level": 36,
+      "move": "bonemerang"
     }
   ],
   "28": [
@@ -956,11 +1016,11 @@
     },
     {
       "level": 1,
-      "move": "tackle"
+      "move": "scratch"
     },
     {
       "level": 1,
-      "move": "scratch"
+      "move": "tackle"
     },
     {
       "level": 8,
@@ -985,6 +1045,10 @@
     {
       "level": 50,
       "move": "double_kick"
+    },
+    {
+      "level": 96,
+      "move": "sludge"
     }
   ],
   "31": [
@@ -1058,15 +1122,15 @@
   "33": [
     {
       "level": 1,
+      "move": "horn_attack"
+    },
+    {
+      "level": 1,
       "move": "leer"
     },
     {
       "level": 1,
       "move": "tackle"
-    },
-    {
-      "level": 1,
-      "move": "horn_attack"
     },
     {
       "level": 8,
@@ -1091,6 +1155,10 @@
     {
       "level": 50,
       "move": "double_kick"
+    },
+    {
+      "level": 96,
+      "move": "sludge"
     }
   ],
   "34": [
@@ -1130,11 +1198,11 @@
   "35": [
     {
       "level": 1,
-      "move": "pound"
+      "move": "growl"
     },
     {
       "level": 1,
-      "move": "growl"
+      "move": "pound"
     },
     {
       "level": 13,
@@ -1159,16 +1227,28 @@
     {
       "level": 48,
       "move": "light_screen"
+    },
+    {
+      "level": 74,
+      "move": "confusion"
+    },
+    {
+      "level": 96,
+      "move": "dazzling_gleam"
+    },
+    {
+      "level": 96,
+      "move": "swift"
     }
   ],
   "36": [
     {
       "level": 1,
-      "move": "sing"
+      "move": "double_slap"
     },
     {
       "level": 1,
-      "move": "double_slap"
+      "move": "metronome"
     },
     {
       "level": 1,
@@ -1176,7 +1256,7 @@
     },
     {
       "level": 1,
-      "move": "metronome"
+      "move": "sing"
     },
     {
       "level": 31,
@@ -1193,6 +1273,18 @@
     {
       "level": 58,
       "move": "body_slam"
+    },
+    {
+      "level": 79,
+      "move": "dream_eater"
+    },
+    {
+      "level": 96,
+      "move": "dazzling_gleam"
+    },
+    {
+      "level": 96,
+      "move": "egg_bomb"
     }
   ],
   "37": [
@@ -1266,11 +1358,11 @@
   "39": [
     {
       "level": 1,
-      "move": "sing"
+      "move": "pound"
     },
     {
       "level": 1,
-      "move": "pound"
+      "move": "sing"
     },
     {
       "level": 9,
@@ -1299,16 +1391,20 @@
     {
       "level": 49,
       "move": "double_edge"
+    },
+    {
+      "level": 74,
+      "move": "rolling_kick"
+    },
+    {
+      "level": 96,
+      "move": "ancient_power"
     }
   ],
   "40": [
     {
       "level": 1,
-      "move": "sing"
-    },
-    {
-      "level": 1,
-      "move": "pound"
+      "move": "defense_curl"
     },
     {
       "level": 1,
@@ -1316,7 +1412,11 @@
     },
     {
       "level": 1,
-      "move": "defense_curl"
+      "move": "pound"
+    },
+    {
+      "level": 1,
+      "move": "sing"
     },
     {
       "level": 9,
@@ -1345,6 +1445,14 @@
     {
       "level": 49,
       "move": "double_edge"
+    },
+    {
+      "level": 74,
+      "move": "jump_kick"
+    },
+    {
+      "level": 96,
+      "move": "rock_slide"
     }
   ],
   "41": [
@@ -1375,9 +1483,25 @@
     {
       "level": 36,
       "move": "haze"
+    },
+    {
+      "level": 57,
+      "move": "acid"
+    },
+    {
+      "level": 78,
+      "move": "smog"
+    },
+    {
+      "level": 96,
+      "move": "peck"
     }
   ],
   "42": [
+    {
+      "level": 1,
+      "move": "bite"
+    },
     {
       "level": 1,
       "move": "leech_life"
@@ -1385,10 +1509,6 @@
     {
       "level": 1,
       "move": "supersonic"
-    },
-    {
-      "level": 1,
-      "move": "bite"
     },
     {
       "level": 10,
@@ -1409,6 +1529,22 @@
     {
       "level": 43,
       "move": "haze"
+    },
+    {
+      "level": 57,
+      "move": "sludge_bomb"
+    },
+    {
+      "level": 71,
+      "move": "sludge"
+    },
+    {
+      "level": 85,
+      "move": "drill_peck"
+    },
+    {
+      "level": 96,
+      "move": "gust"
     }
   ],
   "43": [
@@ -1602,15 +1738,15 @@
   "49": [
     {
       "level": 1,
-      "move": "tackle"
-    },
-    {
-      "level": 1,
       "move": "disable"
     },
     {
       "level": 1,
       "move": "supersonic"
+    },
+    {
+      "level": 1,
+      "move": "tackle"
     },
     {
       "level": 24,
@@ -1639,6 +1775,14 @@
     {
       "level": 58,
       "move": "sleep_powder"
+    },
+    {
+      "level": 79,
+      "move": "sludge_bomb"
+    },
+    {
+      "level": 96,
+      "move": "sludge"
     }
   ],
   "50": [
@@ -1742,7 +1886,7 @@
   "53": [
     {
       "level": 1,
-      "move": "scratch"
+      "move": "bite"
     },
     {
       "level": 1,
@@ -1750,7 +1894,7 @@
     },
     {
       "level": 1,
-      "move": "bite"
+      "move": "scratch"
     },
     {
       "level": 12,
@@ -1771,6 +1915,10 @@
     {
       "level": 51,
       "move": "slash"
+    },
+    {
+      "level": 96,
+      "move": "jump_kick"
     }
   ],
   "54": [
@@ -1813,9 +1961,17 @@
     {
       "level": 67,
       "move": "telepathy"
+    },
+    {
+      "level": 75,
+      "move": "water_gun"
     }
   ],
   "55": [
+    {
+      "level": 1,
+      "move": "disable"
+    },
     {
       "level": 1,
       "move": "scratch"
@@ -1823,10 +1979,6 @@
     {
       "level": 1,
       "move": "tail_whip"
-    },
-    {
-      "level": 1,
-      "move": "disable"
     },
     {
       "level": 33,
@@ -1855,16 +2007,20 @@
     {
       "level": 62,
       "move": "psychic"
+    },
+    {
+      "level": 70,
+      "move": "hydro_pump"
     }
   ],
   "56": [
     {
       "level": 1,
-      "move": "scratch"
+      "move": "leer"
     },
     {
       "level": 1,
-      "move": "leer"
+      "move": "scratch"
     },
     {
       "level": 9,
@@ -1889,13 +2045,13 @@
     {
       "level": 39,
       "move": "seismic_toss"
+    },
+    {
+      "level": 47,
+      "move": "rolling_kick"
     }
   ],
   "57": [
-    {
-      "level": 1,
-      "move": "scratch"
-    },
     {
       "level": 1,
       "move": "leer"
@@ -1903,6 +2059,10 @@
     {
       "level": 1,
       "move": "low_kick"
+    },
+    {
+      "level": 1,
+      "move": "scratch"
     },
     {
       "level": 9,
@@ -1931,6 +2091,10 @@
     {
       "level": 48,
       "move": "submission"
+    },
+    {
+      "level": 96,
+      "move": "jump_kick"
     }
   ],
   "58": [
@@ -2134,11 +2298,11 @@
   "63": [
     {
       "level": 1,
-      "move": "teleport"
+      "move": "confusion"
     },
     {
       "level": 1,
-      "move": "confusion"
+      "move": "teleport"
     },
     {
       "level": 16,
@@ -2163,20 +2327,24 @@
     {
       "level": 42,
       "move": "reflect"
+    },
+    {
+      "level": 96,
+      "move": "swift"
     }
   ],
   "64": [
     {
       "level": 1,
-      "move": "teleport"
-    },
-    {
-      "level": 1,
       "move": "confusion"
     },
     {
       "level": 1,
       "move": "disable"
+    },
+    {
+      "level": 1,
+      "move": "teleport"
     },
     {
       "level": 16,
@@ -2201,13 +2369,17 @@
     {
       "level": 42,
       "move": "reflect"
+    },
+    {
+      "level": 71,
+      "move": "ice_punch"
+    },
+    {
+      "level": 96,
+      "move": "body_slam"
     }
   ],
   "65": [
-    {
-      "level": 1,
-      "move": "teleport"
-    },
     {
       "level": 1,
       "move": "confusion"
@@ -2219,6 +2391,10 @@
     {
       "level": 1,
       "move": "psybeam"
+    },
+    {
+      "level": 1,
+      "move": "teleport"
     },
     {
       "level": 16,
@@ -2247,16 +2423,24 @@
     {
       "level": 56,
       "move": "amnesia"
+    },
+    {
+      "level": 78,
+      "move": "ice_beam"
+    },
+    {
+      "level": 96,
+      "move": "skull_bash"
     }
   ],
   "66": [
     {
       "level": 1,
-      "move": "low_kick"
+      "move": "leer"
     },
     {
       "level": 1,
-      "move": "leer"
+      "move": "low_kick"
     },
     {
       "level": 20,
@@ -2277,12 +2461,20 @@
     {
       "level": 46,
       "move": "bulk_up"
+    },
+    {
+      "level": 73,
+      "move": "rolling_kick"
+    },
+    {
+      "level": 96,
+      "move": "ancient_power"
     }
   ],
   "67": [
     {
       "level": 1,
-      "move": "low_kick"
+      "move": "focus_energy"
     },
     {
       "level": 1,
@@ -2290,7 +2482,7 @@
     },
     {
       "level": 1,
-      "move": "focus_energy"
+      "move": "low_kick"
     },
     {
       "level": 20,
@@ -2315,12 +2507,20 @@
     {
       "level": 56,
       "move": "counter"
+    },
+    {
+      "level": 78,
+      "move": "rolling_kick"
+    },
+    {
+      "level": 96,
+      "move": "rock_slide"
     }
   ],
   "68": [
     {
       "level": 1,
-      "move": "low_kick"
+      "move": "focus_energy"
     },
     {
       "level": 1,
@@ -2328,7 +2528,7 @@
     },
     {
       "level": 1,
-      "move": "focus_energy"
+      "move": "low_kick"
     },
     {
       "level": 1,
@@ -2357,6 +2557,14 @@
     {
       "level": 56,
       "move": "strength"
+    },
+    {
+      "level": 78,
+      "move": "hi_jump_kick"
+    },
+    {
+      "level": 96,
+      "move": "rock_slide"
     }
   ],
   "69": [
@@ -2400,11 +2608,11 @@
   "70": [
     {
       "level": 1,
-      "move": "vine_whip"
+      "move": "growth"
     },
     {
       "level": 1,
-      "move": "growth"
+      "move": "vine_whip"
     },
     {
       "level": 1,
@@ -2437,6 +2645,14 @@
     {
       "level": 44,
       "move": "stomp"
+    },
+    {
+      "level": 72,
+      "move": "sludge"
+    },
+    {
+      "level": 96,
+      "move": "petal_dance"
     }
   ],
   "71": [
@@ -2488,11 +2704,11 @@
   "72": [
     {
       "level": 1,
-      "move": "tackle"
+      "move": "poison_sting"
     },
     {
       "level": 1,
-      "move": "poison_sting"
+      "move": "tackle"
     },
     {
       "level": 7,
@@ -2517,6 +2733,10 @@
     {
       "level": 33,
       "move": "supersonic"
+    },
+    {
+      "level": 96,
+      "move": "surf"
     }
   ],
   "73": [
@@ -2914,11 +3134,11 @@
   "83": [
     {
       "level": 1,
-      "move": "peck"
+      "move": "leer"
     },
     {
       "level": 1,
-      "move": "leer"
+      "move": "peck"
     },
     {
       "level": 1,
@@ -2943,6 +3163,14 @@
     {
       "level": 54,
       "move": "drill_peck"
+    },
+    {
+      "level": 77,
+      "move": "submission"
+    },
+    {
+      "level": 96,
+      "move": "gust"
     }
   ],
   "84": [
@@ -3016,11 +3244,11 @@
   "86": [
     {
       "level": 1,
-      "move": "headbutt"
+      "move": "growl"
     },
     {
       "level": 1,
-      "move": "growl"
+      "move": "headbutt"
     },
     {
       "level": 30,
@@ -3041,6 +3269,10 @@
     {
       "level": 50,
       "move": "hyper_beam"
+    },
+    {
+      "level": 58,
+      "move": "water_gun"
     }
   ],
   "87": [
@@ -3080,11 +3312,11 @@
   "88": [
     {
       "level": 1,
-      "move": "pound"
+      "move": "disable"
     },
     {
       "level": 1,
-      "move": "disable"
+      "move": "pound"
     },
     {
       "level": 30,
@@ -3109,13 +3341,17 @@
     {
       "level": 56,
       "move": "haze"
+    },
+    {
+      "level": 78,
+      "move": "acid"
+    },
+    {
+      "level": 96,
+      "move": "bonemerang"
     }
   ],
   "89": [
-    {
-      "level": 1,
-      "move": "pound"
-    },
     {
       "level": 1,
       "move": "disable"
@@ -3123,6 +3359,10 @@
     {
       "level": 1,
       "move": "poison_gas"
+    },
+    {
+      "level": 1,
+      "move": "pound"
     },
     {
       "level": 30,
@@ -3151,6 +3391,10 @@
     {
       "level": 70,
       "move": "sludge_bomb"
+    },
+    {
+      "level": 96,
+      "move": "earthquake"
     }
   ],
   "90": [
@@ -3240,11 +3484,11 @@
   "92": [
     {
       "level": 1,
-      "move": "lick"
+      "move": "confuse_ray"
     },
     {
       "level": 1,
-      "move": "confuse_ray"
+      "move": "lick"
     },
     {
       "level": 27,
@@ -3257,16 +3501,24 @@
     {
       "level": 33,
       "move": "dream_eater"
+    },
+    {
+      "level": 66,
+      "move": "acid"
+    },
+    {
+      "level": 96,
+      "move": "smog"
     }
   ],
   "93": [
     {
       "level": 1,
-      "move": "lick"
+      "move": "confuse_ray"
     },
     {
       "level": 1,
-      "move": "confuse_ray"
+      "move": "lick"
     },
     {
       "level": 1,
@@ -3287,24 +3539,32 @@
     {
       "level": 38,
       "move": "shadow_ball"
+    },
+    {
+      "level": 69,
+      "move": "sludge"
+    },
+    {
+      "level": 96,
+      "move": "acid"
     }
   ],
   "94": [
-    {
-      "level": 1,
-      "move": "lick"
-    },
     {
       "level": 1,
       "move": "confuse_ray"
     },
     {
       "level": 1,
-      "move": "night_shade"
+      "move": "hypnosis"
     },
     {
       "level": 1,
-      "move": "hypnosis"
+      "move": "lick"
+    },
+    {
+      "level": 1,
+      "move": "night_shade"
     },
     {
       "level": 27,
@@ -3325,6 +3585,14 @@
     {
       "level": 50,
       "move": "mean_look"
+    },
+    {
+      "level": 75,
+      "move": "sludge_bomb"
+    },
+    {
+      "level": 96,
+      "move": "sludge"
     }
   ],
   "95": [
@@ -3512,11 +3780,11 @@
   "100": [
     {
       "level": 1,
-      "move": "tackle"
+      "move": "sonicboom"
     },
     {
       "level": 1,
-      "move": "sonicboom"
+      "move": "tackle"
     },
     {
       "level": 17,
@@ -3537,6 +3805,18 @@
     {
       "level": 37,
       "move": "explosion"
+    },
+    {
+      "level": 58,
+      "move": "thunder_punch"
+    },
+    {
+      "level": 79,
+      "move": "thundershock"
+    },
+    {
+      "level": 96,
+      "move": "body_slam"
     }
   ],
   "101": [
@@ -3609,6 +3889,10 @@
     {
       "level": 48,
       "move": "egg_bomb"
+    },
+    {
+      "level": 96,
+      "move": "confusion"
     }
   ],
   "103": [
@@ -3724,11 +4008,11 @@
   "106": [
     {
       "level": 1,
-      "move": "stomp"
+      "move": "double_kick"
     },
     {
       "level": 1,
-      "move": "double_kick"
+      "move": "stomp"
     },
     {
       "level": 33,
@@ -3749,6 +4033,10 @@
     {
       "level": 58,
       "move": "jump_kick"
+    },
+    {
+      "level": 96,
+      "move": "rock_slide"
     }
   ],
   "107": [
@@ -3779,6 +4067,14 @@
     {
       "level": 58,
       "move": "thunder_punch"
+    },
+    {
+      "level": 79,
+      "move": "jump_kick"
+    },
+    {
+      "level": 96,
+      "move": "submission"
     }
   ],
   "108": [
@@ -3821,6 +4117,14 @@
     {
       "level": 55,
       "move": "roar"
+    },
+    {
+      "level": 77,
+      "move": "submission"
+    },
+    {
+      "level": 96,
+      "move": "rock_slide"
     }
   ],
   "109": [
@@ -3982,11 +4286,11 @@
   "113": [
     {
       "level": 1,
-      "move": "pound"
+      "move": "growl"
     },
     {
       "level": 1,
-      "move": "growl"
+      "move": "pound"
     },
     {
       "level": 5,
@@ -4027,6 +4331,14 @@
     {
       "level": 48,
       "move": "double_edge"
+    },
+    {
+      "level": 74,
+      "move": "jump_kick"
+    },
+    {
+      "level": 96,
+      "move": "rock_slide"
     }
   ],
   "114": [
@@ -4065,6 +4377,14 @@
     {
       "level": 53,
       "move": "mega_drain"
+    },
+    {
+      "level": 76,
+      "move": "sludge_bomb"
+    },
+    {
+      "level": 96,
+      "move": "petal_dance"
     }
   ],
   "115": [
@@ -4099,6 +4419,14 @@
     {
       "level": 58,
       "move": "hyper_beam"
+    },
+    {
+      "level": 79,
+      "move": "jump_kick"
+    },
+    {
+      "level": 96,
+      "move": "rock_slide"
     }
   ],
   "116": [
@@ -4129,6 +4457,10 @@
     {
       "level": 45,
       "move": "focus_energy"
+    },
+    {
+      "level": 96,
+      "move": "swift"
     }
   ],
   "117": [
@@ -4138,11 +4470,11 @@
     },
     {
       "level": 1,
-      "move": "smokescreen"
+      "move": "leer"
     },
     {
       "level": 1,
-      "move": "leer"
+      "move": "smokescreen"
     },
     {
       "level": 19,
@@ -4167,6 +4499,14 @@
     {
       "level": 54,
       "move": "hydro_pump"
+    },
+    {
+      "level": 77,
+      "move": "ice_beam"
+    },
+    {
+      "level": 96,
+      "move": "egg_bomb"
     }
   ],
   "118": [
@@ -4506,11 +4846,11 @@
   "127": [
     {
       "level": 1,
-      "move": "vice_grip"
+      "move": "leer"
     },
     {
       "level": 1,
-      "move": "leer"
+      "move": "vice_grip"
     },
     {
       "level": 25,
@@ -4531,16 +4871,28 @@
     {
       "level": 52,
       "move": "swords_dance"
+    },
+    {
+      "level": 76,
+      "move": "sludge_bomb"
+    },
+    {
+      "level": 96,
+      "move": "megahorn"
+    },
+    {
+      "level": 96,
+      "move": "skull_bash"
     }
   ],
   "128": [
     {
       "level": 1,
-      "move": "tackle"
+      "move": "growl"
     },
     {
       "level": 1,
-      "move": "growl"
+      "move": "tackle"
     },
     {
       "level": 21,
@@ -4569,6 +4921,14 @@
     {
       "level": 65,
       "move": "mega_kick"
+    },
+    {
+      "level": 82,
+      "move": "jump_kick"
+    },
+    {
+      "level": 96,
+      "move": "rock_slide"
     }
   ],
   "129": [
@@ -4687,6 +5047,14 @@
     {
       "level": 48,
       "move": "body_slam"
+    },
+    {
+      "level": 74,
+      "move": "rolling_kick"
+    },
+    {
+      "level": 96,
+      "move": "ancient_power"
     }
   ],
   "134": [
@@ -4948,11 +5316,11 @@
   "140": [
     {
       "level": 1,
-      "move": "scratch"
+      "move": "harden"
     },
     {
       "level": 1,
-      "move": "harden"
+      "move": "scratch"
     },
     {
       "level": 34,
@@ -4977,12 +5345,24 @@
     {
       "level": 59,
       "move": "slash"
+    },
+    {
+      "level": 72,
+      "move": "rock_slide"
+    },
+    {
+      "level": 85,
+      "move": "waterfall"
+    },
+    {
+      "level": 96,
+      "move": "surf"
     }
   ],
   "141": [
     {
       "level": 1,
-      "move": "scratch"
+      "move": "absorb"
     },
     {
       "level": 1,
@@ -4990,7 +5370,7 @@
     },
     {
       "level": 1,
-      "move": "absorb"
+      "move": "scratch"
     },
     {
       "level": 34,
@@ -5019,6 +5399,18 @@
     {
       "level": 65,
       "move": "waterfall"
+    },
+    {
+      "level": 76,
+      "move": "rock_slide"
+    },
+    {
+      "level": 87,
+      "move": "crabhammer"
+    },
+    {
+      "level": 96,
+      "move": "surf"
     }
   ],
   "142": [
@@ -5054,11 +5446,11 @@
   "143": [
     {
       "level": 1,
-      "move": "tackle"
+      "move": "defense_curl"
     },
     {
       "level": 1,
-      "move": "defense_curl"
+      "move": "tackle"
     },
     {
       "level": 35,
@@ -5075,6 +5467,10 @@
     {
       "level": 56,
       "move": "heavy_slam"
+    },
+    {
+      "level": 96,
+      "move": "hi_jump_kick"
     }
   ],
   "144": [
@@ -5114,15 +5510,15 @@
   "145": [
     {
       "level": 1,
-      "move": "thundershock"
-    },
-    {
-      "level": 1,
       "move": "growl"
     },
     {
       "level": 1,
       "move": "leer"
+    },
+    {
+      "level": 1,
+      "move": "thundershock"
     },
     {
       "level": 51,
@@ -5143,6 +5539,18 @@
     {
       "level": 70,
       "move": "mirror_move"
+    },
+    {
+      "level": 80,
+      "move": "drill_peck"
+    },
+    {
+      "level": 90,
+      "move": "gust"
+    },
+    {
+      "level": 96,
+      "move": "skull_bash"
     }
   ],
   "146": [
@@ -5182,11 +5590,11 @@
   "147": [
     {
       "level": 1,
-      "move": "wrap"
+      "move": "leer"
     },
     {
       "level": 1,
-      "move": "leer"
+      "move": "wrap"
     },
     {
       "level": 10,
@@ -5207,13 +5615,17 @@
     {
       "level": 50,
       "move": "hyper_beam"
+    },
+    {
+      "level": 96,
+      "move": "dragon_claw"
+    },
+    {
+      "level": 96,
+      "move": "swift"
     }
   ],
   "148": [
-    {
-      "level": 1,
-      "move": "wrap"
-    },
     {
       "level": 1,
       "move": "leer"
@@ -5221,6 +5633,10 @@
     {
       "level": 1,
       "move": "thunder_wave"
+    },
+    {
+      "level": 1,
+      "move": "wrap"
     },
     {
       "level": 10,
@@ -5241,12 +5657,24 @@
     {
       "level": 55,
       "move": "hyper_beam"
+    },
+    {
+      "level": 77,
+      "move": "ice_beam"
+    },
+    {
+      "level": 96,
+      "move": "dragon_claw"
+    },
+    {
+      "level": 96,
+      "move": "egg_bomb"
     }
   ],
   "149": [
     {
       "level": 1,
-      "move": "wrap"
+      "move": "agility"
     },
     {
       "level": 1,
@@ -5258,7 +5686,7 @@
     },
     {
       "level": 1,
-      "move": "agility"
+      "move": "wrap"
     },
     {
       "level": 10,
@@ -5291,6 +5719,10 @@
     {
       "level": 70,
       "move": "thunder"
+    },
+    {
+      "level": 78,
+      "move": "dragon_claw"
     }
   ],
   "150": [
@@ -5325,6 +5757,10 @@
     {
       "level": 81,
       "move": "teleport"
+    },
+    {
+      "level": 96,
+      "move": "ice_beam"
     }
   ],
   "151": [
@@ -5363,6 +5799,14 @@
     {
       "level": 70,
       "move": "soft_boiled"
+    },
+    {
+      "level": 85,
+      "move": "dream_eater"
+    },
+    {
+      "level": 96,
+      "move": "ice_beam"
     }
   ]
 }

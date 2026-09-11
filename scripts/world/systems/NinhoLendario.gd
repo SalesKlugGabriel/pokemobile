@@ -28,7 +28,9 @@ extends Node
 ## explícito do Gabriel: lendário é sempre nível 100, o teto do jogo. O que o
 ## torna difícil, porém, não é o nível: é o repertório de 6 funções que
 ## `ChefeLendario` instala em cima dele.
-const NIVEL_LENDARIO : int = ChefeLendario.NIVEL
+## Lendário selvagem nasce SEMPRE no teto do jogo — a regra mora em
+## RegrasDeLendario, que é o único lugar que sabe quem é lendário.
+const NIVEL_LENDARIO : int = RegrasDeLendario.NIVEL_SELVAGEM
 
 ## Chamado pelo BaseMap ao terminar de montar o mapa.
 static func povoar(mapa: Node, map_id: String) -> void:

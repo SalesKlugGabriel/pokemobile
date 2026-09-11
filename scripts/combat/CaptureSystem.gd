@@ -239,7 +239,15 @@ func _build_pokemon_data(target: WildPokemon) -> Dictionary:
 	# (WildPokemon._load_species(), 1/4096) — aqui só persiste o resultado
 	# de verdade no Pokémon capturado, senão a captura "esquecia" o shiny.
 	bp.is_shiny = target.is_shiny
-	return SaveManager.make_caught_data(bp)
+	var dados := SaveManager.make_caught_data(bp)
+	# 🔴 11/09: lendário capturado volta pro NÍVEL 1 (pedido do Gabriel). Ele
+	# é encontrado no nível 100 e com a menor taxa de captura do jogo; entregar
+	# esse bicho pronto seria o fim da progressão. Zerado, a captura deixa de
+	# ser o prêmio final e vira um começo. Ver RegrasDeLendario.gd.
+	if RegrasDeLendario.e_lendario(target.species_id):
+		dados = RegrasDeLendario.zerar_ao_capturar(dados, GameData.species, GameData.moves,
+			GameData.get_learnable_moves(target.species_id, RegrasDeLendario.NIVEL_AO_CAPTURAR))
+	return dados
 
 func _get_throw_origin() -> Vector2:
 	var players := get_tree().get_nodes_in_group("player")
