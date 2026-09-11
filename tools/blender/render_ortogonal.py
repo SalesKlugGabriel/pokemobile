@@ -5,11 +5,36 @@ de sprite, com câmera ortográfica.
 
 É a base do pipeline da RFC-005: 3D low-poly -> render -> pixel art -> /assets.
 
-USO
+USO — uma peça
     blender --background --python tools/blender/render_ortogonal.py -- \\
         --cena  tools/blender/generators/casa.py \\
         --saida assets/buildings/casa \\
-        --tamanho 64 --direcoes 4
+        --tamanho 256 --direcoes 4
+
+USO — LOTE (é assim que vale a pena)
+    blender --background --python tools/blender/render_ortogonal.py -- \\
+        --lote tools/blender/lotes/construcoes.json
+
+🔴 **Sempre prefira o lote.** Medido nesta VPS: abrir o Blender custa **4,85 s**
+e renderizar 4 faces custa **0,47 s** — ou seja, **91% do custo é ligar a
+máquina**. Dez peças em dez processos levam 53 s; as mesmas dez num processo só,
+9,6 s. **5,5x mais rápido, sem mudar nada do resultado.**
+
+O arquivo de lote é uma lista, um objeto por peça:
+
+    [
+      {"cena": "tools/blender/generators/casa.py",
+       "saida": "assets/buildings/casa", "tamanho": 256, "direcoes": 4},
+      {"cena": "tools/blender/generators/arvore.py",
+       "saida": "assets/environment/arvore", "tamanho": 256, "direcoes": 1}
+    ]
+
+Campos que faltarem usam o padrão (tamanho 256, 4 direções, escala 5.5).
+
+🔴 **Renderize GRANDE (256) e reduza depois com `tools/pixelart/pixelizar.py`.**
+Medido: descer de 256 pra 32 com LANCZOS dá densidade 0,44, contra 0,09 se você
+renderizar direto em 64 e usar NEAREST. A arte deste jogo mede 0,51 — render
+pequeno nasce chapado demais e não tem como recuperar.
 
 O script de CENA (`--cena`) é um .py comum que monta a geometria e NÃO mexe em
 câmera, luz nem render — isso é trabalho daqui. Ele só precisa deixar os
@@ -53,9 +78,10 @@ def argumentos():
     # O Blender engole tudo antes de "--"; o que interessa vem depois.
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     p = argparse.ArgumentParser()
-    p.add_argument("--cena", required=True, help="script .py que monta a geometria")
-    p.add_argument("--saida", required=True, help="prefixo do caminho de saída")
-    p.add_argument("--tamanho", type=int, default=64, help="lado do PNG em px")
+    p.add_argument("--lote", help="JSON com a lista de peças — o caminho recomendado")
+    p.add_argument("--cena", help="script .py que monta a geometria")
+    p.add_argument("--saida", help="prefixo do caminho de saída")
+    p.add_argument("--tamanho", type=int, default=256, help="lado do PNG em px")
     p.add_argument("--direcoes", type=int, default=4, choices=[1, 4, 8])
     p.add_argument("--escala", type=float, default=5.5,
                    help="ortho_scale: quanto do mundo cabe no quadro")
@@ -102,26 +128,63 @@ def preparar_render(tamanho, escala, inclinacao):
     return cena
 
 
-def main():
-    a = argumentos()
-    pivo = montar_cena(a.cena)
-    cena = preparar_render(a.tamanho, a.escala, a.inclinacao)
+def renderizar_peca(peca):
+    """Uma peça: monta a cena, prepara o render e roda as direções.
 
-    direcoes = {1: [("unico", 0)], 4: DIRECOES_4, 8: DIRECOES_8}[a.direcoes]
-    os.makedirs(os.path.dirname(a.saida) or ".", exist_ok=True)
+    Cada chamada recomeça a cena do zero (`read_factory_settings`), então uma
+    peça não contamina a seguinte — é o que torna o lote seguro.
+    """
+    cena_py = peca["cena"]
+    saida = peca["saida"]
+    tamanho = int(peca.get("tamanho", 256))
+    n_dir = int(peca.get("direcoes", 4))
+    escala = float(peca.get("escala", 5.5))
+    inclinacao = float(peca.get("inclinacao", INCLINACAO_GRAUS))
+
+    pivo = montar_cena(cena_py)
+    cena = preparar_render(tamanho, escala, inclinacao)
+    direcoes = {1: [("unico", 0)], 4: DIRECOES_4, 8: DIRECOES_8}[n_dir]
+    os.makedirs(os.path.dirname(saida) or ".", exist_ok=True)
 
     total = 0.0
     for nome, graus in direcoes:
         # Ver nota 3: gira o OBJETO, não a câmera.
         pivo.rotation_euler = (0, 0, math.radians(graus))
         sufixo = "" if nome == "unico" else "_" + nome
-        cena.render.filepath = f"{a.saida}{sufixo}.png"
+        cena.render.filepath = f"{saida}{sufixo}.png"
         t0 = time.time()
         bpy.ops.render.render(write_still=True)
         dt = time.time() - t0
         total += dt
-        print(f"[render] {nome:<10} {a.tamanho}x{a.tamanho}  {dt:.2f}s  -> {cena.render.filepath}")
-    print(f"[render] {len(direcoes)} imagens em {total:.2f}s")
+        print(f"[render] {os.path.basename(saida):<16} {nome:<10} "
+              f"{tamanho}x{tamanho}  {dt:.2f}s")
+    return len(direcoes), total
+
+
+def main():
+    a = argumentos()
+
+    if a.lote:
+        import json
+        with open(a.lote, "r", encoding="utf-8") as f:
+            pecas = json.load(f)
+        n = 0
+        total = 0.0
+        for peca in pecas:
+            q, t = renderizar_peca(peca)
+            n += q
+            total += t
+        print(f"[render] LOTE: {len(pecas)} peças, {n} imagens, {total:.2f}s de render "
+              f"(1 arranque de Blender em vez de {len(pecas)})")
+        return
+
+    if not a.cena or not a.saida:
+        print("erro: use --lote, ou --cena junto com --saida")
+        sys.exit(2)
+    q, total = renderizar_peca({"cena": a.cena, "saida": a.saida,
+                                "tamanho": a.tamanho, "direcoes": a.direcoes,
+                                "escala": a.escala, "inclinacao": a.inclinacao})
+    print(f"[render] {q} imagens em {total:.2f}s")
 
 
 if __name__ == "__main__":

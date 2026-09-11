@@ -1,0 +1,5 @@
+[
+  {"cena": "tools/blender/generators/casa.py", "saida": "/tmp/lote/casa",  "tamanho": 256, "direcoes": 4},
+  {"cena": "tools/blender/generators/casa.py", "saida": "/tmp/lote/casa2", "tamanho": 256, "direcoes": 4},
+  {"cena": "tools/blender/generators/casa.py", "saida": "/tmp/lote/casa3", "tamanho": 256, "direcoes": 4}
+]

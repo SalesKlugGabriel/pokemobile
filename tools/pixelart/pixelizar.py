@@ -33,16 +33,30 @@ def recortar(im):
     return im.crop(caixa) if caixa else im
 
 
+## Densidade dos tiles do jogo, medida no atlas. É o alvo.
+DENSIDADE_DO_JOGO = 0.51
+DENSIDADE_MINIMA = 0.15
+
+
+def densidade(im):
+    """Cores distintas por pixel opaco — a medida de 'quão texturizado'."""
+    px = [p for p in im.getdata() if p[3] > 200]
+    return len(set(p[:3] for p in px)) / len(px) if px else 0.0
+
+
 def reduzir(im, lado):
-    """Reduz cabendo no quadrado, com vizinho mais próximo.
+    """Reduz cabendo no quadrado, com LANCZOS.
 
     Mantém a proporção e centraliza — esticar um sprite pra caber num quadrado
     deforma a construção, e num tile de 32px isso é visível de imediato.
+
+    LANCZOS, e não NEAREST: ver a nota do cabeçalho. Medido, NEAREST entrega
+    0,09 de densidade contra 0,44 do LANCZOS, num jogo cuja arte mede 0,51.
     """
     w, h = im.size
     escala = min(lado / w, lado / h)
     novo = (max(1, int(w * escala)), max(1, int(h * escala)))
-    reduzida = im.resize(novo, Image.NEAREST)
+    reduzida = im.resize(novo, Image.LANCZOS)
     tela = Image.new("RGBA", (lado, lado), (0, 0, 0, 0))
     tela.paste(reduzida, ((lado - novo[0]) // 2, (lado - novo[1]) // 2))
     return tela
@@ -89,7 +103,9 @@ def main():
     p.add_argument("entrada")
     p.add_argument("saida")
     p.add_argument("--tamanho", type=int, default=32)
-    p.add_argument("--cores", type=int, default=12)
+    p.add_argument("--cores", type=int, default=0,
+                   help="0 = não quantizar (padrão). Quantizar SEMPRE reduz a "
+                        "densidade e afasta do estilo do jogo — só use se souber por quê")
     p.add_argument("--contorno", action="store_true")
     a = p.parse_args()
 
@@ -98,16 +114,21 @@ def main():
 
     im = recortar(im)
     im = reduzir(im, a.tamanho)
-    im = quantizar(im, a.cores)
+    if a.cores > 0:
+        im = quantizar(im, a.cores)
     if a.contorno:
         im = contornar(im)
 
     os.makedirs(os.path.dirname(a.saida) or ".", exist_ok=True)
     im.save(a.saida)
 
-    depois = len(set(p[:3] for p in im.getdata() if p[3] > 10))
-    print(f"[pixelart] {os.path.basename(a.entrada)}: {antes} cores -> {depois} "
-          f"em {a.tamanho}x{a.tamanho} -> {a.saida}")
+    d = densidade(im)
+    depois = len(set(p[:3] for p in im.getdata() if p[3] > 200))
+    print(f"[pixelart] {os.path.basename(a.entrada)}: {antes} -> {depois} cores "
+          f"em {a.tamanho}x{a.tamanho} · densidade {d:.2f} -> {a.saida}")
+    if d < DENSIDADE_MINIMA:
+        print(f"           ⚠ CHAPADO: {d:.2f} contra {DENSIDADE_DO_JOGO:.2f} do jogo. "
+              f"Renderize maior (4 a 8x o alvo) e não quantize.")
 
 
 if __name__ == "__main__":

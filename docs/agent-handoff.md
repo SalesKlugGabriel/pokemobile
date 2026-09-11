@@ -281,3 +281,33 @@ Rode `python3 tools/pixelart/conferir_asset.py --grupo "seus_assets_*.png"`
 antes de entregar. É a mesma régua que eu uso pra aceitar — se passar pra você,
 passa pra mim, e a ida e volta some.
 
+### Otimização do ciclo — FEITA (11/09). O que muda pra você:
+
+**1. `pixelizar.py` estava errado e está corrigido.** Ele fazia NEAREST +
+quantizar em 10 cores, que é a receita clássica de pixel art — e aqui é a
+receita errada, porque a fonte é um render suave, não pixel art. Medido:
+
+    NEAREST 0,09 · BOX 0,19 · BILINEAR 0,26 · **LANCZOS 0,44** (alvo do jogo: 0,51)
+    quantizar sempre piora: sem 0,19 · 48 cores 0,15 · 10 cores 0,03
+
+**Receita certa: renderize em 256 e desça com LANCZOS, sem quantizar.** A casa
+de exemplo passou de 0,02 (reprovada) pra **0,28** (aprovada em tudo).
+
+**2. Render em LOTE** — `--lote arquivo.json`. Medido **6,2× mais rápido**
+(3 peças: 16,2 s → 2,63 s), porque 91% do custo era abrir o Blender.
+Exemplo em `tools/blender/lotes/exemplo.json`.
+
+**3. `./tools/rodar_testes.sh --so <padrão>`** — os testes de combate em 7,4 s
+em vez dos 470 s da suíte inteira. Regra: seletivo enquanto trabalha, **suíte
+inteira antes de commitar**.
+
+**4. Conferência de arte dentro da suíte.** Tudo em `assets/gerado/` passa por
+`conferir_asset.py` no modo completo. Asset chapado reprova como código
+quebrado. A pasta ainda não existe — nasce quando você entregar a primeira
+peça. A arte antiga não é medida por essas réguas.
+
+**O que sobra pro seu lado:** o modelo 3D precisa de **material com textura**,
+não cor chapada. Mesmo com o pipeline corrigido, a casa de exemplo passa raspando
+(0,28 contra 0,51 do jogo) porque o modelo é liso. É aí que se decide se o
+Blender fica.
+

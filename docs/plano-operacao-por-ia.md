@@ -145,12 +145,38 @@ ensina quem a usa**, que é o que permite um agente novo operar sem reler tudo.
 
 | # | O quê | Ganho | Dono |
 |---|---|---|---|
-| 1 | Corrigir `pixelizar.py` (quantização achatou a arte) | desbloqueia o pipeline | Claude |
-| 2 | Blender em lote | **5,5×** na geração | Claude |
-| 3 | Godot seletivo na iteração | 7,8 min → segundos | Claude |
-| 4 | `conferir_asset.py` na suíte | asset ruim reprova sozinho | Claude |
+| 1 | ✅ **FEITO** — `pixelizar.py` corrigido | densidade 0,02 → **0,28** (passa nas réguas) | Claude |
+| 2 | ✅ **FEITO** — Blender em lote | medido: **6,2×** (3 peças: 16,2 s → 2,63 s) | Claude |
+| 3 | ✅ **FEITO** — `rodar_testes.sh --so <padrão>` | 470 s → **7,4 s** nos testes de combate | Claude |
+| 4 | ✅ **FEITO** — conferência de arte na suíte | asset chapado reprova como código quebrado | Claude |
 | 5 | Protocolo TASK-NNN | menos ida e volta | ambos |
 | 6 | Modelo 3D com textura de verdade | decide se o Blender fica | **Codex** |
+
+### Resultado dos quatro primeiros, medido
+
+| | Antes | Depois |
+|---|---:|---:|
+| Densidade da peça gerada | 0,02 ✗ | **0,28** ✓ |
+| 3 peças de 4 faces no Blender | 16,2 s | **2,63 s** |
+| Conferir os testes de combate | 470 s | **7,4 s** |
+| Arte ruim entrar no jogo | ninguém via | **reprova sozinha** |
+
+🔴 **A correção do `pixelizar.py` inverteu duas decisões minhas**, e as duas
+eram a receita clássica de pixel art:
+
+    descer 256 → 32     NEAREST  0,09   ← era o que eu usava: o PIOR
+                        BOX      0,19
+                        BILINEAR 0,26
+                        LANCZOS  0,44   ← alvo do jogo: 0,51
+
+    quantizar           sem      0,19
+                        48 cores 0,15
+                        10 cores 0,03   ← sempre piora
+
+NEAREST é a regra quando a FONTE já é pixel art. Aqui a fonte é um render suave,
+e jogar fora a variação tonal é jogar fora justamente o que faz a peça parecer
+deste jogo. **Receita certa: renderizar grande (256) e descer com LANCZOS, sem
+quantizar.**
 
 Os itens 1 a 5 são infraestrutura e são meus. **O item 6 é o que decide se todo
 o resto valeu** — e é arte, não engenharia.

@@ -18,9 +18,33 @@
 #
 # Por isso agora um arquivo precisa das DUAS coisas pra passar: sair com código
 # 0 E ter impresso a linha de resultado. Silêncio deixou de ser aprovação.
+#
+# 🔴 MODO SELETIVO (11/09). Medido: a suíte inteira leva 470 s, e ~262 s disso
+# (56%) é só o Godot abrindo 105 vezes — cada arranque custa 2,5 s contra 1,5 s
+# de teste de verdade. Rodar tudo a cada mudança é pagar 8 minutos pra conferir
+# uma linha.
+#
+#     ./tools/rodar_testes.sh              # a suíte inteira
+#     ./tools/rodar_testes.sh --so combate # só os que casam com "combate"
+#
+# A REGRA: seletivo enquanto você trabalha; **a suíte inteira antes de commitar
+# e antes de publicar**. O seletivo acha o erro rápido; só a suíte inteira prova
+# que você não quebrou o resto.
+#
+# (Paralelizar foi testado e descartado: 12 testes levam 98,6 s em série e
+# 82,2 s com 2 em paralelo — só 17%, porque o gargalo é disco, não CPU, e os
+# 2 núcleos são compartilhados com a produção.)
 cd "$(dirname "$0")/.." || exit 1
+
+padrao=""
+if [ "${1:-}" = "--so" ]; then
+  padrao="${2:-}"
+  if [ -z "$padrao" ]; then echo "uso: $0 --so <padrão>"; exit 2; fi
+fi
+
 falhas=0; total=0; nomes=()
 for f in scripts/tests/teste_*.gd; do
+  if [ -n "$padrao" ] && ! echo "$f" | grep -qi -- "$padrao"; then continue; fi
   total=$((total+1))
   saida=/tmp/saida_teste.txt
   ruim=0
@@ -38,6 +62,33 @@ for f in scripts/tests/teste_*.gd; do
     grep -E "FALHOU|FALHA -" "$saida" | head -4
   fi
 done
-echo "=== $total arquivos, $falhas com falha ==="
+# ── Conferência de ARTE (11/09) ───────────────────────────────────────────────
+# Asset ruim reprova como código ruim. Só roda no modo completo, e só sobre o
+# que o pipeline de render produz (`assets/gerado/`) — a arte antiga, desenhada
+# por outro caminho, não é medida por estas réguas.
+#
+# Pasta vazia ou inexistente: pula em silêncio. É infraestrutura pronta pra
+# quando o Codex começar a entregar, não uma reprovação por ainda não haver nada.
+if [ -z "$padrao" ] && [ -d assets/gerado ]; then
+  pngs=$(find assets/gerado -name "*.png" 2>/dev/null | head -400)
+  if [ -n "$pngs" ]; then
+    total=$((total+1))
+    if ! python3 tools/pixelart/conferir_asset.py $pngs > /tmp/saida_arte.txt 2>&1; then
+      falhas=$((falhas+1)); nomes+=("assets/gerado (conferência de arte)")
+      grep "✗" /tmp/saida_arte.txt | head -6
+    fi
+  fi
+fi
+
+if [ -n "$padrao" ] && [ "$total" -eq 0 ]; then
+  echo "=== nenhum teste casa com '$padrao' ==="
+  exit 2
+fi
+if [ -n "$padrao" ]; then
+  echo "=== $total arquivos (filtro '$padrao'), $falhas com falha ==="
+  echo "    ⚠ modo seletivo — rode a suíte INTEIRA antes de commitar"
+else
+  echo "=== $total arquivos, $falhas com falha ==="
+fi
 [ "$falhas" -eq 0 ] || printf '%s\n' "${nomes[@]}"
 exit "$falhas"
