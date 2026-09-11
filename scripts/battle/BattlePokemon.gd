@@ -159,15 +159,15 @@ func _calculate_stats(base: Dictionary) -> void:
 	sp_def  = _calc_stat(base.get("sp_def", 45), ivs["spd"], evs["spd"], "spd")
 	speed   = _calc_stat(base.get("speed", 45), ivs["spe"], evs["spe"], "spe")
 
+## 🔴 11/09: era a TERCEIRA fórmula de stat do projeto. Agora repassa pra
+## `StatsDePokemon`, igual ao save e ao combate em tempo real.
 func _calc_hp(base_val: int) -> int:
-	return floori((2.0 * base_val + ivs["hp"] + floori(evs["hp"] / 4.0)) * level / 100.0) + level + 10
+	return StatsDePokemon.hp_maximo(base_val, level, ivs["hp"], evs["hp"])
 
 ## stat_key: "atk"/"def"/"spa"/"spd"/"spe" — usado só pra saber se a nature
 ## sobe/desce ESSA stat (HP nunca é afetado por nature).
 func _calc_stat(base_val: int, iv: int, ev: int, stat_key: String) -> int:
-	var raw := floori((2.0 * base_val + iv + floori(ev / 4.0)) * level / 100.0) + 5
-	var nature_mult := GameData.get_nature_multiplier(nature, stat_key)
-	return maxi(1, floori(raw * nature_mult))
+	return StatsDePokemon.stat(base_val, level, stat_key, nature, iv, ev)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Stat efetivo com stage modifier

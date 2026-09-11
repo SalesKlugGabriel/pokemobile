@@ -33,12 +33,16 @@ var level : int:
 # Constantes do spec
 # ──────────────────────────────────────────────────────────────────────────────
 
-const WILD_DETECT_RADIUS : float = 960.0  # migração tile128 (03/09): era 240 pro tile de 32px
-const WILD_ATTACK_RADIUS : float = 384.0  # migração tile128 (03/09): era 96 pro tile de 32px
-const ALPHA_HP_MULT      : float = 5.0
-const ALPHA_ATK_MULT     : float = 3.0
-const ALPHA_DEF_MULT     : float = 2.5
-const ALPHA_SPD_MULT     : float = 1.5
+## 🔴 11/09: estas constantes viraram a régua central (`CombatBalance`) — o
+## raio de detecção agora depende da PERSONALIDADE do bicho e o alcance de
+## ataque depende do GOLPE dele, não de um número igual pra todo mundo. Os
+## nomes seguem aqui porque cena e teste antigos leem daqui.
+const WILD_DETECT_RADIUS : float = CombatBalance.AGGRO_RADIUS_TILES * CombatBalance.TILE_PX
+const WILD_ATTACK_RADIUS : float = 384.0  # só como piso, ver _alcance_de_ataque()
+const ALPHA_HP_MULT      : float = CombatBalance.ALPHA_HP_MULT
+const ALPHA_ATK_MULT     : float = CombatBalance.ALPHA_ATK_MULT
+const ALPHA_DEF_MULT     : float = CombatBalance.ALPHA_DEF_MULT
+const ALPHA_SPD_MULT     : float = CombatBalance.ALPHA_SPD_MULT
 
 const PATROL_INTERVAL_MIN : float = 2.0
 const PATROL_INTERVAL_MAX : float = 4.0
@@ -48,7 +52,11 @@ const BASE_MOVE_SPEED     : float = 640.0  # migração tile128 (03/09): era 160
 # FSM
 # ──────────────────────────────────────────────────────────────────────────────
 
-enum State { PATROL, CHASE, ATTACK, DEAD }
+## 🔴 11/09: dois estados novos. RETORNAR é a coleira (item 26) — antes um
+## selvagem em CHASE perseguia até o fim do mapa, porque a coleira só existia
+## na patrulha. FUGIR é a personalidade FUGITIVO e o "correr quando está quase
+## morrendo" (item 24), que antes só acontecia dentro do PATROL.
+enum State { PATROL, CHASE, ATTACK, DEAD, RETORNAR, FUGIR }
 
 var state : State = State.PATROL
 
@@ -69,13 +77,31 @@ var current_hp    : int   = 0
 var max_hp        : int   = 0
 var atk_stat      : int   = 0
 var def_stat      : int   = 0
+## 🔴 11/09: os dois stats especiais. Existiam em species.json desde sempre e
+## nunca chegavam ao combate — todo Pokémon especial atacava com o físico.
+var spa_stat      : int   = 0
+var spd_stat      : int   = 0
 var speed_stat    : int   = 0
+## Nature sorteada no nascimento: +10% num stat, -10% em outro. O selvagem já
+## nascia com uma dentro do BattlePokemon (usado só na captura); agora ela
+## vale na LUTA também, e é a mesma que vai pro save se ele for capturado.
+var nature        : String = ""
+var ivs           : Dictionary = {}
+## Personalidade normalizada (as 7 do item 24). `behavior` continua guardando
+## o rótulo cru que veio do dado.
+var personalidade : String = ComportamentoSelvagem.DEFENSIVO
 var catch_rate    : int   = 45   # fallback
 var types         : Array = []
 
 ## Move padrão desta espécie (primeiro do learnset ou fallback)
-var default_move  : Dictionary = {}
-var _attack_cd    : float = 0.0
+## 🔴 11/09: o selvagem tinha UM golpe — `default_move`, sempre o PRIMEIRO
+## aprendível da espécie, que é quase sempre o Tackle/Scratch de nível 1. Um
+## Alakazam selvagem de nível 50 atacava com o golpe de nível 1. Agora tem
+## até 4, cada um com sua recarga, e escolhe qual usar pela distância.
+var golpes        : Array = []              ## até 4 Dictionary de moves.json
+var recargas      : Array = [0.0, 0.0, 0.0, 0.0]
+var default_move  : Dictionary = {}         ## o primeiro de `golpes` — compatibilidade
+var _attack_cd    : float = 0.0             ## trava global entre golpes (anti-metralhadora)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Status persistente (Onda 1, item 5 do roteiro geral, 03/09) — ver
@@ -225,7 +251,7 @@ func _build_health_bar() -> void:
 
 	# Nome + nível: sem o NOME, a criança via "Lv.6" e não sabia de quem era.
 	_level_label = Label.new()
-	_level_label.text = "%s  Nv.%d" % [_nome_da_especie(), wild_level]
+	_level_label.text = _texto_do_rotulo()
 	_level_label.add_theme_font_size_override("font_size", 12)
 	_level_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	_level_label.add_theme_constant_override("outline_size", 4)
@@ -255,7 +281,18 @@ func _update_status_label() -> void:
 		label += "/CNF"
 	_status_label.text = label
 
+## Nome, nível e vida atual/máxima (item 22 do pedido). A vida SÓ aparece
+## depois do primeiro dano — antes disso "Beedrill Nv.28" é o que interessa, e
+## um "84/84" em cada bicho da tela vira poluição.
+func _texto_do_rotulo() -> String:
+	var cabeca := "%s  Nv.%d" % [_nome_da_especie(), wild_level]
+	if max_hp > 0 and current_hp < max_hp:
+		return "%s   %d/%d" % [cabeca, current_hp, max_hp]
+	return cabeca
+
 func _update_health_bar() -> void:
+	if _level_label:
+		_level_label.text = _texto_do_rotulo()
 	if not _hp_bar_fill or max_hp <= 0:
 		return
 	var ratio : float = clampf(float(current_hp) / float(max_hp), 0.0, 1.0)
@@ -316,25 +353,34 @@ func _load_species() -> void:
 	types      = species_data.get("types", ["Normal"])
 	catch_rate = species_data.get("catch_rate", 45)
 
-	# Chaves corrigidas (Fase 1 do Diário) — mesmo bug do FollowerPokemon.gd:
-	# "atk"/"def"/"spd" não existem em species.json, caía sempre no padrão 45.
-	max_hp     = DamageCalculator.calculate_hp(base.get("hp", 45),      wild_level)
-	atk_stat   = DamageCalculator.calculate_stat(base.get("attack", 45), wild_level)
-	def_stat   = DamageCalculator.calculate_stat(base.get("defense", 45), wild_level)
-	speed_stat = DamageCalculator.calculate_stat(base.get("speed", 45),  wild_level)
+	# 🔴 11/09: os SEIS stats, com nature e IV sorteados — a mesma fórmula do
+	# Pokémon do jogador e do save (`StatsDePokemon`). Antes eram três stats
+	# por uma fórmula própria, e o HP do selvagem não batia com o do menu.
+	nature = GameData.roll_random_nature()
+	ivs = StatsDePokemon.sortear_ivs()
+	var stats : Dictionary = StatsDePokemon.conjunto(base, wild_level, nature, ivs)
+	max_hp     = int(stats["hp"])
+	atk_stat   = int(stats["atk"])
+	def_stat   = int(stats["def"])
+	spa_stat   = int(stats["spa"])
+	spd_stat   = int(stats["spd"])
+	speed_stat = int(stats["spe"])
+
+	# Personalidade: o rótulo da espécie, a não ser que a zona/spawn tenha
+	# mandado outro (aí `behavior` já veio preenchido pelo initialize).
+	var rotulo : String = behavior if not behavior.is_empty() else str(species_data.get("behavior", "neutral"))
+	personalidade = ComportamentoSelvagem.normalizar(rotulo)
 
 	if is_alpha:
-		max_hp    = int(max_hp  * ALPHA_HP_MULT)
-		atk_stat  = int(atk_stat * ALPHA_ATK_MULT)
-		def_stat  = int(def_stat * ALPHA_DEF_MULT)
+		max_hp     = int(max_hp    * ALPHA_HP_MULT)
+		atk_stat   = int(atk_stat  * ALPHA_ATK_MULT)
+		def_stat   = int(def_stat  * ALPHA_DEF_MULT)
+		spa_stat   = int(spa_stat  * ALPHA_ATK_MULT)
+		spd_stat   = int(spd_stat  * ALPHA_DEF_MULT)
 		speed_stat = int(speed_stat * ALPHA_SPD_MULT)
 
 	current_hp = max_hp
-
-	# Move padrão: primeiro move aprendível
-	var learnable : Array = GameData.get_learnable_moves(species_id, wild_level)
-	if not learnable.is_empty():
-		default_move = GameData.get_move(learnable[0].get("move", ""))
+	_montar_golpes()
 
 	_passive_data = species_data.get("passive", {})
 	if not _passive_data.is_empty():
@@ -426,14 +472,29 @@ func _mover_com_colisao() -> void:
 	velocity = WorldManager.filtrar_velocidade(global_position + PE_OFFSET, velocity)
 	move_and_slide()
 
+## 🔴 11/09 (item 41: separar lógica de combate do quadro visual). Procurar
+## alvo e decidir o que fazer NÃO precisa acontecer 60 vezes por segundo — com
+## o teto de 60 selvagens ativos isso eram 3.600 buscas de alvo por segundo, e
+## cada busca varre dois grupos inteiros da árvore. Agora a DECISÃO roda a cada
+## COMBAT_TICK_SEC (0,2s) e o MOVIMENTO continua a 60 FPS, que é o que o olho
+## vê. O jogador não percebe a diferença; o processador percebe.
+var _relogio_de_combate : float = 0.0
+
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
 
-	_find_target()
 	_attack_cd = max(0.0, _attack_cd - delta)
+	for i in recargas.size():
+		recargas[i] = max(0.0, float(recargas[i]) - delta)
 	_tick_passive(delta)
 	_tick_status(delta)
+
+	_relogio_de_combate -= delta
+	if _relogio_de_combate <= 0.0:
+		_relogio_de_combate = CombatBalance.COMBAT_TICK_SEC
+		_find_target()
+		_decidir()
 
 	# Sono/congelado: incapaz de agir, nem persegue nem ataca nem foge —
 	# fica parado até acordar/degelar (StatusEffectController.is_incapacitated).
@@ -443,9 +504,131 @@ func _physics_process(delta: float) -> void:
 		return
 
 	match state:
-		State.PATROL: _tick_patrol(delta)
-		State.CHASE:  _tick_chase()
-		State.ATTACK: _tick_attack()
+		State.PATROL:   _tick_patrol(delta)
+		State.CHASE:    _tick_chase()
+		State.ATTACK:   _tick_attack()
+		State.RETORNAR: _tick_retornar(delta)
+		State.FUGIR:    _tick_fugir()
+
+## O cérebro, uma vez a cada tick de combate. Só TROCA DE ESTADO — quem anda e
+## quem bate são os `_tick_*`. Ordem de prioridade, de cima pra baixo:
+## coleira → fuga → briga → paz.
+func _decidir() -> void:
+	if state == State.DEAD:
+		return
+
+	# 1. Estourou a coleira? Volta pra casa, e não tem conversa (item 26).
+	var longe_de_casa : float = global_position.distance_to(_spawn_pos)
+	if state in [State.CHASE, State.ATTACK] \
+			and longe_de_casa > ComportamentoSelvagem.raio_de_coleira(personalidade):
+		_set_state(State.RETORNAR)
+		return
+	if state == State.RETORNAR:
+		if longe_de_casa <= CombatBalance.TILE_PX * 1.5:
+			_set_state(State.PATROL)
+		return
+
+	# 2. Machucado demais (ou fugitivo por natureza)? Corre.
+	if state in [State.CHASE, State.ATTACK] \
+			and ComportamentoSelvagem.deve_fugir(personalidade, get_hp_ratio()):
+		_set_state(State.FUGIR)
+		return
+	if state == State.FUGIR:
+		if target == null or global_position.distance_to(target.global_position) \
+				> ComportamentoSelvagem.raio_de_aggro(personalidade) * 2.0:
+			_set_state(State.RETORNAR)
+		return
+
+	if target == null:
+		if state != State.PATROL:
+			_set_state(State.PATROL)
+		return
+
+	var dist : float = global_position.distance_to(target.global_position)
+
+	# 3. Em paz: percebe o jogador?
+	if state == State.PATROL:
+		if not ComportamentoSelvagem.comeca_briga(personalidade):
+			if ComportamentoSelvagem.foge_sempre(personalidade) \
+					and dist <= ComportamentoSelvagem.raio_de_aggro(personalidade):
+				_set_state(State.FUGIR)
+			return
+		if dist <= ComportamentoSelvagem.raio_de_aggro(personalidade):
+			_entrar_em_briga(0)
+		return
+
+	# 4. Já brigando: perto o bastante pra bater, ou tem que correr atrás?
+	var alcance : float = _alcance_de_ataque()
+	if state == State.CHASE and dist <= alcance:
+		_set_state(State.ATTACK)
+	elif state == State.ATTACK and dist > alcance * 1.15:
+		# A folga de 15% evita o bicho ficar piscando entre CHASE e ATTACK
+		# quando o jogador anda exatamente na borda do alcance.
+		_set_state(State.CHASE)
+
+## Até onde eu consigo bater: o alcance do meu golpe mais longo. Antes era uma
+## constante igual pra todo mundo, então um Onix corpo a corpo e um Alakazam
+## de feixe paravam à mesma distância do jogador.
+func _alcance_de_ataque() -> float:
+	return maxf(ComportamentoSelvagem.alcance_util(golpes), CombatBalance.TILE_PX * 1.2)
+
+## Entra em briga — e, se for bicho de bando, GRITA (item 25).
+##
+## `saltos` é o que impede a corrente do item 27: quem entrou por conta
+## própria grita com saltos=0; quem foi CHAMADO entra com saltos=1 e não
+## chama mais ninguém. Sem isso, um Beedrill acorda o mapa inteiro.
+func _entrar_em_briga(saltos: int) -> void:
+	_set_state(State.CHASE)
+	if saltos > 0 or not ComportamentoSelvagem.chama_o_bando(personalidade):
+		return
+	var vizinhos : Array = ComportamentoSelvagem.quem_ouve_o_grito(
+		self, get_tree().get_nodes_in_group("wild_pokemon"), species_id, saltos)
+	for v in vizinhos:
+		if v.has_method("responder_ao_grito"):
+			v.responder_ao_grito(self, saltos + 1)
+
+## Chamado por um companheiro de bando. Só responde quem está em paz — quem já
+## está brigando ou fugindo tem problema próprio.
+func responder_ao_grito(quem_gritou: Node2D, saltos: int) -> void:
+	if state != State.PATROL or quem_gritou == null:
+		return
+	_find_target()
+	if target == null:
+		return
+	_entrar_em_briga(saltos)
+
+## Volta pra casa e se cura no caminho (item 26: "pode recuperar HP"). É o que
+## faz valer a pena fugir de um bicho forte em vez de morrer — e o que impede
+## o jogador de sangrar um alpha em 10 idas e voltas.
+func _tick_retornar(delta: float) -> void:
+	var para_casa : Vector2 = (_spawn_pos - global_position)
+	if para_casa.length() <= CombatBalance.TILE_PX * 1.5:
+		velocity = Vector2.ZERO
+		_mover_com_colisao()
+		return
+	velocity = para_casa.normalized() * _get_move_speed()
+	_mover_com_colisao()
+
+	if current_hp < max_hp:
+		_regen_acumulado += float(max_hp) * CombatBalance.REGEN_NA_COLEIRA_POR_SEG * delta
+		if _regen_acumulado >= 1.0:
+			var ganho : int = int(_regen_acumulado)
+			_regen_acumulado -= float(ganho)
+			current_hp = mini(max_hp, current_hp + ganho)
+			EventBus.wild_pokemon_hp_changed.emit(self, current_hp, max_hp)
+			_update_health_bar()
+
+var _regen_acumulado : float = 0.0
+
+## Corre na direção oposta ao alvo, mais rápido que o normal.
+func _tick_fugir() -> void:
+	if target == null:
+		velocity = Vector2.ZERO
+		_mover_com_colisao()
+		return
+	var longe := (global_position - target.global_position).normalized()
+	velocity = longe * _get_move_speed() * 1.5
+	_mover_com_colisao()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Status persistente (Onda 1, item 5, 03/09) — ver StatusEffectController.gd
@@ -553,16 +736,9 @@ func _tick_patrol(delta: float) -> void:
 	if _patrol_timer <= 0.0:
 		_pick_patrol_dir()
 
-	# Detecção de player
-	if target:
-		var dist : float = global_position.distance_to(target.global_position)
-		if dist <= WILD_DETECT_RADIUS:
-			match behavior:
-				"aggressive": _set_state(State.CHASE)
-				"neutral":    pass  # só ataca se atacado
-				"flee":       _flee_from_target()
-			return
-
+	# 🔴 11/09: a DECISÃO de perseguir/fugir saiu daqui e foi pro `_decidir()`,
+	# que roda no tick de combate e conhece as 7 personalidades. Aqui ficou só
+	# o passeio — que é movimento, e movimento continua a 60 FPS.
 	var move_speed := _get_move_speed()
 	velocity = _patrol_dir * move_speed
 	_mover_com_colisao()
@@ -572,7 +748,7 @@ func _tick_patrol(delta: float) -> void:
 ## (um Oddish saindo da grama pro meio da estrada). Fora do raio, a direção
 ## sorteada vira "de volta pra casa" (com uma variação, pra não parecer um
 ## trilho reto) em vez de mais uma direção qualquer.
-const LEASH_RADIUS_TILES : float = 6.0
+const LEASH_RADIUS_TILES : float = CombatBalance.PATROL_LEASH_TILES
 
 func _pick_patrol_dir() -> void:
 	_patrol_timer = RNGManager.randf_range(PATROL_INTERVAL_MIN, PATROL_INTERVAL_MAX)
@@ -595,21 +771,16 @@ func _flee_from_target() -> void:
 # CHASE
 # ──────────────────────────────────────────────────────────────────────────────
 
+## Só corre atrás. Quando parar de correr e começar a bater é decisão do
+## `_decidir()` — aqui não se troca mais de estado, pra não existirem dois
+## lugares decidindo a mesma coisa com réguas diferentes.
 func _tick_chase() -> void:
 	if not target:
-		_set_state(State.PATROL)
+		velocity = Vector2.ZERO
+		_mover_com_colisao()
 		return
-
-	var dist : float = global_position.distance_to(target.global_position)
-	if dist > WILD_DETECT_RADIUS + 40.0:
-		_set_state(State.PATROL)
-		return
-	if dist <= WILD_ATTACK_RADIUS:
-		_set_state(State.ATTACK)
-		return
-
-	var dir  := (target.global_position - global_position).normalized()
-	velocity  = dir * _get_move_speed()
+	var dir := (target.global_position - global_position).normalized()
+	velocity = dir * _get_move_speed()
 	_mover_com_colisao()
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -618,23 +789,33 @@ func _tick_chase() -> void:
 
 func _tick_attack() -> void:
 	velocity = Vector2.ZERO
-
+	_mover_com_colisao()
 	if not target:
-		_set_state(State.PATROL)
 		return
-
-	var dist : float = global_position.distance_to(target.global_position)
-	if dist > WILD_ATTACK_RADIUS + 16.0:
-		_set_state(State.CHASE)
-		return
-
 	if _attack_cd <= 0.0:
 		_perform_attack()
 
+## 🔴 11/09: escolhe QUAL golpe usar. Antes existia um só (`default_move`,
+## sempre o de nível 1 da espécie) e o selvagem batia sempre a mesma coisa.
+## A escolha é deliberadamente legível (item 29: previsibilidade > esperteza):
+## entre os golpes prontos que alcançam o alvo, usa o mais forte.
 func _perform_attack() -> void:
-	var base_cd : float = default_move.get("cooldown", 2.0)
-	var spd_reduc : float = speed_stat / 500.0
-	_attack_cd = max(0.3, base_cd * (1.0 - spd_reduc))
+	if golpes.is_empty() or target == null:
+		return
+	var dist : float = global_position.distance_to(target.global_position)
+	var slot : int = ComportamentoSelvagem.escolher_golpe(golpes, recargas, dist)
+	if slot < 0:
+		return   # nada pronto ou nada alcança — o `_decidir()` aproxima no próximo tick
+	var move : Dictionary = golpes[slot]
+
+	var recarga : float = CombatBalance.recarga(float(move.get("cooldown", 2.0)), speed_stat)
+	recargas[slot] = recarga
+	# Trava global curta entre golpes: sem ela, um bicho com 4 golpes prontos
+	# dispara os 4 no mesmo quadro e mata sem o jogador ver nada acontecer.
+	_attack_cd = maxf(CombatBalance.MIN_COOLDOWN_SEC, recarga * 0.5)
+	_usar_golpe(move)
+
+func _usar_golpe(default_move: Dictionary) -> void:
 
 	# Paralisia: chance por TENTATIVA de falhar o golpe inteiro (mesma regra
 	# de BattlePokemon.can_move() — 25%, StatusEffectController.03/09).
@@ -647,8 +828,20 @@ func _perform_attack() -> void:
 		_hit_self_confused()
 		return
 
+	# Tempo de conjuração: a janela em que o jogador vê o golpe vindo e pode
+	# sair de perto (item 19). Golpe rápido tem cast 0 e sai na hora.
+	var cast : float = float(default_move.get("cast_time", 0.0))
+	if cast > 0.0:
+		await get_tree().create_timer(cast).timeout
+		if not is_instance_valid(self) or state == State.DEAD:
+			return
+
 	if default_move.get("target_type", "single") == "area":
 		_apply_damage_area(default_move)
+		return
+
+	# O alvo saiu do alcance durante a conjuração? O golpe falha.
+	if target and not FormaDeArea.no_alcance(global_position, target, default_move):
 		return
 
 	if target and target.has_method("take_damage"):
@@ -669,7 +862,8 @@ func _perform_attack() -> void:
 ## DamageCalculator pro bônus de Guts e pra halving de queima em golpe físico.
 func _attacker_stats() -> Dictionary:
 	return {
-		"atk": atk_stat, "level": wild_level,
+		"atk": atk_stat, "spa": spa_stat, "level": wild_level,
+		"types": types,
 		"ability": species_data.get("ability", ""), "hp_ratio": get_hp_ratio(),
 		"status": current_status,
 	}
@@ -693,7 +887,13 @@ func _apply_damage_area(move_data: Dictionary) -> void:
 	if not is_instance_valid(self) or state == State.DEAD:
 		return
 
-	var alvos : Array = AreaTargeting.find_targets_in_radius(centro, radius, ["follower_pokemon", "player"])
+	var mira : Vector2 = Vector2.RIGHT
+	if target and is_instance_valid(target):
+		var d : Vector2 = target.global_position - centro
+		if d.length_squared() > 0.0:
+			mira = d.normalized()
+	var alvos : Array = FormaDeArea.alvos(centro, mira, move_data,
+		["follower_pokemon", "player"], [self])
 	var attacker_stats := _attacker_stats()
 	var is_status_move : bool = move_data.get("category", "physical") == "status"
 	for alvo in alvos:
@@ -720,9 +920,16 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 	_passive_dmg_since += amount
 	_update_health_bar()
 
-	# "neutral" entra em combate quando atacado
-	if behavior == "neutral" and state == State.PATROL:
-		_set_state(State.CHASE)
+	# Apanhou: qualquer personalidade reage — até o passivo, que reage FUGINDO.
+	# Antes só o rótulo "neutral" reagia, então um "flee" apanhando ficava
+	# parado apanhando.
+	if state == State.PATROL:
+		_find_target()
+		if target != null:
+			if ComportamentoSelvagem.deve_fugir(personalidade, get_hp_ratio()):
+				_set_state(State.FUGIR)
+			else:
+				_entrar_em_briga(0)
 
 	if current_hp <= 0:
 		_die()
@@ -826,8 +1033,46 @@ func _process(_delta: float) -> void:
 # API pública
 # ──────────────────────────────────────────────────────────────────────────────
 
+## O que um atacante precisa saber sobre mim. Ganhou defesa especial, vida e
+## nível: a fórmula nova usa SP_DEF em golpe especial e a vida máxima pro teto
+## que impede hit-kill.
 func get_combat_stats() -> Dictionary:
-	return { "def": def_stat, "types": types, "level": wild_level }
+	return {
+		"def": def_stat, "spd": spd_stat, "spe": speed_stat,
+		"types": types, "level": wild_level,
+		"max_hp": max_hp, "hp": current_hp,
+	}
+
+## Monta o repertório: até 4 golpes de DANO, os mais recentes que a espécie já
+## aprendeu neste nível. Golpe de status fica de fora de propósito — um
+## selvagem que gasta a vez dele em Growl não é um desafio, é um incômodo.
+func _montar_golpes() -> void:
+	golpes = []
+	recargas = [0.0, 0.0, 0.0, 0.0]
+	var aprendidos : Array = GameData.get_learnable_moves(species_id, wild_level)
+	var ids : Array[String] = []
+	for entrada in aprendidos:
+		var mid : String = str(entrada.get("move", ""))
+		if mid.is_empty() or mid in ids:
+			continue
+		if int(GameData.get_move(mid).get("power", 0)) <= 0:
+			continue
+		ids.append(mid)
+	ids.reverse()   # o mais recente é o mais forte
+
+	for mid in ids:
+		if golpes.size() >= 4:
+			break
+		golpes.append(GameData.get_move(mid))
+
+	# Nenhum golpe de dano no learnset? Cai no primeiro aprendível, seja qual
+	# for — é melhor um Growl inútil que um bicho parado sem nada pra fazer.
+	if golpes.is_empty() and not aprendidos.is_empty():
+		var socorro : Dictionary = GameData.get_move(str(aprendidos[0].get("move", "")))
+		if not socorro.is_empty():
+			golpes.append(socorro)
+
+	default_move = golpes[0] if not golpes.is_empty() else {}
 
 func get_hp_ratio() -> float:
 	if max_hp <= 0:

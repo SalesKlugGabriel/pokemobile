@@ -65,7 +65,15 @@ var current_hp     : int = 0
 var max_hp         : int = 0
 var atk_stat       : int = 0
 var def_stat       : int = 0
+## 🔴 11/09: os dois stats especiais, que existiam nos dados e nunca no combate.
+var spa_stat       : int = 0
+var spd_stat       : int = 0
 var speed_stat     : int = 0
+## Tipos da espécie — precisam ficar guardados pro STAB (golpe do mesmo tipo
+## do Pokémon ganha +25%).
+var types          : Array = ["Normal"]
+## Nature lida do save. Sobe 10% de um stat e desce 10% de outro.
+var nature         : String = ""
 
 ## Slots de move (4 IDs de string consultados do GameData)
 var move_slots     : Array[String] = ["", "", "", ""]
@@ -181,11 +189,25 @@ func _load_species_data() -> void:
 	# Chaves corrigidas (Fase 1 do Diário) — eram "atk"/"def"/"spd", que não
 	# existem em species.json (as chaves reais são attack/defense/speed);
 	# sempre caía no valor-padrão 45, igual pra qualquer espécie.
+	# 🔴 11/09: passou a usar os SEIS stats, com nature e IV do save.
+	# Antes lia só attack/defense/speed por uma fórmula própria — sp_atk e
+	# sp_def existiam em species.json e nunca eram usados, então todo Pokémon
+	# especial do jogo atacava com o ataque físico (Alakazam, sp_atk 135,
+	# lutava com attack 50). A nature também existia no save desde sempre e
+	# não afetava nada.
 	var base : Dictionary = species_data.get("base_stats", {})
-	max_hp      = DamageCalculator.calculate_hp(base.get("hp", 45),      pokemon_level)
-	atk_stat    = DamageCalculator.calculate_stat(base.get("attack", 45), pokemon_level)
-	def_stat    = DamageCalculator.calculate_stat(base.get("defense", 45), pokemon_level)
-	speed_stat  = DamageCalculator.calculate_stat(base.get("speed", 45),  pokemon_level)
+	var salvo : Dictionary = _meu_registro_no_save()
+	nature = str(salvo.get("nature", ""))
+	var ivs : Dictionary = salvo.get("ivs", {})
+	var evs : Dictionary = salvo.get("evs", {})
+	var stats : Dictionary = StatsDePokemon.conjunto(base, pokemon_level, nature, ivs, evs)
+	max_hp      = int(stats["hp"])
+	atk_stat    = int(stats["atk"])
+	def_stat    = int(stats["def"])
+	spa_stat    = int(stats["spa"])
+	spd_stat    = int(stats["spd"])
+	speed_stat  = int(stats["spe"])
+	types       = species_data.get("types", ["Normal"])
 	# HP QUE PERSISTE (06/09). Antes daqui o Follower SEMPRE nascia com vida
 	# cheia e nunca gravava nada de volta: o dano sumia a cada troca de mapa, e
 	# "risco" não existia — nem o de uma dungeon, nem o de andar no mato. Agora
@@ -262,13 +284,86 @@ func _fire_passive_reflect() -> void:
 		alvo.take_damage(_passive_dmg_since, self)
 		FloatingText.show_text(get_tree().current_scene, alvo.global_position + Vector2(0, -184), "Reflexo!", Color(0.8, 0.6, 1.0))
 
+## 🔴 11/09: reescrito. A queixa do Gabriel ("meu Pokémon só tem 2 ataques")
+## não era falta de arquitetura — os 4 slots existem desde 02/09 — era falta de
+## DADO. A regra antiga pegava os 4 últimos golpes aprendíveis, e no começo do
+## jogo não existem 4: medido, no nível 5 só 20 das 151 espécies tinham os 4
+## slots cheios, e 82 tinham UM só golpe que causa dano (o resto eram Growl,
+## Tail Whip e afins, que não tiram vida nenhuma).
+##
+## A regra nova monta o time de golpes com intenção:
+##   1. os golpes de DANO mais recentes entram primeiro (são o que o jogador usa);
+##   2. um golpe de status entra só depois, se ainda sobrar espaço;
+##   3. se mesmo assim faltar, completa com o golpe básico do PRIMEIRO tipo da
+##      espécie — assim ninguém fica sem ter o que apertar, e o preenchimento
+##      respeita a identidade do bicho em vez de dar Tackle pra todo mundo.
+const GOLPE_BASICO_POR_TIPO : Dictionary = {
+	"Normal": "tackle", "Fire": "ember", "Water": "water_gun", "Grass": "vine_whip",
+	"Electric": "thundershock", "Ice": "ice_beam", "Fighting": "karate_chop",
+	"Poison": "poison_sting", "Ground": "bonemerang", "Flying": "gust",
+	"Psychic": "confusion", "Bug": "fury_cutter", "Rock": "rock_throw",
+	"Ghost": "lick", "Dragon": "dragon_rage",
+}
+
 func _load_move_slots() -> void:
+	move_slots = ["", "", "", ""]
 	var learnable : Array = GameData.get_learnable_moves(pokemon_species_id, pokemon_level)
-	# Usa os últimos 4 moves aprendíveis (os mais recentes)
-	var start : int = maxi(0, learnable.size() - 4)
-	for i in range(start, learnable.size()):
-		var entry : Dictionary = learnable[i]
-		move_slots[i - start] = entry.get("move", "")
+
+	var de_dano : Array[String] = []
+	var de_status : Array[String] = []
+	for entry in learnable:
+		var mid : String = str(entry.get("move", ""))
+		if mid.is_empty() or mid in de_dano or mid in de_status:
+			continue
+		var dados : Dictionary = GameData.get_move(mid)
+		if int(dados.get("power", 0)) > 0:
+			de_dano.append(mid)
+		else:
+			de_status.append(mid)
+
+	# Mais recentes primeiro (o fim da lista de aprendizado é o golpe mais forte).
+	de_dano.reverse()
+	de_status.reverse()
+
+	var escolhidos : Array[String] = []
+	for mid in de_dano:
+		if escolhidos.size() >= 4:
+			break
+		escolhidos.append(mid)
+	for mid in de_status:
+		if escolhidos.size() >= 4:
+			break
+		escolhidos.append(mid)
+
+	# Completa o que faltar com o golpe BÁSICO de cada tipo da espécie, e só
+	# depois com o Normal. É isso que faz um Pokémon de nível 5 ter 3-4 coisas
+	# pra apertar em vez de 2 — sem inventar learnset e sem dar Tackle pra todo
+	# mundo: um Squirtle completa com Water Gun, um Geodude com Rock Throw.
+	for tipo in (types + ["Normal"]):
+		if escolhidos.size() >= 4:
+			break
+		var socorro : String = str(GOLPE_BASICO_POR_TIPO.get(str(tipo), ""))
+		if socorro.is_empty() or socorro in escolhidos:
+			continue
+		if GameData.get_move(socorro).is_empty():
+			continue
+		escolhidos.append(socorro)
+
+	# Um golpe que TIRA VIDA sempre no slot 1: sem isso um Pokémon cujo
+	# learnset só tem Growl/Tail Whip abre o jogo sem conseguir machucar nada.
+	if de_dano.is_empty() and not escolhidos.is_empty():
+		var primeiro_de_dano : int = -1
+		for i in escolhidos.size():
+			if int(GameData.get_move(escolhidos[i]).get("power", 0)) > 0:
+				primeiro_de_dano = i
+				break
+		if primeiro_de_dano > 0:
+			var golpe : String = escolhidos[primeiro_de_dano]
+			escolhidos.remove_at(primeiro_de_dano)
+			escolhidos.push_front(golpe)
+
+	for i in mini(4, escolhidos.size()):
+		move_slots[i] = escolhidos[i]
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Loop principal
@@ -468,13 +563,20 @@ func use_skill(slot: int) -> void:
 	if not is_area and not current_target:
 		return
 
-	# Aplica redução de cooldown pela velocidade
-	var base_cd    : float = move_data.get("cooldown", 2.0)
-	var spd_reduc  : float = speed_stat / 500.0
-	# Item equipado de recarga (09/09): entra aqui, junto da velocidade, porque
-	# é o mesmo tipo de redução — e não passa do piso de 0,2s.
-	var alivio : float = ItensEquipados.valor_do_lider("recarga")
-	_cooldowns[slot] = max(0.2, base_cd * (1.0 - spd_reduc) * (1.0 - clampf(alivio, 0.0, 0.6)))
+	# Alcance (item 31): golpe de mira única só sai se o alvo estiver dentro
+	# do alcance DELE. Antes todo golpe usava o mesmo alcance implícito, então
+	# um Tackle de 1 tile acertava igual a um Thunderbolt de 6.
+	if not is_area and not FormaDeArea.no_alcance(global_position, current_target, move_data):
+		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184),
+			"Longe demais", Color(0.8, 0.8, 0.85))
+		return
+
+	# Recarga: velocidade encurta, item encurta mais, e os dois juntos batem no
+	# teto da régua central — sem teto, um Pokémon muito rápido atacaria quase
+	# sem intervalo e o combate viraria botão travado.
+	_cooldowns[slot] = CombatBalance.recarga(
+		float(move_data.get("cooldown", 2.0)), speed_stat,
+		ItensEquipados.valor_do_lider("recarga"))
 
 	# Paralisia: chance por tentativa de falhar o golpe inteiro (mesma regra
 	# de WildPokemon._perform_attack() — 25%, StatusEffectController, 03/09).
@@ -489,11 +591,25 @@ func use_skill(slot: int) -> void:
 	EventBus.follower_skill_used.emit(slot, move_slots[slot])
 	_execute_move(move_data)
 
+## Executa o golpe. Se ele tiver `cast_time`, há uma espera ANTES do dano —
+## é a janela em que o jogador (e o inimigo) consegue ler o que vem e reagir
+## (item 19). Golpe rápido tem cast 0 e sai na hora, como sempre saiu.
 func _execute_move(move_data: Dictionary) -> void:
+	var cast : float = float(move_data.get("cast_time", 0.0))
+	if cast > 0.0:
+		await get_tree().create_timer(cast).timeout
+		if not is_instance_valid(self) or _is_fainted:
+			return
+
 	if move_data.get("target_type", "single") == "area":
 		_apply_damage_area(move_data)
 		return
-	if not current_target:
+	if not current_target or not is_instance_valid(current_target):
+		return
+	# O alvo fugiu durante a conjuração? O golpe falha (item 31).
+	if not FormaDeArea.no_alcance(global_position, current_target, move_data):
+		FloatingText.show_text(get_tree().current_scene, global_position + Vector2(0, -184),
+			"Errou", Color(0.8, 0.8, 0.85))
 		return
 	# Projétil ou dano direto dependendo do alcance do move
 	var is_ranged : bool = move_data.get("ranged", false)
@@ -507,7 +623,8 @@ func _execute_move(move_data: Dictionary) -> void:
 ## "status" (03/09): bônus de Guts e halving de queima em golpe físico.
 func _attacker_stats() -> Dictionary:
 	return {
-		"atk": atk_stat, "level": pokemon_level,
+		"atk": atk_stat, "spa": spa_stat, "level": pokemon_level,
+		"types": types,
 		"ability": species_data.get("ability", ""),
 		"hp_ratio": float(current_hp) / float(max_hp) if max_hp > 0 else 1.0,
 		"status": current_status,
@@ -546,7 +663,13 @@ func _apply_damage_area(move_data: Dictionary) -> void:
 	if not is_instance_valid(self) or _is_fainted:
 		return
 
-	var alvos : Array = AreaTargeting.find_targets_in_radius(centro, radius, "wild_pokemon")
+	# 🔴 11/09: a forma do golpe vem do DADO (`area_type`), não é mais sempre
+	# círculo. Um Surf varre uma LINHA na direção da mira, um Tornado abre um
+	# cone à frente, Earthquake continua círculo. `FormaDeArea.alvos()` já
+	# devolve a lista ordenada por distância, limitada por `max_targets` e SEM
+	# repetir alvo — é o que garante "nunca dano duplicado no mesmo golpe".
+	var mira : Vector2 = _direcao_da_mira()
+	var alvos : Array = FormaDeArea.alvos(centro, mira, move_data, "wild_pokemon", [self])
 	var attacker_stats := _attacker_stats()
 	var is_status_move : bool = move_data.get("category", "physical") == "status"
 	for alvo in alvos:
@@ -557,6 +680,18 @@ func _apply_damage_area(move_data: Dictionary) -> void:
 			var dmg : int = DamageCalculator.calculate_damage(move_data, attacker_stats, defender_stats)
 			alvo.take_damage(dmg, self)
 		StatusEffectController.try_apply(alvo, move_data)
+
+## Pra onde o golpe de área aponta: o alvo travado, se houver; senão a
+## direção em que o Pokémon está virado. Só importa em cone/linha/retângulo —
+## círculo ignora.
+func _direcao_da_mira() -> Vector2:
+	if current_target and is_instance_valid(current_target):
+		var d : Vector2 = current_target.global_position - global_position
+		if d.length_squared() > 0.0:
+			return d.normalized()
+	if velocity.length_squared() > 0.0:
+		return velocity.normalized()
+	return Vector2.RIGHT
 
 func _apply_damage_direct(move_data: Dictionary) -> void:
 	if not current_target.has_method("take_damage"):
@@ -745,8 +880,30 @@ func set_target(t: Node2D) -> void:
 func is_fainted() -> bool:
 	return _is_fainted
 
+## O que um atacante precisa saber sobre mim pra calcular o dano.
+##
+## 🔴 "spd" era a VELOCIDADE aqui e a DEFESA ESPECIAL no DamageCalculator —
+## mesmo nome, dois significados. Agora segue a convenção única do jogo
+## (spa/spd/spe) e traz também tipos e vida, que a fórmula nova precisa (tipo
+## pra efetividade, vida pro teto anti-hit-kill).
 func get_combat_stats() -> Dictionary:
-	return { "atk": atk_stat, "def": def_stat, "spd": speed_stat, "level": pokemon_level }
+	return {
+		"def": def_stat, "spd": spd_stat, "spe": speed_stat,
+		"types": types, "level": pokemon_level,
+		"max_hp": max_hp, "hp": current_hp,
+	}
+
+## Meu registro no save (nature, IVs, EVs, item). Vazio se eu não for o líder
+## do time — um Follower instanciado solto (teste, cena avulsa) continua
+## funcionando, só sem nature.
+func _meu_registro_no_save() -> Dictionary:
+	var salvar := get_node_or_null("/root/SaveManager")
+	if salvar == null or not salvar.has_method("get_pokemon_at"):
+		return {}
+	var lider : Dictionary = salvar.get_pokemon_at(0)
+	if lider.is_empty() or int(lider.get("species_id", -1)) != pokemon_species_id:
+		return {}
+	return lider
 
 func _build_pokemon_data() -> Dictionary:
 	return {

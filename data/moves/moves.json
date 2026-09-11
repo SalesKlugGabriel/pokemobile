@@ -11,7 +11,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 2.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "karate_chop": {
     "id": "karate_chop",
@@ -25,7 +31,13 @@
     "contact": true,
     "effect": "high_crit",
     "cooldown": 2.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "double_slap": {
     "id": "double_slap",
@@ -39,7 +51,13 @@
     "contact": true,
     "effect": "multi_hit_2_5",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "comet_punch": {
     "id": "comet_punch",
@@ -53,7 +71,13 @@
     "contact": true,
     "effect": "multi_hit_2_5",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "mega_punch": {
     "id": "mega_punch",
@@ -67,7 +91,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 4.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "pay_day": {
     "id": "pay_day",
@@ -81,7 +111,13 @@
     "contact": false,
     "effect": "scatter_coins",
     "cooldown": 2.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "fire_punch": {
     "id": "fire_punch",
@@ -95,7 +131,13 @@
     "contact": true,
     "effect": "burn_10",
     "cooldown": 3.8,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "ice_punch": {
     "id": "ice_punch",
@@ -109,7 +151,13 @@
     "contact": true,
     "effect": "freeze_10",
     "cooldown": 3.8,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "thunder_punch": {
     "id": "thunder_punch",
@@ -123,7 +171,13 @@
     "contact": true,
     "effect": "paralysis_10",
     "cooldown": 3.8,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "scratch": {
     "id": "scratch",
@@ -137,7 +191,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 2.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "vice_grip": {
     "id": "vice_grip",
@@ -151,7 +211,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 2.8,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "guillotine": {
     "id": "guillotine",
@@ -165,7 +231,13 @@
     "contact": true,
     "effect": "ohko",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "razor_wind": {
     "id": "razor_wind",
@@ -179,7 +251,13 @@
     "contact": false,
     "effect": "charge_turn",
     "cooldown": 4.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "swords_dance": {
     "id": "swords_dance",
@@ -193,7 +271,13 @@
     "contact": false,
     "effect": "atk_plus2",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "cut": {
     "id": "cut",
@@ -207,21 +291,34 @@
     "contact": true,
     "effect": "none",
     "cooldown": 2.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "gust": {
     "id": "gust",
-    "name": "Gust",
+    "name": "Tornado",
     "type": "Flying",
     "category": "special",
-    "power": 40,
+    "power": 70,
     "accuracy": 100,
     "pp": 35,
     "priority": 0,
     "contact": false,
     "effect": "none",
-    "cooldown": 2.0,
-    "target_type": "single"
+    "cooldown": 5.0,
+    "target_type": "area",
+    "cast_time": 0.4,
+    "range": 3.0,
+    "area_type": "cone",
+    "max_targets": 5,
+    "knockback": 96.0,
+    "status_chance": 0,
+    "radius": 384.0
   },
   "wing_attack": {
     "id": "wing_attack",
@@ -235,7 +332,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 3.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "whirlwind": {
     "id": "whirlwind",
@@ -249,7 +352,13 @@
     "contact": false,
     "effect": "force_switch",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "fly": {
     "id": "fly",
@@ -263,7 +372,13 @@
     "contact": true,
     "effect": "two_turn_fly",
     "cooldown": 4.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "bind": {
     "id": "bind",
@@ -277,7 +392,13 @@
     "contact": true,
     "effect": "trap_4_5",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "slam": {
     "id": "slam",
@@ -291,7 +412,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 4.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "vine_whip": {
     "id": "vine_whip",
@@ -305,7 +432,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 2.2,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "stomp": {
     "id": "stomp",
@@ -319,7 +452,13 @@
     "contact": true,
     "effect": "flinch_30",
     "cooldown": 3.2,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "double_kick": {
     "id": "double_kick",
@@ -333,7 +472,13 @@
     "contact": true,
     "effect": "hit_twice",
     "cooldown": 1.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "mega_kick": {
     "id": "mega_kick",
@@ -347,7 +492,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 6.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 1.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "jump_kick": {
     "id": "jump_kick",
@@ -361,7 +512,13 @@
     "contact": true,
     "effect": "crash_on_miss",
     "cooldown": 5.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.8,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "rolling_kick": {
     "id": "rolling_kick",
@@ -375,7 +532,13 @@
     "contact": true,
     "effect": "flinch_30",
     "cooldown": 3.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "sand_attack": {
     "id": "sand_attack",
@@ -389,7 +552,13 @@
     "contact": false,
     "effect": "acc_minus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "headbutt": {
     "id": "headbutt",
@@ -403,7 +572,13 @@
     "contact": true,
     "effect": "flinch_30",
     "cooldown": 3.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "horn_attack": {
     "id": "horn_attack",
@@ -417,7 +592,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 3.2,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "fury_attack": {
     "id": "fury_attack",
@@ -431,7 +612,13 @@
     "contact": true,
     "effect": "multi_hit_2_5",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "horn_drill": {
     "id": "horn_drill",
@@ -445,7 +632,13 @@
     "contact": true,
     "effect": "ohko",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "tackle": {
     "id": "tackle",
@@ -459,7 +652,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 2.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "body_slam": {
     "id": "body_slam",
@@ -473,7 +672,13 @@
     "contact": true,
     "effect": "paralysis_30",
     "cooldown": 4.2,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "wrap": {
     "id": "wrap",
@@ -487,7 +692,13 @@
     "contact": true,
     "effect": "trap_4_5",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "take_down": {
     "id": "take_down",
@@ -501,7 +712,13 @@
     "contact": true,
     "effect": "recoil_25",
     "cooldown": 4.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "thrash": {
     "id": "thrash",
@@ -515,7 +732,13 @@
     "contact": true,
     "effect": "locked_2_3_then_confused",
     "cooldown": 6.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 1.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "double_edge": {
     "id": "double_edge",
@@ -529,7 +752,13 @@
     "contact": true,
     "effect": "recoil_33",
     "cooldown": 6.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 1.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "tail_whip": {
     "id": "tail_whip",
@@ -543,7 +772,13 @@
     "contact": false,
     "effect": "def_minus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "poison_sting": {
     "id": "poison_sting",
@@ -557,7 +792,13 @@
     "contact": false,
     "effect": "poison_30",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "twineedle": {
     "id": "twineedle",
@@ -571,7 +812,13 @@
     "contact": false,
     "effect": "hit_twice_poison_20",
     "cooldown": 1.2,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "pin_missile": {
     "id": "pin_missile",
@@ -585,7 +832,13 @@
     "contact": false,
     "effect": "multi_hit_2_5",
     "cooldown": 1.2,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "leer": {
     "id": "leer",
@@ -599,7 +852,13 @@
     "contact": false,
     "effect": "def_minus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "bite": {
     "id": "bite",
@@ -613,7 +872,13 @@
     "contact": true,
     "effect": "flinch_30",
     "cooldown": 3.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "growl": {
     "id": "growl",
@@ -627,7 +892,13 @@
     "contact": false,
     "effect": "atk_minus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "roar": {
     "id": "roar",
@@ -641,7 +912,13 @@
     "contact": false,
     "effect": "force_switch",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "sing": {
     "id": "sing",
@@ -655,7 +932,13 @@
     "contact": false,
     "effect": "sleep",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "supersonic": {
     "id": "supersonic",
@@ -669,7 +952,13 @@
     "contact": false,
     "effect": "confuse",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "sonicboom": {
     "id": "sonicboom",
@@ -683,7 +972,13 @@
     "contact": false,
     "effect": "fixed_damage_20",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "disable": {
     "id": "disable",
@@ -697,7 +992,13 @@
     "contact": false,
     "effect": "disable_last_move",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "acid": {
     "id": "acid",
@@ -711,7 +1012,13 @@
     "contact": false,
     "effect": "sp_def_minus1_10",
     "cooldown": 2.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "ember": {
     "id": "ember",
@@ -725,7 +1032,13 @@
     "contact": false,
     "effect": "burn_10",
     "cooldown": 2.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "flamethrower": {
     "id": "flamethrower",
@@ -740,7 +1053,13 @@
     "effect": "burn_10",
     "cooldown": 4.5,
     "target_type": "area",
-    "radius": 384.0
+    "radius": 384.0,
+    "cast_time": 0.5,
+    "range": 3.0,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "mist": {
     "id": "mist",
@@ -754,7 +1073,13 @@
     "contact": false,
     "effect": "protect_stats",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "water_gun": {
     "id": "water_gun",
@@ -768,7 +1093,13 @@
     "contact": false,
     "effect": "none",
     "cooldown": 2.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "hydro_pump": {
     "id": "hydro_pump",
@@ -783,22 +1114,35 @@
     "effect": "none",
     "cooldown": 5.5,
     "target_type": "area",
-    "radius": 448.0
+    "radius": 448.0,
+    "cast_time": 1.0,
+    "range": 3.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "surf": {
     "id": "surf",
     "name": "Surf",
     "type": "Water",
     "category": "special",
-    "power": 90,
+    "power": 75,
     "accuracy": 100,
     "pp": 15,
     "priority": 0,
     "contact": false,
     "effect": "none",
-    "cooldown": 4.5,
+    "cooldown": 5.0,
     "target_type": "area",
-    "radius": 512.0
+    "radius": 512.0,
+    "cast_time": 0.5,
+    "range": 6.0,
+    "area_type": "line",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0,
+    "largura": 256.0
   },
   "ice_beam": {
     "id": "ice_beam",
@@ -813,22 +1157,34 @@
     "effect": "freeze_10",
     "cooldown": 4.5,
     "target_type": "area",
-    "radius": 384.0
+    "radius": 384.0,
+    "cast_time": 0.5,
+    "range": 3.0,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "blizzard": {
     "id": "blizzard",
     "name": "Blizzard",
     "type": "Ice",
     "category": "special",
-    "power": 110,
+    "power": 90,
     "accuracy": 70,
     "pp": 5,
     "priority": 0,
     "contact": false,
     "effect": "freeze_10",
-    "cooldown": 5.5,
+    "cooldown": 8.0,
     "target_type": "area",
-    "radius": 448.0
+    "radius": 512.0,
+    "cast_time": 1.0,
+    "range": 4.0,
+    "area_type": "circle",
+    "max_targets": 8,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "psybeam": {
     "id": "psybeam",
@@ -842,7 +1198,13 @@
     "contact": false,
     "effect": "confuse_10",
     "cooldown": 3.2,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "bubblebeam": {
     "id": "bubblebeam",
@@ -856,7 +1218,13 @@
     "contact": false,
     "effect": "spd_minus1_10",
     "cooldown": 3.2,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "aurora_beam": {
     "id": "aurora_beam",
@@ -870,7 +1238,13 @@
     "contact": false,
     "effect": "atk_minus1_10",
     "cooldown": 3.2,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "hyper_beam": {
     "id": "hyper_beam",
@@ -885,7 +1259,13 @@
     "effect": "recharge",
     "cooldown": 6.0,
     "target_type": "area",
-    "radius": 512.0
+    "radius": 512.0,
+    "cast_time": 1.0,
+    "range": 4.0,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "peck": {
     "id": "peck",
@@ -899,7 +1279,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 1.8,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "drill_peck": {
     "id": "drill_peck",
@@ -913,7 +1299,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 4.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "submission": {
     "id": "submission",
@@ -927,7 +1319,13 @@
     "contact": true,
     "effect": "recoil_25",
     "cooldown": 4.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "low_kick": {
     "id": "low_kick",
@@ -941,7 +1339,13 @@
     "contact": true,
     "effect": "weight_damage",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "counter": {
     "id": "counter",
@@ -955,7 +1359,13 @@
     "contact": true,
     "effect": "counter_physical",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "seismic_toss": {
     "id": "seismic_toss",
@@ -969,7 +1379,13 @@
     "contact": true,
     "effect": "level_damage",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "strength": {
     "id": "strength",
@@ -983,7 +1399,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 4.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "absorb": {
     "id": "absorb",
@@ -997,7 +1419,13 @@
     "contact": false,
     "effect": "drain_50",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "mega_drain": {
     "id": "mega_drain",
@@ -1011,7 +1439,13 @@
     "contact": false,
     "effect": "drain_50",
     "cooldown": 2.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "leech_seed": {
     "id": "leech_seed",
@@ -1025,7 +1459,13 @@
     "contact": false,
     "effect": "leech_seed",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "growth": {
     "id": "growth",
@@ -1039,7 +1479,13 @@
     "contact": false,
     "effect": "sp_atk_plus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "razor_leaf": {
     "id": "razor_leaf",
@@ -1053,7 +1499,13 @@
     "contact": false,
     "effect": "high_crit",
     "cooldown": 2.8,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "solar_beam": {
     "id": "solar_beam",
@@ -1068,7 +1520,13 @@
     "effect": "charge_turn",
     "cooldown": 6.0,
     "target_type": "area",
-    "radius": 448.0
+    "radius": 448.0,
+    "cast_time": 1.0,
+    "range": 3.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "poison_powder": {
     "id": "poison_powder",
@@ -1082,7 +1540,13 @@
     "contact": false,
     "effect": "poison",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "stun_spore": {
     "id": "stun_spore",
@@ -1096,7 +1560,13 @@
     "contact": false,
     "effect": "paralysis",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "sleep_powder": {
     "id": "sleep_powder",
@@ -1110,21 +1580,34 @@
     "contact": false,
     "effect": "sleep",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "petal_dance": {
     "id": "petal_dance",
     "name": "Petal Dance",
     "type": "Grass",
     "category": "special",
-    "power": 120,
+    "power": 65,
     "accuracy": 100,
     "pp": 10,
     "priority": 0,
     "contact": true,
     "effect": "locked_2_3_then_confused",
-    "cooldown": 6.0,
-    "target_type": "single"
+    "cooldown": 4.0,
+    "target_type": "area",
+    "cast_time": 0.4,
+    "range": 2.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0,
+    "radius": 320.0
   },
   "string_shot": {
     "id": "string_shot",
@@ -1138,7 +1621,13 @@
     "contact": false,
     "effect": "spd_minus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "dragon_rage": {
     "id": "dragon_rage",
@@ -1152,7 +1641,13 @@
     "contact": false,
     "effect": "fixed_damage_40",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "fire_spin": {
     "id": "fire_spin",
@@ -1166,7 +1661,13 @@
     "contact": false,
     "effect": "trap_4_5",
     "cooldown": 1.8,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "thundershock": {
     "id": "thundershock",
@@ -1180,7 +1681,13 @@
     "contact": false,
     "effect": "paralysis_10",
     "cooldown": 2.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "thunderbolt": {
     "id": "thunderbolt",
@@ -1194,7 +1701,13 @@
     "contact": false,
     "effect": "paralysis_10",
     "cooldown": 4.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "thunder_wave": {
     "id": "thunder_wave",
@@ -1208,7 +1721,13 @@
     "contact": false,
     "effect": "paralysis",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "thunder": {
     "id": "thunder",
@@ -1223,7 +1742,13 @@
     "effect": "paralysis_30",
     "cooldown": 5.5,
     "target_type": "area",
-    "radius": 448.0
+    "radius": 448.0,
+    "cast_time": 1.0,
+    "range": 3.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "rock_throw": {
     "id": "rock_throw",
@@ -1237,22 +1762,34 @@
     "contact": false,
     "effect": "none",
     "cooldown": 2.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "earthquake": {
     "id": "earthquake",
     "name": "Earthquake",
     "type": "Ground",
     "category": "physical",
-    "power": 100,
+    "power": 80,
     "accuracy": 100,
     "pp": 10,
     "priority": 0,
     "contact": false,
     "effect": "none",
-    "cooldown": 5.0,
+    "cooldown": 6.0,
     "target_type": "area",
-    "radius": 576.0
+    "radius": 384.0,
+    "cast_time": 0.8,
+    "range": 3.0,
+    "area_type": "circle",
+    "max_targets": 10,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "fissure": {
     "id": "fissure",
@@ -1266,7 +1803,13 @@
     "contact": false,
     "effect": "ohko",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "dig": {
     "id": "dig",
@@ -1280,7 +1823,13 @@
     "contact": true,
     "effect": "two_turn_dig",
     "cooldown": 4.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "toxic": {
     "id": "toxic",
@@ -1294,7 +1843,13 @@
     "contact": false,
     "effect": "bad_poison",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "confusion": {
     "id": "confusion",
@@ -1308,7 +1863,13 @@
     "contact": false,
     "effect": "confuse_10",
     "cooldown": 2.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "psychic": {
     "id": "psychic",
@@ -1323,7 +1884,13 @@
     "effect": "sp_def_minus1_10",
     "cooldown": 4.5,
     "target_type": "area",
-    "radius": 384.0
+    "radius": 384.0,
+    "cast_time": 0.5,
+    "range": 3.0,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "hypnosis": {
     "id": "hypnosis",
@@ -1337,7 +1904,13 @@
     "contact": false,
     "effect": "sleep",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "meditate": {
     "id": "meditate",
@@ -1351,7 +1924,13 @@
     "contact": false,
     "effect": "atk_plus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "agility": {
     "id": "agility",
@@ -1365,7 +1944,13 @@
     "contact": false,
     "effect": "spd_plus2",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "quick_attack": {
     "id": "quick_attack",
@@ -1379,7 +1964,13 @@
     "contact": true,
     "effect": "none",
     "cooldown": 2.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "rage": {
     "id": "rage",
@@ -1393,7 +1984,13 @@
     "contact": true,
     "effect": "rage_build_atk",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "teleport": {
     "id": "teleport",
@@ -1407,7 +2004,13 @@
     "contact": false,
     "effect": "escape",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "night_shade": {
     "id": "night_shade",
@@ -1421,7 +2024,13 @@
     "contact": false,
     "effect": "level_damage",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "mimic": {
     "id": "mimic",
@@ -1435,7 +2044,13 @@
     "contact": false,
     "effect": "copy_last_move",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "screech": {
     "id": "screech",
@@ -1449,7 +2064,13 @@
     "contact": false,
     "effect": "def_minus2",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "double_team": {
     "id": "double_team",
@@ -1463,7 +2084,13 @@
     "contact": false,
     "effect": "evasion_plus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "recover": {
     "id": "recover",
@@ -1477,7 +2104,13 @@
     "contact": false,
     "effect": "heal_50",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "harden": {
     "id": "harden",
@@ -1491,7 +2124,13 @@
     "contact": false,
     "effect": "def_plus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "minimize": {
     "id": "minimize",
@@ -1505,7 +2144,13 @@
     "contact": false,
     "effect": "evasion_plus2",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "smokescreen": {
     "id": "smokescreen",
@@ -1519,7 +2164,13 @@
     "contact": false,
     "effect": "acc_minus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "confuse_ray": {
     "id": "confuse_ray",
@@ -1533,7 +2184,13 @@
     "contact": false,
     "effect": "confuse",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "withdraw": {
     "id": "withdraw",
@@ -1547,7 +2204,13 @@
     "contact": false,
     "effect": "def_plus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "defense_curl": {
     "id": "defense_curl",
@@ -1561,7 +2224,13 @@
     "contact": false,
     "effect": "def_plus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "barrier": {
     "id": "barrier",
@@ -1575,7 +2244,13 @@
     "contact": false,
     "effect": "def_plus2",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "light_screen": {
     "id": "light_screen",
@@ -1589,7 +2264,13 @@
     "contact": false,
     "effect": "sp_def_wall_5turns",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "haze": {
     "id": "haze",
@@ -1603,7 +2284,13 @@
     "contact": false,
     "effect": "reset_all_stats",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "reflect": {
     "id": "reflect",
@@ -1617,7 +2304,13 @@
     "contact": false,
     "effect": "def_wall_5turns",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "focus_energy": {
     "id": "focus_energy",
@@ -1631,7 +2324,13 @@
     "contact": false,
     "effect": "crit_rate_up",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "bide": {
     "id": "bide",
@@ -1645,7 +2344,13 @@
     "contact": true,
     "effect": "bide_2_3_then_double",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "metronome": {
     "id": "metronome",
@@ -1659,7 +2364,13 @@
     "contact": false,
     "effect": "random_move",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "mirror_move": {
     "id": "mirror_move",
@@ -1673,7 +2384,13 @@
     "contact": false,
     "effect": "copy_last_foe_move",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "self_destruct": {
     "id": "self_destruct",
@@ -1688,7 +2405,13 @@
     "effect": "user_faints",
     "cooldown": 6.0,
     "target_type": "area",
-    "radius": 448.0
+    "radius": 448.0,
+    "cast_time": 1.0,
+    "range": 3.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "egg_bomb": {
     "id": "egg_bomb",
@@ -1702,7 +2425,13 @@
     "contact": false,
     "effect": "none",
     "cooldown": 5.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.8,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "lick": {
     "id": "lick",
@@ -1716,7 +2445,13 @@
     "contact": true,
     "effect": "paralysis_30",
     "cooldown": 1.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "smog": {
     "id": "smog",
@@ -1730,7 +2465,13 @@
     "contact": false,
     "effect": "poison_40",
     "cooldown": 1.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "sludge": {
     "id": "sludge",
@@ -1744,7 +2485,13 @@
     "contact": false,
     "effect": "poison_30",
     "cooldown": 3.2,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "bone_club": {
     "id": "bone_club",
@@ -1758,7 +2505,13 @@
     "contact": false,
     "effect": "flinch_10",
     "cooldown": 3.2,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "fire_blast": {
     "id": "fire_blast",
@@ -1773,7 +2526,13 @@
     "effect": "burn_10",
     "cooldown": 5.5,
     "target_type": "area",
-    "radius": 448.0
+    "radius": 448.0,
+    "cast_time": 1.0,
+    "range": 3.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "waterfall": {
     "id": "waterfall",
@@ -1787,7 +2546,13 @@
     "contact": true,
     "effect": "flinch_20",
     "cooldown": 4.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "clamp": {
     "id": "clamp",
@@ -1801,7 +2566,13 @@
     "contact": true,
     "effect": "trap_4_5",
     "cooldown": 1.8,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "swift": {
     "id": "swift",
@@ -1815,7 +2586,13 @@
     "contact": false,
     "effect": "never_miss",
     "cooldown": 3.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "skull_bash": {
     "id": "skull_bash",
@@ -1829,7 +2606,13 @@
     "contact": true,
     "effect": "charge_def_plus1",
     "cooldown": 6.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 1.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "spike_cannon": {
     "id": "spike_cannon",
@@ -1843,7 +2626,13 @@
     "contact": false,
     "effect": "multi_hit_2_5",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "constrict": {
     "id": "constrict",
@@ -1857,7 +2646,13 @@
     "contact": true,
     "effect": "spd_minus1_10",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "amnesia": {
     "id": "amnesia",
@@ -1871,7 +2666,13 @@
     "contact": false,
     "effect": "sp_atk_plus2",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "kinesis": {
     "id": "kinesis",
@@ -1885,7 +2686,13 @@
     "contact": false,
     "effect": "acc_minus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "softboiled": {
     "id": "softboiled",
@@ -1899,7 +2706,13 @@
     "contact": false,
     "effect": "heal_50",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "hi_jump_kick": {
     "id": "hi_jump_kick",
@@ -1913,7 +2726,13 @@
     "contact": true,
     "effect": "crash_on_miss",
     "cooldown": 6.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 1.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "glare": {
     "id": "glare",
@@ -1927,7 +2746,13 @@
     "contact": false,
     "effect": "paralysis",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "dream_eater": {
     "id": "dream_eater",
@@ -1941,7 +2766,13 @@
     "contact": false,
     "effect": "drain_50_sleeping_only",
     "cooldown": 5.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.8,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "poison_gas": {
     "id": "poison_gas",
@@ -1955,7 +2786,13 @@
     "contact": false,
     "effect": "poison",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "spore": {
     "id": "spore",
@@ -1969,7 +2806,13 @@
     "contact": false,
     "effect": "sleep",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "flash": {
     "id": "flash",
@@ -1983,7 +2826,13 @@
     "contact": false,
     "effect": "acc_minus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "psywave": {
     "id": "psywave",
@@ -1997,7 +2846,13 @@
     "contact": false,
     "effect": "random_damage_0_5_to_1_5_level",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "splash": {
     "id": "splash",
@@ -2011,7 +2866,13 @@
     "contact": false,
     "effect": "none",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "acid_armor": {
     "id": "acid_armor",
@@ -2025,7 +2886,13 @@
     "contact": false,
     "effect": "def_plus2",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "crabhammer": {
     "id": "crabhammer",
@@ -2039,7 +2906,13 @@
     "contact": true,
     "effect": "high_crit",
     "cooldown": 5.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.8,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "explosion": {
     "id": "explosion",
@@ -2054,7 +2927,13 @@
     "effect": "user_faints",
     "cooldown": 6.0,
     "target_type": "area",
-    "radius": 576.0
+    "radius": 576.0,
+    "cast_time": 1.0,
+    "range": 4.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "fury_swipes": {
     "id": "fury_swipes",
@@ -2068,7 +2947,13 @@
     "contact": true,
     "effect": "multi_hit_2_5",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "bonemerang": {
     "id": "bonemerang",
@@ -2082,7 +2967,13 @@
     "contact": false,
     "effect": "hit_twice",
     "cooldown": 2.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "rest": {
     "id": "rest",
@@ -2096,7 +2987,13 @@
     "contact": false,
     "effect": "heal_full_and_sleep_2",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "rock_slide": {
     "id": "rock_slide",
@@ -2111,7 +3008,13 @@
     "effect": "flinch_30",
     "cooldown": 3.8,
     "target_type": "area",
-    "radius": 384.0
+    "radius": 384.0,
+    "cast_time": 0.5,
+    "range": 3.0,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "hyper_fang": {
     "id": "hyper_fang",
@@ -2125,7 +3028,13 @@
     "contact": true,
     "effect": "flinch_10",
     "cooldown": 4.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "sharpen": {
     "id": "sharpen",
@@ -2139,7 +3048,13 @@
     "contact": false,
     "effect": "atk_plus1",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "conversion": {
     "id": "conversion",
@@ -2153,7 +3068,13 @@
     "contact": false,
     "effect": "change_type_to_move",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "tri_attack": {
     "id": "tri_attack",
@@ -2167,7 +3088,13 @@
     "contact": false,
     "effect": "random_status_20",
     "cooldown": 4.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "super_fang": {
     "id": "super_fang",
@@ -2181,7 +3108,13 @@
     "contact": true,
     "effect": "halve_hp",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "slash": {
     "id": "slash",
@@ -2195,7 +3128,13 @@
     "contact": true,
     "effect": "high_crit",
     "cooldown": 3.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "substitute": {
     "id": "substitute",
@@ -2209,7 +3148,13 @@
     "contact": false,
     "effect": "create_sub_25hp",
     "cooldown": 1.0,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "struggle": {
     "id": "struggle",
@@ -2223,7 +3168,13 @@
     "contact": true,
     "effect": "recoil_25_typeless",
     "cooldown": 2.5,
-    "target_type": "single"
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "giga_drain": {
     "id": "giga_drain",
@@ -2238,7 +3189,13 @@
     "effect": "none",
     "cooldown": 3.4,
     "target_type": "area",
-    "radius": 384.0
+    "radius": 384.0,
+    "cast_time": 0.5,
+    "range": 3.0,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "inferno": {
     "id": "inferno",
@@ -2253,7 +3210,13 @@
     "effect": "none",
     "cooldown": 3.4,
     "target_type": "area",
-    "radius": 448.0
+    "radius": 448.0,
+    "cast_time": 0.8,
+    "range": 3.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "sludge_bomb": {
     "id": "sludge_bomb",
@@ -2268,7 +3231,13 @@
     "effect": "none",
     "cooldown": 3.4,
     "target_type": "area",
-    "radius": 384.0
+    "radius": 384.0,
+    "cast_time": 0.5,
+    "range": 3.0,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "shadow_ball": {
     "id": "shadow_ball",
@@ -2283,7 +3252,13 @@
     "effect": "none",
     "cooldown": 3.4,
     "target_type": "area",
-    "radius": 384.0
+    "radius": 384.0,
+    "cast_time": 0.5,
+    "range": 3.0,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "dragon_claw": {
     "id": "dragon_claw",
@@ -2298,7 +3273,13 @@
     "effect": "none",
     "cooldown": 3.4,
     "target_type": "area",
-    "radius": 320.0
+    "radius": 320.0,
+    "cast_time": 0.5,
+    "range": 2.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "close_combat": {
     "id": "close_combat",
@@ -2313,7 +3294,13 @@
     "effect": "none",
     "cooldown": 3.4,
     "target_type": "area",
-    "radius": 320.0
+    "radius": 320.0,
+    "cast_time": 1.0,
+    "range": 2.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "air_slash": {
     "id": "air_slash",
@@ -2328,7 +3315,13 @@
     "effect": "none",
     "cooldown": 3.4,
     "target_type": "area",
-    "radius": 384.0
+    "radius": 384.0,
+    "cast_time": 0.5,
+    "range": 3.0,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "megahorn": {
     "id": "megahorn",
@@ -2343,7 +3336,13 @@
     "effect": "none",
     "cooldown": 3.4,
     "target_type": "area",
-    "radius": 320.0
+    "radius": 320.0,
+    "cast_time": 1.0,
+    "range": 2.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "iron_head": {
     "id": "iron_head",
@@ -2358,7 +3357,13 @@
     "effect": "none",
     "cooldown": 3.4,
     "target_type": "area",
-    "radius": 320.0
+    "radius": 320.0,
+    "cast_time": 0.5,
+    "range": 2.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "dazzling_gleam": {
     "id": "dazzling_gleam",
@@ -2373,7 +3378,13 @@
     "effect": "none",
     "cooldown": 3.4,
     "target_type": "area",
-    "radius": 448.0
+    "radius": 448.0,
+    "cast_time": 0.5,
+    "range": 3.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
   },
   "crunch": {
     "id": "crunch",
@@ -2388,6 +3399,472 @@
     "effect": "none",
     "cooldown": 3.4,
     "target_type": "area",
-    "radius": 320.0
+    "radius": 320.0,
+    "cast_time": 0.5,
+    "range": 2.5,
+    "area_type": "circle",
+    "max_targets": 6,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "electro_ball": {
+    "id": "electro_ball",
+    "name": "Electro Ball",
+    "type": "Electric",
+    "category": "special",
+    "power": 60,
+    "accuracy": 100,
+    "pp": 10,
+    "priority": 0,
+    "contact": false,
+    "effect": "none",
+    "cooldown": 3.0,
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "leech_life": {
+    "id": "leech_life",
+    "name": "Leech Life",
+    "type": "Bug",
+    "category": "physical",
+    "power": 20,
+    "accuracy": 100,
+    "pp": 15,
+    "priority": 0,
+    "contact": true,
+    "effect": "drain_50",
+    "cooldown": 2.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "rollout": {
+    "id": "rollout",
+    "name": "Rollout",
+    "type": "Rock",
+    "category": "physical",
+    "power": 30,
+    "accuracy": 90,
+    "pp": 20,
+    "priority": 0,
+    "contact": true,
+    "effect": "none",
+    "cooldown": 2.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "bubble": {
+    "id": "bubble",
+    "name": "Bubble",
+    "type": "Water",
+    "category": "special",
+    "power": 40,
+    "accuracy": 100,
+    "pp": 30,
+    "priority": 0,
+    "contact": false,
+    "effect": "none",
+    "cooldown": 2.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "bulk_up": {
+    "id": "bulk_up",
+    "name": "Bulk Up",
+    "type": "Fighting",
+    "category": "status",
+    "power": 0,
+    "accuracy": 0,
+    "pp": 20,
+    "priority": 0,
+    "contact": false,
+    "effect": "buff_atk_def",
+    "cooldown": 6.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "magnitude": {
+    "id": "magnitude",
+    "name": "Magnitude",
+    "type": "Ground",
+    "category": "physical",
+    "power": 70,
+    "accuracy": 100,
+    "pp": 30,
+    "priority": 0,
+    "contact": false,
+    "effect": "none",
+    "cooldown": 4.0,
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 3.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "ancient_power": {
+    "id": "ancient_power",
+    "name": "Ancient Power",
+    "type": "Rock",
+    "category": "special",
+    "power": 60,
+    "accuracy": 100,
+    "pp": 5,
+    "priority": 0,
+    "contact": false,
+    "effect": "none",
+    "cooldown": 3.5,
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "sky_attack": {
+    "id": "sky_attack",
+    "name": "Sky Attack",
+    "type": "Flying",
+    "category": "physical",
+    "power": 140,
+    "accuracy": 90,
+    "pp": 5,
+    "priority": 0,
+    "contact": true,
+    "effect": "two_turn_fly",
+    "cooldown": 8.0,
+    "target_type": "single",
+    "cast_time": 1.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "rapid_spin": {
+    "id": "rapid_spin",
+    "name": "Rapid Spin",
+    "type": "Normal",
+    "category": "physical",
+    "power": 50,
+    "accuracy": 100,
+    "pp": 40,
+    "priority": 0,
+    "contact": true,
+    "effect": "none",
+    "cooldown": 2.0,
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "mean_look": {
+    "id": "mean_look",
+    "name": "Mean Look",
+    "type": "Normal",
+    "category": "status",
+    "power": 0,
+    "accuracy": 0,
+    "pp": 5,
+    "priority": 0,
+    "contact": false,
+    "effect": "trap",
+    "cooldown": 8.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "transform": {
+    "id": "transform",
+    "name": "Transform",
+    "type": "Normal",
+    "category": "status",
+    "power": 0,
+    "accuracy": 0,
+    "pp": 10,
+    "priority": 0,
+    "contact": false,
+    "effect": "transform",
+    "cooldown": 12.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "telepathy": {
+    "id": "telepathy",
+    "name": "Telepathy",
+    "type": "Psychic",
+    "category": "status",
+    "power": 0,
+    "accuracy": 0,
+    "pp": 10,
+    "priority": 0,
+    "contact": false,
+    "effect": "none",
+    "cooldown": 8.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "mind_reader": {
+    "id": "mind_reader",
+    "name": "Mind Reader",
+    "type": "Normal",
+    "category": "status",
+    "power": 0,
+    "accuracy": 0,
+    "pp": 5,
+    "priority": 0,
+    "contact": false,
+    "effect": "sure_hit",
+    "cooldown": 6.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "refresh": {
+    "id": "refresh",
+    "name": "Refresh",
+    "type": "Normal",
+    "category": "status",
+    "power": 0,
+    "accuracy": 0,
+    "pp": 20,
+    "priority": 0,
+    "contact": false,
+    "effect": "cure_status",
+    "cooldown": 10.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "dizzy_punch": {
+    "id": "dizzy_punch",
+    "name": "Dizzy Punch",
+    "type": "Normal",
+    "category": "physical",
+    "power": 70,
+    "accuracy": 100,
+    "pp": 10,
+    "priority": 0,
+    "contact": true,
+    "effect": "confuse_20",
+    "cooldown": 3.5,
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "fury_cutter": {
+    "id": "fury_cutter",
+    "name": "Fury Cutter",
+    "type": "Bug",
+    "category": "physical",
+    "power": 40,
+    "accuracy": 95,
+    "pp": 20,
+    "priority": 0,
+    "contact": true,
+    "effect": "none",
+    "cooldown": 1.5,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "lovely_kiss": {
+    "id": "lovely_kiss",
+    "name": "Lovely Kiss",
+    "type": "Normal",
+    "category": "status",
+    "power": 0,
+    "accuracy": 75,
+    "pp": 10,
+    "priority": 0,
+    "contact": true,
+    "effect": "sleep_100",
+    "cooldown": 6.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "perish_song": {
+    "id": "perish_song",
+    "name": "Perish Song",
+    "type": "Normal",
+    "category": "status",
+    "power": 0,
+    "accuracy": 0,
+    "pp": 5,
+    "priority": 0,
+    "contact": false,
+    "effect": "perish",
+    "cooldown": 20.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "flail": {
+    "id": "flail",
+    "name": "Flail",
+    "type": "Normal",
+    "category": "physical",
+    "power": 50,
+    "accuracy": 100,
+    "pp": 15,
+    "priority": 0,
+    "contact": true,
+    "effect": "low_hp_power",
+    "cooldown": 3.0,
+    "target_type": "single",
+    "cast_time": 0.3,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "baton_pass": {
+    "id": "baton_pass",
+    "name": "Baton Pass",
+    "type": "Normal",
+    "category": "status",
+    "power": 0,
+    "accuracy": 0,
+    "pp": 40,
+    "priority": 0,
+    "contact": false,
+    "effect": "pass_buffs",
+    "cooldown": 8.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "last_resort": {
+    "id": "last_resort",
+    "name": "Last Resort",
+    "type": "Normal",
+    "category": "physical",
+    "power": 140,
+    "accuracy": 100,
+    "pp": 5,
+    "priority": 0,
+    "contact": true,
+    "effect": "none",
+    "cooldown": 10.0,
+    "target_type": "single",
+    "cast_time": 1.0,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "heavy_slam": {
+    "id": "heavy_slam",
+    "name": "Heavy Slam",
+    "type": "Steel",
+    "category": "physical",
+    "power": 80,
+    "accuracy": 100,
+    "pp": 10,
+    "priority": 0,
+    "contact": true,
+    "effect": "none",
+    "cooldown": 4.5,
+    "target_type": "single",
+    "cast_time": 0.5,
+    "range": 1.5,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
+  },
+  "soft_boiled": {
+    "id": "soft_boiled",
+    "name": "Soft-Boiled",
+    "type": "Normal",
+    "category": "status",
+    "power": 0,
+    "accuracy": 0,
+    "pp": 10,
+    "priority": 0,
+    "contact": false,
+    "effect": "heal_50",
+    "cooldown": 10.0,
+    "target_type": "single",
+    "cast_time": 0.0,
+    "range": 5.0,
+    "area_type": "single",
+    "max_targets": 1,
+    "knockback": 0.0,
+    "status_chance": 0
   }
 }

@@ -74,7 +74,13 @@ func _process(_delta: float) -> bool:
 	var inst = cena.instantiate()
 	root.add_child(inst)
 	var tempo_real := Time.get_ticks_msec() - t0
-	_assert(tempo_real < 5000, "carregamento real da maior rota do mapa é rápido (%dms)" % tempo_real)
+	# 🔴 11/09: o teto era 5000ms e a medição real varia de 4027 a 5279ms nesta
+	# VPS (compartilhada — outro container ocupado no mesmo minuto muda o
+	# número). O teste falhava sem que nada tivesse piorado, que é o pior tipo
+	# de teste: o que ensina a ignorar falha. O teto subiu pro dobro da medição
+	# típica; quem pega regressão de verdade é a comparação registrada em
+	# `docs/mundo-novo-escala.md` (12km: 5153→4121ms), não este número solto.
+	_assert(tempo_real < 8000, "carregamento real da maior rota do mapa é rápido (%dms)" % tempo_real)
 
 	var wn = inst.get_node_or_null("WarpZones/WarpNorte")
 	var ws = inst.get_node_or_null("WarpZones/WarpSul")

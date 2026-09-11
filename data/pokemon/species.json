@@ -25,7 +25,7 @@
       "forest",
       "swamp"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -80,7 +80,7 @@
       "forest",
       "swamp"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -132,7 +132,7 @@
       "forest",
       "swamp"
     ],
-    "behavior": "neutral",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -299,7 +299,7 @@
       "forest",
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -361,7 +361,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -415,7 +415,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -466,7 +466,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -526,7 +526,7 @@
     "biomes": [
       "forest"
     ],
-    "behavior": "flee",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -570,7 +570,7 @@
     "biomes": [
       "forest"
     ],
-    "behavior": "flee",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -612,7 +612,7 @@
     "biomes": [
       "forest"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -665,7 +665,7 @@
     "biomes": [
       "forest"
     ],
-    "behavior": "flee",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -710,7 +710,7 @@
     "biomes": [
       "forest"
     ],
-    "behavior": "flee",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -752,7 +752,7 @@
     "biomes": [
       "forest"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -807,7 +807,7 @@
       "plains",
       "forest"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -854,7 +854,7 @@
       "plains",
       "forest"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -951,7 +951,7 @@
     "biomes": [
       "plains"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -993,7 +993,7 @@
     "biomes": [
       "plains"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -1048,7 +1048,7 @@
       "forest",
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -1092,7 +1092,7 @@
       "forest",
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -1144,7 +1144,7 @@
     "biomes": [
       "swamp"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -1193,7 +1193,7 @@
     "biomes": [
       "swamp"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -1246,7 +1246,7 @@
       "forest",
       "power_plant"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -1303,7 +1303,7 @@
     "biomes": [
       "power_plant"
     ],
-    "behavior": "aggressive",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -1363,7 +1363,7 @@
     "biomes": [
       "desert"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -1412,7 +1412,7 @@
     "biomes": [
       "desert"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -1464,7 +1464,7 @@
     "biomes": [
       "swamp"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -1508,7 +1508,7 @@
     "biomes": [
       "swamp"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -1551,7 +1551,7 @@
       "swamp",
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -1603,7 +1603,7 @@
     "biomes": [
       "swamp"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -1647,7 +1647,7 @@
     "biomes": [
       "swamp"
     ],
-    "behavior": "aggressive",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -1690,7 +1690,7 @@
       "swamp",
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -1742,7 +1742,7 @@
     "biomes": [
       "deep_forest"
     ],
-    "behavior": "flee",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -1791,7 +1791,7 @@
     "biomes": [
       "deep_forest"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -1851,7 +1851,7 @@
     "biomes": [
       "volcanic"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -1900,7 +1900,7 @@
     "biomes": [
       "volcanic"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -1961,7 +1961,7 @@
     "biomes": [
       "deep_forest"
     ],
-    "behavior": "flee",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -2003,7 +2003,7 @@
     "biomes": [
       "deep_forest"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -2057,7 +2057,7 @@
     "biomes": [
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -2100,7 +2100,7 @@
     "biomes": [
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -2154,7 +2154,7 @@
       "forest",
       "swamp"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -2208,7 +2208,7 @@
       "forest",
       "swamp"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -2265,7 +2265,7 @@
       "forest",
       "swamp"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -2326,7 +2326,7 @@
     "biomes": [
       "forest"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -2368,7 +2368,7 @@
     "biomes": [
       "forest"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -2422,7 +2422,7 @@
       "forest",
       "swamp"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -2465,7 +2465,7 @@
       "forest",
       "swamp"
     ],
-    "behavior": "neutral",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -2517,7 +2517,7 @@
     "biomes": [
       "cave"
     ],
-    "behavior": "flee",
+    "behavior": "fleeing",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -2566,7 +2566,7 @@
     "biomes": [
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -2618,7 +2618,7 @@
     "biomes": [
       "plains"
     ],
-    "behavior": "flee",
+    "behavior": "fleeing",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -2659,7 +2659,7 @@
     "biomes": [
       "plains"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -2711,7 +2711,7 @@
     "biomes": [
       "beach"
     ],
-    "behavior": "neutral",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -2760,7 +2760,7 @@
     "biomes": [
       "beach"
     ],
-    "behavior": "neutral",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -2821,7 +2821,7 @@
       "mountain",
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -2871,7 +2871,7 @@
       "mountain",
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -2972,7 +2972,7 @@
     "biomes": [
       "volcanic"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -3033,7 +3033,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "flee",
+    "behavior": "fleeing",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -3086,7 +3086,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -3139,7 +3139,7 @@
       "mountain",
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -3200,7 +3200,7 @@
       "desert",
       "ruins"
     ],
-    "behavior": "flee",
+    "behavior": "fleeing",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -3253,7 +3253,7 @@
       "desert",
       "ruins"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -3303,7 +3303,7 @@
       "desert",
       "ruins"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -3364,7 +3364,7 @@
       "mountain",
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -3409,7 +3409,7 @@
       "mountain",
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -3451,7 +3451,7 @@
       "mountain",
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -3505,7 +3505,7 @@
       "forest",
       "swamp"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -3610,7 +3610,7 @@
       "forest",
       "swamp"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -3673,7 +3673,7 @@
       "underwater",
       "swamp"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -3725,7 +3725,7 @@
       "underwater",
       "swamp"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -3787,7 +3787,7 @@
     "biomes": [
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -3833,7 +3833,7 @@
     "biomes": [
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -3876,7 +3876,7 @@
     "biomes": [
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -3928,7 +3928,7 @@
     "biomes": [
       "volcanic"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -4046,7 +4046,7 @@
     "biomes": [
       "beach"
     ],
-    "behavior": "neutral",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -4104,7 +4104,7 @@
     "biomes": [
       "beach"
     ],
-    "behavior": "neutral",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -4165,7 +4165,7 @@
     "biomes": [
       "power_plant"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -4215,7 +4215,7 @@
     "biomes": [
       "power_plant"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -4275,7 +4275,7 @@
       "forest",
       "mountain"
     ],
-    "behavior": "flee",
+    "behavior": "fleeing",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -4338,7 +4338,7 @@
       "forest",
       "mountain"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -4382,7 +4382,7 @@
       "forest",
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -4435,7 +4435,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -4487,7 +4487,7 @@
       "underwater",
       "glacial"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -4547,7 +4547,7 @@
     "biomes": [
       "swamp"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -4588,7 +4588,7 @@
     "biomes": [
       "swamp"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -4641,7 +4641,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -4701,7 +4701,7 @@
       "underwater",
       "glacial"
     ],
-    "behavior": "aggressive",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -4849,7 +4849,7 @@
     "biomes": [
       "haunted"
     ],
-    "behavior": "aggressive",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -4900,7 +4900,7 @@
       "mountain",
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -4953,7 +4953,7 @@
       "desert",
       "ruins"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -5064,7 +5064,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -5122,7 +5122,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -5182,7 +5182,7 @@
     "biomes": [
       "power_plant"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -5302,7 +5302,7 @@
       "desert",
       "ruins"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -5422,7 +5422,7 @@
     "biomes": [
       "mountain"
     ],
-    "behavior": "neutral",
+    "behavior": "territorial",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -5471,7 +5471,7 @@
     "biomes": [
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -5521,7 +5521,7 @@
       "mountain",
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -5571,7 +5571,7 @@
       "mountain",
       "cave"
     ],
-    "behavior": "aggressive",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -5620,7 +5620,7 @@
     "biomes": [
       "plains"
     ],
-    "behavior": "neutral",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -5680,7 +5680,7 @@
     "biomes": [
       "swamp"
     ],
-    "behavior": "aggressive",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -5729,7 +5729,7 @@
     "biomes": [
       "swamp"
     ],
-    "behavior": "aggressive",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -5782,7 +5782,7 @@
     "biomes": [
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -5832,7 +5832,7 @@
     "biomes": [
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -5881,7 +5881,7 @@
     "biomes": [
       "plains"
     ],
-    "behavior": "flee",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -5930,7 +5930,7 @@
     "biomes": [
       "forest"
     ],
-    "behavior": "neutral",
+    "behavior": "passive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -5995,7 +5995,7 @@
     "biomes": [
       "plains"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -6048,7 +6048,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "flee",
+    "behavior": "fleeing",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -6106,7 +6106,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "aggressive",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -6167,7 +6167,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -6278,7 +6278,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "pack",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -6399,7 +6399,7 @@
       "ruins",
       "deep_forest"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -6464,7 +6464,7 @@
       "forest",
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -6516,7 +6516,7 @@
       "desert",
       "ruins"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -6565,7 +6565,7 @@
     "biomes": [
       "power_plant"
     ],
-    "behavior": "aggressive",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -6622,7 +6622,7 @@
     "biomes": [
       "volcanic"
     ],
-    "behavior": "aggressive",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -6679,7 +6679,7 @@
     "biomes": [
       "forest"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -6728,7 +6728,7 @@
     "biomes": [
       "plains"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -6789,7 +6789,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "flee",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -6850,7 +6850,7 @@
       "forest",
       "mountain"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -6909,7 +6909,7 @@
       "glacial",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "passive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -6966,7 +6966,7 @@
     "biomes": [
       "plains"
     ],
-    "behavior": "flee",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -7015,7 +7015,7 @@
     "biomes": [
       "plains"
     ],
-    "behavior": "flee",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -7065,7 +7065,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -7236,7 +7236,7 @@
     "biomes": [
       "plains"
     ],
-    "behavior": "flee",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -7291,7 +7291,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -7343,7 +7343,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "aggressive",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -7398,7 +7398,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "passive",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -7450,7 +7450,7 @@
       "beach",
       "underwater"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -7501,7 +7501,7 @@
       "mountain",
       "forest"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -7550,7 +7550,7 @@
     "biomes": [
       "mountain"
     ],
-    "behavior": "neutral",
+    "behavior": "territorial",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -7769,7 +7769,7 @@
       "mountain",
       "underwater"
     ],
-    "behavior": "flee",
+    "behavior": "fleeing",
     "is_alpha_eligible": false,
     "drops": [
       {
@@ -7822,7 +7822,7 @@
       "mountain",
       "underwater"
     ],
-    "behavior": "neutral",
+    "behavior": "defensive",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -7866,7 +7866,7 @@
       "underwater",
       "forest"
     ],
-    "behavior": "aggressive",
+    "behavior": "predator",
     "is_alpha_eligible": true,
     "drops": [
       {
@@ -7972,7 +7972,7 @@
     "biomes": [
       "deep_forest"
     ],
-    "behavior": "flee",
+    "behavior": "fleeing",
     "is_alpha_eligible": false,
     "drops": [
       {

@@ -282,9 +282,28 @@ func _populate_zone_by_terrain(zone: Dictionary) -> void:
 				return
 			var tile_pos   : Vector2i = candidatos[i]
 			var species_id : int = especies[RNGManager.randi_range(0, especies.size() - 1)]
-			var level      : int = RNGManager.randi_range(LEVEL_MIN_TERRAIN, LEVEL_MAX_TERRAIN)
+			var level      : int = _nivel_da_zona(zone)
 			var world_pos  : Vector2 = Vector2((tile_pos.x + 0.5) * TILE_SIZE, (tile_pos.y + 0.5) * TILE_SIZE)
 			_spawn_terrain_pokemon(species_id, level, world_pos, zone_id)
+
+## 🔴 11/09: a faixa de nível do spawn por terreno era FIXA em 3-8 pro mapa
+## inteiro (`LEVEL_MIN_TERRAIN`/`LEVEL_MAX_TERRAIN`), enquanto o `zones.json`
+## já trazia a faixa certa de cada zona — de 2 na Rota 1 até 55 na Caverna
+## Cerulean. Ou seja, o mundo inteiro nascia com bicho de nível 3 a 8, e "entrar
+## numa região muito acima do meu nível" (item 52 do pedido) era impossível.
+##
+## Agora a faixa vem da própria zona. Zona sem lista de fauna continua caindo
+## no 3-8 de antes — é o que mantém funcionando o canto do mapa que ainda não
+## foi mapeado.
+func _nivel_da_zona(zone: Dictionary) -> int:
+	var menor : int = 999
+	var maior : int = 0
+	for w in zone.get("wild_pokemon", []):
+		menor = mini(menor, int(w.get("level_min", 999)))
+		maior = maxi(maior, int(w.get("level_max", 0)))
+	if menor > maior:
+		return RNGManager.randi_range(LEVEL_MIN_TERRAIN, LEVEL_MAX_TERRAIN)
+	return RNGManager.randi_range(menor, maior)
 
 ## Quem pode aparecer neste bioma, nesta zona.
 ##
@@ -353,7 +372,11 @@ func _spawn_terrain_pokemon(species_id: int, level: int, pos: Vector2, zone_id: 
 		return
 	instance.global_position = pos
 	if instance.has_method("initialize"):
-		instance.initialize(species_id, level, "neutral", zone_id)
+		# "" = use a personalidade da PRÓPRIA espécie (species.json → behavior).
+		# Antes era "neutral" cravado: todo bicho que nascia por terreno — que
+		# é a maioria do mapa — era defensivo, não importa a espécie. Um
+		# Beedrill e um Caterpie se comportavam igual.
+		instance.initialize(species_id, level, "", zone_id)
 	_spawn_parent.add_child(instance)
 	_wild_instances.append(instance)
 	EventBus.wild_pokemon_spawned.emit(instance)
@@ -371,7 +394,9 @@ func _spawn_pokemon(entry: Dictionary, pos: Vector2, zone_id: String = "") -> vo
 		entry.get("level_max", 5)
 	)
 	if instance.has_method("initialize"):
-		instance.initialize(entry.get("id", 1), level, entry.get("behavior", "aggressive"), zone_id)
+		# A zona pode mandar uma personalidade própria; sem isso, vale a da
+		# espécie (não mais "aggressive" pra qualquer um).
+		instance.initialize(entry.get("id", 1), level, str(entry.get("behavior", "")), zone_id)
 
 	_spawn_parent.add_child(instance)
 	_wild_instances.append(instance)

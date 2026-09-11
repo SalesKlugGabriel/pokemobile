@@ -254,7 +254,7 @@
     },
     {
       "level": 8,
-      "move": "bubble_beam"
+      "move": "bubblebeam"
     },
     {
       "level": 15,
@@ -288,11 +288,11 @@
     },
     {
       "level": 1,
-      "move": "bubble_beam"
+      "move": "bubblebeam"
     },
     {
       "level": 8,
-      "move": "bubble_beam"
+      "move": "bubblebeam"
     },
     {
       "level": 15,
@@ -326,7 +326,7 @@
     },
     {
       "level": 1,
-      "move": "bubble_beam"
+      "move": "bubblebeam"
     },
     {
       "level": 1,
@@ -334,7 +334,7 @@
     },
     {
       "level": 8,
-      "move": "bubble_beam"
+      "move": "bubblebeam"
     },
     {
       "level": 15,
@@ -2846,7 +2846,7 @@
     },
     {
       "level": 21,
-      "move": "thunder_shock"
+      "move": "thundershock"
     },
     {
       "level": 25,
@@ -2880,11 +2880,11 @@
     },
     {
       "level": 1,
-      "move": "thunder_shock"
+      "move": "thundershock"
     },
     {
       "level": 21,
-      "move": "thunder_shock"
+      "move": "thundershock"
     },
     {
       "level": 25,
@@ -3520,7 +3520,7 @@
     },
     {
       "level": 17,
-      "move": "selfdestruct"
+      "move": "self_destruct"
     },
     {
       "level": 22,
@@ -3550,11 +3550,11 @@
     },
     {
       "level": 1,
-      "move": "selfdestruct"
+      "move": "self_destruct"
     },
     {
       "level": 17,
-      "move": "selfdestruct"
+      "move": "self_destruct"
     },
     {
       "level": 22,
@@ -4446,7 +4446,7 @@
     },
     {
       "level": 9,
-      "move": "thunder_shock"
+      "move": "thundershock"
     },
     {
       "level": 15,
@@ -5114,7 +5114,7 @@
   "145": [
     {
       "level": 1,
-      "move": "thunder_shock"
+      "move": "thundershock"
     },
     {
       "level": 1,

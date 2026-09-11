@@ -49,36 +49,12 @@ func _load_json(path: String) -> Dictionary:
 func get_species(species_id: int) -> Dictionary:
 	return species.get(str(species_id), {})
 
-## As 25 natures clássicas: cada uma sobe 10% de uma stat e desce 10% de
-## outra — 5 são neutras (boost == cut, sem efeito líquido). HP nunca é
-## afetado por nature (regra padrão da série).
-const NATURES : Dictionary = {
-	"hardy":   {"boost": "atk", "cut": "atk"},
-	"lonely":  {"boost": "atk", "cut": "def"},
-	"brave":   {"boost": "atk", "cut": "spe"},
-	"adamant": {"boost": "atk", "cut": "spa"},
-	"naughty": {"boost": "atk", "cut": "spd"},
-	"bold":    {"boost": "def", "cut": "atk"},
-	"docile":  {"boost": "def", "cut": "def"},
-	"relaxed": {"boost": "def", "cut": "spe"},
-	"impish":  {"boost": "def", "cut": "spa"},
-	"lax":     {"boost": "def", "cut": "spd"},
-	"timid":   {"boost": "spe", "cut": "atk"},
-	"hasty":   {"boost": "spe", "cut": "def"},
-	"serious": {"boost": "spe", "cut": "spe"},
-	"jolly":   {"boost": "spe", "cut": "spa"},
-	"naive":   {"boost": "spe", "cut": "spd"},
-	"modest":  {"boost": "spa", "cut": "atk"},
-	"mild":    {"boost": "spa", "cut": "def"},
-	"quiet":   {"boost": "spa", "cut": "spe"},
-	"bashful": {"boost": "spa", "cut": "spa"},
-	"rash":    {"boost": "spa", "cut": "spd"},
-	"calm":    {"boost": "spd", "cut": "atk"},
-	"gentle":  {"boost": "spd", "cut": "def"},
-	"sassy":   {"boost": "spd", "cut": "spe"},
-	"careful": {"boost": "spd", "cut": "spa"},
-	"quirky":  {"boost": "spd", "cut": "spd"},
-}
+## 🔴 11/09: a tabela das 25 natures SAIU daqui e foi pra `StatsDePokemon`.
+## Motivo: `GameData` é autoload, e autoload não é identificador em teste
+## headless — a tabela ficava inalcançável justamente pro teste que prova que
+## a nature muda a stat. Estas duas funções continuam existindo (meia dúzia de
+## arquivos chamava por aqui) e agora só repassam.
+const NATURES : Dictionary = StatsDePokemon.NATURES
 
 ## Sorteia uma nature aleatória (uniforme entre as 25).
 func roll_random_nature() -> String:
@@ -86,17 +62,9 @@ func roll_random_nature() -> String:
 	return keys[RNGManager.randi_range(0, keys.size() - 1)]
 
 ## Multiplicador de nature pra uma stat específica ("atk","def","spa","spd","spe").
-## 1.1 se a nature sobe essa stat, 0.9 se desce, 1.0 se é a mesma (neutra) ou
-## a stat não é nem a que sobe nem a que desce.
 func get_nature_multiplier(nature: String, stat_key: String) -> float:
-	var entry : Dictionary = NATURES.get(nature.to_lower(), {})
-	if entry.is_empty() or entry["boost"] == entry["cut"]:
-		return 1.0
-	if entry["boost"] == stat_key:
-		return 1.1
-	if entry["cut"] == stat_key:
-		return 0.9
-	return 1.0
+	return StatsDePokemon.multiplicador_de_nature(nature, stat_key)
+
 
 ## Retorna o ID numérico da espécie pelo nome (ex: "geodude" → 74), sem
 ## diferenciar maiúscula/minúscula. -1 se não achar. Usado pelo QuestManager

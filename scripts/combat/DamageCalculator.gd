@@ -1,6 +1,30 @@
-## DamageCalculator.gd — Cálculo de dano, stats e efetividade de tipos (Gen 1).
-## Usar como Autoload (singleton) ou class_name para acesso global.
-## Todas as fórmulas seguem a especificação do PokéMobile.
+## DamageCalculator.gd — A ÚNICA conta de dano do jogo.
+##
+## 🔴 Reescrito em 11/09/2026 (reengenharia do combate). A fórmula anterior era
+##
+##     dano = power × (atk/50) × (100/(100+def)) × tipo × crítico
+##
+## e tinha dois defeitos de raiz, os dois MEDIDOS na auditoria
+## (`docs/auditoria-combate.md`):
+##
+##   1. o NÍVEL não entrava na conta. O dano vivia na escala do `power`
+##      (40-120) e a vida na escala do `base_hp` (40-100), e nada fazia as duas
+##      se encontrarem: Pikachu matava Spearow do MESMO nível com um golpe, em
+##      100% dos níveis de 10 a 100.
+##   2. subir de nível quase não mudava nada: 40 níveis davam +58% de dano,
+##      enquanto a vida crescia 2,5x. Ou seja, quanto mais alto o nível, mais
+##      LONGA a briga — o oposto de progressão.
+##
+## A fórmula nova é a clássica da série, que resolve os dois de uma vez:
+##
+##     dano = ( (2×nível/5 + 2) × power × (ataque/defesa) / 50 + 2 )
+##            × STAB × tipo × crítico × variação × status × item × habilidade
+##
+## `ataque`/`defesa` são ATK/DEF num golpe físico e SP_ATK/SP_DEF num especial
+## — antes a categoria do golpe era lida só pra queimadura, e todo Pokémon
+## especial do jogo (Alakazam com sp_atk 135) atacava com o ataque físico.
+##
+## Todo número que decide equilíbrio mora em `CombatBalance`, nunca aqui.
 class_name DamageCalculator
 extends Node
 
@@ -77,81 +101,186 @@ const TYPE_CHART : Dictionary = {
 	},
 }
 
-# Probabilidade base de crítico
-const CRIT_CHANCE : float = 0.0625   # 6.25%
+## Mantida por compatibilidade com quem já lia esta constante; o valor de
+## verdade mora em CombatBalance (item 37 do pedido: um lugar só pra régua).
+const CRIT_CHANCE : float = CombatBalance.CRIT_CHANCE
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Fórmulas de stat
 # ──────────────────────────────────────────────────────────────────────────────
 
-## Calcula stat atual (atk, def, spd etc.) a partir da base e do nível.
-## stat_atual = base_stat + floor(base_stat * (level / 60))
-static func calculate_stat(base_stat: int, level: int) -> int:
-	return base_stat + int(floor(base_stat * (level / 60.0)))
+## 🔴 As duas funções abaixo eram A TERCEIRA fórmula de stat do projeto e
+## discordavam das outras duas (o HP do menu não era o HP da luta). Agora são
+## só uma porta de entrada pra `StatsDePokemon`, que é a única fórmula do jogo.
+## Continuam existindo porque meia dúzia de arquivos já chamava por aqui.
+##
+## `chave`/`nature` são opcionais: sem eles a nature não entra, que é o
+## comportamento de quem chamava antes (nenhum chamador conhecia nature).
+static func calculate_stat(base_stat: int, level: int, chave: String = "", nature: String = "") -> int:
+	return StatsDePokemon.stat(base_stat, level, chave, nature)
 
 ## Calcula HP máximo a partir da base e do nível.
-## hp_atual = base_hp + floor(base_hp * (level / 40)) + level
-static func calculate_hp(base_hp: int, level: int) -> int:
-	return base_hp + int(floor(base_hp * (level / 40.0))) + level
+static func calculate_hp(base_hp: int, level: int, iv: int = 31, ev: int = 0) -> int:
+	return StatsDePokemon.hp_maximo(base_hp, level, iv, ev)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Fórmula de dano
 # ──────────────────────────────────────────────────────────────────────────────
 
 ## Calcula o dano final aplicado a um defensor.
-## attacker_stats: { "atk": int, "level": int, "ability": String (opcional),
-##                    "hp_ratio": float (opcional, 0.0-1.0) }
-## defender_stats: { "def": int, "types": Array[String] }
-## move_data:      { "power": int, "type": String, "category": String (opcional),
-##                    "damage_bonus": float (opcional) }
+##
+## É um atalho pra `detalhar()` — a conta de verdade acontece lá, e a
+## ferramenta de depuração (`CombateDebug`) lê O MESMO resultado. Assim é
+## impossível o relatório de dano discordar do dano que saiu, que é o defeito
+## clássico de se ter duas contas.
 static func calculate_damage(
 	move_data      : Dictionary,
 	attacker_stats : Dictionary,
 	defender_stats : Dictionary
 ) -> int:
-	var power    : int   = move_data.get("power", 40)
-	var atk      : int   = attacker_stats.get("atk", 50)
-	var def      : int   = defender_stats.get("def", 50)
-	var mv_type  : String = move_data.get("type", "Normal")
-	var def_types : Array = defender_stats.get("types", ["Normal"])
+	return int(detalhar(move_data, attacker_stats, defender_stats).get("final", 1))
 
-	# Bônus de dano externo (ex: afinidade do Treinador)
-	var ext_bonus : float = move_data.get("damage_bonus", 0.0)
+## A conta inteira, passo a passo, devolvida como dicionário (item 44 do
+## pedido: "descobrir rapidamente por que um ataque está causando dano
+## excessivo").
+##
+## move_data:      { power, type, category, damage_bonus? }
+## attacker_stats: { atk, spa?, level, types?, ability?, hp_ratio?, status?, held_item? }
+## defender_stats: { def, spd?, types, max_hp?, level? }
+##
+## Chaves ausentes caem em valores neutros de propósito: muita coisa no jogo
+## (projétil, passiva, dano de status) chama com meia dúzia de campos só.
+static func detalhar(
+	move_data      : Dictionary,
+	attacker_stats : Dictionary,
+	defender_stats : Dictionary
+) -> Dictionary:
+	var power     : int    = int(move_data.get("power", 40))
+	var mv_type   : String = str(move_data.get("type", "Normal"))
+	var categoria : String = str(move_data.get("category", "physical"))
+	var especial  : bool   = categoria == "special"
+	var nivel     : int    = maxi(1, int(attacker_stats.get("level", 5)))
+	var def_types : Array  = defender_stats.get("types", ["Normal"])
 
-	var reducao      : float = 100.0 / (100.0 + float(def))
-	var tipo_mult    : float = get_type_multiplier(mv_type, def_types)
-	var crit_mult    : float = 1.5 if is_critical() else 1.0
-	var dano_efet    : float = float(power) * (float(atk) / 50.0) * reducao * tipo_mult * crit_mult
-	dano_efet *= (1.0 + ext_bonus)
+	# ── Qual stat ataca e qual defende (item 10 do pedido) ────────────────────
+	# Golpe físico usa ATK contra DEF; especial usa SP_ATK contra SP_DEF. Quem
+	# não informar a stat especial cai na física — é o que mantém funcionando
+	# quem chama com o dicionário antigo (passiva, projétil, dano de status).
+	var ataque  : int = int(attacker_stats.get("spa", attacker_stats.get("atk", 50))) if especial \
+		else int(attacker_stats.get("atk", 50))
+	var defesa  : int = int(defender_stats.get("spd", defender_stats.get("def", 50))) if especial \
+		else int(defender_stats.get("def", 50))
+	ataque = maxi(1, ataque)
+	defesa = maxi(1, defesa)
 
-	# Ability (Overgrow/Blaze/Torrent/Guts) — motor de combate em tempo real
-	# (02/09). Só entra em jogo se attacker_stats trouxer "ability" (o combate
-	# por turno já tem a própria versão disto em BattleManager, que usa
-	# BattlePokemon; esta é a cópia decoupled pra quem só tem primitivos).
-	var ability : String = attacker_stats.get("ability", "")
-	if ability != "":
-		var is_special : bool = move_data.get("category", "physical") == "special"
-		var hp_ratio   : float = attacker_stats.get("hp_ratio", 1.0)
-		var status     : String = attacker_stats.get("status", "none")
-		dano_efet *= ability_damage_multiplier(ability, mv_type, is_special, hp_ratio, status)
+	# ── O corpo da fórmula ────────────────────────────────────────────────────
+	var termo_nivel : float = 2.0 * float(nivel) / CombatBalance.LEVEL_SCALE + CombatBalance.LEVEL_TERM_BONUS
+	var base : float = termo_nivel * float(power) * (float(ataque) / float(defesa)) \
+		/ CombatBalance.DAMAGE_DIVISOR + CombatBalance.DAMAGE_FLAT_BONUS
+	base *= CombatBalance.BASE_DAMAGE_MULTIPLIER
 
-	# Queimadura reduz dano FÍSICO a 50% — independente de ability, por isso
-	# não entra em ability_damage_multiplier() (StatusEffectController.
-	# attack_multiplier() replica a mesma regra, chamada aqui pra não exigir
-	# "ability" != "" pra funcionar — status persistente (Onda 1, 03/09) vale
-	# pra qualquer Pokémon, com ou sem habilidade cadastrada).
-	var atk_status : String = attacker_stats.get("status", "none")
-	if atk_status == "burn" and move_data.get("category", "physical") != "special":
-		dano_efet *= 0.5
+	# ── Os multiplicadores, cada um medido em separado ────────────────────────
+	var tipo_mult : float = get_type_multiplier(mv_type, def_types)
+	var stab      : float = stab_multiplier(mv_type, attacker_stats.get("types", []))
+	var critico   : bool  = is_critical()
+	var crit_mult : float = CombatBalance.CRIT_MULTIPLIER if critico else 1.0
+	var variacao  : float = RNGManager.randf_range(
+		CombatBalance.DAMAGE_VARIANCE_MIN, CombatBalance.DAMAGE_VARIANCE_MAX)
 
-	# ITEM EQUIPADO (+20% no dano do tipo dele). Esta regra existia SÓ dentro do
-	# motor por turno, que foi apagado em 06/09 a pedido do Gabriel — ou seja,
-	# equipar um item não fazia nada no combate de verdade, que é o único que
-	# existe agora. Trazida pra cá, o vetor de preparação passa a valer no jogo
-	# inteiro (é a peça de "itens equipáveis" da Etapa 3 do plano de dungeons).
-	dano_efet *= multiplicador_de_item_equipado(str(attacker_stats.get("held_item", "")), mv_type)
+	var habilidade : String = str(attacker_stats.get("ability", ""))
+	var hab_mult : float = 1.0
+	if habilidade != "":
+		hab_mult = ability_damage_multiplier(habilidade, mv_type, especial,
+			float(attacker_stats.get("hp_ratio", 1.0)), str(attacker_stats.get("status", "none")))
 
-	return max(1, int(floor(dano_efet)))
+	# Queimadura corta o golpe FÍSICO pela metade. Fica fora de
+	# `ability_damage_multiplier` de propósito: vale pra qualquer Pokémon, com
+	# ou sem habilidade cadastrada.
+	var status_mult : float = 1.0
+	if str(attacker_stats.get("status", "none")) == "burn" and not especial:
+		status_mult = CombatBalance.BURN_PHYSICAL_MULTIPLIER
+
+	# Item equipado (+20% no dano do tipo dele) e bônus externo (afinidade do
+	# Treinador) — os dois já existiam, só mudaram de lugar na conta.
+	var item_mult : float = multiplicador_de_item_equipado(
+		str(attacker_stats.get("held_item", "")), mv_type)
+	var bonus_ext : float = 1.0 + float(move_data.get("damage_bonus", 0.0))
+
+	var bruto : float = base * tipo_mult * stab * crit_mult * variacao \
+		* hab_mult * status_mult * item_mult * bonus_ext
+
+	# ── Imunidade é zero de verdade, não "1 de dano" ──────────────────────────
+	if tipo_mult <= 0.0:
+		return _relatorio(move_data, attacker_stats, defender_stats, ataque, defesa,
+			base, tipo_mult, stab, crit_mult, variacao, hab_mult, status_mult,
+			item_mult, bonus_ext, 0, 0, critico, especial)
+
+	var final : int = maxi(CombatBalance.MIN_DAMAGE, int(floor(bruto)))
+
+	# Piso proporcional: defesa alta REDUZ muito, mas nunca transforma o golpe
+	# em cócegas de 1 de dano (item 10). Ver a explicação em CombatBalance.
+	var vida_maxima : int = int(defender_stats.get("max_hp", 0))
+	if vida_maxima > 0:
+		final = maxi(final, int(floor(float(vida_maxima) * CombatBalance.DANO_MINIMO_FRACAO_HP)))
+
+	# ── O para-quedas contra hit-kill (a rede, não o balanceamento) ───────────
+	# Nenhum golpe tira mais que 90% da vida MÁXIMA do alvo de uma vez. Vale
+	# mesmo com crítico, super-efetividade e 70 níveis de vantagem empilhados:
+	# medido, um Dragonite Lv100 com ultimate crítica faria 989 de dano num
+	# alvo Lv30 de 121 de vida — com o teto, faz 108 e o alvo continua vivo pra
+	# fugir, curar ou ser trocado.
+	#
+	# O teto NÃO vale se o alvo já está abaixo de 15% da vida — senão ele
+	# ficaria imortal (90% de 5 de vida é 4, sempre sobrando 1).
+	var teto_aplicado : int = 0
+	var max_hp : int = int(defender_stats.get("max_hp", 0))
+	var hp_agora : int = int(defender_stats.get("hp", max_hp))
+	if max_hp > 0 and float(hp_agora) > float(max_hp) * CombatBalance.VIDA_MINIMA_PRO_TETO:
+		var teto : int = maxi(1, int(floor(float(max_hp) * CombatBalance.TETO_DE_DANO_POR_GOLPE)))
+		if final > teto:
+			teto_aplicado = final
+			final = teto
+
+	return _relatorio(move_data, attacker_stats, defender_stats, ataque, defesa,
+		base, tipo_mult, stab, crit_mult, variacao, hab_mult, status_mult,
+		item_mult, bonus_ext, final, teto_aplicado, critico, especial)
+
+## Monta o dicionário de saída. Separado só pra `detalhar()` não ter duas
+## saídas copiadas (a de imunidade e a normal) que podem divergir.
+static func _relatorio(move_data: Dictionary, atacante: Dictionary, defensor: Dictionary,
+		ataque: int, defesa: int, base: float, tipo: float, stab: float, crit: float,
+		variacao: float, habilidade: float, status: float, item: float, externo: float,
+		final: int, teto_cru: int, foi_critico: bool, especial: bool) -> Dictionary:
+	return {
+		"final": final,
+		"golpe": str(move_data.get("name", move_data.get("id", "?"))),
+		"tipo_do_golpe": str(move_data.get("type", "Normal")),
+		"categoria": "especial" if especial else "físico",
+		"power": int(move_data.get("power", 0)),
+		"nivel_atacante": int(atacante.get("level", 0)),
+		"nivel_defensor": int(defensor.get("level", 0)),
+		"stat_ofensiva": ataque,
+		"stat_defensiva": defesa,
+		"base": base,
+		"mult_tipo": tipo,
+		"mult_stab": stab,
+		"mult_critico": crit,
+		"critico": foi_critico,
+		"variacao": variacao,
+		"mult_habilidade": habilidade,
+		"mult_status": status,
+		"mult_item": item,
+		"mult_externo": externo,
+		# > 0 significa que o para-quedas segurou: este seria o dano sem teto.
+		"segurado_pelo_teto": teto_cru,
+	}
+
+## STAB: +25% quando o golpe é do mesmo tipo do Pokémon que o usa (item 15).
+## Lista de tipos vazia = quem chamou não informou, então sem bônus.
+static func stab_multiplier(move_type: String, attacker_types: Array) -> float:
+	if attacker_types.is_empty():
+		return 1.0
+	return CombatBalance.STAB_MULTIPLIER if move_type in attacker_types else 1.0
 
 ## +20% (ou o que o item disser) quando o tipo do golpe bate com o do item.
 ## Item vazio, desconhecido ou de outro tipo = 1.0, sem efeito.

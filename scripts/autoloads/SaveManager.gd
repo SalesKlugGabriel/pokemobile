@@ -107,8 +107,46 @@ func load_game() -> bool:
 	# jogou horas. TutorialManager.DICAS novas no futuro aparecem normal.
 	if not save_data.has("tutorial_seen"):
 		save_data["tutorial_seen"] = TutorialManager.DICAS.keys()
+	_migrar_hp_da_reengenharia()
 	_save_exists = true
 	return true
+
+## Versão do esquema de combate gravada no save. Sobe quando uma fórmula muda
+## de um jeito que altera números já salvos.
+const VERSAO_DO_COMBATE : int = 2
+
+## 🔴 11/09: a reengenharia do combate unificou as três fórmulas de stat do
+## projeto numa só (`StatsDePokemon`), e isso MUDA o HP máximo de todo Pokémon
+## já salvo — o do Gabriel inclusive.
+##
+## Zerar a vida de quem estava machucado, ou curar todo mundo de graça, seriam
+## os dois errados. O que se preserva é a FRAÇÃO: quem estava com metade da
+## vida continua com metade. Quem estava desmaiado continua desmaiado, quem
+## estava cheio continua cheio.
+##
+## Roda uma vez só (a marca fica no save) e nunca em jogo novo.
+func _migrar_hp_da_reengenharia() -> void:
+	if int(save_data.get("versao_combate", 1)) >= VERSAO_DO_COMBATE:
+		return
+	var migrados : int = 0
+	for lista in ["team", "pc"]:
+		for poke in save_data.get(lista, []):
+			if not (poke is Dictionary):
+				continue
+			var base : int = int(GameData.get_species(int(poke.get("species_id", 1)))
+				.get("base_stats", {}).get("hp", 45))
+			var max_antigo : int = int(poke.get("hp_max", 0))
+			var max_novo : int = _calc_hp(base, int(poke.get("ivs", {}).get("hp", 15)),
+				int(poke.get("level", 5)))
+			if max_novo == max_antigo:
+				continue
+			poke["hp_current"] = StatsDePokemon.migrar_hp(
+				int(poke.get("hp_current", max_antigo)), max_antigo, max_novo)
+			poke["hp_max"] = max_novo
+			migrados += 1
+	save_data["versao_combate"] = VERSAO_DO_COMBATE
+	if migrados > 0:
+		print("[SaveManager] Reengenharia do combate: %d Pokémon tiveram o HP recalculado (fração preservada)." % migrados)
 
 func delete_save() -> void:
 	if FileAccess.file_exists(SAVE_PATH):
@@ -794,13 +832,17 @@ func get_quest_state(quest_id: String) -> Dictionary:
 static func _make_uuid() -> String:
 	return "%08x-%04x-%04x" % [randi(), randi() % 65536, randi() % 65536]
 
-## Calcula HP máximo (fórmula Gen 3+).
+## 🔴 11/09: as duas contas abaixo eram UMA das três fórmulas de stat que o
+## projeto tinha, e discordavam da do combate — o HP que o menu do time
+## mostrava não era o HP com que o Pokémon lutava (Pikachu Lv20: 47 aqui, 72
+## na luta). Agora repassam pra `StatsDePokemon`, a única fórmula do jogo.
 static func _calc_hp(base: int, iv: int, level: int) -> int:
-	return int((2 * base + iv) * level / 100) + level + 10
+	return StatsDePokemon.hp_maximo(base, level, iv)
 
-## Calcula stat (fórmula Gen 3+, sem nature para simplificar).
-static func _calc_stat(base: int, iv: int, level: int) -> int:
-	return int((2 * base + iv) * level / 100) + 5
+## `nature`/`chave` opcionais: quem chamava antes não conhecia nature, e
+## continua funcionando igual sem passar nada.
+static func _calc_stat(base: int, iv: int, level: int, chave: String = "", nature: String = "") -> int:
+	return StatsDePokemon.stat(base, level, chave, nature, iv)
 
 ## Cria dicionário completo de dados de um Pokémon novo (nível dado).
 func _make_pokemon_data(species_id: int, level: int) -> Dictionary:

@@ -123,7 +123,10 @@ func _telegraph() -> void:
 	for arquivo in ["res://scripts/entities/WildPokemon.gd", "res://scripts/entities/FollowerPokemon.gd"]:
 		var fonte := FileAccess.get_file_as_string(arquivo)
 		var i_espera := fonte.find("TelegraphDeArea.ATE_O_DANO")
-		var i_alvos := fonte.find("find_targets_in_radius")
+		# 11/09: a busca passou a ser `FormaDeArea.alvos()` (a forma do golpe vem
+		# do dado agora, não é mais sempre círculo) — o que este teste cobra
+		# continua o mesmo: seja qual for a função, ela roda DEPOIS da espera.
+		var i_alvos := fonte.find("FormaDeArea.alvos(")
 		_assert(i_espera > 0 and i_alvos > i_espera,
 			"%s procura os alvos SÓ depois da janela do telegraph" % arquivo.get_file())
 
