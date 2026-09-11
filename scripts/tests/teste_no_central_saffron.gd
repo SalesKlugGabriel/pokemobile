@@ -30,14 +30,17 @@ func _process(_delta: float) -> bool:
 
 	# ---- zones.json: as 3 zonas existem, map_id próprio ----
 	var zj : Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/world/zones.json"))
-	var ids_esperados := {"rota_cerulean_saffron": false, "rota_saffron_vermilion": false, "rota_saffron_celadon": false}
+	# 🔴 10/09 (matriz ecológica): cada rota deixou de ter UMA zona com o id
+	# igual ao map_id — virou várias FAIXAS de bioma, cada uma com fauna
+	# própria. O que importa é: existe zona registrada pra cada mapa?
+	var faixas_por_mapa := {"rota_cerulean_saffron": 0, "rota_saffron_vermilion": 0, "rota_saffron_celadon": 0}
 	for z in zj.get("zones", []):
-		var id : String = z.get("id", "")
-		if ids_esperados.has(id):
-			ids_esperados[id] = true
-			_assert(z.get("map_id", "") == id, "zona '%s' tem map_id próprio" % id)
-	for id in ids_esperados:
-		_assert(ids_esperados[id], "zone '%s' existe em zones.json" % id)
+		var mid2 : String = z.get("map_id", "")
+		if faixas_por_mapa.has(mid2):
+			faixas_por_mapa[mid2] += 1
+	for mid2 in faixas_por_mapa:
+		_assert(faixas_por_mapa[mid2] >= 2,
+			"o mapa '%s' tem faixas de bioma registradas (%d)" % [mid2, faixas_por_mapa[mid2]])
 
 	# ---- WorldMap.tscn: os 6 warps de saída existem (2 por rota) ----
 	var wm_cena : PackedScene = load("res://scenes/world/maps/WorldMap.tscn")

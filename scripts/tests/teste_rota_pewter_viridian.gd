@@ -139,14 +139,20 @@ func _process(_delta: float) -> bool:
 	var achou_rota := false
 	var achou_caverna := false
 	for z in zj.get("zones", []):
-		if z.get("id", "") == "rota_pewter_viridian":
+		if z.get("map_id", "") == "rota_pewter_viridian":
 			achou_rota = true
-			_assert(z.get("map_id", "") == "rota_pewter_viridian", "zona da rota tem map_id próprio")
-			_assert(int(z.get("tile_rect", {}).get("h", 0)) == 3000, "tile_rect da zona bate com a altura real (3.000)")
 		if z.get("id", "") == "caverna_montanha_pv":
 			achou_caverna = true
 			_assert(z.get("map_id", "") == "caverna_montanha_pv", "zona da caverna tem map_id próprio")
-	_assert(achou_rota, "zone 'rota_pewter_viridian' existe em zones.json")
+	_assert(achou_rota, "existe zona registrada pro mapa 'rota_pewter_viridian' (faixas de bioma)")
+	# As faixas de bioma (matriz ecológica, 10/09) têm que COBRIR a rota
+	# inteira, sem sobrar pedaço sem fauna nenhuma.
+	var _fim := 0
+	for z in zj.get("zones", []):
+		if z.get("map_id", "") == "rota_pewter_viridian":
+			var _r : Dictionary = z.get("tile_rect", {})
+			_fim = maxi(_fim, int(_r.get("y", 0)) + int(_r.get("h", 0)))
+	_assert(_fim == 3000, "as faixas de bioma cobrem a rota inteira (3000) — achou %d" % _fim)
 	_assert(achou_caverna, "zone 'caverna_montanha_pv' existe em zones.json")
 
 	# ---- WorldMap.tscn: os 2 warps de saída pra rota nova existem ----

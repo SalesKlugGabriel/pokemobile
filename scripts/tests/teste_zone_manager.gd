@@ -50,21 +50,25 @@ func _teste_geral() -> void:
 		["rock_tunnel",    Vector2i(5, 5)],
 		["safari_zone",    Vector2i(5, 5)],
 		["rocket_hideout", Vector2i(5, 5)],
-		["cinnabar_island",Vector2i(5, 5)],
+		["cinnabar_planalto", Vector2i(5, 5), "cinnabar_island"],
 	]
 	for caso in casos:
-		var map_id : String = caso[0]
+		# 🔴 10/09 (matriz ecológica): um mapa pode ter VÁRIAS zonas agora
+		# (faixas de bioma). Quando a zona esperada tem nome diferente do
+		# map_id, o caso traz o map_id no 3º campo.
+		var esperado : String = caso[0]
 		var tile   : Vector2i = caso[1]
+		var map_id : String = caso[2] if caso.size() > 2 else caso[0]
 		var achado : String = ZoneManagerScript.find_zone_id(tile, zones, map_id)
-		_assert(achado == map_id,
-			"tile (5,5) em '%s' resolve pra '%s' (achou '%s')" % [map_id, map_id, achado])
+		_assert(achado == esperado,
+			"tile (5,5) em '%s' resolve pra '%s' (achou '%s')" % [map_id, esperado, achado])
 
 	# Mesma coordenada bruta, mundo aberto (world_map) — não deve cair em
 	# nenhuma das 5 zonas de cena própria (elas exigem map_id específico).
 	var achado_world : String = ZoneManagerScript.find_zone_id(Vector2i(5, 5), zones, "world_map")
 	_assert(achado_world != "mt_moon" and achado_world != "rock_tunnel"
 		and achado_world != "safari_zone" and achado_world != "rocket_hideout"
-		and achado_world != "cinnabar_island",
+		and achado_world != "cinnabar_planalto",
 		"tile (5,5) em 'world_map' NÃO cai em nenhuma zona de cena própria (achou '%s')" % achado_world)
 
 	# Fora de qualquer rect conhecido — deve devolver vazio, não a zona errada.

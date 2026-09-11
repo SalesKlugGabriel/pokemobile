@@ -159,7 +159,7 @@ var _predios       : Array = []    # cada item: Array[Vector2i] com as células 
 var _predio_atual  : int   = -1    # índice do prédio em que o jogador está (-1 = nenhum)
 
 func _montar_telhados() -> void:
-	_predios = MapLayouts.agrupar_interiores(tilemap)
+	_predios = MapLayouts.agrupar_interiores(tilemap, map_id)
 	_predio_atual = -1
 	if _predios.is_empty():
 		return

@@ -85,11 +85,10 @@ func _process(_delta: float) -> bool:
 	var zj : Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/world/zones.json"))
 	var achou_zona := false
 	for z in zj.get("zones", []):
-		if z.get("id", "") == "rota_viridian_pallet":
+		if z.get("map_id", "") == "rota_viridian_pallet":
 			achou_zona = true
 			_assert(z.get("map_id", "") == "rota_viridian_pallet", "zona nova tem map_id próprio (não herda DEFAULT_MAP_ID)")
-			_assert(int(z.get("tile_rect", {}).get("h", 0)) == 1000, "tile_rect da zona bate com a altura real da cena (1.000)")
-	_assert(achou_zona, "zone 'rota_viridian_pallet' existe em zones.json")
+	_assert(achou_zona, "existe zona registrada pro mapa 'rota_viridian_pallet' (faixas de bioma)")
 
 	# ---- WorldMap.tscn: os 2 warps de SAÍDA (rumo à rota nova) existem ----
 	var wm_cena : PackedScene = load("res://scenes/world/maps/WorldMap.tscn")

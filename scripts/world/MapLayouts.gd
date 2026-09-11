@@ -3903,12 +3903,20 @@ const VARIANTES_TERRENO : Dictionary = {
 ## propósito: assim pega também o que é pintado à parte, como os ramos de
 ## coluna/linha negativa (Rota 22/24/25, Casa do Bill, Indigo Plateau), que não
 ## existem no array principal.
-static func agrupar_interiores(tm: TileMap) -> Array:
+## `map_id` opcional (10/09): quando bate com o último `paint()`, usa a
+## lista de interiores que ELE já anotou de graça, em vez de varrer o mapa
+## inteiro com `get_used_cells()`. Sem o map_id (chamada de fora, teste,
+## ferramenta) continua varrendo, igual antes.
+static func agrupar_interiores(tm: TileMap, map_id: String = "") -> Array:
 	var piso : Vector2i = CHAR_MAP["I"]
 	var interiores := {}
-	for celula in tm.get_used_cells(0):
-		if tm.get_cell_atlas_coords(0, celula) == piso:
+	if map_id != "" and map_id == _ultimo_interiores_map_id:
+		for celula in _ultimo_interiores:
 			interiores[celula] = true
+	else:
+		for celula in tm.get_used_cells(0):
+			if tm.get_cell_atlas_coords(0, celula) == piso:
+				interiores[celula] = true
 
 	var vistos := {}
 	var predios : Array = []
@@ -4013,6 +4021,8 @@ static func _variety_atlas(ch: String, col_idx: int, row_idx: int) -> Vector2i:
 ## SÓ é lido a seguir, no mesmo `_ready()`, nunca por um paint() de outro
 ## mapa no meio — dimensão nunca muda com estado de save, só o CONTEÚDO
 ## de cada célula muda.
+static var _ultimo_interiores_map_id : String = ""
+static var _ultimo_interiores : Array[Vector2i] = []
 static var _ultimo_layout_map_id : String = ""
 static var _ultimo_layout_dims : Vector2i = Vector2i.ZERO
 
@@ -4023,14 +4033,42 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 		return
 	_ultimo_layout_map_id = map_id
 	_ultimo_layout_dims = Vector2i(int(layout["width"]), int(layout["height"]))
+	# 🔴 10/09 (otimização): anota AQUI as células de piso interno ("I"),
+	# aproveitando que este laço já visita todo char. `agrupar_interiores()`
+	# usava `get_used_cells()` — varredura do mapa INTEIRO só pra achar
+	# prédio, o que numa rota de 1,2 milhão de tiles sem prédio nenhum era
+	# trabalho 100% desperdiçado, pago a cada carregamento de cena.
+	_ultimo_interiores_map_id = map_id
+	_ultimo_interiores = []
 	tilemap.clear()
 	var rows : Array = layout["tiles"]
+	# 🔴 10/09 (otimização, pedido do Gabriel "corrija tudo"): o miolo de
+	# `_variety_atlas`/`_variety_alt` está INLINE aqui de propósito. Medido:
+	# numa rota de 1,2 milhão de tiles, as duas CHAMADAS de função por tile
+	# (2,4 milhões no total) custavam ~1,1s dos ~2,1s da pintura — mais que
+	# a conta que elas fazem. As duas funções continuam existindo pra quem
+	# chama de fora (teste, ferramenta); aqui o laço quente evita a chamada.
+	# Resultado idêntico: mesma conta de hash, mesmo tile na mesma posição.
+	var _variantes : Dictionary = VARIANTES_TERRENO
+	var _charmap : Dictionary = CHAR_MAP
 	for row_idx in rows.size():
 		var row : String = rows[row_idx]
 		for col_idx in row.length():
 			var ch := row[col_idx]
-			var atlas : Vector2i = _variety_atlas(ch, col_idx, row_idx)
-			var alt  : int = _variety_alt(ch, col_idx, row_idx)
+			var lista : Array = _variantes.get(ch, [])
+			var atlas : Vector2i
+			if lista.is_empty():
+				atlas = _charmap.get(ch, Vector2i(0, 0))
+			else:
+				atlas = lista[absi((col_idx * 374761393) ^ (row_idx * 668265263)) % lista.size()]
+			var alt := 0
+			if VARIETY_CHARS.contains(ch):
+				match ((col_idx * 73856093) ^ (row_idx * 19349663)) % 4:
+					1: alt = TileSetAtlasSource.TRANSFORM_FLIP_H
+					2: alt = TileSetAtlasSource.TRANSFORM_FLIP_V
+					3: alt = TileSetAtlasSource.TRANSFORM_FLIP_H | TileSetAtlasSource.TRANSFORM_FLIP_V
+			if ch == "I":
+				_ultimo_interiores.append(Vector2i(col_idx, row_idx))
 			tilemap.set_cell(0, Vector2i(col_idx, row_idx), 0, atlas, alt)
 
 	# Ramo da Rota 24/25 (Tier 8) — pintado à PARTE em linhas negativas, sem
@@ -4045,6 +4083,10 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 				var ch := row[col_idx]
 				var atlas : Vector2i = _variety_atlas(ch, col_idx, r)
 				var alt  : int = _variety_alt(ch, col_idx, r)
+				# a Casa do Bill mora neste ramo e TEM interior — sem esta
+				# linha o telhado dela sumiria ao usar a anotação do paint()
+				if ch == "I":
+					_ultimo_interiores.append(Vector2i(col_idx, r))
 				tilemap.set_cell(0, Vector2i(col_idx, r), 0, atlas, alt)
 
 		# Ramo da Rota 22 → Victory Road → Indigo Plateau (Tier 18) —
@@ -4059,6 +4101,10 @@ static func paint(tilemap: TileMap, map_id: String) -> void:
 				var ch := row[j]
 				var atlas : Vector2i = _variety_atlas(ch, c, r)
 				var alt  : int = _variety_alt(ch, c, r)
+				# Ginásio/Centro da Liga Indigo moram neste ramo e têm
+				# interior — mesma razão da Casa do Bill acima
+				if ch == "I":
+					_ultimo_interiores.append(Vector2i(c, r))
 				tilemap.set_cell(0, Vector2i(c, r), 0, atlas, alt)
 
 	# 🔴 10/09 (achado ao vivo, Fase 5 da reestruturação geográfica): estas 6

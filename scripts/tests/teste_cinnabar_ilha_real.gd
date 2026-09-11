@@ -104,16 +104,21 @@ func _process(_delta: float) -> bool:
 
 	# ---- zones.json ----
 	var zj : Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/world/zones.json"))
+	var especies_cinnabar : Array = []
 	for z in zj.get("zones", []):
-		if z.get("id", "") == "cinnabar_island":
-			_assert(int(z.get("tile_rect", {}).get("w", 0)) == 1200, "zone cinnabar_island: tile_rect bate com 1.200")
-			var especies := []
+		# 🔴 10/09 (matriz ecológica): a ilha virou DUAS faixas — planalto
+		# vulcânico (Magmar/Rapidash) e ilha/costa (Growlithe/Vulpix/
+		# aquáticos). A fauna de fogo continua toda lá, só repartida por
+		# habitat, que é exatamente o que a matriz pede.
+		if z.get("map_id", "") == "cinnabar_island":
 			for w in z.get("wild_pokemon", []):
-				especies.append(int(w.get("id", 0)))
-			_assert(58 in especies and 37 in especies and 77 in especies and 126 in especies,
-				"Growlithe/Vulpix/Ponyta/Magmar continuam no spawn selvagem")
+				especies_cinnabar.append(int(w.get("id", 0)))
 		if z.get("id", "") == "pokemon_mansion":
 			_assert(int(z.get("tile_rect", {}).get("x", -1)) == 570, "zone pokemon_mansion: posição atualizada pra dentro da ilha nova")
+
+	_assert(58 in especies_cinnabar and 37 in especies_cinnabar
+		and 77 in especies_cinnabar and 126 in especies_cinnabar,
+		"Growlithe/Vulpix/Ponyta/Magmar continuam no spawn da ilha (repartidos por habitat)")
 
 	print("\n=== Resultado: %d ok, %d falhas ===" % [_ok, _fail])
 	quit(1 if _fail > 0 else 0)

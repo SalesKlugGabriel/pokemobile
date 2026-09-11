@@ -136,11 +136,17 @@ func _process(_delta: float) -> bool:
 	var zj : Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/world/zones.json"))
 	var achou := false
 	for z in zj.get("zones", []):
-		if z.get("id", "") == "rota_pewter_cerulean":
+		if z.get("map_id", "") == "rota_pewter_cerulean":
 			achou = true
-			_assert(z.get("map_id", "") == "rota_pewter_cerulean", "zona da rota tem map_id próprio")
-			_assert(int(z.get("tile_rect", {}).get("w", 0)) == 7000, "tile_rect da zona bate com a largura real (7.000)")
-	_assert(achou, "zone 'rota_pewter_cerulean' existe em zones.json")
+	_assert(achou, "existe zona registrada pro mapa 'rota_pewter_cerulean' (faixas de bioma)")
+	# As faixas de bioma (matriz ecológica, 10/09) têm que COBRIR a rota
+	# inteira, sem sobrar pedaço sem fauna nenhuma.
+	var _fim := 0
+	for z in zj.get("zones", []):
+		if z.get("map_id", "") == "rota_pewter_cerulean":
+			var _r : Dictionary = z.get("tile_rect", {})
+			_fim = maxi(_fim, int(_r.get("x", 0)) + int(_r.get("w", 0)))
+	_assert(_fim == 7000, "as faixas de bioma cobrem a rota inteira (7000) — achou %d" % _fim)
 
 	# ---- WorldMap.tscn: os 2 warps de saída existem, WarpMtMoon antigo sumiu ----
 	var wm_cena : PackedScene = load("res://scenes/world/maps/WorldMap.tscn")

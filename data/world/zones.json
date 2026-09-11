@@ -11,7 +11,57 @@
         "h": 39
       },
       "bgm": "pallet_town",
-      "wild_pokemon": [],
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 2,
+          "level_max": 5,
+          "weight": 30
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 2,
+          "level_max": 5,
+          "weight": 30
+        },
+        {
+          "id": 10,
+          "name": "Caterpie",
+          "level_min": 2,
+          "level_max": 5,
+          "weight": 15
+        },
+        {
+          "id": 13,
+          "name": "Weedle",
+          "level_min": 2,
+          "level_max": 5,
+          "weight": 15
+        },
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 3,
+          "level_max": 6,
+          "weight": 5
+        },
+        {
+          "id": 60,
+          "name": "Poliwag",
+          "level_min": 3,
+          "level_max": 6,
+          "weight": 5
+        },
+        {
+          "id": 129,
+          "name": "Magikarp",
+          "level_min": 2,
+          "level_max": 5,
+          "weight": 5
+        }
+      ],
       "npcs": [
         {
           "id": "professor_oak",
@@ -21,7 +71,8 @@
             162
           ]
         }
-      ]
+      ],
+      "notes": "Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "viridian_city",
@@ -34,7 +85,57 @@
         "h": 37
       },
       "bgm": "viridian_city",
-      "wild_pokemon": [],
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 3,
+          "level_max": 7,
+          "weight": 30
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 3,
+          "level_max": 7,
+          "weight": 30
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 3,
+          "level_max": 7,
+          "weight": 15
+        },
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 3,
+          "level_max": 7,
+          "weight": 15
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 3,
+          "level_max": 7,
+          "weight": 15
+        },
+        {
+          "id": 32,
+          "name": "Nidoran-M",
+          "level_min": 3,
+          "level_max": 7,
+          "weight": 5
+        },
+        {
+          "id": 29,
+          "name": "Nidoran-F",
+          "level_min": 3,
+          "level_max": 7,
+          "weight": 5
+        }
+      ],
       "npcs": [
         {
           "id": "gym_guard",
@@ -44,7 +145,8 @@
             110
           ]
         }
-      ]
+      ],
+      "notes": "Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "route_1",
@@ -71,80 +173,6 @@
           "level_min": 2,
           "level_max": 4,
           "weight": 50
-        }
-      ],
-      "npcs": []
-    },
-    {
-      "id": "rota_viridian_pallet",
-      "map_id": "rota_viridian_pallet",
-      "name": "Rota Viridian-Pallet",
-      "region": "kanto",
-      "tile_rect": {
-        "x": 0,
-        "y": 0,
-        "w": 100,
-        "h": 1000
-      },
-      "bgm": "route_1",
-      "wild_pokemon": [
-        {
-          "id": 16,
-          "name": "Pidgey",
-          "level_min": 2,
-          "level_max": 5,
-          "weight": 50
-        },
-        {
-          "id": 19,
-          "name": "Rattata",
-          "level_min": 2,
-          "level_max": 4,
-          "weight": 50
-        }
-      ],
-      "npcs": []
-    },
-    {
-      "id": "rota_pewter_viridian",
-      "map_id": "rota_pewter_viridian",
-      "name": "Rota Pewter-Viridian",
-      "region": "kanto",
-      "tile_rect": {
-        "x": 0,
-        "y": 0,
-        "w": 100,
-        "h": 3000
-      },
-      "bgm": "route_2",
-      "wild_pokemon": [
-        {
-          "id": 74,
-          "name": "Geodude",
-          "level_min": 3,
-          "level_max": 8,
-          "weight": 30
-        },
-        {
-          "id": 41,
-          "name": "Zubat",
-          "level_min": 3,
-          "level_max": 7,
-          "weight": 25
-        },
-        {
-          "id": 10,
-          "name": "Caterpie",
-          "level_min": 3,
-          "level_max": 7,
-          "weight": 25
-        },
-        {
-          "id": 13,
-          "name": "Weedle",
-          "level_min": 3,
-          "level_max": 7,
-          "weight": 20
         }
       ],
       "npcs": []
@@ -187,340 +215,6 @@
       "npcs": []
     },
     {
-      "id": "rota_cerulean_saffron",
-      "map_id": "rota_cerulean_saffron",
-      "name": "Rota Cerulean-Saffron",
-      "region": "kanto",
-      "tile_rect": {
-        "x": 0,
-        "y": 0,
-        "w": 100,
-        "h": 4000
-      },
-      "bgm": "route_5",
-      "wild_pokemon": [
-        {
-          "id": 52,
-          "name": "Meowth",
-          "level_min": 12,
-          "level_max": 18,
-          "weight": 25
-        },
-        {
-          "id": 39,
-          "name": "Jigglypuff",
-          "level_min": 12,
-          "level_max": 16,
-          "weight": 20
-        },
-        {
-          "id": 43,
-          "name": "Oddish",
-          "level_min": 12,
-          "level_max": 16,
-          "weight": 20
-        },
-        {
-          "id": 69,
-          "name": "Bellsprout",
-          "level_min": 12,
-          "level_max": 16,
-          "weight": 20
-        },
-        {
-          "id": 32,
-          "name": "Nidoran-M",
-          "level_min": 12,
-          "level_max": 16,
-          "weight": 8
-        },
-        {
-          "id": 29,
-          "name": "Nidoran-F",
-          "level_min": 12,
-          "level_max": 16,
-          "weight": 7
-        }
-      ],
-      "npcs": []
-    },
-    {
-      "id": "rota_saffron_vermilion",
-      "map_id": "rota_saffron_vermilion",
-      "name": "Rota Saffron-Vermilion",
-      "region": "kanto",
-      "tile_rect": {
-        "x": 0,
-        "y": 0,
-        "w": 100,
-        "h": 2000
-      },
-      "bgm": "route_6",
-      "wild_pokemon": [
-        {
-          "id": 52,
-          "name": "Meowth",
-          "level_min": 14,
-          "level_max": 20,
-          "weight": 30
-        },
-        {
-          "id": 39,
-          "name": "Jigglypuff",
-          "level_min": 14,
-          "level_max": 18,
-          "weight": 20
-        },
-        {
-          "id": 88,
-          "name": "Grimer",
-          "level_min": 14,
-          "level_max": 18,
-          "weight": 25
-        },
-        {
-          "id": 27,
-          "name": "Sandshrew",
-          "level_min": 14,
-          "level_max": 18,
-          "weight": 15
-        },
-        {
-          "id": 100,
-          "name": "Voltorb",
-          "level_min": 14,
-          "level_max": 18,
-          "weight": 10
-        }
-      ],
-      "npcs": []
-    },
-    {
-      "id": "rota_saffron_celadon",
-      "map_id": "rota_saffron_celadon",
-      "name": "Rota Saffron-Celadon",
-      "region": "kanto",
-      "tile_rect": {
-        "x": 0,
-        "y": 0,
-        "w": 4000,
-        "h": 100
-      },
-      "bgm": "route_7",
-      "wild_pokemon": [
-        {
-          "id": 43,
-          "name": "Oddish",
-          "level_min": 13,
-          "level_max": 18,
-          "weight": 30
-        },
-        {
-          "id": 69,
-          "name": "Bellsprout",
-          "level_min": 13,
-          "level_max": 18,
-          "weight": 30
-        },
-        {
-          "id": 48,
-          "name": "Venonat",
-          "level_min": 13,
-          "level_max": 18,
-          "weight": 25
-        },
-        {
-          "id": 63,
-          "name": "Abra",
-          "level_min": 13,
-          "level_max": 18,
-          "weight": 15
-        }
-      ],
-      "npcs": []
-    },
-    {
-      "id": "rota_lavender_fuchsia",
-      "map_id": "rota_lavender_fuchsia",
-      "name": "Rota Lavender-Fuchsia",
-      "region": "kanto",
-      "tile_rect": {
-        "x": 0,
-        "y": 0,
-        "w": 100,
-        "h": 12000
-      },
-      "bgm": "route_12",
-      "wild_pokemon": [
-        {
-          "id": 84,
-          "name": "Doduo",
-          "level_min": 18,
-          "level_max": 24,
-          "weight": 15
-        },
-        {
-          "id": 43,
-          "name": "Oddish",
-          "level_min": 18,
-          "level_max": 24,
-          "weight": 15
-        },
-        {
-          "id": 69,
-          "name": "Bellsprout",
-          "level_min": 18,
-          "level_max": 24,
-          "weight": 15
-        },
-        {
-          "id": 48,
-          "name": "Venonat",
-          "level_min": 18,
-          "level_max": 24,
-          "weight": 10
-        },
-        {
-          "id": 60,
-          "name": "Poliwag",
-          "level_min": 18,
-          "level_max": 24,
-          "weight": 15
-        },
-        {
-          "id": 54,
-          "name": "Psyduck",
-          "level_min": 18,
-          "level_max": 24,
-          "weight": 15
-        },
-        {
-          "id": 98,
-          "name": "Krabby",
-          "level_min": 18,
-          "level_max": 24,
-          "weight": 10
-        },
-        {
-          "id": 46,
-          "name": "Paras",
-          "level_min": 18,
-          "level_max": 24,
-          "weight": 5
-        }
-      ],
-      "npcs": []
-    },
-    {
-      "id": "rota_saffron_lavender",
-      "map_id": "rota_saffron_lavender",
-      "name": "Rota Saffron-Lavender",
-      "region": "kanto",
-      "tile_rect": {
-        "x": 0,
-        "y": 0,
-        "w": 5000,
-        "h": 100
-      },
-      "bgm": "route_8",
-      "wild_pokemon": [
-        {
-          "id": 19,
-          "name": "Rattata",
-          "level_min": 15,
-          "level_max": 20,
-          "weight": 30
-        },
-        {
-          "id": 20,
-          "name": "Raticate",
-          "level_min": 18,
-          "level_max": 22,
-          "weight": 10
-        },
-        {
-          "id": 23,
-          "name": "Ekans",
-          "level_min": 15,
-          "level_max": 20,
-          "weight": 30
-        },
-        {
-          "id": 27,
-          "name": "Sandshrew",
-          "level_min": 15,
-          "level_max": 20,
-          "weight": 30
-        }
-      ],
-      "npcs": []
-    },
-    {
-      "id": "rota_pewter_cerulean",
-      "map_id": "rota_pewter_cerulean",
-      "name": "Rota Pewter-Cerulean",
-      "region": "kanto",
-      "tile_rect": {
-        "x": 0,
-        "y": 0,
-        "w": 7000,
-        "h": 100
-      },
-      "bgm": "route_3",
-      "wild_pokemon": [
-        {
-          "id": 19,
-          "name": "Rattata",
-          "level_min": 6,
-          "level_max": 10,
-          "weight": 25
-        },
-        {
-          "id": 21,
-          "name": "Spearow",
-          "level_min": 6,
-          "level_max": 12,
-          "weight": 25
-        },
-        {
-          "id": 32,
-          "name": "Nidoran-M",
-          "level_min": 6,
-          "level_max": 9,
-          "weight": 15
-        },
-        {
-          "id": 29,
-          "name": "Nidoran-F",
-          "level_min": 6,
-          "level_max": 9,
-          "weight": 15
-        },
-        {
-          "id": 56,
-          "name": "Mankey",
-          "level_min": 7,
-          "level_max": 10,
-          "weight": 10
-        },
-        {
-          "id": 39,
-          "name": "Jigglypuff",
-          "level_min": 6,
-          "level_max": 9,
-          "weight": 5
-        },
-        {
-          "id": 60,
-          "name": "Poliwag",
-          "level_min": 8,
-          "level_max": 12,
-          "weight": 5
-        }
-      ],
-      "npcs": []
-    },
-    {
       "id": "pewter_city",
       "name": "Pewter City",
       "region": "kanto",
@@ -531,8 +225,59 @@
         "h": 37
       },
       "bgm": "pewter_city",
-      "wild_pokemon": [],
-      "npcs": []
+      "wild_pokemon": [
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 6,
+          "level_max": 11,
+          "weight": 30
+        },
+        {
+          "id": 27,
+          "name": "Sandshrew",
+          "level_min": 6,
+          "level_max": 10,
+          "weight": 15
+        },
+        {
+          "id": 66,
+          "name": "Machop",
+          "level_min": 7,
+          "level_max": 11,
+          "weight": 15
+        },
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 15
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 15
+        },
+        {
+          "id": 32,
+          "name": "Nidoran-M",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 5
+        },
+        {
+          "id": 95,
+          "name": "Onix",
+          "level_min": 9,
+          "level_max": 13,
+          "weight": 1
+        }
+      ],
+      "npcs": [],
+      "notes": "Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "cerulean_city",
@@ -545,8 +290,73 @@
         "h": 36
       },
       "bgm": "cerulean_city",
-      "wild_pokemon": [],
-      "npcs": []
+      "wild_pokemon": [
+        {
+          "id": 54,
+          "name": "Psyduck",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 30
+        },
+        {
+          "id": 60,
+          "name": "Poliwag",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 30
+        },
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 15
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 15
+        },
+        {
+          "id": 118,
+          "name": "Goldeen",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 15
+        },
+        {
+          "id": 129,
+          "name": "Magikarp",
+          "level_min": 10,
+          "level_max": 15,
+          "weight": 15
+        },
+        {
+          "id": 116,
+          "name": "Horsea",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 5
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 5
+        },
+        {
+          "id": 147,
+          "name": "Dratini",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 1
+        }
+      ],
+      "npcs": [],
+      "notes": "Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "vermilion_city",
@@ -559,9 +369,80 @@
         "h": 36
       },
       "bgm": "vermilion_city",
-      "wild_pokemon": [],
+      "wild_pokemon": [
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 30
+        },
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 30
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 15
+        },
+        {
+          "id": 98,
+          "name": "Krabby",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 15
+        },
+        {
+          "id": 72,
+          "name": "Tentacool",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 15
+        },
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        },
+        {
+          "id": 81,
+          "name": "Magnemite",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        },
+        {
+          "id": 116,
+          "name": "Horsea",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        },
+        {
+          "id": 100,
+          "name": "Voltorb",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 1
+        }
+      ],
       "npcs": [],
-      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09). Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "vermilion_praia",
@@ -720,9 +601,66 @@
         "h": 36
       },
       "bgm": "lavender_town",
-      "wild_pokemon": [],
+      "wild_pokemon": [
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 19,
+          "level_max": 24,
+          "weight": 30
+        },
+        {
+          "id": 20,
+          "name": "Raticate",
+          "level_min": 21,
+          "level_max": 26,
+          "weight": 15
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 19,
+          "level_max": 24,
+          "weight": 15
+        },
+        {
+          "id": 23,
+          "name": "Ekans",
+          "level_min": 19,
+          "level_max": 24,
+          "weight": 15
+        },
+        {
+          "id": 104,
+          "name": "Cubone",
+          "level_min": 19,
+          "level_max": 24,
+          "weight": 15
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level_min": 19,
+          "level_max": 24,
+          "weight": 30
+        },
+        {
+          "id": 96,
+          "name": "Drowzee",
+          "level_min": 19,
+          "level_max": 24,
+          "weight": 5
+        },
+        {
+          "id": 93,
+          "name": "Haunter",
+          "level_min": 22,
+          "level_max": 27,
+          "weight": 1
+        }
+      ],
       "npcs": [],
-      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09). Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "celadon_city",
@@ -735,9 +673,73 @@
         "h": 36
       },
       "bgm": "celadon_city",
-      "wild_pokemon": [],
+      "wild_pokemon": [
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 30
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 30
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 15
+        },
+        {
+          "id": 48,
+          "name": "Venonat",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 15
+        },
+        {
+          "id": 102,
+          "name": "Exeggcute",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 15
+        },
+        {
+          "id": 70,
+          "name": "Weepinbell",
+          "level_min": 17,
+          "level_max": 22,
+          "weight": 5
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 5
+        },
+        {
+          "id": 114,
+          "name": "Tangela",
+          "level_min": 17,
+          "level_max": 22,
+          "weight": 1
+        },
+        {
+          "id": 1,
+          "name": "Bulbasaur",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 1
+        }
+      ],
       "npcs": [],
-      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09). Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "fuchsia_city",
@@ -752,15 +754,64 @@
       "bgm": "fuchsia_city",
       "wild_pokemon": [
         {
-          "id": 23,
-          "name": "Ekans",
-          "level_min": 22,
-          "level_max": 27,
-          "weight": 40
+          "id": 48,
+          "name": "Venonat",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 30
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 30
+        },
+        {
+          "id": 102,
+          "name": "Exeggcute",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 15
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 15
+        },
+        {
+          "id": 54,
+          "name": "Psyduck",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 15
+        },
+        {
+          "id": 98,
+          "name": "Krabby",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 5
+        },
+        {
+          "id": 114,
+          "name": "Tangela",
+          "level_min": 26,
+          "level_max": 31,
+          "weight": 5
+        },
+        {
+          "id": 113,
+          "name": "Chansey",
+          "level_min": 27,
+          "level_max": 32,
+          "weight": 1
         }
       ],
       "npcs": [],
-      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09). Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "saffron_city",
@@ -775,27 +826,156 @@
       "bgm": "saffron_city",
       "wild_pokemon": [
         {
+          "id": 52,
+          "name": "Meowth",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 30
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 30
+        },
+        {
+          "id": 20,
+          "name": "Raticate",
+          "level_min": 18,
+          "level_max": 23,
+          "weight": 15
+        },
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 15
+        },
+        {
           "id": 63,
           "name": "Abra",
-          "level_min": 20,
-          "level_max": 24,
-          "weight": 40
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 15
+        },
+        {
+          "id": 88,
+          "name": "Grimer",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        },
+        {
+          "id": 109,
+          "name": "Koffing",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        },
+        {
+          "id": 81,
+          "name": "Magnemite",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        },
+        {
+          "id": 100,
+          "name": "Voltorb",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 1
         }
       ],
       "npcs": [],
-      "notes": "(coordenada atualizada na reorganização geográfica de 02/09)."
+      "notes": "(coordenada atualizada na reorganização geográfica de 02/09). Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
-      "id": "cinnabar_island",
+      "id": "cinnabar_planalto",
       "map_id": "cinnabar_island",
-      "name": "Cinnabar Island",
+      "name": "Cinnabar Island — Planalto Vulcânico",
       "region": "kanto",
-      "notes": "Cena própria (CinnabarIsland.tscn), só alcançável de barco (Capitão de Vermilion, exige UTIL-02 completa) — coordenada local 0-based. Escala real (Fase 6, 10/09): 1.200x1.200, ilha com contorno orgânico (mesma técnica de sin()/distância do litoral de Vermilion, com harmônica extra pro tamanho novo). Pedido do Gabriel: 'ilha pra explorar de verdade, achar Growlithe/Vulpix/Ponyta/Magmar/Moltres/Arcanine/Charizard, quase uma DLC'.",
       "tile_rect": {
         "x": 0,
         "y": 0,
         "w": 1200,
-        "h": 1200
+        "h": 500
+      },
+      "bgm": "cinnabar_island",
+      "wild_pokemon": [
+        {
+          "id": 77,
+          "name": "Ponyta",
+          "level_min": 32,
+          "level_max": 38,
+          "weight": 30
+        },
+        {
+          "id": 58,
+          "name": "Growlithe",
+          "level_min": 32,
+          "level_max": 38,
+          "weight": 30
+        },
+        {
+          "id": 126,
+          "name": "Magmar",
+          "level_min": 34,
+          "level_max": 40,
+          "weight": 15
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 32,
+          "level_max": 38,
+          "weight": 15
+        },
+        {
+          "id": 75,
+          "name": "Graveler",
+          "level_min": 34,
+          "level_max": 40,
+          "weight": 5
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 32,
+          "level_max": 38,
+          "weight": 5
+        },
+        {
+          "id": 66,
+          "name": "Machop",
+          "level_min": 32,
+          "level_max": 38,
+          "weight": 5
+        },
+        {
+          "id": 78,
+          "name": "Rapidash",
+          "level_min": 38,
+          "level_max": 44,
+          "weight": 1
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa do planalto vulcânico (Fase 6) — fauna de vulcão da matriz ecológica: Magmar/Ponyta/Growlithe, com Rapidash raríssimo. Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
+    },
+    {
+      "id": "cinnabar_island",
+      "map_id": "cinnabar_island",
+      "name": "Cinnabar Island — Ilha e Costa",
+      "region": "kanto",
+      "notes": "Cena própria (CinnabarIsland.tscn), só alcançável de barco (Capitão de Vermilion, exige UTIL-02 completa) — coordenada local 0-based. Escala real (Fase 6, 10/09): 1.200x1.200, ilha com contorno orgânico (mesma técnica de sin()/distância do litoral de Vermilion, com harmônica extra pro tamanho novo). Pedido do Gabriel: 'ilha pra explorar de verdade, achar Growlithe/Vulpix/Ponyta/Magmar/Moltres/Arcanine/Charizard, quase uma DLC'. Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie. Arcanine/Charizard raríssimos são pedido explícito do Gabriel (10/09), fora do canônico.",
+      "tile_rect": {
+        "x": 0,
+        "y": 500,
+        "w": 1200,
+        "h": 700
       },
       "bgm": "cinnabar_island",
       "wild_pokemon": [
@@ -811,35 +991,56 @@
           "name": "Vulpix",
           "level_min": 28,
           "level_max": 34,
-          "weight": 25
+          "weight": 30
         },
         {
           "id": 77,
           "name": "Ponyta",
           "level_min": 30,
           "level_max": 36,
-          "weight": 25
+          "weight": 15
         },
         {
-          "id": 126,
-          "name": "Magmar",
-          "level_min": 32,
-          "level_max": 38,
-          "weight": 12
+          "id": 98,
+          "name": "Krabby",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 15
+        },
+        {
+          "id": 72,
+          "name": "Tentacool",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 15
+        },
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 5
+        },
+        {
+          "id": 120,
+          "name": "Staryu",
+          "level_min": 28,
+          "level_max": 34,
+          "weight": 5
         },
         {
           "id": 79,
           "name": "Slowpoke",
           "level_min": 28,
           "level_max": 34,
-          "weight": 15
+          "weight": 5
         },
         {
           "id": 59,
           "name": "Arcanine",
           "level_min": 38,
           "level_max": 44,
-          "weight": 2
+          "weight": 1
         },
         {
           "id": 6,
@@ -1989,7 +2190,7 @@
       "map_id": "safari_zone",
       "name": "Safari Zone",
       "region": "kanto",
-      "notes": "Cena própria (SafariZone.tscn), Área 1 (Centro) das 5 áreas encadeadas (Fase 6, 10/09 — antes era uma sala única de 44x44). Mantém o map_id de sempre porque é ela que o portão de Fuchsia abre. Coordenada local 0-based.",
+      "notes": "Cena própria (SafariZone.tscn), Área 1 (Centro) das 5 áreas encadeadas (Fase 6, 10/09 — antes era uma sala única de 44x44). Mantém o map_id de sempre porque é ela que o portão de Fuchsia abre. Coordenada local 0-based. Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie.",
       "tile_rect": {
         "x": 0,
         "y": 0,
@@ -2001,44 +2202,51 @@
         {
           "id": 128,
           "name": "Tauros",
-          "level_min": 25,
-          "level_max": 32,
+          "level_min": 24,
+          "level_max": 30,
+          "weight": 30
+        },
+        {
+          "id": 84,
+          "name": "Doduo",
+          "level_min": 24,
+          "level_max": 30,
+          "weight": 30
+        },
+        {
+          "id": 111,
+          "name": "Rhyhorn",
+          "level_min": 24,
+          "level_max": 30,
+          "weight": 15
+        },
+        {
+          "id": 33,
+          "name": "Nidorino",
+          "level_min": 24,
+          "level_max": 30,
+          "weight": 15
+        },
+        {
+          "id": 30,
+          "name": "Nidorina",
+          "level_min": 24,
+          "level_max": 30,
           "weight": 15
         },
         {
           "id": 115,
           "name": "Kangaskhan",
-          "level_min": 25,
-          "level_max": 30,
-          "weight": 15
+          "level_min": 26,
+          "level_max": 32,
+          "weight": 5
         },
         {
           "id": 113,
           "name": "Chansey",
-          "level_min": 25,
-          "level_max": 30,
-          "weight": 10
-        },
-        {
-          "id": 114,
-          "name": "Tangela",
-          "level_min": 25,
-          "level_max": 30,
-          "weight": 20
-        },
-        {
-          "id": 111,
-          "name": "Rhyhorn",
-          "level_min": 25,
-          "level_max": 30,
-          "weight": 15
-        },
-        {
-          "id": 54,
-          "name": "Psyduck",
-          "level_min": 25,
-          "level_max": 30,
-          "weight": 25
+          "level_min": 26,
+          "level_max": 32,
+          "weight": 1
         }
       ],
       "npcs": []
@@ -2057,50 +2265,64 @@
       "bgm": "safari_zone",
       "wild_pokemon": [
         {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 24,
+          "level_max": 30,
+          "weight": 30
+        },
+        {
           "id": 48,
           "name": "Venonat",
-          "level_min": 22,
-          "level_max": 28,
-          "weight": 22
+          "level_min": 24,
+          "level_max": 30,
+          "weight": 30
         },
         {
           "id": 102,
           "name": "Exeggcute",
-          "level_min": 22,
-          "level_max": 28,
-          "weight": 20
+          "level_min": 24,
+          "level_max": 30,
+          "weight": 15
+        },
+        {
+          "id": 47,
+          "name": "Parasect",
+          "level_min": 26,
+          "level_max": 32,
+          "weight": 15
+        },
+        {
+          "id": 49,
+          "name": "Venomoth",
+          "level_min": 26,
+          "level_max": 32,
+          "weight": 15
         },
         {
           "id": 114,
           "name": "Tangela",
-          "level_min": 23,
-          "level_max": 29,
-          "weight": 18
-        },
-        {
-          "id": 46,
-          "name": "Paras",
-          "level_min": 22,
-          "level_max": 27,
-          "weight": 18
+          "level_min": 25,
+          "level_max": 31,
+          "weight": 5
         },
         {
           "id": 123,
           "name": "Scyther",
-          "level_min": 25,
-          "level_max": 30,
-          "weight": 11
+          "level_min": 26,
+          "level_max": 32,
+          "weight": 1
         },
         {
           "id": 127,
           "name": "Pinsir",
-          "level_min": 25,
-          "level_max": 30,
-          "weight": 11
+          "level_min": 26,
+          "level_max": 32,
+          "weight": 1
         }
       ],
       "npcs": [],
-      "notes": "Cena própria (SafariZone_A2.tscn), 2ª das 5 áreas encadeadas (Fase 6, 10/09). Coordenada local 0-based. Entra pelo portão norte da Área 1."
+      "notes": "Cena própria (SafariZone_A2.tscn), 2ª das 5 áreas encadeadas (Fase 6, 10/09). Coordenada local 0-based. Entra pelo portão norte da Área 1. Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "safari_a3",
@@ -2118,48 +2340,48 @@
         {
           "id": 111,
           "name": "Rhyhorn",
-          "level_min": 24,
-          "level_max": 30,
-          "weight": 25
+          "level_min": 25,
+          "level_max": 31,
+          "weight": 30
         },
         {
-          "id": 33,
-          "name": "Nidorino",
-          "level_min": 24,
-          "level_max": 30,
-          "weight": 20
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 25,
+          "level_max": 31,
+          "weight": 30
         },
         {
-          "id": 30,
-          "name": "Nidorina",
-          "level_min": 24,
-          "level_max": 30,
-          "weight": 20
-        },
-        {
-          "id": 104,
-          "name": "Cubone",
-          "level_min": 23,
-          "level_max": 29,
-          "weight": 17
+          "id": 75,
+          "name": "Graveler",
+          "level_min": 27,
+          "level_max": 33,
+          "weight": 15
         },
         {
           "id": 128,
           "name": "Tauros",
           "level_min": 26,
           "level_max": 32,
-          "weight": 10
+          "weight": 15
         },
         {
           "id": 115,
           "name": "Kangaskhan",
-          "level_min": 26,
-          "level_max": 32,
-          "weight": 8
+          "level_min": 27,
+          "level_max": 33,
+          "weight": 5
+        },
+        {
+          "id": 112,
+          "name": "Rhydon",
+          "level_min": 30,
+          "level_max": 36,
+          "weight": 1
         }
       ],
       "npcs": [],
-      "notes": "Cena própria (SafariZone_A3.tscn), 3ª das 5 áreas encadeadas (Fase 6, 10/09). Coordenada local 0-based."
+      "notes": "Cena própria (SafariZone_A3.tscn), 3ª das 5 áreas encadeadas (Fase 6, 10/09). Coordenada local 0-based. Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "safari_a4",
@@ -2179,46 +2401,53 @@
           "name": "Psyduck",
           "level_min": 24,
           "level_max": 30,
-          "weight": 24
+          "weight": 30
+        },
+        {
+          "id": 60,
+          "name": "Poliwag",
+          "level_min": 24,
+          "level_max": 30,
+          "weight": 30
         },
         {
           "id": 79,
           "name": "Slowpoke",
           "level_min": 24,
           "level_max": 30,
-          "weight": 22
+          "weight": 15
         },
         {
-          "id": 60,
-          "name": "Poliwag",
-          "level_min": 23,
-          "level_max": 29,
-          "weight": 22
+          "id": 118,
+          "name": "Goldeen",
+          "level_min": 24,
+          "level_max": 30,
+          "weight": 15
         },
         {
           "id": 129,
           "name": "Magikarp",
-          "level_min": 20,
-          "level_max": 26,
-          "weight": 14
+          "level_min": 22,
+          "level_max": 28,
+          "weight": 15
         },
         {
-          "id": 48,
-          "name": "Venonat",
+          "id": 29,
+          "name": "Nidoran-F",
           "level_min": 24,
           "level_max": 30,
-          "weight": 12
+          "weight": 15
         },
         {
-          "id": 147,
-          "name": "Dratini",
-          "level_min": 25,
-          "level_max": 31,
-          "weight": 6
+          "id": 102,
+          "name": "Exeggcute",
+          "level_min": 24,
+          "level_max": 30,
+          "weight": 5
         }
       ],
       "npcs": [],
-      "notes": "Cena própria (SafariZone_A4.tscn), 4ª das 5 áreas encadeadas (Fase 6, 10/09). Coordenada local 0-based."
+      "notes": "Cena própria (SafariZone_A4.tscn), 4ª das 5 áreas encadeadas (Fase 6, 10/09). Coordenada local 0-based. Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "safari_a5",
@@ -2238,46 +2467,46 @@
           "name": "Tauros",
           "level_min": 28,
           "level_max": 34,
-          "weight": 24
+          "weight": 30
         },
         {
           "id": 115,
           "name": "Kangaskhan",
           "level_min": 28,
           "level_max": 34,
-          "weight": 20
+          "weight": 15
         },
         {
           "id": 123,
           "name": "Scyther",
           "level_min": 28,
           "level_max": 34,
-          "weight": 18
+          "weight": 5
         },
         {
           "id": 127,
           "name": "Pinsir",
           "level_min": 28,
           "level_max": 34,
-          "weight": 18
-        },
-        {
-          "id": 147,
-          "name": "Dratini",
-          "level_min": 27,
-          "level_max": 33,
-          "weight": 12
+          "weight": 5
         },
         {
           "id": 113,
           "name": "Chansey",
           "level_min": 28,
           "level_max": 34,
-          "weight": 8
+          "weight": 1
+        },
+        {
+          "id": 147,
+          "name": "Dratini",
+          "level_min": 27,
+          "level_max": 33,
+          "weight": 1
         }
       ],
       "npcs": [],
-      "notes": "Cena própria (SafariZone_A5.tscn), última das 5 áreas encadeadas (Fase 6, 10/09). Sem portão norte — é o fim da reserva, com a Casa Secreta no centro."
+      "notes": "Cena própria (SafariZone_A5.tscn), última das 5 áreas encadeadas (Fase 6, 10/09). Sem portão norte — é o fim da reserva, com a Casa Secreta no centro. Fauna da matriz ecológica do Gabriel (10/09) — habitat determina a espécie."
     },
     {
       "id": "seafoam_islands",
@@ -5201,6 +5430,2006 @@
         }
       ],
       "npcs": []
+    },
+    {
+      "id": "rota_vp_campo",
+      "map_id": "rota_viridian_pallet",
+      "name": "Rota Viridian-Pallet — Campo",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 500
+      },
+      "bgm": "route_1",
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 3,
+          "level_max": 6,
+          "weight": 30
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 3,
+          "level_max": 6,
+          "weight": 30
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 3,
+          "level_max": 6,
+          "weight": 15
+        },
+        {
+          "id": 10,
+          "name": "Caterpie",
+          "level_min": 3,
+          "level_max": 5,
+          "weight": 15
+        },
+        {
+          "id": 13,
+          "name": "Weedle",
+          "level_min": 3,
+          "level_max": 5,
+          "weight": 15
+        },
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 4,
+          "level_max": 6,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_vp_rural",
+      "map_id": "rota_viridian_pallet",
+      "name": "Rota Viridian-Pallet — Rural costeiro",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 500,
+        "w": 100,
+        "h": 500
+      },
+      "bgm": "route_1",
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 3,
+          "level_max": 6,
+          "weight": 30
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 3,
+          "level_max": 6,
+          "weight": 30
+        },
+        {
+          "id": 10,
+          "name": "Caterpie",
+          "level_min": 3,
+          "level_max": 5,
+          "weight": 15
+        },
+        {
+          "id": 13,
+          "name": "Weedle",
+          "level_min": 3,
+          "level_max": 5,
+          "weight": 15
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 4,
+          "level_max": 6,
+          "weight": 5
+        },
+        {
+          "id": 60,
+          "name": "Poliwag",
+          "level_min": 4,
+          "level_max": 7,
+          "weight": 5
+        },
+        {
+          "id": 129,
+          "name": "Magikarp",
+          "level_min": 3,
+          "level_max": 6,
+          "weight": 1
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_pv_rochoso",
+      "map_id": "rota_pewter_viridian",
+      "name": "Rota Pewter-Viridian — Colinas Rochosas",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 900
+      },
+      "bgm": "route_2",
+      "wild_pokemon": [
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 5,
+          "level_max": 10,
+          "weight": 30
+        },
+        {
+          "id": 27,
+          "name": "Sandshrew",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 30
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 15
+        },
+        {
+          "id": 56,
+          "name": "Mankey",
+          "level_min": 6,
+          "level_max": 10,
+          "weight": 15
+        },
+        {
+          "id": 32,
+          "name": "Nidoran-M",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 15
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 5
+        },
+        {
+          "id": 95,
+          "name": "Onix",
+          "level_min": 8,
+          "level_max": 12,
+          "weight": 1
+        },
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_pv_floresta",
+      "map_id": "rota_pewter_viridian",
+      "name": "Rota Pewter-Viridian — Floresta de Viridian",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 900,
+        "w": 100,
+        "h": 1440
+      },
+      "bgm": "viridian_forest",
+      "wild_pokemon": [
+        {
+          "id": 10,
+          "name": "Caterpie",
+          "level_min": 4,
+          "level_max": 8,
+          "weight": 30
+        },
+        {
+          "id": 13,
+          "name": "Weedle",
+          "level_min": 4,
+          "level_max": 8,
+          "weight": 30
+        },
+        {
+          "id": 11,
+          "name": "Metapod",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 15
+        },
+        {
+          "id": 14,
+          "name": "Kakuna",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 15
+        },
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 4,
+          "level_max": 8,
+          "weight": 15
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 5
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 5,
+          "level_max": 9,
+          "weight": 5
+        },
+        {
+          "id": 123,
+          "name": "Scyther",
+          "level_min": 9,
+          "level_max": 13,
+          "weight": 1
+        },
+        {
+          "id": 127,
+          "name": "Pinsir",
+          "level_min": 9,
+          "level_max": 13,
+          "weight": 1
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_pv_campo",
+      "map_id": "rota_pewter_viridian",
+      "name": "Rota Pewter-Viridian — Campo",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 2340,
+        "w": 100,
+        "h": 660
+      },
+      "bgm": "route_2",
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 4,
+          "level_max": 8,
+          "weight": 30
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 4,
+          "level_max": 8,
+          "weight": 30
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 4,
+          "level_max": 8,
+          "weight": 15
+        },
+        {
+          "id": 29,
+          "name": "Nidoran-F",
+          "level_min": 4,
+          "level_max": 8,
+          "weight": 15
+        },
+        {
+          "id": 32,
+          "name": "Nidoran-M",
+          "level_min": 4,
+          "level_max": 8,
+          "weight": 15
+        },
+        {
+          "id": 10,
+          "name": "Caterpie",
+          "level_min": 4,
+          "level_max": 7,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_pc_highlands",
+      "map_id": "rota_pewter_cerulean",
+      "name": "Rota Pewter-Cerulean — Rocky Highlands",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 1820,
+        "h": 100
+      },
+      "bgm": "route_3",
+      "wild_pokemon": [
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 8,
+          "level_max": 13,
+          "weight": 30
+        },
+        {
+          "id": 66,
+          "name": "Machop",
+          "level_min": 8,
+          "level_max": 13,
+          "weight": 15
+        },
+        {
+          "id": 27,
+          "name": "Sandshrew",
+          "level_min": 8,
+          "level_max": 12,
+          "weight": 30
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 8,
+          "level_max": 12,
+          "weight": 15
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 8,
+          "level_max": 12,
+          "weight": 5
+        },
+        {
+          "id": 95,
+          "name": "Onix",
+          "level_min": 10,
+          "level_max": 15,
+          "weight": 1
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_pc_vale_floresta",
+      "map_id": "rota_pewter_cerulean",
+      "name": "Rota Pewter-Cerulean — Vale da Floresta",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 1820,
+        "y": 0,
+        "w": 2100,
+        "h": 100
+      },
+      "bgm": "route_3",
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 9,
+          "level_max": 13,
+          "weight": 30
+        },
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 9,
+          "level_max": 13,
+          "weight": 30
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 9,
+          "level_max": 13,
+          "weight": 15
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 9,
+          "level_max": 13,
+          "weight": 15
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 9,
+          "level_max": 13,
+          "weight": 5
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 9,
+          "level_max": 13,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_pc_rio",
+      "map_id": "rota_pewter_cerulean",
+      "name": "Rota Pewter-Cerulean — Bacia do Rio",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 3920,
+        "y": 0,
+        "w": 1750,
+        "h": 100
+      },
+      "bgm": "route_4",
+      "wild_pokemon": [
+        {
+          "id": 60,
+          "name": "Poliwag",
+          "level_min": 10,
+          "level_max": 14,
+          "weight": 30
+        },
+        {
+          "id": 54,
+          "name": "Psyduck",
+          "level_min": 10,
+          "level_max": 14,
+          "weight": 30
+        },
+        {
+          "id": 129,
+          "name": "Magikarp",
+          "level_min": 8,
+          "level_max": 12,
+          "weight": 15
+        },
+        {
+          "id": 118,
+          "name": "Goldeen",
+          "level_min": 10,
+          "level_max": 14,
+          "weight": 15
+        },
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 10,
+          "level_max": 14,
+          "weight": 15
+        },
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 10,
+          "level_max": 14,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_pc_campos",
+      "map_id": "rota_pewter_cerulean",
+      "name": "Rota Pewter-Cerulean — Campos Abertos",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 5670,
+        "y": 0,
+        "w": 830,
+        "h": 100
+      },
+      "bgm": "route_4",
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 10,
+          "level_max": 15,
+          "weight": 30
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 10,
+          "level_max": 15,
+          "weight": 30
+        },
+        {
+          "id": 32,
+          "name": "Nidoran-M",
+          "level_min": 10,
+          "level_max": 14,
+          "weight": 15
+        },
+        {
+          "id": 29,
+          "name": "Nidoran-F",
+          "level_min": 10,
+          "level_max": 14,
+          "weight": 15
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 10,
+          "level_max": 14,
+          "weight": 15
+        },
+        {
+          "id": 54,
+          "name": "Psyduck",
+          "level_min": 10,
+          "level_max": 14,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_pc_arredores",
+      "map_id": "rota_pewter_cerulean",
+      "name": "Rota Pewter-Cerulean — Arredores de Cerulean",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 6500,
+        "y": 0,
+        "w": 500,
+        "h": 100
+      },
+      "bgm": "route_4",
+      "wild_pokemon": [
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 11,
+          "level_max": 15,
+          "weight": 30
+        },
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 11,
+          "level_max": 15,
+          "weight": 30
+        },
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 11,
+          "level_max": 15,
+          "weight": 15
+        },
+        {
+          "id": 54,
+          "name": "Psyduck",
+          "level_min": 11,
+          "level_max": 15,
+          "weight": 15
+        },
+        {
+          "id": 60,
+          "name": "Poliwag",
+          "level_min": 11,
+          "level_max": 15,
+          "weight": 5
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 11,
+          "level_max": 15,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_cs_lago",
+      "map_id": "rota_cerulean_saffron",
+      "name": "Rota Cerulean-Saffron — Margem do Lago",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 1000
+      },
+      "bgm": "route_5",
+      "wild_pokemon": [
+        {
+          "id": 54,
+          "name": "Psyduck",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 30
+        },
+        {
+          "id": 60,
+          "name": "Poliwag",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 30
+        },
+        {
+          "id": 129,
+          "name": "Magikarp",
+          "level_min": 10,
+          "level_max": 15,
+          "weight": 15
+        },
+        {
+          "id": 118,
+          "name": "Goldeen",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 15
+        },
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 12,
+          "level_max": 16,
+          "weight": 15
+        },
+        {
+          "id": 116,
+          "name": "Horsea",
+          "level_min": 12,
+          "level_max": 16,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_cs_floresta",
+      "map_id": "rota_cerulean_saffron",
+      "name": "Rota Cerulean-Saffron — Floresta",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 1000,
+        "w": 100,
+        "h": 1000
+      },
+      "bgm": "route_5",
+      "wild_pokemon": [
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 30
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 30
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 15
+        },
+        {
+          "id": 48,
+          "name": "Venonat",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 15
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 12,
+          "level_max": 17,
+          "weight": 5
+        },
+        {
+          "id": 54,
+          "name": "Psyduck",
+          "level_min": 12,
+          "level_max": 16,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_cs_campo",
+      "map_id": "rota_cerulean_saffron",
+      "name": "Rota Cerulean-Saffron — Campo Aberto",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 2000,
+        "w": 100,
+        "h": 1000
+      },
+      "bgm": "route_5",
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 13,
+          "level_max": 18,
+          "weight": 30
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 13,
+          "level_max": 18,
+          "weight": 30
+        },
+        {
+          "id": 32,
+          "name": "Nidoran-M",
+          "level_min": 13,
+          "level_max": 17,
+          "weight": 15
+        },
+        {
+          "id": 29,
+          "name": "Nidoran-F",
+          "level_min": 13,
+          "level_max": 17,
+          "weight": 15
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 13,
+          "level_max": 17,
+          "weight": 15
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 13,
+          "level_max": 17,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_cs_urbano",
+      "map_id": "rota_cerulean_saffron",
+      "name": "Rota Cerulean-Saffron — Arredores Urbanos",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 3000,
+        "w": 100,
+        "h": 1000
+      },
+      "bgm": "route_5",
+      "wild_pokemon": [
+        {
+          "id": 52,
+          "name": "Meowth",
+          "level_min": 14,
+          "level_max": 18,
+          "weight": 30
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 14,
+          "level_max": 18,
+          "weight": 30
+        },
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 14,
+          "level_max": 18,
+          "weight": 15
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 14,
+          "level_max": 18,
+          "weight": 15
+        },
+        {
+          "id": 81,
+          "name": "Magnemite",
+          "level_min": 14,
+          "level_max": 18,
+          "weight": 5
+        },
+        {
+          "id": 88,
+          "name": "Grimer",
+          "level_min": 14,
+          "level_max": 18,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_sc_celadon",
+      "map_id": "rota_saffron_celadon",
+      "name": "Rota Saffron-Celadon — Arredores de Celadon",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 1000,
+        "h": 100
+      },
+      "bgm": "route_7",
+      "wild_pokemon": [
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 30
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 30
+        },
+        {
+          "id": 102,
+          "name": "Exeggcute",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 15
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 15
+        },
+        {
+          "id": 48,
+          "name": "Venonat",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 15
+        },
+        {
+          "id": 114,
+          "name": "Tangela",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_sc_flores",
+      "map_id": "rota_saffron_celadon",
+      "name": "Rota Saffron-Celadon — Campos de Flores",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 1000,
+        "y": 0,
+        "w": 1000,
+        "h": 100
+      },
+      "bgm": "route_7",
+      "wild_pokemon": [
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 30
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 30
+        },
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 15
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 15
+        },
+        {
+          "id": 102,
+          "name": "Exeggcute",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 5
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_sc_bosque",
+      "map_id": "rota_saffron_celadon",
+      "name": "Rota Saffron-Celadon — Bosque",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 2000,
+        "y": 0,
+        "w": 1000,
+        "h": 100
+      },
+      "bgm": "route_7",
+      "wild_pokemon": [
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 30
+        },
+        {
+          "id": 48,
+          "name": "Venonat",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 30
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 15
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 15
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 5
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_sc_urbano",
+      "map_id": "rota_saffron_celadon",
+      "name": "Rota Saffron-Celadon — Arredores Urbanos",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 3000,
+        "y": 0,
+        "w": 1000,
+        "h": 100
+      },
+      "bgm": "route_7",
+      "wild_pokemon": [
+        {
+          "id": 52,
+          "name": "Meowth",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 30
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 30
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 15
+        },
+        {
+          "id": 88,
+          "name": "Grimer",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 15
+        },
+        {
+          "id": 109,
+          "name": "Koffing",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 5
+        },
+        {
+          "id": 81,
+          "name": "Magnemite",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_sv_urbano",
+      "map_id": "rota_saffron_vermilion",
+      "name": "Rota Saffron-Vermilion — Transição Urbana",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 1000
+      },
+      "bgm": "route_6",
+      "wild_pokemon": [
+        {
+          "id": 52,
+          "name": "Meowth",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 30
+        },
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 30
+        },
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 15
+        },
+        {
+          "id": 81,
+          "name": "Magnemite",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 15
+        },
+        {
+          "id": 100,
+          "name": "Voltorb",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 5
+        },
+        {
+          "id": 88,
+          "name": "Grimer",
+          "level_min": 15,
+          "level_max": 20,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_sv_costeiro",
+      "map_id": "rota_saffron_vermilion",
+      "name": "Rota Saffron-Vermilion — Planície Costeira",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 1000,
+        "w": 100,
+        "h": 1000
+      },
+      "bgm": "route_6",
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 30
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 30
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 15
+        },
+        {
+          "id": 98,
+          "name": "Krabby",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 15
+        },
+        {
+          "id": 72,
+          "name": "Tentacool",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        },
+        {
+          "id": 81,
+          "name": "Magnemite",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_sl_lago",
+      "map_id": "rota_saffron_lavender",
+      "name": "Rota Saffron-Lavender — Margem",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 1000,
+        "h": 100
+      },
+      "bgm": "route_8",
+      "wild_pokemon": [
+        {
+          "id": 54,
+          "name": "Psyduck",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 30
+        },
+        {
+          "id": 60,
+          "name": "Poliwag",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 30
+        },
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 15
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 15
+        },
+        {
+          "id": 129,
+          "name": "Magikarp",
+          "level_min": 14,
+          "level_max": 19,
+          "weight": 5
+        },
+        {
+          "id": 52,
+          "name": "Meowth",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_sl_bosque",
+      "map_id": "rota_saffron_lavender",
+      "name": "Rota Saffron-Lavender — Bosque",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 1000,
+        "y": 0,
+        "w": 1000,
+        "h": 100
+      },
+      "bgm": "route_8",
+      "wild_pokemon": [
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 30
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 30
+        },
+        {
+          "id": 48,
+          "name": "Venonat",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 15
+        },
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 15
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        },
+        {
+          "id": 23,
+          "name": "Ekans",
+          "level_min": 16,
+          "level_max": 21,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_sl_colinas",
+      "map_id": "rota_saffron_lavender",
+      "name": "Rota Saffron-Lavender — Colinas Abertas",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 2000,
+        "y": 0,
+        "w": 1000,
+        "h": 100
+      },
+      "bgm": "route_8",
+      "wild_pokemon": [
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 17,
+          "level_max": 22,
+          "weight": 30
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 17,
+          "level_max": 22,
+          "weight": 30
+        },
+        {
+          "id": 23,
+          "name": "Ekans",
+          "level_min": 17,
+          "level_max": 22,
+          "weight": 15
+        },
+        {
+          "id": 27,
+          "name": "Sandshrew",
+          "level_min": 17,
+          "level_max": 22,
+          "weight": 15
+        },
+        {
+          "id": 33,
+          "name": "Nidorino",
+          "level_min": 17,
+          "level_max": 22,
+          "weight": 5
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 17,
+          "level_max": 22,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_sl_vale_rochoso",
+      "map_id": "rota_saffron_lavender",
+      "name": "Rota Saffron-Lavender — Vale Rochoso",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 3000,
+        "y": 0,
+        "w": 1000,
+        "h": 100
+      },
+      "bgm": "rock_tunnel",
+      "wild_pokemon": [
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level_min": 18,
+          "level_max": 23,
+          "weight": 30
+        },
+        {
+          "id": 27,
+          "name": "Sandshrew",
+          "level_min": 18,
+          "level_max": 23,
+          "weight": 30
+        },
+        {
+          "id": 41,
+          "name": "Zubat",
+          "level_min": 18,
+          "level_max": 23,
+          "weight": 15
+        },
+        {
+          "id": 66,
+          "name": "Machop",
+          "level_min": 18,
+          "level_max": 23,
+          "weight": 15
+        },
+        {
+          "id": 104,
+          "name": "Cubone",
+          "level_min": 18,
+          "level_max": 23,
+          "weight": 5
+        },
+        {
+          "id": 95,
+          "name": "Onix",
+          "level_min": 20,
+          "level_max": 25,
+          "weight": 1
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_sl_lavender",
+      "map_id": "rota_saffron_lavender",
+      "name": "Rota Saffron-Lavender — Arredores de Lavender",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 4000,
+        "y": 0,
+        "w": 1000,
+        "h": 100
+      },
+      "bgm": "lavender_town",
+      "wild_pokemon": [
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 19,
+          "level_max": 24,
+          "weight": 30
+        },
+        {
+          "id": 20,
+          "name": "Raticate",
+          "level_min": 20,
+          "level_max": 25,
+          "weight": 15
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 19,
+          "level_max": 24,
+          "weight": 15
+        },
+        {
+          "id": 104,
+          "name": "Cubone",
+          "level_min": 19,
+          "level_max": 24,
+          "weight": 15
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level_min": 19,
+          "level_max": 24,
+          "weight": 5
+        },
+        {
+          "id": 96,
+          "name": "Drowzee",
+          "level_min": 19,
+          "level_max": 24,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_lf_campo_seco",
+      "map_id": "rota_lavender_fuchsia",
+      "name": "Rota Lavender-Fuchsia — Campo Seco",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 1820
+      },
+      "bgm": "route_12",
+      "wild_pokemon": [
+        {
+          "id": 19,
+          "name": "Rattata",
+          "level_min": 20,
+          "level_max": 25,
+          "weight": 30
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 20,
+          "level_max": 25,
+          "weight": 30
+        },
+        {
+          "id": 23,
+          "name": "Ekans",
+          "level_min": 20,
+          "level_max": 25,
+          "weight": 15
+        },
+        {
+          "id": 27,
+          "name": "Sandshrew",
+          "level_min": 20,
+          "level_max": 25,
+          "weight": 15
+        },
+        {
+          "id": 20,
+          "name": "Raticate",
+          "level_min": 22,
+          "level_max": 27,
+          "weight": 5
+        },
+        {
+          "id": 33,
+          "name": "Nidorino",
+          "level_min": 21,
+          "level_max": 26,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_lf_mata",
+      "map_id": "rota_lavender_fuchsia",
+      "name": "Rota Lavender-Fuchsia — Mata Fechada",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 1820,
+        "w": 100,
+        "h": 2000
+      },
+      "bgm": "viridian_forest",
+      "wild_pokemon": [
+        {
+          "id": 48,
+          "name": "Venonat",
+          "level_min": 21,
+          "level_max": 26,
+          "weight": 30
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 21,
+          "level_max": 26,
+          "weight": 30
+        },
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 21,
+          "level_max": 26,
+          "weight": 15
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 21,
+          "level_max": 26,
+          "weight": 15
+        },
+        {
+          "id": 102,
+          "name": "Exeggcute",
+          "level_min": 21,
+          "level_max": 26,
+          "weight": 15
+        },
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level_min": 21,
+          "level_max": 26,
+          "weight": 5
+        },
+        {
+          "id": 123,
+          "name": "Scyther",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 1
+        },
+        {
+          "id": 127,
+          "name": "Pinsir",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 1
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 21,
+          "level_max": 26,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_lf_vale_rio",
+      "map_id": "rota_lavender_fuchsia",
+      "name": "Rota Lavender-Fuchsia — Vale do Rio",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 3820,
+        "w": 100,
+        "h": 1800
+      },
+      "bgm": "route_12",
+      "wild_pokemon": [
+        {
+          "id": 60,
+          "name": "Poliwag",
+          "level_min": 22,
+          "level_max": 27,
+          "weight": 30
+        },
+        {
+          "id": 54,
+          "name": "Psyduck",
+          "level_min": 22,
+          "level_max": 27,
+          "weight": 30
+        },
+        {
+          "id": 118,
+          "name": "Goldeen",
+          "level_min": 22,
+          "level_max": 27,
+          "weight": 15
+        },
+        {
+          "id": 129,
+          "name": "Magikarp",
+          "level_min": 20,
+          "level_max": 25,
+          "weight": 15
+        },
+        {
+          "id": 98,
+          "name": "Krabby",
+          "level_min": 22,
+          "level_max": 27,
+          "weight": 15
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 22,
+          "level_max": 27,
+          "weight": 5
+        },
+        {
+          "id": 79,
+          "name": "Slowpoke",
+          "level_min": 22,
+          "level_max": 27,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_lf_pantano",
+      "map_id": "rota_lavender_fuchsia",
+      "name": "Rota Lavender-Fuchsia — Pântano",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 5620,
+        "w": 100,
+        "h": 2000
+      },
+      "bgm": "route_12",
+      "wild_pokemon": [
+        {
+          "id": 54,
+          "name": "Psyduck",
+          "level_min": 23,
+          "level_max": 28,
+          "weight": 30
+        },
+        {
+          "id": 88,
+          "name": "Grimer",
+          "level_min": 23,
+          "level_max": 28,
+          "weight": 30
+        },
+        {
+          "id": 109,
+          "name": "Koffing",
+          "level_min": 23,
+          "level_max": 28,
+          "weight": 15
+        },
+        {
+          "id": 23,
+          "name": "Ekans",
+          "level_min": 23,
+          "level_max": 28,
+          "weight": 15
+        },
+        {
+          "id": 60,
+          "name": "Poliwag",
+          "level_min": 23,
+          "level_max": 28,
+          "weight": 15
+        },
+        {
+          "id": 43,
+          "name": "Oddish",
+          "level_min": 23,
+          "level_max": 28,
+          "weight": 5
+        },
+        {
+          "id": 114,
+          "name": "Tangela",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 5
+        },
+        {
+          "id": 147,
+          "name": "Dratini",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 1
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_lf_tropical",
+      "map_id": "rota_lavender_fuchsia",
+      "name": "Rota Lavender-Fuchsia — Floresta Tropical",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 7620,
+        "w": 100,
+        "h": 1800
+      },
+      "bgm": "route_12",
+      "wild_pokemon": [
+        {
+          "id": 102,
+          "name": "Exeggcute",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 30
+        },
+        {
+          "id": 46,
+          "name": "Paras",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 30
+        },
+        {
+          "id": 69,
+          "name": "Bellsprout",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 15
+        },
+        {
+          "id": 49,
+          "name": "Venomoth",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 15
+        },
+        {
+          "id": 47,
+          "name": "Parasect",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 15
+        },
+        {
+          "id": 114,
+          "name": "Tangela",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 5
+        },
+        {
+          "id": 113,
+          "name": "Chansey",
+          "level_min": 26,
+          "level_max": 31,
+          "weight": 1
+        },
+        {
+          "id": 115,
+          "name": "Kangaskhan",
+          "level_min": 26,
+          "level_max": 31,
+          "weight": 1
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_lf_costeira",
+      "map_id": "rota_lavender_fuchsia",
+      "name": "Rota Lavender-Fuchsia — Planície Costeira",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 9420,
+        "w": 100,
+        "h": 1800
+      },
+      "bgm": "route_12",
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 30
+        },
+        {
+          "id": 21,
+          "name": "Spearow",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 30
+        },
+        {
+          "id": 98,
+          "name": "Krabby",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 15
+        },
+        {
+          "id": 90,
+          "name": "Shellder",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 15
+        },
+        {
+          "id": 120,
+          "name": "Staryu",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 5
+        },
+        {
+          "id": 72,
+          "name": "Tentacool",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 15
+        },
+        {
+          "id": 79,
+          "name": "Slowpoke",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 5
+        },
+        {
+          "id": 102,
+          "name": "Exeggcute",
+          "level_min": 24,
+          "level_max": 29,
+          "weight": 5
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
+    },
+    {
+      "id": "rota_lf_fuchsia",
+      "map_id": "rota_lavender_fuchsia",
+      "name": "Rota Lavender-Fuchsia — Arredores de Fuchsia",
+      "region": "kanto",
+      "tile_rect": {
+        "x": 0,
+        "y": 11220,
+        "w": 100,
+        "h": 780
+      },
+      "bgm": "fuchsia_city",
+      "wild_pokemon": [
+        {
+          "id": 16,
+          "name": "Pidgey",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 30
+        },
+        {
+          "id": 20,
+          "name": "Raticate",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 30
+        },
+        {
+          "id": 30,
+          "name": "Nidorina",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 15
+        },
+        {
+          "id": 48,
+          "name": "Venonat",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 15
+        },
+        {
+          "id": 102,
+          "name": "Exeggcute",
+          "level_min": 25,
+          "level_max": 30,
+          "weight": 5
+        },
+        {
+          "id": 113,
+          "name": "Chansey",
+          "level_min": 27,
+          "level_max": 32,
+          "weight": 1
+        }
+      ],
+      "npcs": [],
+      "notes": "Faixa de bioma da matriz ecológica do Gabriel (10/09) — fauna por SEGMENTO, não por rota inteira. ZoneManager.find_zone_id casa por map_id + tile_rect, então várias faixas convivem no mesmo mapa sem mudar código."
     }
   ]
 }

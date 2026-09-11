@@ -139,12 +139,25 @@ func _process(_delta: float) -> bool:
 	# Não dá pra exigir caminho a pé nelas, mas dá pra exigir que existam:
 	# uma ilha sem um único tile pisável seria inalcançável até de Surf.
 	var vazias : Array[String] = []
+	# 🔴 10/09: a zona pode viver numa CENA PRÓPRIA (Cinnabar virou
+	# 1.200x1.200 na Fase 6, com coordenada local). Procurar o chão dela no
+	# TileMap do world_map dava "vazia" — não porque a ilha não tem chão,
+	# mas porque a pergunta estava sendo feita no mapa errado. Cada zona é
+	# conferida no mapa a que ela pertence.
 	for zona in NAO_A_PE:
 		var ret := AjudaMapa.retangulo_da_zona(str(zona))
 		if ret.size.x <= 0:
 			continue     # zona que ainda não existe no jogo — não é falha
-		if AjudaMapa.tile_andavel_da_zona(tm, ret).x == -9999:
+		var mapa_da_zona := _map_id_da_zona(str(zona))
+		var tm_zona : TileMap = tm
+		if mapa_da_zona != "world_map":
+			tm_zona = TileMap.new()
+			tm_zona.tile_set = load("res://assets/tilesets/overworld.tres") as TileSet
+			MapLayouts.paint(tm_zona, mapa_da_zona)
+		if AjudaMapa.tile_andavel_da_zona(tm_zona, ret).x == -9999:
 			vazias.append("%s — %s" % [zona, NAO_A_PE[zona]])
+		if tm_zona != tm:
+			tm_zona.free()
 	_assert(vazias.is_empty(), "toda ilha/área trancada tem chão pra pisar quando se chega nela — %s" % (
 		"ok" if vazias.is_empty() else str(vazias)))
 
@@ -215,6 +228,14 @@ func _alcancavel_via_rota(tm: TileMap, origem: Vector2i, nome_warp_saida: String
 	if not AjudaMapa.caminho_a_pe(tm, tile_entrada, destino):
 		return falha
 	return destino
+
+## Em que mapa esta zona mora? (zones.json; sem `map_id` = world_map)
+func _map_id_da_zona(zone_id: String) -> String:
+	var zj : Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/world/zones.json"))
+	for z in zj.get("zones", []):
+		if String(z.get("id", "")) == zone_id:
+			return String(z.get("map_id", "world_map"))
+	return "world_map"
 
 ## Tile andável mais próximo de um alvo — o alvo pode ser a própria porta ou um
 ## NPC, que não são posições pisáveis.
