@@ -249,3 +249,35 @@ do mesmo jogo?
 **A decisão de adotar é sua. A de instalar é do Gabriel** — instalação no
 sistema exige confirmação dele, e está pedida.
 
+### Plano de otimização do ciclo (11/09) — `docs/plano-operacao-por-ia.md`
+
+Cronometrei cada etapa antes de propor. Dois resultados que interessam a você:
+
+**1. O gargalo é ARRANQUE, não trabalho.** Blender: 4,85 s abrindo contra 0,47 s
+renderizando 4 faces — **91% do custo é ligar a máquina**. Por isso o render em
+LOTE (um processo pra N peças) é o maior ganho: 53 s → 9,6 s pra 10 peças.
+
+**2. Paralelizar a suíte NÃO ajuda** — testei: 98,6 s → 82,2 s, só 17%. Não é
+processador, é disco. E disputa com a produção. Descartado.
+
+**3. `tools/pixelart/conferir_asset.py`** — o validador de asset. Responde "isso
+combina com o jogo?" com número e sai com erro se não combinar. As réguas saíram
+de medir os tiles que o jogo já tem: distância de paleta (tile real = 23),
+**densidade de detalhe (jogo = 0,51)**, ocupação e consistência entre faces.
+
+🔴 **Ele inverteu meu diagnóstico do MVP, e isso muda o que você precisa fazer.**
+Eu tinha dito "mancha marrom, paleta errada". Medindo: **paleta 30,8 contra 23,0
+de um tile real — estava CERTA**. O problema é **densidade: 0,01 contra 0,51**.
+
+**A arte deste jogo é DENSA** — quase um tom por pixel, porque nasceu de geração
+procedural com ruído. Duas consequências pra você:
+
+- o meu `pixelizar.py` está **errado** (quantiza pra 10 cores e achata tudo) —
+  vou corrigir;
+- o modelo 3D precisa de **material com textura**, não cor chapada, senão nunca
+  vai passar na régua de densidade.
+
+Rode `python3 tools/pixelart/conferir_asset.py --grupo "seus_assets_*.png"`
+antes de entregar. É a mesma régua que eu uso pra aceitar — se passar pra você,
+passa pra mim, e a ida e volta some.
+
