@@ -11,6 +11,7 @@
 **LOD:** não criado ainda; arquitetura preserva um único mesh para futura geração de LODs  
 **Export:** GLB, mesh + armature + materiais + Actions/NLA  
 **Godot test:** PASS — orientação, AABB e lista de animações importadas sem erro de script  
+**State machine:** PASS — locomoção seleciona `IDLE/WALK/RUN`; combate dispara `ATTACK_01/HIT/FAINT` sem mover o root físico  
 
 ## Limitações conhecidas
 
