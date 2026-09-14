@@ -5294,3 +5294,42 @@ um ponto sem raycast, que é o que o spawn vai precisar.
    máximo do controlador nunca era exercida, e a §23 pedia falésia que não
    existia. Agora o morro tem platô no topo e **parede de ~70°** na borda — a
    diferença entre relevo e decoração.
+
+## Fase 5 ✅ — Pokémon 3D por composição, 36 conferências novas (89 no arquivo)
+
+`PokemonInstance3D` + `MovementProfile` + `CombatProfile` + `CameraProfile`.
+**Não existe `Charizard.gd`** e não deve existir: 151 arquivos que divergem
+sozinhos é como um sistema de criaturas morre (§14).
+
+**O que veio de graça do que já existia:** as 151 alturas reais já estavam em
+`heights.json` desde 03/09 (0,2 m do Diglett a 8,8 m do Onix), `StatsDePokemon`
+e `BalanceV2` entraram sem adaptação, e `PokemonScale` já sabia ler a altura.
+Nenhum dado novo precisou ser criado.
+
+**§6, compressão de gigante:** Onix tem 8,8 m de verdade. Sem compressão ele não
+passa por lugar nenhum e a câmera de 1ª pessoa fica a 9 m do chão. Comprimido
+acima de 3 m, ele fica com ~5,6 m — continua enorme e vira jogável. O pequeno
+não é comprimido, porque só gigante precisa.
+
+**§19, a câmera nos dois extremos:** a altura dos olhos é limitada em cima E
+embaixo. Diglett tem 0,2 m — a câmera anatomicamente correta dele não vê nada
+além de grama. Onix a 8,8 m não enxerga o inimigo aos pés. O pedido diz
+"jogabilidade > anatomia perfeita"; os limites são essa frase virando número.
+
+**§15, os arquétipos:** os 8 existem como dado, **5 funcionam**. Pedir um
+não-implementado devolve perfil válido e **avisa** — nunca finge, que é como um
+Gyarados sairia andando no chão sem ninguém entender.
+
+**A decisão do modelo 3D, na prática:** o visual é carregado por CAMINHO vindo
+do dado. Sem modelo, entra primitivo colorido por tipo **e avisa na linha do
+tempo do feedback**. Se o Gabriel reportar "esse bicho está estranho", o recado
+dele já vai dizer que o modelo não existia.
+
+## Fila do Codex escrita
+
+`docs/agent-proposals/claude/FILA-DO-CODEX-V3.md` — 11 itens na ordem do §47,
+com os números medidos de FPS (orçamento de 20 mil instâncias por ~16 FPS) e as
+três armadilhas que já custaram caro nesta migração. O item que mais importa é
+o **modelo 3D**, que virou o caminho crítico do projeto.
+
+⚠️ **O Codex continua sem ser disparado.** Os dois documentos estão commitados.

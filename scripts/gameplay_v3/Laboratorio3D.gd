@@ -66,8 +66,32 @@ func _ready() -> void:
 		return
 
 	_montar_treinador()
+	_montar_pokemon()
 	_povoar(600)   # vegetação leve, só pra ter referência de movimento no mundo
 	PonteDeFeedback.anotar("Laboratório 3D aberto (Fase 3)")
+
+## §16: **três** Pokémon, um por arquétipo implementado — não dezenas.
+## O objetivo é provar a arquitetura, e três bastam pra isso.
+const TRIO_DE_TESTE : Array[Dictionary] = [
+	{"id": 6,   "nivel": 30, "arquetipo": "ground_biped",  "onde": Vector2(14, 22)},
+	{"id": 130, "nivel": 30, "arquetipo": "aquatic",       "onde": Vector2(-8, -55)},
+	{"id": 18,  "nivel": 30, "arquetipo": "flying",        "onde": Vector2(-22, 18)},
+]
+
+var pokemons : Array = []
+
+func _montar_pokemon() -> void:
+	for molde in TRIO_DE_TESTE:
+		var p := PokemonInstance3D.new()
+		add_child(p)
+		p.montar(int(molde["id"]), int(molde["nivel"]), str(molde["arquetipo"]))
+		p.name = "Pokemon_%s" % p.nome_exibido
+		var onde : Vector2 = molde["onde"]
+		# Nasce SOBRE o terreno. Voador nasce no ar, que é onde ele vive.
+		var acima : float = 6.0 if MovementProfile.voa(str(molde["arquetipo"])) else 0.5
+		p.global_position = Terreno3D.ponto_em(onde.x, onde.y, acima) if terreno != null \
+			else Vector3(onde.x, 2.0, onde.y)
+		pokemons.append(p)
 
 ## §11 + §12: o treinador nasce, e o árbitro de input é quem lhe dá o controle.
 ## Nunca o contrário — o controlador não se auto-ativa.

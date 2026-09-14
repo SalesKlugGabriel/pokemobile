@@ -31,9 +31,9 @@ continua Pokémon.
 
 | | |
 |---|---|
-| **Fase atual** | **5 — Pokémon 3D** (0 a 4 fechadas) |
+| **Fase atual** | **6 — companion Pokémon** (0 a 5 fechadas) |
 | **Branch** | `agent/claude-v3` · `main` segue com a V2 |
-| **Código V3 escrito** | árbitro de input, locomoção 3D, câmera 3ª pessoa, treinador, terreno |
+| **Código V3 escrito** | árbitro de input, locomoção, câmera, treinador, terreno, Pokémon 3D |
 | **Bloqueio** | nenhum — as 3 decisões estão fechadas |
 
 ### Decisões em aberto (precisam do Gabriel)
@@ -118,8 +118,8 @@ rodando** — não quando o código existe.
 | 2 | Cena 3D experimental isolada | ✅ | 14/09 · **medido em navegador real: piso de 67 FPS** |
 | 3 | Treinador em 3ª pessoa | ✅ | 14/09 · 36 conferências · `ControlModeManager` + `Locomocao3D` + `CameraTerceiraPessoa` |
 | 4 | Terreno 3D | ✅ | 14/09 · altura, falésia, praia contínua e água · 17 conferências |
-| 5 | Pokémon 3D | 🔵 próxima | **modelo 3D** · contrato em `POKEMON_MODEL_PIPELINE.md` |
-| 6 | Companion Pokémon | ⬜ | |
+| 5 | Pokémon 3D | ✅ | 14/09 · composição, 8 arquétipos declarados e 5 implementados · 36 conferências |
+| 6 | Companion Pokémon | 🔵 próxima | |
 | 7 | Transferência Treinador → Pokémon | ⬜ | o coração da fantasia |
 | 8 | Pokémon em 1ª pessoa | ⬜ | |
 | 9 | Ataque básico | ⬜ | |
@@ -179,8 +179,13 @@ treinador 3D + terreno + Pokémon 3D + transferência + 1ª pessoa + ataque bás
 vegetação, árvores, grama, água, praia, VFX, animação, HUD e polimento.
 
 ⚠️ **Ele tem trabalho não integrado** na branch `agent/codex-gameplay-v2` (HUD,
-câmera e telegrafia da V2, commit `28a764e`). **Precisa ser avisado do pivô**
-antes de investir mais — parte disso vira legado.
+câmera e telegrafia da V2, commit `28a764e`). O aviso do pivô está escrito em
+`docs/agent-proposals/claude/2026-09-14-PIVO-PARA-3D.md` e a fila dele em
+`FILA-DO-CODEX-V3.md` — **os dois commitados, mas ele ainda não foi disparado.**
+
+Na fila, o item que mais importa é o **modelo 3D dos Pokémon**: com a decisão do
+Gabriel, ele virou o caminho crítico do projeto inteiro, e é a única coisa que
+o Codex pode começar a *pensar* antes da vez dele.
 
 ---
 

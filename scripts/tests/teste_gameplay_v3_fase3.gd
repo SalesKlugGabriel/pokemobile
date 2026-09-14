@@ -19,6 +19,9 @@ var _lab : Node3D = null
 
 ## Autoload não é identificador em teste `--script`.
 var PonteDeFeedback : Node
+## E `PokemonInstance3D` usa `GameData` por dentro, então citá-la pelo NOME
+## obrigaria a compilá-la antes dos autoloads existirem. Carregada por caminho.
+var Pokemon3D : GDScript
 
 func _conf(cond: bool, nome: String, detalhe: String = "") -> void:
 	if cond:
@@ -35,6 +38,7 @@ func _process(delta: float) -> bool:
 	match _fase:
 		0:
 			PonteDeFeedback = root.get_node("PonteDeFeedback")
+			Pokemon3D = load("res://scripts/gameplay_v3/entidades/PokemonInstance3D.gd")
 			_montar()
 			_fase = 1
 			_tempo = 0.0
@@ -64,6 +68,7 @@ func _process(delta: float) -> bool:
 			if _tempo > 0.5:
 				_conferir_arbitro()
 				_conferir_terreno()
+				_conferir_pokemon()
 				_fase = 4
 		_:
 			print("=== Resultado: %d ok, %d falha(s) ===" % [ok, fail])
@@ -305,3 +310,129 @@ func _conferir_terreno() -> void:
 	_conf(tem_subivel, "há encosta que o treinador sobe")
 	_conf(tem_ingreme, "e encosta íngreme demais — o par que prova a regra",
 		"(se faltar, o terreno é plano demais pra testar inclinação)")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 5 — Pokémon 3D (§14, §15, §16, §19)
+# ──────────────────────────────────────────────────────────────────────────────
+
+func _conferir_pokemon() -> void:
+	print("-- Fase 5: Pokémon 3D por composição")
+	_conf(_lab.pokemons.size() == 3,
+		"há 3 Pokémon, um por arquétipo (§16) — não dezenas",
+		"tem %d" % _lab.pokemons.size())
+	if _lab.pokemons.is_empty():
+		return
+
+	var terrestre = _lab.pokemons[0]
+	var aquatico = _lab.pokemons[1]
+	var voador = _lab.pokemons[2]
+
+	_conf(terrestre is CharacterBody3D, "são corpos 3D de verdade")
+	_conf(terrestre.vida_maxima > 1, "com vida vinda da V2, sem adaptação",
+		"%d" % terrestre.vida_maxima)
+	_conf(terrestre.get_node_or_null("Colisor") != null, "colisor montado")
+	_conf(terrestre.get_node_or_null("Hurtbox") != null,
+		"e hurtbox SEPARADA (§22)")
+
+	# §6: a altura real vem de heights.json, que já existia. Gigante é
+	# comprimido pra caber no jogo sem deixar de ser gigante.
+	var onix = Pokemon3D.new()
+	_lab.add_child(onix)
+	onix.montar(95, 30)   # Onix: 8,8 m
+	_conf(onix.altura_real > 8.0, "Onix tem 8,8 m de verdade",
+		"%.1f m" % onix.altura_real)
+	_conf(onix.altura < onix.altura_real,
+		"e é comprimido pra caber no jogo (§6)",
+		"%.1f m jogáveis" % onix.altura)
+	_conf(onix.altura > 4.0, "mas continua claramente enorme",
+		"%.1f m" % onix.altura)
+
+	var diglett = Pokemon3D.new()
+	_lab.add_child(diglett)
+	diglett.montar(50, 30)   # Diglett: 0,2 m
+	_conf(is_equal_approx(float(diglett.altura), float(diglett.altura_real)),
+		"o pequeno NÃO é comprimido — só gigante precisa")
+
+	# §19: a câmera de 1ª pessoa precisa ser jogável nos dois extremos.
+	# "Jogabilidade > anatomia perfeita", literal no pedido.
+	var olhos_diglett : float = CameraProfile.altura_dos_olhos(float(diglett.altura))
+	var olhos_onix : float = CameraProfile.altura_dos_olhos(float(onix.altura))
+	_conf(olhos_diglett >= CameraProfile.ALTURA_MINIMA,
+		"a câmera do Diglett sobe até a altura mínima jogável (§19)",
+		"%.2f m, sendo o bicho %.1f m" % [olhos_diglett, diglett.altura])
+	_conf(olhos_onix <= CameraProfile.ALTURA_MAXIMA,
+		"e a do Onix desce até enxergar o chão",
+		"%.2f m, sendo o bicho %.1f m" % [olhos_onix, onix.altura])
+	_conf(CameraProfile.fov(float(diglett.altura)) > CameraProfile.fov(float(onix.altura)),
+		"bicho pequeno tem FOV maior — perto do chão, campo estreito sufoca")
+
+	# §15: os 8 arquétipos existem como dado; 5 funcionam. O que não funciona
+	# cai no terrestre e AVISA — nunca finge.
+	_conf(MovementProfile.TODOS.size() == 8, "os 8 arquétipos estão declarados")
+	_conf(MovementProfile.IMPLEMENTADOS.size() < 8,
+		"e nem todos implementados — é o que o §15 manda")
+	_conf(MovementProfile.implementado("ground_biped"), "terrestre funciona")
+	_conf(MovementProfile.implementado("aquatic"), "aquático funciona")
+	_conf(MovementProfile.implementado("flying"), "voador funciona")
+	_conf(not MovementProfile.implementado("serpentine"),
+		"serpentino ainda não — declarado, não fingido")
+	_conf(not MovementProfile.obter("serpentine").is_empty(),
+		"mas pedir um não-implementado devolve perfil válido, sem quebrar")
+
+	# Cada arquétipo se move do seu jeito.
+	_conf(MovementProfile.voa("flying"), "voador voa")
+	_conf(not MovementProfile.voa("ground_biped"), "terrestre não voa")
+	_conf(MovementProfile.nada("aquatic"), "aquático nada")
+	_conf(not MovementProfile.nada("ground_biped"), "terrestre não nada")
+	_conf(is_equal_approx(MovementProfile.gravidade("flying"), 0.0),
+		"voador não cai")
+	_conf(MovementProfile.gravidade("aquatic") < MovementProfile.gravidade("ground_biped"),
+		"aquático afunda mais devagar que o terrestre cai")
+
+	# Pesado é mais lento E vira mais devagar — peso se lê no controle antes
+	# de se ver na animação.
+	var v_pesado : float = MovementProfile.velocidade("ground_heavy", 50)
+	var v_normal : float = MovementProfile.velocidade("ground_biped", 50)
+	_conf(v_pesado < v_normal, "o arquétipo pesado é mais lento")
+	_conf(float(MovementProfile.obter("ground_heavy")["giro"])
+			< float(MovementProfile.obter("ground_biped")["giro"]),
+		"e vira mais devagar")
+
+	# Speed importa, mas não domina — mesma régua da V2.
+	_conf(MovementProfile.velocidade("ground_biped", 120)
+			> MovementProfile.velocidade("ground_biped", 40),
+		"Speed alto anda mais rápido")
+	_conf(MovementProfile.velocidade("ground_biped", 120)
+			< MovementProfile.velocidade("ground_biped", 40) * 2.0,
+		"mas não domina a conta")
+
+	# §14: alcance e hurtbox saem do PERFIL, não do modelo. Um bicho maior
+	# alcança mais longe sem ninguém cadastrar isso.
+	_conf(onix.alcance_basico() > diglett.alcance_basico(),
+		"o maior alcança mais longe",
+		"%.1f vs %.1f m" % [onix.alcance_basico(), diglett.alcance_basico()])
+	_conf(onix.origem_do_golpe().y > diglett.origem_do_golpe().y,
+		"e o golpe sai de mais alto")
+
+	# 🔴 A decisão do Gabriel: modelo 3D. Enquanto não existe, o primitivo
+	# entra — mas AVISANDO, nunca em silêncio.
+	_conf(not terrestre.tem_modelo,
+		"sem modelo 3D ainda, o Pokémon entra como primitivo")
+	var avisou := false
+	for e in PonteDeFeedback.linha_do_tempo():
+		if str(e["o_que"]).contains("sem modelo 3D"):
+			avisou = true
+			break
+	_conf(avisou,
+		"e o modelo ausente AVISA na linha do tempo — nunca cápsula silenciosa")
+
+	# Composição, não herança: nenhum script por espécie.
+	_conf(terrestre.get_script() == aquatico.get_script(),
+		"terrestre e aquático usam a MESMA classe (§14: sem script por espécie)")
+	_conf(terrestre.arquetipo != aquatico.arquetipo,
+		"e diferem pelo DADO, não pelo código")
+	_conf(voador.arquetipo == "flying", "o voador tem o arquétipo dele")
+
+	onix.queue_free()
+	diglett.queue_free()
