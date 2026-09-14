@@ -46,6 +46,9 @@ const SELVAGENS : Array[Dictionary] = [
 ## Contratos pedidos pelo Codex na revisão de 14/09.
 signal pokemon_ativo_mudou(estado: Dictionary)
 signal contexto_de_camera(nome: String, prioridade: int)
+signal corpo_mudou(id: int, estado: Dictionary)
+signal corpo_removido(id: int, motivo: String)
+signal xp_ganho(quem: String, quanto: int, subiu: int)
 
 var treinador : TreinadorV2 = null
 var pokemon : PokemonAtivoV2 = null
@@ -186,8 +189,59 @@ func _criar_selvagem(molde: Dictionary, tile: Vector2, alpha: bool) -> SelvagemV
 	add_child(s)
 	return s
 
+## O laço que a §2 pede só fecha aqui: COMBATE → LOOT/CAPTURA → PROGRESSÃO.
 func _ao_cair_selvagem(quem: Node) -> void:
-	PonteDeFeedback.anotar("%s foi derrotado" % (quem as CombatenteV2).nome_exibido)
+	var c : CombatenteV2 = quem as CombatenteV2
+	PonteDeFeedback.anotar("%s foi derrotado" % c.nome_exibido)
+	var e_alpha : bool = String(c.name).ends_with("_ALPHA")
+	_dar_xp(c, e_alpha)
+	_nascer_corpo(c, not e_alpha)   # §30: Alpha não é capturável
+
+## §28: o corpo nasce onde ele caiu e vive de 10 a 15 s.
+func _nascer_corpo(de_quem: CombatenteV2, capturavel: bool) -> void:
+	var corpo := Corpo.new()
+	corpo.montar(de_quem, capturavel, RNGManager.randf())
+	corpo.mudou.connect(func(id, est): corpo_mudou.emit(id, est))
+	corpo.removido.connect(func(id, motivo): corpo_removido.emit(id, motivo))
+	add_child(corpo)
+
+## §32/§33: XP por DANO causado, 60% treinador e 40% Pokémon. O corpo vai por
+## quem deu o último golpe — são duas moedas separadas, ver `RegrasDeXP`.
+func _dar_xp(de_quem: CombatenteV2, e_alpha: bool) -> void:
+	var total : int = RegrasDeXP.xp_do_inimigo(de_quem.nivel, e_alpha)
+	# Um jogador só neste protótipo, mas a divisão passa pela mesma função que
+	# vai servir pra vários — não há um caminho "simples" que diverge depois.
+	var participou : bool = false
+	for id in de_quem.dano_recebido_por.keys():
+		if int(de_quem.dano_recebido_por[id]) > 0:
+			participou = true
+			break
+	if not participou:
+		return
+
+	var do_treinador : int = int(round(float(total) * RegrasDeXP.FRACAO_DO_TREINADOR))
+	var do_pokemon : int = total - do_treinador
+
+	var r_t : Dictionary = RegrasDeXP.ganhar(treinador.nivel, treinador.xp, do_treinador)
+	treinador.nivel = int(r_t["nivel"])
+	treinador.xp = int(r_t["xp"])
+	xp_ganho.emit("treinador", do_treinador, int(r_t["subiu"]))
+
+	# §33: só o Pokémon consciente que causou dano recebe.
+	if pokemon != null and is_instance_valid(pokemon) and not pokemon.esta_derrotado():
+		var quem : int = RegrasDeXP.pokemon_que_recebe([{
+			"id": pokemon.get_instance_id(),
+			"dano": int(de_quem.dano_recebido_por.get(pokemon.get_instance_id(), 0)),
+			"consciente": true, "ativo": true, "nivel": pokemon.nivel,
+		}])
+		if quem != 0:
+			var r_p : Dictionary = RegrasDeXP.ganhar(pokemon.nivel, pokemon.xp, do_pokemon)
+			pokemon.nivel = int(r_p["nivel"])
+			pokemon.xp = int(r_p["xp"])
+			xp_ganho.emit(pokemon.nome_exibido, do_pokemon, int(r_p["subiu"]))
+			if int(r_p["subiu"]) > 0:
+				PonteDeFeedback.anotar("%s subiu pro nível %d"
+					% [pokemon.nome_exibido, pokemon.nivel])
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Troca de Pokémon (§8)
@@ -331,6 +385,28 @@ func trocar_pokemon(indice: int) -> bool:
 
 func proximo_pokemon() -> bool:
 	return trocar_pokemon((_indice_do_time + 1) % TIME_DE_TESTE.size())
+
+## Os corpos no chão agora, pra HUD desenhar. Sem a chance de captura (§28).
+func corpos() -> Array:
+	var out : Array = []
+	for c in get_tree().get_nodes_in_group("corpo_v2"):
+		if is_instance_valid(c):
+			out.append(c.estado())
+	return out
+
+## Tenta capturar. Uma vez por corpo — a regra é do gameplay, não da tela.
+func capturar(id_do_corpo: int, ball: String = "pokeball") -> Dictionary:
+	for c in get_tree().get_nodes_in_group("corpo_v2"):
+		if is_instance_valid(c) and int(c.dados["id"]) == id_do_corpo:
+			return c.tentar_capturar(ball, treinador.sorte if treinador else 0)
+	return {"pegou": false, "motivo": "Esse Pokémon já desapareceu."}
+
+## Pega um item do chão (§35: um por vez, sem "pegar tudo").
+func pegar_item(id_do_corpo: int, indice: int) -> Dictionary:
+	for c in get_tree().get_nodes_in_group("corpo_v2"):
+		if is_instance_valid(c) and int(c.dados["id"]) == id_do_corpo:
+			return c.pegar(indice)
+	return {}
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Contexto de câmera (§3)

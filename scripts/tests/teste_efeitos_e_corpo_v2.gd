@@ -38,6 +38,7 @@ func _process(_delta: float) -> bool:
 	_ordem_dos_eventos()
 	_corpo_e_captura()
 	_loot()
+	_xp()
 	print("=== Resultado: %d ok, %d falha(s) ===" % [ok, fail])
 	quit(1 if fail > 0 else 0)
 	return true
@@ -334,3 +335,82 @@ func _exclusivos(lista: Array) -> Array:
 		if i == "held_bronze" or i == "solvente_de_held":
 			out.append(i)
 	return out
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §32, §33, §34 — XP
+# ──────────────────────────────────────────────────────────────────────────────
+
+func _xp() -> void:
+	print("-- §32/§33: XP por dano, corpo por último golpe")
+
+	# A separação que é o coração das duas seções: XP e corpo são moedas
+	# diferentes. Ninguém ganha XP por encostar, e ninguém rouba a experiência
+	# de uma luta longa levando o último golpe.
+	var divisao : Dictionary = RegrasDeXP.dividir(100, {1: 75.0, 2: 25.0})
+	_conf(int(divisao.get(1, 0)) == 75 and int(divisao.get(2, 0)) == 25,
+		"o XP sai na proporção do dano de cada um",
+		str(divisao))
+
+	var so_encostou : Dictionary = RegrasDeXP.dividir(100, {1: 100.0, 2: 0.0})
+	_conf(not so_encostou.has(2), "quem não causou dano não entra na divisão")
+
+	_conf(RegrasDeXP.dono_do_corpo(2) == 2,
+		"o corpo vai pra quem deu o último golpe, mesmo com pouco dano")
+
+	# §32: 60/40 entre treinador e Pokémon.
+	_conf(_quase(RegrasDeXP.FRACAO_DO_TREINADOR, 0.60)
+			and _quase(RegrasDeXP.FRACAO_DO_POKEMON, 0.40),
+		"a divisão treinador/Pokémon é 60/40")
+
+	print("-- §33: qual Pokémon recebe os 40%")
+	var ativo_ok : int = RegrasDeXP.pokemon_que_recebe([
+		{"id": 1, "dano": 10.0, "consciente": true, "ativo": false, "nivel": 20},
+		{"id": 2, "dano": 5.0,  "consciente": true, "ativo": true,  "nivel": 20},
+	])
+	_conf(ativo_ok == 2, "o ATIVO tem preferência, mesmo com menos dano",
+		"escolheu %d" % ativo_ok)
+
+	var caiu_antes : int = RegrasDeXP.pokemon_que_recebe([
+		{"id": 1, "dano": 90.0, "consciente": false, "ativo": true, "nivel": 20},
+		{"id": 2, "dano": 10.0, "consciente": true,  "ativo": false, "nivel": 20},
+	])
+	_conf(caiu_antes == 2, "quem desmaiou antes da morte NÃO recebe",
+		"escolheu %d" % caiu_antes)
+
+	var so_lv100 : int = RegrasDeXP.pokemon_que_recebe([
+		{"id": 1, "dano": 50.0, "consciente": true, "ativo": true, "nivel": 100},
+	])
+	_conf(so_lv100 == 0, "Lv100 não recebe XP adicional")
+
+	print("-- Subir de nível")
+	var r : Dictionary = RegrasDeXP.ganhar(5, 0, RegrasDeXP.xp_para_subir(5))
+	_conf(int(r["nivel"]) == 6 and int(r["subiu"]) == 1, "XP exato sobe um nível",
+		str(r))
+
+	# Um inimigo muito acima pode dar vários níveis de uma vez. Travar em um só
+	# faria o excedente sumir sem explicação.
+	var muitos : Dictionary = RegrasDeXP.ganhar(5, 0, 999999)
+	_conf(int(muitos["subiu"]) > 1, "XP grande sobe vários níveis de uma vez",
+		"subiu %d" % int(muitos["subiu"]))
+	_conf(int(muitos["nivel"]) <= RegrasDeXP.NIVEL_MAXIMO, "e nunca passa de 100")
+
+	var no_teto : Dictionary = RegrasDeXP.ganhar(100, 0, 999999)
+	_conf(int(no_teto["subiu"]) == 0 and int(no_teto["nivel"]) == 100,
+		"Lv100 não sobe mais")
+
+	# A curva é crescente: nível alto custa mais que nível baixo.
+	_conf(RegrasDeXP.xp_para_subir(50) > RegrasDeXP.xp_para_subir(10),
+		"subir custa mais conforme o nível sobe")
+
+	print("-- §34: derrota tira XP, mas nunca um nível inteiro")
+	var perdeu : int = RegrasDeXP.perder_por_derrota(20, 1000)
+	_conf(perdeu < 1000, "morrer custa XP", "ficou com %d" % perdeu)
+	_conf(RegrasDeXP.perder_por_derrota(20, 0) == 0,
+		"e nunca fica negativo — perder um nível inteiro faria o jogador parar de arriscar")
+
+	# Um Alpha vale mais que o mesmo bicho comum: custou mais.
+	_conf(RegrasDeXP.xp_do_inimigo(30, true) > RegrasDeXP.xp_do_inimigo(30, false),
+		"Alpha vale mais XP")
+	_conf(RegrasDeXP.xp_do_inimigo(50, false) > RegrasDeXP.xp_do_inimigo(10, false),
+		"inimigo de nível alto vale mais")

@@ -53,6 +53,11 @@ func _ready() -> void:
 func grupos_inimigos() -> Array:
 	return ["selvagem_v2"]
 
+## §19: com alvo válido, está em combate — e não regenera. Sem alvo, o relógio
+## de 5 segundos começa a correr.
+func em_combate() -> bool:
+	return comandos.alvo_valido()
+
 func velocidade() -> float:
 	var spe : int = int(stats.get("spe", 50))
 	return VELOCIDADE_BASE * (1.0 + (float(spe) - 50.0) / 100.0 * PESO_DA_VELOCIDADE)

@@ -59,6 +59,12 @@ func grupos_inimigos() -> Array:
 func e_hostil() -> bool:
 	return true
 
+## §19: perseguindo é estar em combate. Voltando pra casa já não é — é por isso
+## que ele se cura no caminho de volta, que é o comportamento que a §27 descreve
+## ("retornar de maneira natural ao território").
+func em_combate() -> bool:
+	return _estado == Estado.PERSEGUIR
+
 func velocidade() -> float:
 	var spe : int = int(stats.get("spe", 50))
 	return VELOCIDADE_BASE * (1.0 + (float(spe) - 50.0) / 100.0 * 0.35)

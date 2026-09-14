@@ -31,6 +31,7 @@ const TILE : float = 128.0
 
 var species_id : int = 1
 var nivel : int = 5
+var xp : int = 0
 var nome_exibido : String = "?"
 var tipos : Array = ["Normal"]
 var stats : Dictionary = {}
@@ -40,6 +41,20 @@ var golpes : Array = []          ## entradas de moves.json
 var recargas : Array[float] = []
 var _recarga_total : Array[float] = []
 var _derrotado : bool = false
+
+## §16 a §24: buffs, debuffs e status. Existia como regra provada e sem
+## consumidor — agora é aqui que ela vive.
+var efeitos : LivroDeEfeitos = LivroDeEfeitos.new()
+
+## §32: quanto dano cada um causou neste combatente, por id. É o que decide a
+## divisão de XP — e ela é por DANO, não por quem deu o último golpe.
+var dano_recebido_por : Dictionary = {}
+var ultimo_a_bater : int = 0
+
+## §19: segundos desde o último dano. A regeneração natural só começa depois de
+## `SEGUNDOS_FORA_DE_COMBATE` sem apanhar e sem status negativo.
+var _sem_apanhar : float = 0.0
+var _regen_acumulada : float = 0.0
 
 ## Cast em andamento. Um só: §10 diz que a direção trava quando a skill começa,
 ## e duas skills em cast ao mesmo tempo não teriam como travar duas direções.
@@ -102,6 +117,13 @@ func stats_de_defesa() -> Dictionary:
 func sofrer(dano: int, de_quem: Node = null) -> void:
 	if _derrotado or dano <= 0:
 		return
+	# §19: apanhar reinicia o relógio da regeneração, sempre.
+	_sem_apanhar = 0.0
+	_regen_acumulada = 0.0
+	if de_quem != null and is_instance_valid(de_quem):
+		var id : int = de_quem.get_instance_id()
+		dano_recebido_por[id] = int(dano_recebido_por.get(id, 0)) + dano
+		ultimo_a_bater = id
 	vida = maxi(0, vida - dano)
 	vida_mudou.emit(vida, vida_maxima)
 	if vida <= 0:
@@ -119,7 +141,48 @@ func ao_ser_atingido(_de_quem: Node) -> void:
 # Recargas e cast
 # ──────────────────────────────────────────────────────────────────────────────
 
+## §19: *"todo Pokémon tem regeneração natural de HP. Em combate/aggro NÃO
+## existe. Para começar: fora de combate, sem status negativo, sem receber dano,
+## 5 segundos. Qualquer dano reinicia. Movimento não interrompe."*
+##
+## A fração é pequena de propósito: a regeneração serve pra não obrigar o
+## jogador a voltar ao Centro Pokémon depois de cada arranhão, não pra tornar
+## a luta anterior irrelevante.
+const SEGUNDOS_FORA_DE_COMBATE : float = 5.0
+const REGEN_POR_SEGUNDO : float = 0.012   ## fração da vida máxima
+
+func _tick_regeneracao(delta: float) -> void:
+	if _derrotado or vida >= vida_maxima:
+		return
+	# Status negativo interrompe e reinicia o contador (§19).
+	if not efeitos.status.is_empty():
+		_sem_apanhar = 0.0
+		return
+	if em_combate():
+		_sem_apanhar = 0.0
+		return
+	_sem_apanhar += delta
+	if _sem_apanhar < SEGUNDOS_FORA_DE_COMBATE:
+		return
+	_regen_acumulada += float(vida_maxima) * REGEN_POR_SEGUNDO * delta
+	if _regen_acumulada >= 1.0:
+		var ganho : int = int(_regen_acumulada)
+		_regen_acumulada -= float(ganho)
+		vida = mini(vida_maxima, vida + ganho)
+		vida_mudou.emit(vida, vida_maxima)
+
+## Está em combate? Sobrescrito por quem sabe responder — o selvagem sabe pelo
+## estado dele, o Pokémon do jogador pela ordem ativa.
+func em_combate() -> bool:
+	return false
+
 func _tick_combate(delta: float) -> void:
+	var acabaram : Array[String] = efeitos.passo(delta)
+	for nome in acabaram:
+		FloatingText.show_text(get_tree().current_scene,
+			global_position + Vector2(0, -180), "%s passou" % nome,
+			Color(0.7, 0.9, 0.7))
+	_tick_regeneracao(delta)
 	for i in recargas.size():
 		if recargas[i] > 0.0:
 			recargas[i] = maxf(0.0, recargas[i] - delta)
@@ -153,6 +216,8 @@ func usar(slot: int, direcao: Vector2, alvo: Node = null) -> String:
 		return "recarregando"
 	if esta_castando():
 		return "já está usando outro golpe"
+	if incapacitado():
+		return "não consegue agir"
 
 	var g : Dictionary = golpes[slot]
 	if alvo != null and alvo is Node2D:
@@ -211,14 +276,55 @@ func _resolver_cast() -> void:
 
 	var atingidos : Array = FormaDeArea.alvos(
 		global_position, _cast_dir, g, grupos_inimigos(), [self])
+	var dano_total : int = 0
 	for a in atingidos:
 		if a is CombatenteV2 and not (a as CombatenteV2).esta_derrotado():
 			var c : CombatenteV2 = a
 			var dano : int = DanoV2.calcular(g, stats_de_ataque(), c.stats_de_defesa())
 			c.sofrer(dano, self)
+			dano_total += dano
+			_aplicar_status(g, c)
+	_drenar(g, dano_total)
 	_cast_alvo = null
 	golpe_encerrado.emit(slot, "impacto")
 	telegrafia_encerrada.emit(_cast_id, "impacto")
+
+## §17/§18: o status do golpe, se ele tiver um e a sorte deixar. A imunidade de
+## 1 segundo é responsabilidade do LIVRO do alvo, não deste código — por isso a
+## aplicação pode falhar em silêncio aqui, e o dano já foi dado de qualquer jeito.
+func _aplicar_status(golpe: Dictionary, alvo: CombatenteV2) -> void:
+	var efeito := str(golpe.get("effect", ""))
+	if efeito == "":
+		return
+	var chance : float = float(golpe.get("status_chance", 0)) / 100.0
+	if chance <= 0.0 or not RNGManager.chance(chance):
+		return
+	if alvo.efeitos.aplicar_status(efeito, 6.0, float(golpe.get("power", 20)) * 0.15):
+		FloatingText.show_text(get_tree().current_scene,
+			alvo.global_position + Vector2(0, -180), efeito, Color(0.9, 0.6, 0.9))
+
+## §20: *"skills de drenagem curam baseado no dano REAL causado. Se dano final
+## = 0, cura = 0. Nunca pode ultrapassar 100% do dano."*
+##
+## "Dano real" é o ponto: curar pelo dano teórico faria drenagem contra um alvo
+## imune curar do mesmo jeito, o que a §20 proíbe com todas as letras.
+func _drenar(golpe: Dictionary, dano_causado: int) -> void:
+	if dano_causado <= 0:
+		return
+	var fracao : float = clampf(float(golpe.get("drenagem", 0.0)), 0.0, 1.0)
+	if fracao <= 0.0:
+		return
+	var cura : int = mini(dano_causado, int(round(float(dano_causado) * fracao)))
+	if cura <= 0 or vida >= vida_maxima:
+		return
+	vida = mini(vida_maxima, vida + cura)
+	vida_mudou.emit(vida, vida_maxima)
+	FloatingText.show_text(get_tree().current_scene,
+		global_position + Vector2(0, -180), "+%d" % cura, Color(0.5, 1.0, 0.6))
+
+## §11: crowd control impede agir. Quem está dormindo ou congelado nem tenta.
+func incapacitado() -> bool:
+	return efeitos.tem_status("sleep") or efeitos.tem_status("freeze")
 
 ## Em que grupos este combatente procura inimigo. Sobrescrito pelas subclasses —
 ## é o que faz o Pokémon do jogador não bater no próprio treinador.

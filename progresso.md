@@ -4974,3 +4974,48 @@ quebrado um teste que já existia por um motivo. A exceção declarada era a
 decisão certa por uma razão que eu não conhecia na hora.
 
 **Suíte final: 110 arquivos, 0 falhas.**
+
+## 2026-09-14 (parte 5) — O laço da §2 fecha: combate → loot/captura → progressão
+
+### 🔴 Correção do que eu disse na rodada anterior
+
+Reportei os passos 8 e 10 como entregues. **Não estavam.** Conferido com um
+comando simples:
+
+```
+LivroDeEfeitos -> 0 consumidores fora de teste
+RegrasDeCorpo  -> 0 consumidores fora de teste
+```
+
+As regras estavam escritas e provadas, e **ninguém as chamava**. É exatamente a
+crítica que o Codex tinha feito sobre `Locomocao`/`Stamina` mais cedo, e eu
+repeti o mesmo erro com outro nome: regra provada e não ligada é biblioteca,
+não gameplay. O protótipo parava no combate — sem cadáver, captura, loot ou XP.
+
+### O que passou a existir
+
+- **`Corpo.gd`** — o cadáver. Nasce onde o selvagem caiu, vive de 10 a 15 s,
+  aceita **uma** tentativa de captura, e o loot é sorteado no nascimento e não
+  no clique (senão dois cliques dariam resultados diferentes pro mesmo corpo, e
+  o jogador aprenderia a clicar de novo).
+- **`RegrasDeXP.gd`** (§32, §33, §34) — **XP vai por dano causado; o corpo vai
+  por quem deu o último golpe.** Duas moedas separadas, e é isso que resolve os
+  dois vícios clássicos de MMO de uma vez: ninguém ganha XP por encostar, e
+  ninguém rouba a experiência de uma luta longa levando o último golpe.
+  60% treinador / 40% Pokémon; Lv100 não recebe; quem desmaiou antes da morte
+  não recebe; derrota tira 25% do XP do nível mas **nunca desce de nível** —
+  perder um nível inteiro faria o jogador parar de arriscar, que é o oposto do
+  que um mundo perigoso quer.
+- **`LivroDeEfeitos` ligado ao `CombatenteV2`**: status dos golpes entram de
+  verdade, a imunidade de 1 s da §18 vale, e dormir/congelar impede agir (§11).
+- **§19 regeneração natural**: só fora de combate, 5 s sem apanhar, sem status,
+  e qualquer dano reinicia. O selvagem voltando pro ninho já não está em
+  combate — então ele se cura no caminho, que é o comportamento da §27.
+- **§20 drenagem** pelo dano **real**: contra alvo imune, dano 0 = cura 0.
+
+### O achado do `PerigoDaZona` continua valendo
+
+A zona mais perigosa do mundo, tirada do próprio dado: Caverna de Cerulean 6º
+andar — encontros 2,2× mais espaçados e 34% de chance de elite.
+
+**148 conferências novas nesta parte (75 + 73), 0 falhas.**

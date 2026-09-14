@@ -21,6 +21,10 @@ var pokemon : PokemonAtivoV2 = null
 
 var vida : int = 100
 var vida_maxima : int = 100
+var nivel : int = 1
+var xp : int = 0
+## §28: Luck entra na chance de captura e no loot comum.
+var sorte : int = 0
 var _no_chao : bool = false
 
 func _ready() -> void:

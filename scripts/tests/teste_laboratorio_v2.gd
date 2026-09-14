@@ -80,7 +80,13 @@ func _process(delta: float) -> bool:
 			# disso mediria o sorteio, não a regra.
 			if _tempo > 3.0:
 				_conferir_bando()
+				_matar_um_selvagem()
 				_fase = 6
+				_tempo = 0.0
+		6:
+			if _tempo > 0.5:
+				_conferir_laco_completo()
+				_fase = 7
 		_:
 			print("=== Resultado: %d ok, %d falha(s) ===" % [ok, fail])
 			quit(1 if fail > 0 else 0)
@@ -391,3 +397,89 @@ func _conferir_bando() -> void:
 			achou = true
 			break
 	_conf(achou, "o grito aparece na linha do tempo do feedback")
+
+# ──────────────────────────────────────────────────────────────────────────────
+# O laço da §2: COMBATE → LOOT/CAPTURA → PROGRESSÃO
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# 🔴 Este teste existe porque eu tinha reportado os passos 8 e 10 como
+# entregues quando o que existia eram as REGRAS, sem ninguém chamando:
+# `LivroDeEfeitos` e `RegrasDeCorpo` tinham zero consumidores fora de teste.
+# Regra provada e não ligada não é gameplay — é biblioteca.
+
+var _xp_antes_do_pokemon : int = 0
+var _xp_antes_do_treinador : int = 0
+var _nivel_da_vitima : int = 0
+
+func _matar_um_selvagem() -> void:
+	var vitima = null
+	for n in root.get_tree().get_nodes_in_group("selvagem_v2"):
+		if not n.esta_derrotado() and not String(n.name).ends_with("_ALPHA"):
+			vitima = n
+			break
+	if vitima == null:
+		_conf(false, "havia um selvagem comum pra derrotar")
+		return
+
+	_xp_antes_do_pokemon = int(_lab.pokemon.xp)
+	_xp_antes_do_treinador = int(_lab.treinador.xp)
+	_nivel_da_vitima = int(vitima.nivel)
+	# O Pokémon do jogador precisa ter causado o dano, senão a §32 manda não
+	# dar XP a ninguém — e o teste estaria medindo o caminho errado.
+	vitima.sofrer(vitima.vida_maxima * 2, _lab.pokemon)
+
+func _conferir_laco_completo() -> void:
+	print("-- O laço: derrotar → corpo → loot/captura → XP")
+
+	var corpos : Array = _lab.corpos()
+	_conf(corpos.size() >= 1, "derrotar um selvagem faz nascer um corpo",
+		"achei %d" % corpos.size())
+	if corpos.is_empty():
+		return
+
+	var c : Dictionary = corpos[0]
+	_conf(float(c["segundos_restantes"]) >= 9.0
+			and float(c["segundos_restantes"]) <= 15.0,
+		"o corpo dura entre 10 e 15 s (§28)",
+		"%.1f s" % float(c["segundos_restantes"]))
+	_conf(not c.has("chance"), "o estado do corpo NÃO expõe a chance de captura (§28)")
+	_conf(c.has("loot"), "e traz o loot do chão")
+
+	# §32: o XP entrou, nos dois, na proporção 60/40.
+	var ganhou_treinador : int = int(_lab.treinador.xp) - _xp_antes_do_treinador
+	var ganhou_pokemon : int = int(_lab.pokemon.xp) - _xp_antes_do_pokemon
+	_conf(ganhou_treinador > 0, "o treinador ganhou XP", "%d" % ganhou_treinador)
+	_conf(ganhou_pokemon > 0, "o Pokémon também", "%d" % ganhou_pokemon)
+	# 60/40 — a menos que algum dos dois tenha subido de nível no caminho, que
+	# zera a sobra. Por isso a comparação é de ordem, não de igualdade exata.
+	_conf(ganhou_treinador >= ganhou_pokemon or int(_lab.treinador.nivel) > 1,
+		"e o treinador leva a parte maior (60/40)",
+		"treinador %d, pokemon %d" % [ganhou_treinador, ganhou_pokemon])
+
+	# §35: pegar item é um ato por item, e o item sai do chão.
+	var quantos_antes : int = (c["loot"] as Array).size()
+	if quantos_antes > 0:
+		var item : Dictionary = _lab.pegar_item(int(c["id"]), 0)
+		_conf(not item.is_empty(), "dá pra pegar um item do chão")
+		var depois : Array = _lab.corpos()
+		if not depois.is_empty():
+			_conf((depois[0]["loot"] as Array).size() == quantos_antes - 1,
+				"e ele sai do chão (um por vez, sem 'pegar tudo')")
+
+	# §28: uma tentativa por corpo. Falhando ou acertando, o corpo some.
+	var r : Dictionary = _lab.capturar(int(c["id"]), "pokeball")
+	_conf(r.has("pegou"), "a captura devolve um resultado", str(r))
+	_conf(not r.has("chance"), "sem revelar a chance")
+	var r2 : Dictionary = _lab.capturar(int(c["id"]), "pokeball")
+	_conf(not bool(r2["pegou"]), "a segunda tentativa no mesmo corpo não pega")
+	_conf(str(r2["motivo"]) != "", "e explica por quê", str(r2["motivo"]))
+
+	# O livro de efeitos agora TEM consumidor.
+	_conf(_lab.pokemon.efeitos != null, "o Pokémon tem livro de efeitos")
+	_lab.pokemon.efeitos.aplicar_status("sleep", 3.0, 0.0)
+	_conf(_lab.pokemon.incapacitado(),
+		"dormindo, ele fica incapaz de agir (§11)")
+	_conf(_lab.pokemon.usar_skill(0) != "",
+		"e o golpe é recusado com motivo")
+	_lab.pokemon.efeitos.limpar()
+	_conf(not _lab.pokemon.incapacitado(), "limpar o status devolve o controle")
