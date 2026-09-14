@@ -218,3 +218,26 @@ o Codex pode começar a *pensar* antes da vez dele.
 
 **Nada da V2 é apagado nesta migração.** `MapLayouts`, as 120 cenas 2D e os
 tilesets ficam no repositório mesmo depreciados, até a V3 substituir de verdade.
+
+---
+
+## 🎮 Primeiro playtest do 3D (Gabriel, 14/09)
+
+**Veredito dele:** *"temos um motor rodando e funcionando"*. Primeira vez que
+alguém jogou a V3. O Charizard aparece **em pé** — o conserto do eixo funcionou.
+
+**Os dois pedidos, e de quem é cada um:**
+
+| Pedido | Dono | Onde entra |
+|---|---|---|
+| **Melhorar os controles** | Claude | Fase 19 (polimento) — mas vale antes, é o que a §68 pergunta |
+| **Melhorar a qualidade gráfica** | **Codex** | A fila dele: terreno, vegetação, árvores, grama, água |
+
+⚠️ **"Controles" é vago de propósito no relato, e não dá pra adivinhar.** Antes
+de mexer, perguntar o que incomodou: velocidade, sensibilidade do mouse,
+aceleração/atrito, a virada do personagem, a distância da câmera, ou a troca de
+corpo. São seis ajustes diferentes e cada um muda uma coisa distinta.
+
+Os números atuais, pra facilitar a conversa (todos em `Locomocao3D`):
+caminhada 4,5 m/s · corrida 8,0 m/s · aceleração 40 · atrito 55 ·
+sensibilidade 0,0035 · câmera a 5 m.
