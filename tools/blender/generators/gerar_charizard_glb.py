@@ -109,6 +109,11 @@ action("attack", [1,8,16], rotations={1:(0,0,0),8:(-0.18,0,0),16:(0,0,0)})
 action("hurt", [1,5,12], rotations={1:(0,0,0),5:(0,0,-0.20),12:(0,0,0)})
 bpy.ops.object.mode_set(mode='OBJECT')
 
+# Blender's native up axis is +Z, while the construction above deliberately
+# uses Godot-style +Y coordinates. Bake the conversion into the asset so Godot
+# receives an upright model and does not need the runtime correction fallback.
+arm.rotation_euler.x = math.radians(90.0)
+
 # Export only the rig and its mesh. GLB keeps the two materials and animations.
 bpy.ops.object.select_all(action='DESELECT'); arm.select_set(True); mesh.select_set(True); bpy.context.view_layer.objects.active=arm
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
