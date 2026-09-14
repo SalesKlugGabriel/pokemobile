@@ -4644,3 +4644,43 @@ golpes; um Lv.10 precisa de 28 contra o Lv.20. Lv.21 contra Lv.20 ainda precisa 
 Publicado. **Não foi jogado em navegador ainda** — vale o Gabriel andar no mato e
 sentir o ritmo antes de eu ajustar mais número.
 
+
+## 2026-09-13 — Gameplay V2: plano, RFC e a primeira revisão real do Codex
+
+Gabriel mandou uma especificação de **68 seções** remodelando a gameplay para
+Action RPG (Zelda + Eterspire + Pokémon + Tibia/PXG), pedindo explicitamente
+**documento antes de código**. Entregue: `docs/GAMEPLAY_V2_PLAN.md` (15 seções)
+e `docs/rfc/RFC-GAMEPLAY-V2.md`. **Nenhum arquivo de gameplay alterado.**
+
+**Dois achados da auditoria que mudaram o tamanho do trabalho:**
+1. Só o treinador é preso ao grid — `WildPokemon` e `FollowerPokemon` já usam
+   `move_and_slide`. O item mais caro da lista é uma entidade, não o jogo.
+2. O motor de combate já cumpre boa parte da especificação (geometria, alcance,
+   cooldown por velocidade, 7 personalidades de IA, território, interrupção).
+
+**A ponte com o Codex funcionou pela primeira vez** (ele não tinha respondido
+nada desde 11/09). Acionado por `codex exec`; a primeira rodada saiu em modo
+somente-leitura e ele imprimiu em vez de gravar — repetida com
+`--sandbox workspace-write`. Veredito: **APROVADO COM RESSALVAS**, e as
+ressalvas eram boas:
+
+- 🔴 **Contradição no meu plano de isolamento**: eu prometia "rollback = apagar
+  duas pastas" e "editar `DamageCalculator`" ao mesmo tempo. Resolvido
+  invertendo: `DanoV2.gd` **embrulha** a fórmula em vez de editá-la. A V1 fica
+  com crítico e variação; só a V2 é determinística.
+- `FormaDeArea` usa `area_type`, não `shape` (eu tinha escrito errado).
+- `PokemonScale.gd` já existe — a §6 não precisa de sistema novo.
+- O visual de crítico **nunca dispara hoje** (os 3 emissores passam `false`),
+  então removê-lo custa zero.
+
+🔴 **Erro meu, pego na revisão:** escrevi *"192 de 192 golpes têm `cast_time`"*.
+Verdade e enganoso — **108 deles valem `0.0`**, sem janela de leitura nenhuma.
+O campo existir não é o mesmo que o valor servir. Segunda vez em duas sessões
+que cometo este erro (a primeira foi a régua de densidade). Invalidou meu
+próprio critério de aceite, que foi reescrito.
+
+RFC-001 também saiu do limbo: contrato aprovado, stopgap da HUD fica até a
+substituição visual. Decisões D-001 e D-002 em `docs/agent-decisions.md`.
+
+**Próximo:** passos 1, 2 e 6 do plano (movimento livre, stamina, dano
+determinístico) — os únicos que não tocam em apresentação.
