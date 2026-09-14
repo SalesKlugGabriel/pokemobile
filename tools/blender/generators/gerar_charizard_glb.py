@@ -87,6 +87,30 @@ bpy.ops.object.transform_apply(location=True, rotation=False, scale=True)
 feet_y = min(v.co.y for v in mesh.data.vertices)
 for v in mesh.data.vertices:
     v.co.y -= feet_y
+# Keep the feet on Y=0 while centering the footprint in X/Z, as required by
+# the model contract. This prevents a centered collider from looking offset.
+min_x = min(v.co.x for v in mesh.data.vertices); max_x = max(v.co.x for v in mesh.data.vertices)
+min_z = min(v.co.z for v in mesh.data.vertices); max_z = max(v.co.z for v in mesh.data.vertices)
+for v in mesh.data.vertices:
+    v.co.x -= (min_x + max_x) * 0.5
+    v.co.z -= (min_z + max_z) * 0.5
+mesh.data.update()
+
+# Apply the Blender->glTF axis conversion to the mesh geometry itself. Parenting
+# an unskinned mesh under a rotated armature is not baked by every importer;
+# applying it here makes Godot receive +Y as the height axis deterministically.
+mesh.rotation_euler.x = math.radians(90.0)
+bpy.context.view_layer.objects.active = mesh
+bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+# After the conversion Blender Z becomes Godot Y (height), while Blender Y
+# becomes Godot Z (depth). Rebase those axes in that order: feet at height 0,
+# footprint centered in depth. Do not center Blender Z, or the feet move.
+min_height = min(v.co.z for v in mesh.data.vertices)
+for v in mesh.data.vertices:
+    v.co.z -= min_height
+min_depth = min(v.co.y for v in mesh.data.vertices); max_depth = max(v.co.y for v in mesh.data.vertices)
+for v in mesh.data.vertices:
+    v.co.y -= (min_depth + max_depth) * 0.5
 mesh.data.update()
 
 # One-bone rig; actions prove the required four animation states without coupling gameplay to species.
@@ -120,7 +144,8 @@ bpy.ops.object.mode_set(mode='OBJECT')
 # Blender's native up axis is +Z, while the construction above deliberately
 # uses Godot-style +Y coordinates. Bake the conversion into the asset so Godot
 # receives an upright model and does not need the runtime correction fallback.
-arm.rotation_euler.x = math.radians(90.0)
+# Coordinate conversion is handled by Blender's glTF exporter; the source
+# mesh is already built in the Godot-style +Y frame.
 
 # Export only the rig and its mesh. GLB keeps the two materials and animations.
 bpy.ops.object.select_all(action='DESELECT'); arm.select_set(True); mesh.select_set(True); bpy.context.view_layer.objects.active=arm
