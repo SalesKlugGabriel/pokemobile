@@ -5133,3 +5133,66 @@ não existe "mesmo turno", e a recarga é a única fila que existe.
 
 **87 conferências na auditoria (era 50), suíte em 111 arquivos, 0 falhas.**
 Briefing do Codex em `docs/agent-proposals/claude/2026-09-14-leitura-do-combate.md`.
+
+# ══════════════════════════════════════════════════════════════════════════
+# 2026-09-14 — PIVÔ: GAMEPLAY V2 → V3 (3D)
+# ══════════════════════════════════════════════════════════════════════════
+
+Decisão do Gabriel: o jogo passa a ser **3D**. Treinador em 3ª pessoa no mundo;
+quando a batalha começa, o jogador **assume o controle do Pokémon em 1ª pessoa**.
+Combate 1v1, no terreno, sem arena. **Não é MOBA.**
+
+**Fase 0 (auditoria) e Fase 1 (documentação) feitas. Nenhum código V3 escrito** —
+foi o que o pedido mandou (§49: "a primeira resposta não deve ser 'implementei
+tudo'").
+
+## O número que governa a migração
+
+**18 das 42 classes de combate não mencionam `Vector2`, `Node2D` nem
+`global_position`.** Não foi sorte: foi a disciplina de manter regra em classe
+pura (`RefCounted`) e o corpo fora dela. Elas atravessam o pivô **sem uma linha
+alterada** — nunca souberam que o jogo era 2D.
+
+## 🔴 Três achados que mudam a conversa
+
+1. **O renderer é `gl_compatibility`**, escolhido pro export web. 3D funciona
+   (conferido: `Node3D`/`Camera3D`/`CharacterBody3D` carregam e instanciam), mas
+   sem SDFGI, sem compute, sombras limitadas — e a §24 pede vegetação densa
+   estilo ARK. **A medição que decide isso é a Fase 2**, com cena vazia, antes
+   de investir em floresta.
+2. **605 sprites de Pokémon, zero modelos 3D.** É a decisão mais cara do pivô:
+   billboard (aproveita os 605, leve, web viável) contra modelo (descarta a arte,
+   151 modelos + rig + animação). Recomendei billboard pro slice, com a
+   arquitetura aceitando modelo depois. **Decisão do Gabriel, pode esperar até a
+   Fase 5.**
+3. **O save atravessa sem migração.** Conferido: `SaveManager` não guarda posição
+   nem `Vector2` — só `current_map` (texto), time, IV, nature, golpes, held,
+   inventário, pokédex e dinheiro. Um save da V2 carrega na V3.
+
+## Classificação (24 KEEP · 14 ADAPT · 8 REBUILD · 9 DEPRECATE · 1 REMOVE LATER)
+
+Sobrevive quase tudo que é **regra**; morre quase tudo que é **geometria 2D**.
+A maior perda é `MapLayouts` (4.531 linhas de mundo pintado com caracteres) —
+custo assumido, declarado na RFC.
+
+## Documentos criados
+
+`docs/GAMEPLAY_V3.md` (painel de controle e continuidade entre sessões),
+`docs/MIGRATION_V2_TO_V3.md` (tabela sistema a sistema),
+`docs/rfc/RFC-GAMEPLAY-V3-3D.md` (23 seções),
+`docs/WORLD_3D_ARCHITECTURE.md`, `docs/COMBAT_FIRST_PERSON.md`,
+`docs/TRAVERSAL_SURF_FLY.md`.
+
+## Isolamento e rollback
+
+Branch `agent/claude-v3`. **`main` fica com a V2 funcionando** (111 arquivos de
+teste, 0 falhas). Nada da V2 é apagado — `MapLayouts`, as 120 cenas 2D e os
+tilesets ficam no repositório mesmo depreciados. Rollback total = não fazer
+merge da branch.
+
+## ⚠️ Pendência com o Codex
+
+Ele tem HUD, câmera e telegrafia **commitadas e não integradas** na branch
+`agent/codex-gameplay-v2` (commit `28a764e`, 1.209 linhas). **Precisa ser
+avisado do pivô antes de investir mais** — parte disso vira legado. Pelo §46 do
+pedido, ele fica fora até o slice 3D existir.
