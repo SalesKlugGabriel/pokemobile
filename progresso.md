@@ -4812,3 +4812,53 @@ duas contas.
 por teste. Rodada sozinha depois: **108 arquivos, 0 falhas**. Regra escrita no
 `AGENTS.md`: conferir `ps aux | grep godot4` antes de disparar a suíte, e
 **reprovação sob carga não é regressão até ser reproduzida isolada**.
+
+## 2026-09-14 (parte 3) — Passos 7, 8 e 10: efeitos, corpo e a recalibração
+
+### Passo 8 — `LivroDeEfeitos` (§16, §17, §18, §23, §24)
+
+Livro-razão, não variável: o valor de um atributo é **sempre** a soma das linhas
+vivas. É o que permite o caso da §16 que uma variável não resolve — dois efeitos
+opostos que se compensam mas continuam correndo, e quando um acaba o outro volta
+a valer sozinho.
+
+Os testes usam **os exemplos numéricos que o próprio Gabriel escreveu**:
+`+15% / −10% = +5%`, `Poison 20/tick 8s + 30/tick 5s = 30/tick 8s`.
+
+### Passo 10 — `RegrasDeCorpo` (§28 a §31)
+
+Derrotar → cadáver de 10–15 s → **uma** tentativa. Chance escondida do jogador
+(mostrar "23%" vira planilha e mata a tensão). Alpha não é capturável; lendário
+tem a menor chance do jogo mas nunca zero; sorte ajuda pouco e **não** toca no
+drop exclusivo de Alpha (§30).
+
+🔴 Bug achado pelo próprio teste: o teto da chance de loot comum era aplicado
+**antes** da sorte, então `sorte = 999` levava a chance a 2,9 — drop garantido.
+
+### Passo 7 — a recalibração virou outra coisa
+
+Ia ajustar o Alpha. Encontrou três coisas, em ordem:
+
+1. 🔴 **Eu escolhi o pior confronto possível** — Charizard (Fire/Flying) contra
+   Onix (Rock/Ground): Rock bate 4× nele, Fire bate 0,5× no Onix. O jogador
+   perdia 0/60 e eu quase recalibrei o Alpha em cima de uma chacina que a §15
+   **manda existir**. A simulação estava certa; errada estava a escolha do par.
+   A tabela de tipos do confronto agora sai impressa, pra isso não se repetir.
+2. 🔴 **`ALPHA_HP_MULT = 3.0` contradiz a §30**, que diz "+35% em todos os seis
+   stats". O ×3 é da Fase 2, anterior à especificação. A especificação ganha.
+3. 🔴 **O Alpha nunca foi o problema.** Com a régua atual, uma luta equilibrada
+   entre dois Lv40 dura **4,6 segundos** — e em 4,6 s não dá pra posicionar, ler
+   ataque nem esquivar, que é a §9 inteira. Nenhum multiplicador de Alpha
+   consertava isso.
+
+**Medido e corrigido só na V2** (`BalanceV2.VIDA_MULT = 4.0`): a luta foi de
+4,6 s para **18 s**. Mexi na VIDA e não no dano de propósito — matematicamente
+dá no mesmo, mas dano ÷ 4 faria os golpes tirarem 3 de 237, números pequenos
+demais pra sentir diferença. Vida × 4 mantém o golpe em 13 e alonga a barra,
+que é o padrão das referências que o Gabriel deu (Tibia, PXG, Eterspire).
+
+**A V1 não foi tocada** (D-001). Reverter é trocar um número em `BalanceV2.gd`.
+
+Com o Alpha fixo em +35% pela §30, a pergunta virou "o que isso exige do
+jogador": **4 níveis de vantagem**. É o número que decide onde um Alpha pode
+aparecer no mundo.

@@ -56,7 +56,8 @@ func montar(id_especie: int, nv: int, golpes_ids: Array = []) -> void:
 	nome_exibido = str(esp.get("name", "#%d" % species_id))
 	tipos = esp.get("types", ["Normal"])
 	stats = StatsDePokemon.conjunto(esp.get("base_stats", {}), nivel)
-	vida_maxima = maxi(1, int(stats.get("hp", 1)))
+	# A vida da V2, não a da V1 — ver `BalanceV2.gd` pro motivo medido.
+	vida_maxima = BalanceV2.vida(int(stats.get("hp", 1)))
 	vida = vida_maxima
 
 	golpes.clear()

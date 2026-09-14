@@ -170,12 +170,15 @@ func _criar_selvagem(molde: Dictionary, tile: Vector2, alpha: bool) -> SelvagemV
 	s.personalidade = str(molde["personalidade"])
 
 	if alpha:
-		s.vida_maxima = int(s.vida_maxima * CombatBalance.ALPHA_HP_MULT)
+		# §30, literal: "+35% em todos os SEIS stats clássicos". Um número só,
+		# aplicado igual nos seis — a régua da V1 (`ALPHA_HP_MULT = 3.0`) é da
+		# Fase 2, anterior a esta especificação, e a especificação ganha.
+		s.vida_maxima = BalanceV2.alpha(s.vida_maxima)
 		s.vida = s.vida_maxima
-		s.stats["atk"] = int(s.stats.get("atk", 50) * CombatBalance.ALPHA_ATK_MULT)
-		s.stats["spa"] = int(s.stats.get("spa", 50) * CombatBalance.ALPHA_ATK_MULT)
+		for chave in ["atk", "def", "spa", "spd", "spe"]:
+			s.stats[chave] = BalanceV2.alpha(int(s.stats.get(chave, 50)))
 
-	var raio : float = 46.0 * (1.35 if alpha else 1.0)
+	var raio : float = 46.0 * (BalanceV2.ALPHA_ESCALA_VISUAL if alpha else 1.0)
 	_corpo_visual(s, Color(0.85, 0.3, 0.3) if alpha else Color(0.6, 0.4, 0.75), raio)
 	_colisao(s, raio)
 	s.name = "Selvagem_%s%s" % [s.nome_exibido, "_ALPHA" if alpha else ""]
