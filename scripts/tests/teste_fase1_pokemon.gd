@@ -50,8 +50,26 @@ func _teste_geral() -> void:
 		"Charmander (id 4) tem ability 'Blaze' cadastrada")
 	_assert(GameData.get_species(1).get("ability", "") == "Overgrow",
 		"Bulbasaur (id 1) tem ability 'Overgrow' cadastrada")
-	_assert(GameData.get_species(150).get("ability", "") == "",
-		"espécie sem ability cadastrada (Mewtwo, id 150) devolve vazio, sem quebrar")
+	# 🔴 Reescrito em 14/09. Esta linha usava o **Mewtwo** como exemplo de
+	# "espécie sem ability" — e só funcionava porque o dado estava incompleto:
+	# 132 das 151 espécies tinham o campo vazio. Agora as 151 têm a habilidade
+	# que a Pokédex informa, e o Mewtwo tem `Pressure`.
+	#
+	# A intenção do teste continua valendo (ler ability de quem não tem não pode
+	# quebrar), então ela passou a ser exercida por um id que **de fato** não
+	# existe, em vez de por um buraco no cadastro que já foi tapado.
+	_assert(GameData.get_species(9999).get("ability", "") == "",
+		"espécie inexistente devolve ability vazia, sem quebrar")
+	_assert(GameData.get_species(150).get("ability", "") == "Pressure",
+		"Mewtwo (id 150) tem ability 'Pressure' (dado completado em 14/09)")
+
+	var _sem_ability : Array = []
+	for _id in GameData.species.keys():
+		if str(GameData.species[_id].get("ability", "")).strip_edges() == "":
+			_sem_ability.append(str(GameData.species[_id].get("name", _id)))
+	_assert(_sem_ability.is_empty(),
+		"as 151 espécies têm ability preenchida (faltam: %s)"
+			% ", ".join(_sem_ability.slice(0, 5)))
 
 	# ---- 3. BattlePokemon.create() pega ability/nature da espécie ----
 	var charmander = BattlePokemon.create(4, 50, false)

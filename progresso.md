@@ -4956,3 +4956,21 @@ Achado por um teste de outra frente, não por alguém jogando.
 Entregou **câmera, HUD e telegrafia** na branch dele (commit `28a764e`, 1.209
 linhas) e **estourou o limite de uso da conta** no meio da rodada seguinte, com
 trabalho não commitado na worktree. A câmera dele já substitui a provisória.
+
+### Regressão pega pela suíte (mesma rodada)
+
+`teste_fase1_pokemon.gd` afirmava que o **Mewtwo não tinha habilidade** — e só
+era verdade porque o dado estava incompleto. O teste usava um dos 132 buracos
+do cadastro como exemplo de "espécie sem ability". Ao preencher as 151, a
+afirmação virou falsa.
+
+A intenção continua válida (ler ability de quem não tem não pode quebrar), então
+ela passou a ser exercida por um **id que de fato não existe**. Somadas duas
+travas novas: Mewtwo tem `Pressure`, e as 151 seguem preenchidas.
+
+Nota: o mesmo arquivo exige que **Rattata tenha `Guts`**. Se eu tivesse deixado
+`Run Away` "por consistência" com a primeira habilidade da Pokédex, teria
+quebrado um teste que já existia por um motivo. A exceção declarada era a
+decisão certa por uma razão que eu não conhecia na hora.
+
+**Suíte final: 110 arquivos, 0 falhas.**
