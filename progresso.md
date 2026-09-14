@@ -4787,3 +4787,28 @@ A primeira rodada completa deu 8 reprovações, todas em testes pesados de mapa.
 Rodados um a um, **os 8 passam**. Causa: a VPS tem 2 núcleos compartilhados com
 n8n/Postgres/Evolution, e o runner corta cada teste em 300 s. Não é regressão —
 mas é motivo pra não confiar numa rodada única sob carga.
+
+### Contratos gameplay↔UI fechados (mesmo dia)
+
+O Codex foi montar a HUD do Laboratório e listou 5 buracos. A lista estava certa
+inteira — inclusive que **eu prometi `EstadoV2.instantaneo()` na RFC e não
+construí**. Ele achou o vazio. Mesmo erro de citar API inexistente que já me
+custou tempo antes; desta vez custou o tempo de outra pessoa.
+
+Fechados: `estado()` tipado (separado de `contexto()`, que é frase pra humano
+ler no recado), `pokemon_ativo_mudou`, `ordem_mudou` (inclusive a volta
+automática pra seguir), `recarga_mudou` incremental, fachada pública pro toque
+(a HUD não pode depender de método com `_`), `contexto_de_camera` com prioridade
+reavaliado 1×/s, e telegrafia com geometria resolvida em pixels.
+
+Garantia com teste: `Telegrafia.gd` lê os mesmos padrões que `FormaDeArea`, e o
+teste compara os dois raios — área desenhada e área que acerta não podem virar
+duas contas.
+
+### 🔴 As 8 reprovações da suíte: causa achada, não era regressão
+
+**O Codex estava rodando a suíte dele ao mesmo tempo**, na worktree
+`/root/pokemobile-v2-codex`. Dois Godot em 2 núcleos estouram o `timeout 300`
+por teste. Rodada sozinha depois: **108 arquivos, 0 falhas**. Regra escrita no
+`AGENTS.md`: conferir `ps aux | grep godot4` antes de disparar a suíte, e
+**reprovação sob carga não é regressão até ser reproduzida isolada**.
