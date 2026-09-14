@@ -57,6 +57,19 @@ signal corpo_desmaiado_clicado(pokemon: Node)
 
 # --- COMBATE ---
 signal damage_dealt(target: Node, amount: int, is_critical: bool, attacker: Node)
+
+## O relatório completo de um acerto (14/09). Existe porque `damage_dealt` não
+## diz QUAL golpe, de que TIPO, nem se foi super-efetivo — então um 4× e um
+## golpe neutro grande chegavam na tela exatamente iguais, e o jogador via a
+## barra cair sem nenhuma explicação.
+##
+## O conteúdo está em `RelatorioDeGolpe.montar()`. `damage_dealt` continua
+## valendo e com a mesma assinatura: este vem AO LADO, não no lugar.
+signal golpe_resolvido(relatorio: Dictionary)
+
+## O mesmo, para status aplicado. Ficar paralisado sem saber por quê é a mesma
+## frustração do dano sem origem, em outra forma.
+signal status_aplicado(relatorio: Dictionary)
 signal status_applied(target: Node, status_id: String)
 signal battle_started()
 signal battle_ended(result: Dictionary)

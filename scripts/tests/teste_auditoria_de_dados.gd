@@ -24,6 +24,8 @@ var avisos : Array[String] = []
 var _rodou : bool = false
 
 var GameData : Node
+## Autoload não é identificador em teste `--script` — a armadilha de sempre.
+var EventBus : Node
 var Dano : GDScript
 var Stats : GDScript
 var Status : GDScript
@@ -48,6 +50,7 @@ func _process(_d: float) -> bool:
 		return true
 	_rodou = true
 	GameData = root.get_node("GameData")
+	EventBus = root.get_node("EventBus")
 	Dano   = load("res://scripts/combat/DamageCalculator.gd")
 	Stats  = load("res://scripts/combat/StatsDePokemon.gd")
 	Status = load("res://scripts/combat/StatusEffectController.gd")
@@ -62,6 +65,7 @@ func _process(_d: float) -> bool:
 	_ivs()
 	_tabela_de_tipos()
 	_regua_central()
+	_prioridade_e_relatorio()
 
 	if not avisos.is_empty():
 		print("\n-- Avisos (legítimos, mas vale saber) --")
@@ -172,19 +176,34 @@ func _golpes_numeros() -> void:
 			sem_precisao += 1
 	_aviso("%d golpes têm accuracy 0 (= nunca erram, por decisão do motor)" % sem_precisao)
 
-	# §9: o campo existe nos 192, mas o VALOR é que decide se há leitura.
-	var sem_janela : int = 0
+	# §9. 🔴 Aviso REESCRITO: a primeira versão dizia só "108 golpes sem janela
+	# de leitura", o que era verdade no número e enganoso no sentido — pintava um
+	# problema que o dado não tem.
+	#
+	# Medido: o golpe mais forte entre os instantâneos tem poder **40**. Todos os
+	# 59 golpes de poder 70 ou mais JÁ telegrafam. O dado está bem desenhado:
+	# soco rápido sai na hora, golpe pesado avisa.
+	#
+	# Então este teste passou a travar a REGRA, não a contar os casos.
+	var pesado_sem_janela : Array = []
+	var instantaneos : int = 0
+	var poder_maximo_instantaneo : int = 0
 	for id in GameData.moves.keys():
-		if float(GameData.moves[id].get("cast_time", 0)) <= 0.0:
-			sem_janela += 1
-	_aviso("%d dos 192 golpes têm cast_time 0 — saem instantâneos, sem janela de leitura (§9)" % sem_janela)
+		var g : Dictionary = GameData.moves[id]
+		var p : int = int(g.get("power", 0))
+		if float(g.get("cast_time", 0)) > 0.0:
+			continue
+		instantaneos += 1
+		poder_maximo_instantaneo = maxi(poder_maximo_instantaneo, p)
+		if p >= 70:
+			pesado_sem_janela.append("%s (poder %d)" % [str(id), p])
+	_conf(pesado_sem_janela.is_empty(),
+		"nenhum golpe de poder 70+ sai sem janela de leitura (§9)",
+		", ".join(pesado_sem_janela.slice(0, 6)))
+	_aviso("%d golpes são instantâneos, e o mais forte deles tem poder %d — a leitura deles acontece no IMPACTO, não antes"
+		% [instantaneos, poder_maximo_instantaneo])
 
-	# `priority` existe nos 192 e NINGUÉM lê. É dívida declarada, não bug.
-	var com_prioridade : int = 0
-	for id in GameData.moves.keys():
-		if int(GameData.moves[id].get("priority", 0)) != 0:
-			com_prioridade += 1
-	_aviso("%d golpes têm priority != 0, e o campo ainda não é lido por ninguém" % com_prioridade)
+	# `priority` foi RESOLVIDO pelo Gabriel em 14/09 — ver `_prioridade_e_relatorio`.
 
 func _golpes_tipos_e_formas() -> void:
 	print("-- Golpes: tipo e forma precisam ser reconhecidos pelo motor")
@@ -491,3 +510,69 @@ func _regua_central() -> void:
 		if float(Stamina.EXAUSTAO[i]["penalidade"]) <= float(Stamina.EXAUSTAO[i - 1]["penalidade"]):
 			crescente = false
 	_conf(crescente, "os degraus de exaustão pioram na ordem certa")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Prioridade e o relatório de golpe (decisões de 14/09)
+# ──────────────────────────────────────────────────────────────────────────────
+
+func _prioridade_e_relatorio() -> void:
+	print("-- Prioridade: o Gabriel decidiu que não existe")
+	# Palavras dele: *"nenhum golpe tem prioridade, tendo o cooldown disponível,
+	# pode ser utilizado"*.
+	#
+	# E faz sentido além da preferência: prioridade é conceito de combate POR
+	# TURNO — ela decide quem age primeiro quando os dois agem no mesmo turno.
+	# Num combate em tempo real não existe "mesmo turno": quem apertou primeiro
+	# age primeiro, e a recarga é a única fila que existe.
+	var com_prioridade : Array = []
+	for id in GameData.moves.keys():
+		if int(GameData.moves[id].get("priority", 0)) != 0:
+			com_prioridade.append(str(id))
+	_conf(com_prioridade.is_empty(),
+		"nenhum golpe tem prioridade (decisão do Gabriel, 14/09)",
+		", ".join(com_prioridade.slice(0, 6)))
+
+	print("-- O relatório de golpe: a tela precisa saber o que aconteceu")
+	# O problema que ele apontou: 4× de dano baixando a barra sem nada na tela.
+	# A causa era `damage_dealt` não carregar golpe nem efetividade.
+	var Rel : GDScript = load("res://scripts/gameplay_v2/RelatorioDeGolpe.gd")
+
+	_conf(Rel.classificar(0.0) == "imune", "0x é imune")
+	_conf(Rel.classificar(0.25) == "muito_fraco", "0,25x é muito fraco")
+	_conf(Rel.classificar(0.5) == "fraco", "0,5x é fraco")
+	_conf(Rel.classificar(1.0) == "neutro", "1x é neutro")
+	_conf(Rel.classificar(2.0) == "forte", "2x é forte")
+	_conf(Rel.classificar(4.0) == "muito_forte", "4x é muito forte")
+	# §46: um Held pode empurrar 2x pra 2,2x, e isso continua sendo "forte".
+	_conf(Rel.classificar(2.2) == "forte", "2,2x (com Held) ainda é forte")
+
+	# Toda classificação tem frase, menos a neutra — que não precisa de aviso.
+	for c in ["imune", "muito_fraco", "fraco", "forte", "muito_forte"]:
+		_conf(str(Rel.frase(c)) != "", "'%s' tem frase pro jogador" % c)
+	_conf(str(Rel.frase("neutro")) == "", "neutro não gera frase (não há o que avisar)")
+
+	# O relatório carrega o que a tela precisa — e nada que ela precise
+	# recalcular.
+	var golpe : Dictionary = GameData.get_move("thunderbolt")
+	var det := {"mult_tipo": 4.0, "mult_stab": 1.25}
+	var r : Dictionary = Rel.montar(golpe, null, null, 120, det, 30, 200)
+	for campo in ["golpe", "nome_do_golpe", "tipo", "categoria", "area_type",
+			"origem", "destino", "direcao", "dano", "fracao_da_vida",
+			"mult_tipo", "efetividade", "frase", "derrotou", "teve_aviso"]:
+		_conf(r.has(campo), "o relatório traz `%s`" % campo)
+	_conf(str(r["efetividade"]) == "muito_forte", "e classifica o 4x corretamente")
+	_conf(_quase(float(r["fracao_da_vida"]), 0.6),
+		"a fração da vida vem pronta, sem a tela dividir nada",
+		"%.2f" % float(r["fracao_da_vida"]))
+	_conf(not bool(r["derrotou"]), "sabe que o alvo sobreviveu")
+	_conf(bool(Rel.montar(golpe, null, null, 200, det, 0, 200)["derrotou"]),
+		"e sabe quando derrotou")
+
+	_conf(EventBus.has_signal("golpe_resolvido"), "o sinal golpe_resolvido existe")
+	_conf(EventBus.has_signal("status_aplicado"), "o sinal status_aplicado existe")
+	_conf(EventBus.has_signal("damage_dealt"),
+		"e `damage_dealt` continua existindo com a mesma assinatura (D-001)")
+
+func _quase(a: float, b: float, tol: float = 0.01) -> bool:
+	return absf(a - b) <= tol

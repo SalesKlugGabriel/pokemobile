@@ -5080,3 +5080,56 @@ em 300 sorteios, e IV 31 dá mais stat que IV 0.
 - **108 dos 192 com `cast_time` 0** — sem janela de leitura (§9)
 - 6 golpes com `priority` != 0, e **o campo não é lido por ninguém**
 - 89 efeitos distintos; só 32 golpes têm efeito que o motor interpreta hoje
+
+## 2026-09-14 (parte 7) — A leitura do combate e a decisão sobre prioridade
+
+Pedido: animações pros golpes "que não são visíveis", porque *"receber um dano
+sem saber de onde veio"* e um 4× baixando a barra sem feedback frustra.
+
+### 🔴 Correção do meu próprio diagnóstico
+
+Eu tinha avisado "108 golpes sem janela de leitura (§9)". **Verdade no número,
+enganoso no sentido.** Medido por faixa de poder:
+
+| Poder | Golpes | Sem janela |
+|---|---:|---:|
+| 1–39 | 21 | 21 |
+| 40–69 | 37 | 12 |
+| 70–99 | 38 | **0** |
+| 100–129 | 14 | **0** |
+| 130+ | 7 | **0** |
+
+**O mais forte entre os 108 instantâneos tem poder 40.** Todo golpe que machuca
+já telegrafa — o dado está bem desenhado. O aviso do teste foi reescrito pra
+travar a REGRA ("nenhum golpe de poder 70+ sai sem janela") em vez de contar
+casos, que era o que produzia a leitura errada.
+
+### O problema real, e a causa era minha
+
+`damage_dealt(target, amount, is_critical, attacker)` **não carrega o golpe nem
+a efetividade**. O `FeedbackDeImpacto` só conseguia deduzir a fração da vida —
+então **um 4× e um golpe neutro grande chegavam iguais na tela**. Não era falta
+de capricho da apresentação: a informação nunca saía do gameplay.
+
+Criados `EventBus.golpe_resolvido(relatorio)` e `status_aplicado(relatorio)`,
+ao lado do `damage_dealt`, que fica com a mesma assinatura (D-001).
+`RelatorioDeGolpe` entrega tudo pronto: golpe, tipo, categoria, origem, destino,
+direção, dano, fração da vida já dividida, multiplicador, **efetividade
+classificada em palavra** e a frase em português.
+
+A classificação vem pronta de propósito: se a tela comparasse `mult == 0.25`,
+seriam duas contas, e divergiriam no primeiro Held que empurrasse 2× pra 2,2×
+(§46).
+
+⚠️ Vale **só na V2**. A V1 segue com o sinal antigo — decisão consciente, ela
+está sendo substituída.
+
+### Prioridade: decidida pelo Gabriel
+
+*"nenhum golpe tem prioridade, tendo o cooldown disponível, pode ser utilizado"*.
+Os 6 golpes com `priority != 0` foram zerados, com teste travando. A decisão
+bate com a mecânica: prioridade é conceito de combate POR TURNO — em tempo real
+não existe "mesmo turno", e a recarga é a única fila que existe.
+
+**87 conferências na auditoria (era 50), suíte em 111 arquivos, 0 falhas.**
+Briefing do Codex em `docs/agent-proposals/claude/2026-09-14-leitura-do-combate.md`.

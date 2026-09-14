@@ -280,9 +280,15 @@ func _resolver_cast() -> void:
 	for a in atingidos:
 		if a is CombatenteV2 and not (a as CombatenteV2).esta_derrotado():
 			var c : CombatenteV2 = a
-			var dano : int = DanoV2.calcular(g, stats_de_ataque(), c.stats_de_defesa())
+			# `detalhar` em vez de `calcular`: o relatório precisa do
+			# multiplicador de tipo, e recalcular na tela seria a segunda conta
+			# que a AGENTS.md proíbe.
+			var d : Dictionary = DanoV2.detalhar(g, stats_de_ataque(), c.stats_de_defesa())
+			var dano : int = int(d["final"])
 			c.sofrer(dano, self)
 			dano_total += dano
+			EventBus.golpe_resolvido.emit(RelatorioDeGolpe.montar(
+				g, self, c, dano, d, c.vida, c.vida_maxima))
 			_aplicar_status(g, c)
 	_drenar(g, dano_total)
 	_cast_alvo = null
@@ -319,9 +325,8 @@ func _aplicar_status(golpe: Dictionary, alvo: CombatenteV2) -> void:
 	var duracao : float = StatusEffectController.roll_sleep_duration() \
 		if nome == "sleep" else 6.0
 	if alvo.efeitos.aplicar_status(nome, duracao, float(golpe.get("power", 20)) * 0.15):
-		FloatingText.show_text(get_tree().current_scene,
-			alvo.global_position + Vector2(0, -180),
-			StatusEffectController.status_label(nome) + "!", Color(0.9, 0.6, 0.9))
+		EventBus.status_aplicado.emit(
+			RelatorioDeGolpe.de_status(nome, golpe, self, alvo))
 
 ## §20: *"skills de drenagem curam baseado no dano REAL causado. Se dano final
 ## = 0, cura = 0. Nunca pode ultrapassar 100% do dano."*

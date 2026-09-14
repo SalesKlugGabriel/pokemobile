@@ -164,7 +164,13 @@ func _ataque_basico(delta: float) -> void:
 		"type": tipos[0] if not tipos.is_empty() else "Normal",
 		"category": "physical", "area_type": "single",
 	}
-	alvo.sofrer(DanoV2.calcular(golpe, stats_de_ataque(), alvo.stats_de_defesa()), self)
+	# O ataque básico é a maior parte do dano de uma luta longa. Se ele não
+	# reportasse, a tela ficaria muda justamente no que mais acontece.
+	var d : Dictionary = DanoV2.detalhar(golpe, stats_de_ataque(), alvo.stats_de_defesa())
+	var dano : int = int(d["final"])
+	alvo.sofrer(dano, self)
+	EventBus.golpe_resolvido.emit(RelatorioDeGolpe.montar(
+		golpe, self, alvo, dano, d, alvo.vida, alvo.vida_maxima))
 	_cd_basico = CombatBalance.recarga(INTERVALO_BASICO, int(stats.get("spe", 50)))
 	EventBus.follower_skill_used.emit(-1, "ataque_basico")
 
