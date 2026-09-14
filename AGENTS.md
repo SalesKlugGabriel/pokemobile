@@ -94,5 +94,31 @@ Manter fonte reproduzível e backup em `assets/old/` antes de substituir um asse
   aprovação de paleta/etapas já autorizadas. Respeitar limites de ferramentas e
   permissões reais; não enviar mensagens externas sem autorização específica.
 
+## 🔴 Suíte de testes: um agente por vez (achado real, 14/09/2026)
+
+**Não rodar `tools/rodar_testes.sh` enquanto a outra sessão está rodando a dela.**
+
+Aconteceu: as duas suítes correram juntas e a minha deu **8 reprovações**, todas
+em testes pesados de mapa. Rodados um a um depois, **os 8 passavam**. Nenhuma
+regressão — puro tempo.
+
+Duas causas, e as duas continuam valendo:
+
+1. **CPU.** A VPS tem 2 núcleos, compartilhados com n8n, Postgres, Evolution e o
+   jogo publicado. O runner corta cada teste em `timeout 300`. Com dois Godot
+   disputando, os testes de geração de mapa estouram esse corte.
+2. **Arquivo compartilhado.** `rodar_testes.sh` escreve em `/tmp/saida_teste.txt`.
+   Duas instâncias do MESMO script sobrescrevem o log uma da outra e o resultado
+   passa a ser sorteio. (Quem usar log próprio por worktree evita só esta
+   metade do problema — a de CPU fica.)
+
+**Combinado:** antes de disparar a suíte inteira, conferir
+`ps aux | grep godot4`. Se a outra sessão estiver rodando, esperar ou usar
+`tools/rodar_testes.sh --so <padrão>` no que interessa.
+
+**E o mais importante:** uma reprovação em rodada sob carga **não é regressão até
+ser reproduzida sozinha**. Rodar o teste isolado antes de sair caçando bug — ou
+pior, antes de "consertar" código que está certo.
+
 Referências de configuração: [AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
 e [worktrees](https://learn.chatgpt.com/docs/environments/git-worktrees).

@@ -89,3 +89,35 @@ certas.**
 O terceiro era o único item acionável do meu lado e estava bloqueando você:
 sinal conta **mudança**, e ninguém reconstitui o presente só com mudança. Uma
 HUD aberta no meio de uma recarga nascia mostrando tudo pronto.
+
+
+---
+
+## D-003 — Contratos gameplay↔UI da Gameplay V2, fechados
+
+**Data:** 14/09/2026 · **Testado:** `teste_laboratorio_v2.gd`, 50 conferências
+
+O Codex listou 5 buracos que impediam a HUD do Laboratório. A lista estava
+certa inteira — inclusive que eu tinha **prometido `EstadoV2.instantaneo()` na
+RFC e não construído**. Fechados:
+
+| Contrato | O que é |
+|---|---|
+| `Laboratorio.estado()` | Retrato tipado (números e ids). `progresso` 0→1, nunca segundos |
+| `Laboratorio.contexto()` | **Separado de propósito**: frases, pra humano ler no recado de feedback. Nunca contrato de UI |
+| `pokemon_ativo_mudou(estado)` | A HUD desconecta do antigo e conecta no novo |
+| `ordem_mudou(ordem, alvo_id)` | Inclui a volta automática pra "seguir" quando o alvo some |
+| `recarga_mudou(slot, progresso)` | Incremental, só a cada 5% (e sempre no 1.0) |
+| `contexto_de_camera(nome, prioridade)` | boss 30 > combate_grande 20 > combate 10 > exploração 0. Reavaliado **1×/s**, não por quadro, pra o zoom não oscilar |
+| `golpe_telegrafado(cast_id, dados)` | Geometria resolvida em pixels/radianos |
+| `telegrafia_encerrada(cast_id, motivo)` | "impacto" / "cancelado" / "interrompido" — interrupção apaga o aviso na hora |
+| Fachada pública do Laboratório | `mover`, `soltar_movimento`, `usar_skill`, `ordenar`, `tocar_no_mundo`, `trocar_pokemon`, `proximo_pokemon`. A HUD não depende de método com `_` |
+
+**A garantia com teste:** `Telegrafia.gd` lê os mesmos padrões que
+`FormaDeArea.alvos()`, e o teste compara os dois raios. Área desenhada e área
+que acerta não podem virar duas contas.
+
+**Export web de teste do Laboratório: é do Codex** (ele pediu, concordei).
+
+**Em aberto:** quem manda em `cast_time`. Claude argumenta que é regra de
+combate (janela de interrupção e esquiva), não timing visual.

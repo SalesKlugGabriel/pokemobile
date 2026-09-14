@@ -4726,3 +4726,161 @@ Duas armadilhas do projeto reencontradas: autoload não é identificador em test
 `--script` (resolvido carregando `DamageCalculator` por caminho, como
 `teste_itens_equipados.gd` já fazia), e o runner exige a linha exata
 `=== Resultado:` — sem ela, o teste "passa" sem ter rodado.
+
+## 2026-09-14 (mesmo dia) — Protótipo vertical no ar + feedback aplicado à V2
+
+Pedido do Gabriel: *"a última coisa que farei é jogar para conferir, o sistema
+de feedback é importantíssimo... aplique na V2 também e informe o codex"*.
+Duas leituras que mudaram a ordem do trabalho: se ele joga por último, a ponte
+de feedback é **pré-requisito**, não extra; e um recado só vale o contexto que
+vai junto.
+
+### Ponte de feedback ganhou dois pontos de extensão
+
+- **`registrar_fonte(nome, callable)`** — cada sistema descreve o próprio
+  estado. A V2 registra posição, velocidade, stamina, exaustão, vida, ordem
+  ativa do Pokémon, se está castando, recarga de cada golpe e quantos selvagens
+  estão em pé. O Codex pluga a HUD dele pelo mesmo gancho. Motivo de ser assim:
+  se eu colhesse o estado dos outros, toda tela nova dependeria de eu lembrar
+  de editar este arquivo — e eu ia esquecer.
+- **`anotar(frase)` + linha do tempo** — anel fixo de 40 acontecimentos com
+  tempo relativo ao recado (`-2.4s`). A print mostra o instante; quase todo bug
+  de jogo de ação está no que veio ANTES.
+- **Corrigido**: o caminho de celular (`window.prompt`) mandava recado mais
+  pobre que o de desktop — ficou sem a linha do tempo. É o caminho que o Gabriel
+  de fato usa.
+
+### Protótipo vertical (§2) roda — 19 conferências num teste que carrega a cena
+
+`scenes/gameplay_v2/Laboratorio.tscn`: treinador com movimento contínuo e
+stamina, Pokémon que **obedece ordens** (seguir/atacar/ir/manter/recuar) com
+ataque básico automático, 6 selvagens com 3 personalidades, 1 Alpha, 4 skills,
+troca entre 3 Pokémon custando stamina, obstáculos e colisão.
+
+Peças novas: `MesaDeComandos` (§7, sem fila — ordem nova substitui a anterior),
+`CombatenteV2` (stats/vida/cast/recarga compartilhados), `PokemonAtivoV2`,
+`SelvagemV2` (reusa `ComportamentoSelvagem` inteiro — não há segunda IA),
+`TreinadorV2`, `Contorno`.
+
+**Câmera, HUD e visual continuam do Codex** — a cena usa formas coloridas e uma
+`Camera2D` crua marcada como provisória no código.
+
+### Três bugs reais achados pelo teste, e um erro meu de teste
+
+1. **O Pokémon entalava na primeira parede entre ele e o alvo.**
+   `move_and_slide` desliza em quina, mas de frente contra face reta o deslize é
+   zero. É a §61 ("prevenção de deadlock"). Resolvido com `Contorno.gd` — não é
+   pathfinding, resolve muro, e isso está declarado no código.
+2. **Golpe inexistente no `moves.json` sumia calado** — metade do kit do
+   Charizard de teste não carregou e nada avisou (os IDs usam `_`, não `-`).
+   Agora grita. Mesma classe do "R$ 50 milhões que não mudaram o VPL".
+3. **`TreinadorV2` lia teclado direto todo quadro**, sobrescrevendo intenção
+   vinda de fora — ia quebrar os controles de toque do Codex do mesmo jeito que
+   quebrou o teste. Agora existe `le_teclado`, que é a porta do toque.
+4. *(erro meu, não do jogo)* Em headless o laço corre muito mais rápido que a
+   física de 60 Hz; eu contava QUADROS e media quase nenhum tempo simulado.
+   Passei a contar tempo real.
+
+### Achado sobre a suíte, sem relação com o código
+
+A primeira rodada completa deu 8 reprovações, todas em testes pesados de mapa.
+Rodados um a um, **os 8 passam**. Causa: a VPS tem 2 núcleos compartilhados com
+n8n/Postgres/Evolution, e o runner corta cada teste em 300 s. Não é regressão —
+mas é motivo pra não confiar numa rodada única sob carga.
+
+### Contratos gameplay↔UI fechados (mesmo dia)
+
+O Codex foi montar a HUD do Laboratório e listou 5 buracos. A lista estava certa
+inteira — inclusive que **eu prometi `EstadoV2.instantaneo()` na RFC e não
+construí**. Ele achou o vazio. Mesmo erro de citar API inexistente que já me
+custou tempo antes; desta vez custou o tempo de outra pessoa.
+
+Fechados: `estado()` tipado (separado de `contexto()`, que é frase pra humano
+ler no recado), `pokemon_ativo_mudou`, `ordem_mudou` (inclusive a volta
+automática pra seguir), `recarga_mudou` incremental, fachada pública pro toque
+(a HUD não pode depender de método com `_`), `contexto_de_camera` com prioridade
+reavaliado 1×/s, e telegrafia com geometria resolvida em pixels.
+
+Garantia com teste: `Telegrafia.gd` lê os mesmos padrões que `FormaDeArea`, e o
+teste compara os dois raios — área desenhada e área que acerta não podem virar
+duas contas.
+
+### 🔴 As 8 reprovações da suíte: causa achada, não era regressão
+
+**O Codex estava rodando a suíte dele ao mesmo tempo**, na worktree
+`/root/pokemobile-v2-codex`. Dois Godot em 2 núcleos estouram o `timeout 300`
+por teste. Rodada sozinha depois: **108 arquivos, 0 falhas**. Regra escrita no
+`AGENTS.md`: conferir `ps aux | grep godot4` antes de disparar a suíte, e
+**reprovação sob carga não é regressão até ser reproduzida isolada**.
+
+## 2026-09-14 (parte 3) — Passos 7, 8 e 10: efeitos, corpo e a recalibração
+
+### Passo 8 — `LivroDeEfeitos` (§16, §17, §18, §23, §24)
+
+Livro-razão, não variável: o valor de um atributo é **sempre** a soma das linhas
+vivas. É o que permite o caso da §16 que uma variável não resolve — dois efeitos
+opostos que se compensam mas continuam correndo, e quando um acaba o outro volta
+a valer sozinho.
+
+Os testes usam **os exemplos numéricos que o próprio Gabriel escreveu**:
+`+15% / −10% = +5%`, `Poison 20/tick 8s + 30/tick 5s = 30/tick 8s`.
+
+### Passo 10 — `RegrasDeCorpo` (§28 a §31)
+
+Derrotar → cadáver de 10–15 s → **uma** tentativa. Chance escondida do jogador
+(mostrar "23%" vira planilha e mata a tensão). Alpha não é capturável; lendário
+tem a menor chance do jogo mas nunca zero; sorte ajuda pouco e **não** toca no
+drop exclusivo de Alpha (§30).
+
+🔴 Bug achado pelo próprio teste: o teto da chance de loot comum era aplicado
+**antes** da sorte, então `sorte = 999` levava a chance a 2,9 — drop garantido.
+
+### Passo 7 — a recalibração virou outra coisa
+
+Ia ajustar o Alpha. Encontrou três coisas, em ordem:
+
+1. 🔴 **Eu escolhi o pior confronto possível** — Charizard (Fire/Flying) contra
+   Onix (Rock/Ground): Rock bate 4× nele, Fire bate 0,5× no Onix. O jogador
+   perdia 0/60 e eu quase recalibrei o Alpha em cima de uma chacina que a §15
+   **manda existir**. A simulação estava certa; errada estava a escolha do par.
+   A tabela de tipos do confronto agora sai impressa, pra isso não se repetir.
+2. 🔴 **`ALPHA_HP_MULT = 3.0` contradiz a §30**, que diz "+35% em todos os seis
+   stats". O ×3 é da Fase 2, anterior à especificação. A especificação ganha.
+3. 🔴 **O Alpha nunca foi o problema.** Com a régua atual, uma luta equilibrada
+   entre dois Lv40 dura **4,6 segundos** — e em 4,6 s não dá pra posicionar, ler
+   ataque nem esquivar, que é a §9 inteira. Nenhum multiplicador de Alpha
+   consertava isso.
+
+**Medido e corrigido só na V2** (`BalanceV2.VIDA_MULT = 4.0`): a luta foi de
+4,6 s para **18 s**. Mexi na VIDA e não no dano de propósito — matematicamente
+dá no mesmo, mas dano ÷ 4 faria os golpes tirarem 3 de 237, números pequenos
+demais pra sentir diferença. Vida × 4 mantém o golpe em 13 e alonga a barra,
+que é o padrão das referências que o Gabriel deu (Tibia, PXG, Eterspire).
+
+**A V1 não foi tocada** (D-001). Reverter é trocar um número em `BalanceV2.gd`.
+
+Com o Alpha fixo em +35% pela §30, a pergunta virou "o que isso exige do
+jogador": **4 níveis de vantagem**. É o número que decide onde um Alpha pode
+aparecer no mundo.
+
+### Passo 9 — o grito do bando (§26, §27)
+
+Último item meu antes do playtest. Reaproveita `ComportamentoSelvagem.quem_ouve_o_grito()`
+inteiro — só da mesma espécie, só dentro do raio, no máximo N, os mais perto
+primeiro. O que faltava era o corpo chamar.
+
+Duas decisões que a especificação exige e que é fácil perder:
+
+- **Quem foi chamado não grita de novo.** Cada bicho carrega `saltos_de_grito`;
+  quem viu sozinho entra com 0, quem foi chamado entra com 1. Sem isso, A chama
+  B, B chama C, e em segundos o mapa inteiro está em cima do jogador — a
+  corrente de aggro que a §27 manda evitar.
+- **Atraso sorteado por bicho** (0,4 a 1,8 s). O bando inteiro pulando no mesmo
+  quadro parece script, não animal — e o atraso é o que dá ao jogador a chance
+  de ver o segundo vindo e reagir.
+
+🔴 **O primeiro teste do grito estava errado, não o código.** Ele batia num
+selvagem que **já estava lutando** — e quem já está na briga não grita de novo,
+de propósito. O teste media a ausência do grito e chamava de bug. Reescrito pra
+**montar a situação** que quer medir (dois bichos de bando da mesma espécie,
+parados, lado a lado) em vez de torcer pra ela acontecer.
