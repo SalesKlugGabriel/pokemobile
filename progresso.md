@@ -5196,3 +5196,57 @@ Ele tem HUD, câmera e telegrafia **commitadas e não integradas** na branch
 `agent/codex-gameplay-v2` (commit `28a764e`, 1.209 linhas). **Precisa ser
 avisado do pivô antes de investir mais** — parte disso vira legado. Pelo §46 do
 pedido, ele fica fora até o slice 3D existir.
+
+## Fase 2 ✅ — a medição que decidiu o renderer
+
+Medido no **desktop do Gabriel**, navegador real, `gl_compatibility`, 1592×720,
+com 20 mil instâncias em MultiMesh + 40 corpos com física + sombra ligada:
+
+| Vegetação | FPS |
+|---:|---:|
+| 0 | 83,5 · 500 → 86,0 · 2.000 → 83,5 · 8.000 → 76,0 |
+| **20.000** | **67,0** |
+
+**Piso de 67 FPS, acima da meta de 60.** Não precisamos abrir mão do export web.
+Ruído medido de ~3 FPS (500 plantas deu mais que 0) — diferença abaixo disso não
+é real. ⚠️ Isto é desktop; o celular ainda precisa ser medido, na Fase 19.
+
+🔴 **A medição na VPS dava 8 FPS reto em todos os cinco degraus** — e o "reto"
+denunciava o próprio erro: se a cena fosse o gargalo, o número cairia. Esta VPS
+não tem GPU (`/dev/dri` não existe) e o Chromium caiu em rasterização por
+software. **Medi o SwiftShader, não o jogo.** Publiquei o build num subcaminho
+(`/v3medicao/`) copiando direto pro container em execução — sem rebuild e sem
+redeploy, pra não arriscar o jogo que está no ar.
+
+🔵 Achado de brinde na captura: a HUD da V2 e o botão de feedback desenham **por
+cima da cena 3D**. Os autoloads sobrevivem ao pivô sem adaptação — prova visual
+do que a tabela de migração afirmava.
+
+## Fase 3 ✅ — treinador 3D, 36 conferências
+
+- **`ControlModeManager`** (§12) construído **antes** dos controladores, de
+  propósito: toda troca de corpo é troca de dono do input, e construir o árbitro
+  depois seria deixar o bug acontecer antes de ter como evitá-lo. A decisão que
+  importa é **desligar, não ignorar**: quem não está ativo tem
+  `set_process_input(false)`, em vez de um `if` que alguém esquece.
+  A física continua rodando — o treinador **permanece no mundo** (§17).
+- **`Locomocao3D`** — a `Locomocao` da V2 com um eixo a mais, ainda classe pura.
+  Herdou normalizar num lugar só, atrito maior que aceleração e respeito ao
+  analógico parcial. Novo: gravidade, velocidade terminal e ângulo máximo de
+  subida (46°), que é o que separa ladeira de parede.
+- **`CameraTerceiraPessoa`** — `SpringArm3D` (ele já resolve encostar na parede
+  sem atravessar). O movimento segue o olhar, não o norte do mundo.
+- **`TrainerController3D`** — e a **`Stamina` da V2 entrou sem uma linha
+  alterada**. Classe pura nunca soube se o jogo era 2D.
+
+### 🔴 Dois bugs achados pelo teste
+
+1. **O laço de medição rodava com a medição desligada.** Pior: com `_degrau =
+   -1`, e em GDScript índice negativo conta do fim — então `DEGRAUS[-1]` dava
+   20000 e o teste imprimia uma medição de 20 mil plantas **que nunca
+   aconteceu**. Zero silencioso com número convincente, a pior espécie.
+2. **O teste media "está andando" tarde demais**, quando o treinador já tinha
+   encostado num degrau de 0,8 m — e reprovava um controlador correto. Degrau
+   dessa altura é *parede* pra uma cápsula (o Godot 4 não tem step-climb
+   automático). Baixei os degraus e movi a medição pra antes do obstáculo.
+   O step-climb de verdade é problema da Fase 4, e fica declarado.

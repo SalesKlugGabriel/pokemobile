@@ -45,11 +45,39 @@ var _multimesh : MultiMeshInstance3D = null
 var _terminou : bool = false
 var _tela : Label = null
 
+## Fase 3: a cena deixou de ser só a régua de FPS e virou o laboratório.
+## `medir_fps` liga a medição da Fase 2, que fica disponível pra repetir em
+## outro aparelho sem precisar de um build separado.
+@export var medir_fps : bool = false
+
+var treinador : TrainerController3D = null
+var controle : ControlModeManager = null
+
 func _ready() -> void:
-	_montar_tela()
 	_montar_base()
-	_montar_corpos()
-	_proximo_degrau()
+	controle = ControlModeManager.new()
+	controle.name = "ControlModeManager"
+	add_child(controle)
+
+	if medir_fps:
+		_montar_tela()
+		_montar_corpos()
+		_proximo_degrau()
+		return
+
+	_montar_treinador()
+	_povoar(600)   # vegetação leve, só pra ter referência de movimento no mundo
+	PonteDeFeedback.anotar("Laboratório 3D aberto (Fase 3)")
+
+## §11 + §12: o treinador nasce, e o árbitro de input é quem lhe dá o controle.
+## Nunca o contrário — o controlador não se auto-ativa.
+func _montar_treinador() -> void:
+	treinador = TrainerController3D.new()
+	treinador.name = "TrainerController3D"
+	treinador.position = Vector3(0, 2, 0)
+	add_child(treinador)
+	controle.registrar(ControlModeManager.WORLD, treinador)
+	controle.trocar_para(ControlModeManager.WORLD)
 
 ## A medição precisa ser LEGÍVEL no aparelho de quem mede. A primeira versão só
 ## imprimia no console e entregava o resultado a `window.__v3` — inútil pra
@@ -93,6 +121,11 @@ func _montar_base() -> void:
 	mat.albedo_color = Color(0.25, 0.35, 0.22)
 	chao.material_override = mat
 	add_child(chao)
+
+	# Relevo simples: uma colina e alguns degraus. Sem isso, "subir e atravessar
+	# terreno" (critério 5 da §51) não tem como ser testado — chão plano aprova
+	# qualquer controlador.
+	_montar_relevo()
 
 	var corpo_do_chao := StaticBody3D.new()
 	var forma := CollisionShape3D.new()
@@ -157,6 +190,44 @@ func _montar_corpos() -> void:
 		c.position = Vector3(randf_range(-30, 30), 2.0, randf_range(-30, 30))
 		add_child(c)
 
+## Colina e degraus, com colisão. Formas grosseiras de propósito: terreno de
+## verdade é a Fase 4, e o que precisa ser provado agora é o CONTROLADOR.
+func _montar_relevo() -> void:
+	var relevo := StaticBody3D.new()
+	relevo.name = "Relevo"
+	add_child(relevo)
+
+	# Uma rampa subível (~25°) e uma parede íngreme (~70°) lado a lado: é o par
+	# que prova a regra do ângulo máximo — uma o treinador sobe, a outra não.
+	for dados in [
+			{"pos": Vector3(8, 0, -6), "tam": Vector3(10, 4, 10), "rot": -25.0},
+			{"pos": Vector3(-10, 0, -6), "tam": Vector3(8, 6, 8), "rot": -70.0},
+			# Degraus baixos (0,3 m): o `floor_snap_length` do corpo sobe isso
+			# sozinho. Degrau de 0,8 m é PAREDE pra uma cápsula — o Godot 4 não
+			# tem step-climb automático, e fingir que tem seria esconder um
+			# problema que a Fase 4 precisa resolver de verdade.
+			{"pos": Vector3(0, 0.15, -14), "tam": Vector3(6, 0.3, 6), "rot": 0.0},
+			{"pos": Vector3(0, 0.45, -20), "tam": Vector3(6, 0.3, 6), "rot": 0.0},
+		]:
+		var forma := CollisionShape3D.new()
+		var caixa := BoxShape3D.new()
+		caixa.size = dados["tam"]
+		forma.shape = caixa
+		forma.position = dados["pos"]
+		forma.rotation_degrees.x = dados["rot"]
+		relevo.add_child(forma)
+
+		var vis := MeshInstance3D.new()
+		var malha := BoxMesh.new()
+		malha.size = dados["tam"]
+		vis.mesh = malha
+		vis.position = dados["pos"]
+		vis.rotation_degrees.x = dados["rot"]
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.45, 0.4, 0.33)
+		vis.material_override = mat
+		relevo.add_child(vis)
+
 func _povoar(quantos: int) -> void:
 	var mm : MultiMesh = _multimesh.multimesh
 	mm.instance_count = quantos
@@ -183,7 +254,12 @@ func _proximo_degrau() -> void:
 	_quadros = 0
 
 func _process(delta: float) -> void:
-	if _terminou:
+	# 🔴 Sem esta linha o laço de medição roda mesmo com `medir_fps` desligado —
+	# e pior, com `_degrau = -1`. Em GDScript índice negativo conta do fim, então
+	# `DEGRAUS[-1]` devolvia 20000 e o teste da Fase 3 imprimia uma medição de
+	# 20 mil plantas que nunca aconteceu. Zero silencioso com número convincente,
+	# que é a pior espécie.
+	if not medir_fps or _terminou:
 		return
 	_tempo += delta
 	if _tempo <= SEGUNDOS_DESCARTADOS:

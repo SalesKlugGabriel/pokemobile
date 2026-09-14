@@ -31,10 +31,10 @@ continua Pokémon.
 
 | | |
 |---|---|
-| **Fase atual** | **3 — treinador 3D** (0, 1 e 2 fechadas) |
-| **Branch** | `agent/claude-v3` (a criar) · `main` segue com a V2 |
-| **Código V3 escrito** | **nenhum**, de propósito |
-| **Bloqueio** | RFC esperando o Gabriel |
+| **Fase atual** | **4 — terreno 3D** (0 a 3 fechadas) |
+| **Branch** | `agent/claude-v3` · `main` segue com a V2 |
+| **Código V3 escrito** | árbitro de input, locomoção 3D, câmera de 3ª pessoa, treinador |
+| **Bloqueio** | decisão 1 (billboard × modelo) trava a Fase 5 |
 
 ### Decisões em aberto (precisam do Gabriel)
 
@@ -80,10 +80,10 @@ rodando** — não quando o código existe.
 | # | Fase | Estado | Nota |
 |---|---|---|---|
 | 0 | Auditoria | ✅ | 14/09 · `MIGRATION_V2_TO_V3.md` |
-| 1 | Documentação / RFC | 🔵 em revisão | RFC aberto |
+| 1 | Documentação / RFC | ✅ | 6 documentos |
 | 2 | Cena 3D experimental isolada | ✅ | 14/09 · **medido em navegador real: piso de 67 FPS** |
-| 3 | Treinador em 3ª pessoa | 🔵 em andamento | `TrainerController3D` |
-| 4 | Terreno 3D | ⬜ | decisão 3 |
+| 3 | Treinador em 3ª pessoa | ✅ | 14/09 · 36 conferências · `ControlModeManager` + `Locomocao3D` + `CameraTerceiraPessoa` |
+| 4 | Terreno 3D | 🔵 próxima | decisão 3 · relevo provisório já existe no laboratório |
 | 5 | Pokémon 3D | ⬜ | **decisão 1** |
 | 6 | Companion Pokémon | ⬜ | |
 | 7 | Transferência Treinador → Pokémon | ⬜ | o coração da fantasia |
