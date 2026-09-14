@@ -4726,3 +4726,64 @@ Duas armadilhas do projeto reencontradas: autoload não é identificador em test
 `--script` (resolvido carregando `DamageCalculator` por caminho, como
 `teste_itens_equipados.gd` já fazia), e o runner exige a linha exata
 `=== Resultado:` — sem ela, o teste "passa" sem ter rodado.
+
+## 2026-09-14 (mesmo dia) — Protótipo vertical no ar + feedback aplicado à V2
+
+Pedido do Gabriel: *"a última coisa que farei é jogar para conferir, o sistema
+de feedback é importantíssimo... aplique na V2 também e informe o codex"*.
+Duas leituras que mudaram a ordem do trabalho: se ele joga por último, a ponte
+de feedback é **pré-requisito**, não extra; e um recado só vale o contexto que
+vai junto.
+
+### Ponte de feedback ganhou dois pontos de extensão
+
+- **`registrar_fonte(nome, callable)`** — cada sistema descreve o próprio
+  estado. A V2 registra posição, velocidade, stamina, exaustão, vida, ordem
+  ativa do Pokémon, se está castando, recarga de cada golpe e quantos selvagens
+  estão em pé. O Codex pluga a HUD dele pelo mesmo gancho. Motivo de ser assim:
+  se eu colhesse o estado dos outros, toda tela nova dependeria de eu lembrar
+  de editar este arquivo — e eu ia esquecer.
+- **`anotar(frase)` + linha do tempo** — anel fixo de 40 acontecimentos com
+  tempo relativo ao recado (`-2.4s`). A print mostra o instante; quase todo bug
+  de jogo de ação está no que veio ANTES.
+- **Corrigido**: o caminho de celular (`window.prompt`) mandava recado mais
+  pobre que o de desktop — ficou sem a linha do tempo. É o caminho que o Gabriel
+  de fato usa.
+
+### Protótipo vertical (§2) roda — 19 conferências num teste que carrega a cena
+
+`scenes/gameplay_v2/Laboratorio.tscn`: treinador com movimento contínuo e
+stamina, Pokémon que **obedece ordens** (seguir/atacar/ir/manter/recuar) com
+ataque básico automático, 6 selvagens com 3 personalidades, 1 Alpha, 4 skills,
+troca entre 3 Pokémon custando stamina, obstáculos e colisão.
+
+Peças novas: `MesaDeComandos` (§7, sem fila — ordem nova substitui a anterior),
+`CombatenteV2` (stats/vida/cast/recarga compartilhados), `PokemonAtivoV2`,
+`SelvagemV2` (reusa `ComportamentoSelvagem` inteiro — não há segunda IA),
+`TreinadorV2`, `Contorno`.
+
+**Câmera, HUD e visual continuam do Codex** — a cena usa formas coloridas e uma
+`Camera2D` crua marcada como provisória no código.
+
+### Três bugs reais achados pelo teste, e um erro meu de teste
+
+1. **O Pokémon entalava na primeira parede entre ele e o alvo.**
+   `move_and_slide` desliza em quina, mas de frente contra face reta o deslize é
+   zero. É a §61 ("prevenção de deadlock"). Resolvido com `Contorno.gd` — não é
+   pathfinding, resolve muro, e isso está declarado no código.
+2. **Golpe inexistente no `moves.json` sumia calado** — metade do kit do
+   Charizard de teste não carregou e nada avisou (os IDs usam `_`, não `-`).
+   Agora grita. Mesma classe do "R$ 50 milhões que não mudaram o VPL".
+3. **`TreinadorV2` lia teclado direto todo quadro**, sobrescrevendo intenção
+   vinda de fora — ia quebrar os controles de toque do Codex do mesmo jeito que
+   quebrou o teste. Agora existe `le_teclado`, que é a porta do toque.
+4. *(erro meu, não do jogo)* Em headless o laço corre muito mais rápido que a
+   física de 60 Hz; eu contava QUADROS e media quase nenhum tempo simulado.
+   Passei a contar tempo real.
+
+### Achado sobre a suíte, sem relação com o código
+
+A primeira rodada completa deu 8 reprovações, todas em testes pesados de mapa.
+Rodados um a um, **os 8 passam**. Causa: a VPS tem 2 núcleos compartilhados com
+n8n/Postgres/Evolution, e o runner corta cada teste em 300 s. Não é regressão —
+mas é motivo pra não confiar numa rodada única sob carga.

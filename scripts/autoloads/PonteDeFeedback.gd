@@ -188,7 +188,15 @@ func _perguntar_no_navegador() -> void:
 	var texto := str(resposta).strip_edges()
 	if texto == "":
 		return
-	_fila.append({"texto": texto, "contexto": coletar_contexto(), "print": _print_atual})
+	# Mesmo conteúdo do painel de desktop, inclusive a linha do tempo — este é o
+	# caminho que o Gabriel usa no celular, e era justamente o que estava
+	# saindo mais pobre que o outro.
+	_fila.append({
+		"texto": texto,
+		"contexto": coletar_contexto(),
+		"linha_do_tempo": linha_do_tempo(),
+		"print": _print_atual,
+	})
 	_gravar_fila()
 	_tentar_enviar_fila()
 	_mostrar_aviso("Recado enviado. Obrigado!")
@@ -230,6 +238,7 @@ func _enviar() -> void:
 	var recado := {
 		"texto": texto,
 		"contexto": coletar_contexto(),
+		"linha_do_tempo": linha_do_tempo(),
 		"print": _print_atual,
 	}
 	fechar()
@@ -280,7 +289,82 @@ func coletar_contexto() -> Dictionary:
 					nome = "#%d" % id_especie
 			ctx["pokemon"] = nome
 			ctx["nivel"] = int(ativo.get("level", 0))
+
+	# Estado que só quem construiu o sistema sabe descrever (14/09). Ver
+	# `registrar_fonte()` logo abaixo — é o que deixa a Gameplay V2 e a HUD do
+	# Codex acrescentarem contexto sem ninguém precisar editar este arquivo.
+	for nome_da_fonte in _fontes.keys():
+		var c : Callable = _fontes[nome_da_fonte]
+		if not c.is_valid():
+			continue
+		var extra = c.call()
+		if extra is Dictionary and not (extra as Dictionary).is_empty():
+			ctx[str(nome_da_fonte)] = extra
 	return ctx
+
+# ──────────────────────────────────────────────────────────────────────────
+# Fontes de contexto — o ponto de extensão (14/09)
+# ──────────────────────────────────────────────────────────────────────────
+#
+# Pedido do Gabriel: *"o sistema de feedback é importantíssimo para conseguir
+# explicar onde estão os bugs e erros do jogo, aplique na V2 também"*.
+#
+# A ponte já colhia mapa, tile, FPS e Pokémon ativo. Só que isso descreve o jogo
+# ATUAL. A Gameplay V2 tem estado que não existia — velocidade contínua,
+# stamina, exaustão, ordem dada ao Pokémon — e a HUD do Codex tem o dela.
+#
+# Em vez de esta classe passar a conhecer os dois (e virar o lugar onde todo
+# sistema novo precisa ser lembrado), cada um REGISTRA uma função que devolve um
+# dicionário. Quem sabe descrever o próprio estado é quem o construiu.
+
+var _fontes : Dictionary = {}
+
+## Registra uma fonte de contexto. `nome` vira uma seção no recado.
+##
+## A função tem que ser barata e sem efeito colateral: ela roda no momento em
+## que o Gabriel aperta F2, com o jogo pausado.
+func registrar_fonte(nome: String, funcao: Callable) -> void:
+	if nome.strip_edges() == "" or not funcao.is_valid():
+		return
+	_fontes[nome] = funcao
+
+func remover_fonte(nome: String) -> void:
+	_fontes.erase(nome)
+
+# ──────────────────────────────────────────────────────────────────────────
+# Linha do tempo — o que aconteceu ANTES do recado (14/09)
+# ──────────────────────────────────────────────────────────────────────────
+#
+# A print mostra o instante. Quase todo bug de jogo de ação, porém, está no que
+# veio antes: "usei o golpe, ele travou, aí o bicho atravessou a parede".
+# Sem isso, o recado conta o sintoma e eu tenho que adivinhar a causa.
+#
+# Anel de tamanho fixo: nunca cresce, nunca precisa ser limpo, e o mais antigo
+# cai sozinho. Guardar tudo seria vazamento de memória num jogo que roda horas.
+
+const EVENTOS_GUARDADOS : int = 40
+var _eventos : Array = []
+
+## Anota um acontecimento. `o_que` é uma frase curta em português — quem lê é
+## uma pessoa, não um programa.
+func anotar(o_que: String) -> void:
+	if o_que.strip_edges() == "":
+		return
+	_eventos.append({"t": Time.get_ticks_msec(), "o_que": o_que})
+	if _eventos.size() > EVENTOS_GUARDADOS:
+		_eventos.pop_front()
+
+## Os últimos acontecimentos, com o tempo RELATIVO ao recado ("-2.4s"). Tempo
+## absoluto desde que o jogo ligou não diz nada pra quem lê.
+func linha_do_tempo() -> Array:
+	var agora := Time.get_ticks_msec()
+	var out : Array = []
+	for e in _eventos:
+		out.append({
+			"quando": "-%.1fs" % (float(agora - int(e["t"])) / 1000.0),
+			"o_que": str(e["o_que"]),
+		})
+	return out
 
 func _tentar_enviar_fila() -> void:
 	if _fila.is_empty():
