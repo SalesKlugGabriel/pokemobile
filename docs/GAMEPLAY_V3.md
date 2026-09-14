@@ -31,7 +31,7 @@ continua Pokémon.
 
 | | |
 |---|---|
-| **Fase atual** | **1 — documentação** (a 0 está fechada) |
+| **Fase atual** | **3 — treinador 3D** (0, 1 e 2 fechadas) |
 | **Branch** | `agent/claude-v3` (a criar) · `main` segue com a V2 |
 | **Código V3 escrito** | **nenhum**, de propósito |
 | **Bloqueio** | RFC esperando o Gabriel |
@@ -41,8 +41,34 @@ continua Pokémon.
 | # | Decisão | Quando trava |
 |---|---|---|
 | 1 | **Billboard ou modelo 3D pros Pokémon?** 605 sprites existem, 0 modelos | Fase 5 |
-| 2 | Manter `gl_compatibility` (e o export web) ou trocar de renderer? | Fase 2, depois de medir |
+| 2 | ~~Manter `gl_compatibility`?~~ | ✅ **RESOLVIDO** — medido, aguenta. Ver abaixo |
 | 3 | `Terrain3D` de terceiros ou malha própria? | Fase 4 |
+
+### ✅ A medição da Fase 2 (14/09, desktop, navegador real)
+
+`gl_compatibility` · 1592×720 · 20.000 instâncias em MultiMesh + 40 corpos com
+física + sombra direcional ligada.
+
+| Vegetação | FPS |
+|---:|---:|
+| 0 | 83,5 |
+| 500 | 86,0 |
+| 2.000 | 83,5 |
+| 8.000 | 76,0 |
+| **20.000** | **67,0** |
+
+**Piso de 67 FPS no pior caso, acima da meta de 60.** A curva cai ~20% ao
+adicionar 20 mil plantas — o MultiMesh está fazendo o trabalho dele.
+
+⚠️ **Ruído de ~3 FPS**: 500 plantas mediu *mais* que 0. Diferença abaixo disso
+não é real, e não vale tirar conclusão dela.
+
+⚠️ **Isto é DESKTOP.** O celular é o aparelho fraco e é o que decide de verdade.
+Medir nele antes da Fase 19 (polimento), quando a vegetação real existir.
+
+🔵 **Achado de brinde:** na captura dá pra ver a HUD da V2 e o botão de feedback
+desenhando **por cima da cena 3D**. Os autoloads sobrevivem ao pivô sem nenhuma
+adaptação — prova visual do que a tabela de migração afirmava.
 
 ---
 
@@ -55,8 +81,8 @@ rodando** — não quando o código existe.
 |---|---|---|---|
 | 0 | Auditoria | ✅ | 14/09 · `MIGRATION_V2_TO_V3.md` |
 | 1 | Documentação / RFC | 🔵 em revisão | RFC aberto |
-| 2 | Cena 3D experimental isolada | ⬜ | **Medir FPS no navegador aqui** |
-| 3 | Treinador em 3ª pessoa | ⬜ | `TrainerController3D` |
+| 2 | Cena 3D experimental isolada | ✅ | 14/09 · **medido em navegador real: piso de 67 FPS** |
+| 3 | Treinador em 3ª pessoa | 🔵 em andamento | `TrainerController3D` |
 | 4 | Terreno 3D | ⬜ | decisão 3 |
 | 5 | Pokémon 3D | ⬜ | **decisão 1** |
 | 6 | Companion Pokémon | ⬜ | |
