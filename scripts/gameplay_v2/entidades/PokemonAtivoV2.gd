@@ -29,8 +29,19 @@ const VELOCIDADE_BASE : float = 700.0
 ## vira "escolha o mais rápido".
 const PESO_DA_VELOCIDADE : float = 0.35
 
+## Contratos que o Codex pediu na revisão de 14/09. `ordem_mudou` inclui a volta
+## automática pra SEGUIR quando o alvo some ou o destino é alcançado — era o
+## caso que ele apontou como o mais fácil de a HUD perder.
+signal ordem_mudou(ordem: String, alvo_id: int)
+signal recarga_mudou(slot: int, progresso: float)
+
 var treinador : Node2D = null
 var comandos : MesaDeComandos = MesaDeComandos.new()
+
+## Última recarga emitida por slot, pra não mandar sinal 60×/s com o mesmo
+## número (§63: não recalcular nem reemitir tudo todo quadro).
+var _ultimo_progresso : Array[float] = []
+const PASSO_DO_SINAL : float = 0.05
 
 var _cd_basico : float = 0.0
 ## §61: sem isto ele encosta na primeira parede entre ele e o alvo e fica lá.
@@ -60,9 +71,13 @@ func _physics_process(delta: float) -> void:
 	comandos.passo(delta)
 
 	# Uma ordem que perdeu o sentido volta pro repouso sozinha — senão o Pokémon
-	# fica olhando pro lugar onde o alvo estava.
+	# fica olhando pro lugar onde o alvo estava. AVISA, porque a HUD não tem
+	# como adivinhar uma mudança que ninguém pediu.
 	if comandos.ordem == MesaDeComandos.ATACAR and not comandos.alvo_valido():
 		comandos.concluir()
+		_avisar_ordem()
+
+	_avisar_recargas()
 
 	_mover(delta)
 	_ataque_basico(delta)
@@ -156,7 +171,26 @@ func ordenar(ordem: String, dados: Dictionary = {}) -> bool:
 	var deu := comandos.ordenar(ordem, dados)
 	if deu:
 		PonteDeFeedback.anotar("ordem: %s" % comandos.descricao())
+		_avisar_ordem()
 	return deu
+
+func _avisar_ordem() -> void:
+	var a : Node = comandos.alvo if comandos.alvo_valido() else null
+	ordem_mudou.emit(comandos.ordem, a.get_instance_id() if a != null else 0)
+
+## Progresso de recarga por slot, só quando muda o bastante pra aparecer.
+func _avisar_recargas() -> void:
+	if _ultimo_progresso.size() != golpes.size():
+		_ultimo_progresso.resize(golpes.size())
+		_ultimo_progresso.fill(-1.0)
+	for i in golpes.size():
+		var p : float = progresso_da_recarga(i)
+		if absf(p - _ultimo_progresso[i]) < PASSO_DO_SINAL and not is_equal_approx(p, 1.0):
+			continue
+		if is_equal_approx(p, _ultimo_progresso[i]):
+			continue
+		_ultimo_progresso[i] = p
+		recarga_mudou.emit(i, p)
 
 func usar_skill(slot: int) -> String:
 	var alvo : Node = comandos.alvo if comandos.alvo_valido() else null

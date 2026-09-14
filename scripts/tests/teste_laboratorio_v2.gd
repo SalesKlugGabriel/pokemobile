@@ -61,7 +61,15 @@ func _process(delta: float) -> bool:
 		3:
 			if _tempo > 6.0:      # tempo de a briga acontecer
 				_conferir_combate()
+				_conferir_contratos_do_codex()
 				_fase = 4
+				_tempo = 0.0
+		4:
+			# Fase própria só pra medir o deslocamento que a fachada causou:
+			# movimento se mede em tempo decorrido, não na linha seguinte.
+			if _tempo > 0.6:
+				_conferir_fachada_moveu()
+				_fase = 5
 		_:
 			print("=== Resultado: %d ok, %d falha(s) ===" % [ok, fail])
 			quit(1 if fail > 0 else 0)
@@ -197,3 +205,91 @@ func _conferir_combate() -> void:
 	var linha : Array = PonteDeFeedback.linha_do_tempo()
 	_conf(linha.size() > 0, "a linha do tempo do feedback gravou acontecimentos",
 		"%d eventos" % linha.size())
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Os contratos que o Codex pediu na revisão de 14/09
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# Existem aqui porque ele achou uma API que eu PROMETI na RFC e não construí
+# (`EstadoV2.instantaneo()`). Contrato sem teste é promessa — e ele foi montar
+# a HUD em cima do vazio.
+
+func _conferir_contratos_do_codex() -> void:
+	# 1. Estado inicial tipado — números e ids, não frases.
+	var e : Dictionary = _lab.estado()
+	_conf(e.has("treinador") and e.has("pokemon") and e.has("inimigos"),
+		"estado() devolve as três seções")
+	var t : Dictionary = e["treinador"]
+	_conf(t.get("stamina") is float, "stamina vem como número, não texto",
+		"veio %s" % type_string(typeof(t.get("stamina"))))
+	_conf(t.get("tile") is Vector2i, "tile vem como Vector2i")
+	var p : Dictionary = e["pokemon"]
+	_conf(p.get("kit") is Array and (p["kit"] as Array).size() == 4,
+		"o kit vem com os 4 slots")
+	if p.get("kit") is Array and not (p["kit"] as Array).is_empty():
+		var s0 : Dictionary = (p["kit"] as Array)[0]
+		_conf(s0.has("progresso") and s0["progresso"] is float,
+			"cada slot traz o progresso da recarga como número")
+		_conf(s0.has("slot") and s0.has("nome") and s0.has("tipo"),
+			"e identidade suficiente pra desenhar o botão")
+	_conf(p.get("id") is int and int(p["id"]) != 0,
+		"o Pokémon ativo tem id — é o que a HUD usa pra reconectar")
+
+	# O outro contrato, o de FRASE, continua existindo e separado.
+	var ctx : Dictionary = _lab.contexto()
+	_conf(ctx["pokemon"]["vida"] is String,
+		"contexto() segue sendo texto pra humano (contratos separados)")
+
+	# 2. Fachada pública — a HUD não pode depender de método com "_".
+	for metodo in ["estado", "mover", "soltar_movimento", "usar_skill",
+			"ordenar", "tocar_no_mundo", "trocar_pokemon", "proximo_pokemon"]:
+		_conf(_lab.has_method(metodo), "fachada pública tem %s()" % metodo)
+
+	# 3. A fachada de movimento é a porta do toque: ela precisa mandar no
+	#    treinador e tirar o teclado da disputa.
+	_pos_antes_da_fachada = _lab.treinador.global_position
+	_lab.mover(Vector2(0, 1), false)
+	_conf(not _lab.treinador.le_teclado,
+		"mover() tira o teclado da disputa (é o que faz o toque funcionar)")
+	_conf(_lab.treinador.intencao == Vector2(0, 1),
+		"e empurra a intenção pedida")
+
+	# 4. Telegrafia com geometria resolvida, na mesma unidade do impacto.
+	var golpe : Dictionary = _lab.pokemon.golpes[0]
+	var d : Dictionary = Telegrafia.dados(golpe, Vector2(100, 100), Vector2.RIGHT,
+		0.5, false, null, null)
+	_conf(d.has("cast_id") and int(d["cast_id"]) > 0, "telegrafia tem cast_id")
+	_conf(d["origem"] is Vector2 and d["direcao"] is Vector2,
+		"origem e direção em coordenadas de mundo")
+	_conf(d["raio"] is float and float(d["raio"]) > 0.0,
+		"raio resolvido em pixels", "veio %s" % str(d.get("raio")))
+	_conf(d.has("hostil") and d.has("autor_id"), "diz de quem é e se é ameaça")
+	_conf(d["abertura"] is float, "abertura do cone em radianos")
+
+	# A garantia que importa: o raio do aviso é o MESMO que FormaDeArea usa.
+	var raio_da_forma : float = float(golpe.get("radius", 0.0))
+	if raio_da_forma <= 0.0:
+		raio_da_forma = float(golpe.get("range", CombatBalance.ALCANCE_PADRAO_TILES)) * CombatBalance.TILE_PX
+	_conf(is_equal_approx(float(d["raio"]), raio_da_forma),
+		"o raio desenhado é o mesmo que o raio que acerta",
+		"telegrafia %.1f, FormaDeArea %.1f" % [d["raio"], raio_da_forma])
+
+	# 5. Contexto de câmera: eu digo qual, com prioridade.
+	_conf(_lab.has_signal("contexto_de_camera"), "o sinal de contexto de câmera existe")
+	_conf(_lab.has_signal("pokemon_ativo_mudou"), "o sinal de troca de Pokémon existe")
+	_conf(_lab.pokemon.has_signal("ordem_mudou"), "ordem_mudou existe")
+	_conf(_lab.pokemon.has_signal("recarga_mudou"), "recarga_mudou existe")
+	_conf(int(_lab.PRIORIDADE["boss"]) > int(_lab.PRIORIDADE["combate_grande"]),
+		"boss tem prioridade maior que combate grande")
+
+var _pos_antes_da_fachada : Vector2 = Vector2.ZERO
+
+## Medido meio segundo depois, numa fase própria: deslocamento é efeito ao longo
+## do tempo, e conferir na linha seguinte à chamada media zero por construção.
+func _conferir_fachada_moveu() -> void:
+	var andou : float = _lab.treinador.global_position.distance_to(_pos_antes_da_fachada)
+	_conf(andou > 50.0, "e o treinador de fato andou por causa dela",
+		"andou %.0f px" % andou)
+	_lab.soltar_movimento()
+	_conf(_lab.treinador.le_teclado, "soltar_movimento() devolve o teclado")

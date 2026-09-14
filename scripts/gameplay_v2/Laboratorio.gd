@@ -43,6 +43,10 @@ const SELVAGENS : Array[Dictionary] = [
 	{"id": 74, "nivel": 38, "personalidade": "territorial","golpes": ["rock_throw", "tackle"]},
 ]
 
+## Contratos pedidos pelo Codex na revisão de 14/09.
+signal pokemon_ativo_mudou(estado: Dictionary)
+signal contexto_de_camera(nome: String, prioridade: int)
+
 var treinador : TreinadorV2 = null
 var pokemon : PokemonAtivoV2 = null
 var _indice_do_time : int = 0
@@ -214,6 +218,9 @@ func _trocar_para(indice: int) -> void:
 	add_child(pokemon)
 	treinador.pokemon = pokemon
 	PonteDeFeedback.anotar("enviou %s" % pokemon.nome_exibido)
+	# A HUD precisa desconectar do antigo e conectar no novo — sem este sinal
+	# ela ficaria escutando um nó que já foi embora (achado do Codex).
+	pokemon_ativo_mudou.emit(EstadoV2.do_pokemon(pokemon))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Entrada
@@ -263,6 +270,114 @@ func _clicar(onde: Vector2) -> void:
 func _ordem(qual: String) -> void:
 	if pokemon != null and is_instance_valid(pokemon):
 		pokemon.ordenar(qual)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fachada pública — a porta da HUD e do toque
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# Pedido do Codex: *"falta uma fachada pública estável para movimento/corrida,
+# skill, ordem, seleção de alvo ou ponto e troca. Hoje parte disso está em
+# métodos com `_` de uso interno; a HUD não deve depender deles silenciosamente."*
+#
+# Ele está certo, e o motivo é concreto: método com `_` é combinado de que pode
+# mudar sem aviso. Se a HUD dele passar a chamar `_trocar_para()`, eu quebro a
+# tela dele numa refatoração e nenhum dos dois vai entender por quê.
+
+## O retrato do agora, pra HUD nascer certa ao abrir (§ RFC, item 1).
+func estado() -> Dictionary:
+	return EstadoV2.instantaneo(treinador, pokemon,
+		get_tree().get_nodes_in_group("selvagem_v2"))
+
+## Movimento vindo do toque. `intencao` é vetor bruto (analógico pela metade
+## anda pela metade); chamar isto desliga a leitura de teclado deste quadro.
+func mover(intencao: Vector2, correndo: bool = false) -> void:
+	if treinador == null or not is_instance_valid(treinador):
+		return
+	treinador.le_teclado = false
+	treinador.intencao = intencao
+	treinador.quer_correr = correndo
+
+## Devolve o controle ao teclado (quando o jogador larga o direcional na tela).
+func soltar_movimento() -> void:
+	if treinador != null and is_instance_valid(treinador):
+		treinador.intencao = Vector2.ZERO
+		treinador.quer_correr = false
+		treinador.le_teclado = true
+
+## Usa um golpe. Devolve "" se saiu, ou o motivo da recusa em português.
+func usar_skill(slot: int) -> String:
+	if pokemon == null or not is_instance_valid(pokemon):
+		return "sem Pokémon ativo"
+	return pokemon.usar_skill(slot)
+
+## Dá uma ordem ao Pokémon. `dados` leva `alvo` (Node) ou `ponto` (Vector2).
+func ordenar(ordem: String, dados: Dictionary = {}) -> bool:
+	if pokemon == null or not is_instance_valid(pokemon):
+		return false
+	return pokemon.ordenar(ordem, dados)
+
+## Um toque no mundo: em cima de inimigo vira ATACAR, no chão vira IR.
+func tocar_no_mundo(onde: Vector2) -> void:
+	_clicar(onde)
+
+## Troca de Pokémon (§8). Devolve false se faltou stamina.
+func trocar_pokemon(indice: int) -> bool:
+	var antes := pokemon
+	_trocar_para(indice)
+	return pokemon != antes
+
+func proximo_pokemon() -> bool:
+	return trocar_pokemon((_indice_do_time + 1) % TIME_DE_TESTE.size())
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Contexto de câmera (§3)
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# Eu digo QUAL contexto está ativo; o zoom, a curva e a duração são do Codex.
+# A prioridade resolve o empate que ele levantou: com boss e interior ao mesmo
+# tempo, vence o maior número, e a UI não precisa adivinhar.
+
+const PRIORIDADE : Dictionary = {
+	"exploracao": 0, "combate": 10, "combate_grande": 20, "boss": 30,
+}
+
+var _contexto_atual : String = ""
+
+func _avaliar_contexto_de_camera() -> void:
+	var em_briga : int = 0
+	var tem_alpha : bool = false
+	for n in get_tree().get_nodes_in_group("selvagem_v2"):
+		if not (n is SelvagemV2) or (n as SelvagemV2).esta_derrotado():
+			continue
+		if (n as SelvagemV2).alvo == null:
+			continue
+		em_briga += 1
+		if String(n.name).ends_with("_ALPHA"):
+			tem_alpha = true
+
+	var novo : String = "exploracao"
+	if tem_alpha:
+		novo = "boss"
+	elif em_briga >= 3:
+		novo = "combate_grande"
+	elif em_briga >= 1:
+		novo = "combate"
+
+	if novo == _contexto_atual:
+		return
+	_contexto_atual = novo
+	contexto_de_camera.emit(novo, int(PRIORIDADE[novo]))
+
+## Reavaliado uma vez por segundo, não por quadro: contexto que oscila faz o
+## zoom pulsar, que foi exatamente o risco que o Codex levantou.
+var _relogio_da_camera : float = 0.0
+
+func _process(delta: float) -> void:
+	_relogio_da_camera += delta
+	if _relogio_da_camera < 1.0:
+		return
+	_relogio_da_camera = 0.0
+	_avaliar_contexto_de_camera()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Feedback (§ pedido do Gabriel, 14/09)

@@ -50,6 +50,9 @@ func _ready() -> void:
 func grupos_inimigos() -> Array:
 	return ["pokemon_do_jogador", "treinador_v2"]
 
+func e_hostil() -> bool:
+	return true
+
 func velocidade() -> float:
 	var spe : int = int(stats.get("spe", 50))
 	return VELOCIDADE_BASE * (1.0 + (float(spe) - 50.0) / 100.0 * 0.35)

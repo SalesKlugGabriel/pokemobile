@@ -20,6 +20,13 @@ signal derrotado(quem: Node)
 signal golpe_iniciado(slot: int, golpe: Dictionary, duracao: float)
 signal golpe_encerrado(slot: int, motivo: String)
 
+## Telegrafia (§9), no formato que o Codex pediu: geometria JÁ resolvida em
+## pixels de mundo, com `cast_id` pra ele saber qual aviso apagar. Ver
+## `Telegrafia.gd` — a resolução acontece uma vez, do lado do gameplay, pra
+## área desenhada e área que acerta nunca serem duas contas diferentes.
+signal golpe_telegrafado(cast_id: int, dados: Dictionary)
+signal telegrafia_encerrada(cast_id: int, motivo: String)
+
 const TILE : float = 128.0
 
 var species_id : int = 1
@@ -40,6 +47,7 @@ var _cast_slot : int = -1
 var _cast_resta : float = 0.0
 var _cast_dir : Vector2 = Vector2.RIGHT
 var _cast_alvo : Node = null
+var _cast_id : int = 0
 
 func montar(id_especie: int, nv: int, golpes_ids: Array = []) -> void:
 	species_id = id_especie
@@ -162,10 +170,19 @@ func usar(slot: int, direcao: Vector2, alvo: Node = null) -> String:
 	_cast_alvo = alvo
 	_cast_resta = float(g.get("cast_time", 0.0))
 
+	var dados : Dictionary = Telegrafia.dados(
+		g, global_position, _cast_dir, _cast_resta, e_hostil(), self, alvo)
+	_cast_id = int(dados["cast_id"])
 	golpe_iniciado.emit(slot, g, _cast_resta)
+	golpe_telegrafado.emit(_cast_id, dados)
 	if _cast_resta <= 0.0:
 		_resolver_cast()
 	return ""
+
+## Este golpe é ameaça pro jogador? Quem responde é a subclasse — a mesma área
+## vermelha não pode significar "corra" e "fique" ao mesmo tempo.
+func e_hostil() -> bool:
+	return false
 
 ## §11: crowd control interrompe o cast — mas a recarga JÁ correu e continua
 ## correndo. Interromper não devolve o golpe.
@@ -176,6 +193,9 @@ func interromper(motivo: String = "interrompido") -> void:
 	_cast_slot = -1
 	_cast_alvo = null
 	golpe_encerrado.emit(s, motivo)
+	# §11 / pedido do Codex: interrupção apaga o aviso NA HORA. Deixar a UI
+	# derrubar por timer mostraria um ataque que já foi cancelado.
+	telegrafia_encerrada.emit(_cast_id, motivo)
 
 func _resolver_cast() -> void:
 	var slot := _cast_slot
@@ -193,6 +213,7 @@ func _resolver_cast() -> void:
 			c.sofrer(dano, self)
 	_cast_alvo = null
 	golpe_encerrado.emit(slot, "impacto")
+	telegrafia_encerrada.emit(_cast_id, "impacto")
 
 ## Em que grupos este combatente procura inimigo. Sobrescrito pelas subclasses —
 ## é o que faz o Pokémon do jogador não bater no próprio treinador.
