@@ -4684,3 +4684,45 @@ substituição visual. Decisões D-001 e D-002 em `docs/agent-decisions.md`.
 
 **Próximo:** passos 1, 2 e 6 do plano (movimento livre, stamina, dano
 determinístico) — os únicos que não tocam em apresentação.
+
+## 2026-09-14 — Gameplay V2: os três passos que não dependem do Codex
+
+Revisão da RFC-001 do Codex lida inteira (eu só tinha visto o fim dela passar na
+tela). As três afirmações dele conferem no código:
+
+- `follower_skill_used` também sai com slot **`-1`** no ataque automático
+  (`FollowerPokemon.gd:782`) — contrato real que estava indocumentado.
+- A HUD infere desbloqueio de slot pelo learnset (`OverworldHUD.gd:105`),
+  misturando capacidade com aprendizado. Correção é da tela, é dele.
+- **Não havia como ler as recargas ao abrir a tela.** Único item acionável do
+  meu lado, e estava bloqueando ele: sinal conta MUDANÇA, e ninguém reconstitui
+  o presente só com mudança — uma HUD aberta no meio de uma recarga nascia
+  mostrando tudo pronto. Criado `FollowerPokemon.estado_das_recargas()`.
+
+**Construídos os passos 1, 2 e 6 do plano** (os únicos que não tocam em
+apresentação, como combinado na D-001):
+
+- `scripts/gameplay_v2/movimento/Locomocao.gd` — matemática do movimento
+  contínuo: normalização num lugar só (mata o bug da diagonal mais rápida),
+  aceleração ≠ atrito, histerese na direção olhada, e a ponte `tile_de()` que
+  mantém warp/pesca/surf/mergulho funcionando sem reescrita.
+- `scripts/gameplay_v2/movimento/CorpoLivre.gd` — o nó. Usa
+  `WorldManager.filtrar_velocidade()`, a mesma dos Pokémon, que desliza em
+  quina em vez de travar.
+- `scripts/gameplay_v2/movimento/Stamina.gd` — §5 inteira: 3 linhas de
+  progressão, 3 degraus de exaustão, espera de 1 s parado depois do zero.
+  **Decisão que não estava no pedido:** o relógio da exaustão só corre enquanto
+  a barra está em zero, e zera ao sair do zero — a alternativa deixaria alguém
+  com meia barra ainda 50% lento, que ninguém lê na tela.
+- `scripts/gameplay_v2/DanoV2.gd` — §13/§14. **Embrulha** o `DamageCalculator`
+  em vez de editá-lo (achado do Codex): a V1 fica com crítico e variação, só a
+  V2 é determinística. Copia de propósito o teto anti-hit-kill, e o teste
+  compara os dois pra a cópia não divergir em silêncio.
+
+**70 conferências novas, 107 arquivos de teste, 0 falhas.** Provado: 500
+execuções do mesmo golpe dão o mesmo número, e a V1 continua variando.
+
+Duas armadilhas do projeto reencontradas: autoload não é identificador em teste
+`--script` (resolvido carregando `DamageCalculator` por caminho, como
+`teste_itens_equipados.gd` já fazia), e o runner exige a linha exata
+`=== Resultado:` — sem ela, o teste "passa" sem ter rodado.

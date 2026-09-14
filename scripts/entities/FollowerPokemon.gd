@@ -544,6 +544,27 @@ func _tick_cooldowns(delta: float) -> void:
 			var progress : float = 1.0 - (_cooldowns[i] / total_cd) if total_cd > 0.0 else 1.0
 			EventBus.follower_skill_cooldown_updated.emit(i, clampf(progress, 0.0, 1.0))
 
+## Retrato das recargas AGORA, por slot — 0 = acabou de ser usada, 1 = pronta.
+##
+## Existe por um buraco que o Codex apontou na revisão da RFC-001 (13/09), e que
+## eu conferi: `follower_skill_cooldown_updated` só é emitido **enquanto** um
+## slot está recarregando. Uma HUD que abre no meio de uma recarga — ou depois
+## de trocar de líder — não recebe evento nenhum e nasce mostrando tudo pronto,
+## inclusive golpes que faltam 3 segundos.
+##
+## Sinal conta MUDANÇA; ninguém consegue reconstituir o presente só com ele.
+## Daí uma leitura sob demanda, sem efeito colateral: a tela chama ao abrir e
+## depois volta a só escutar.
+func estado_das_recargas() -> Array[float]:
+	var out : Array[float] = []
+	for i in _cooldowns.size():
+		var total : float = _cooldown_total[i] if i < _cooldown_total.size() else 0.0
+		if _cooldowns[i] <= 0.0 or total <= 0.0:
+			out.append(1.0)
+		else:
+			out.append(clampf(1.0 - (_cooldowns[i] / total), 0.0, 1.0))
+	return out
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Input de skills
 # ──────────────────────────────────────────────────────────────────────────────
