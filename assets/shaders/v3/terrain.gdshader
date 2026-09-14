@@ -28,9 +28,13 @@ void fragment() {
 	vec3 grass_light = vec3(0.28, 0.46, 0.16);
 	vec3 rock = vec3(0.29, 0.30, 0.28);
 	float n = noise(world_pos.xz * 0.11) * 0.16 + noise(world_pos.xz * 0.35) * 0.06;
+	float slope = 1.0 - clamp(NORMAL.y, 0.0, 1.0);
 	vec3 col = mix(sand, grass, smoothstep(0.7, 2.4, h));
 	col = mix(col, rock, smoothstep(11.0, 15.0, h));
+	col = mix(col, rock, smoothstep(0.38, 0.78, slope));
 	col = mix(col, grass_light, smoothstep(0.20, 0.75, noise(world_pos.xz * 0.17)) * 0.18);
+	float shore = 1.0 - smoothstep(0.0, 0.45, abs(h + 0.05));
+	col = mix(col, vec3(0.86, 0.78, 0.52), shore * 0.28);
 	ALBEDO = clamp(col + n - 0.08, 0.0, 1.0);
 	ROUGHNESS = 0.92;
 }
