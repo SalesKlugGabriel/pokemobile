@@ -36,8 +36,8 @@ def add_wing(name, side):
     # A faceted triangular wing, attached behind the shoulders.
     x = side
     verts = [(0.16*x,1.22,0.12),(0.52*x,1.42,0.18),(1.02*x,1.60,0.30),
-             (0.78*x,0.72,0.34),(0.36*x,0.86,0.18)]
-    faces = [(0,1,4),(1,2,3,4),(0,4,3)]
+             (1.20*x,1.45,0.40),(0.78*x,0.72,0.34),(0.36*x,0.86,0.18)]
+    faces = [(0,1,5),(1,2,3,4,5),(0,5,4)]
     me = bpy.data.meshes.new(name+"Mesh"); me.from_pydata(verts, [], faces); me.materials.append(BLUE)
     o = bpy.data.objects.new(name, me); bpy.context.collection.objects.link(o); parts.append(o); return o
 
@@ -46,6 +46,14 @@ add_uv("body", (0,0.86,0.08), (0.38,0.56,0.30))
 add_uv("chest", (0,1.10,-0.18), (0.28,0.37,0.24))
 add_uv("head", (0,1.43,-0.23), (0.27,0.27,0.25))
 add_uv("muzzle", (0,1.35,-0.47), (0.20,0.15,0.16))
+# Face cues make the -Z front unmistakable in third person. Eyes and nostrils
+# share the second material slot to preserve the two-material budget.
+add_uv("eye_l", (-0.105,1.49,-0.445), (0.045,0.055,0.025), BLUE, 8, 6)
+add_uv("eye_r", (0.105,1.49,-0.445), (0.045,0.055,0.025), BLUE, 8, 6)
+add_uv("brow_l", (-0.105,1.545,-0.425), (0.075,0.025,0.035), ORANGE, 8, 6)
+add_uv("brow_r", (0.105,1.545,-0.425), (0.075,0.025,0.035), ORANGE, 8, 6)
+add_uv("nostril_l", (-0.07,1.39,-0.585), (0.022,0.018,0.012), BLUE, 8, 6)
+add_uv("nostril_r", (0.07,1.39,-0.585), (0.022,0.018,0.012), BLUE, 8, 6)
 add_cone("horn_l", (-0.13,1.68,-0.23), .055, .005, .22, ORANGE, (0,0,-0.32))
 add_cone("horn_r", (0.13,1.68,-0.23), .055, .005, .22, ORANGE, (0,0,0.32))
 for s in (-1,1):
