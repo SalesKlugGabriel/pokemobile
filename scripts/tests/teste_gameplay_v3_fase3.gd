@@ -22,6 +22,9 @@ var PonteDeFeedback : Node
 ## E `PokemonInstance3D` usa `GameData` por dentro, então citá-la pelo NOME
 ## obrigaria a compilá-la antes dos autoloads existirem. Carregada por caminho.
 var Pokemon3D : GDScript
+## `Transferencia` usa `ControlModeManager`, que usa `PonteDeFeedback`. Citar
+## qualquer uma pelo nome obriga a compilar a cadeia inteira antes dos autoloads.
+var Transf : GDScript
 
 func _conf(cond: bool, nome: String, detalhe: String = "") -> void:
 	if cond:
@@ -39,6 +42,7 @@ func _process(delta: float) -> bool:
 		0:
 			PonteDeFeedback = root.get_node("PonteDeFeedback")
 			Pokemon3D = load("res://scripts/gameplay_v3/entidades/PokemonInstance3D.gd")
+			Transf = load("res://scripts/gameplay_v3/controle/Transferencia.gd")
 			_montar()
 			_fase = 1
 			_tempo = 0.0
@@ -78,6 +82,7 @@ func _process(delta: float) -> bool:
 			# O companheiro precisa de tempo pra reagir ao treinador andando.
 			if _tempo > 2.0:
 				_conferir_companheiro_seguiu()
+				_conferir_transferencia()
 				_fase = 4
 		_:
 			print("=== Resultado: %d ok, %d falha(s) ===" % [ok, fail])
@@ -622,3 +627,121 @@ func _conferir_companheiro_seguiu() -> void:
 	# E não está em cima do treinador.
 	_conf(distancia > 0.5, "sem ficar em cima do treinador (§6)",
 		"%.2f m" % distancia)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 7 — a transferência de controle (§17)
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# O coração da fantasia. E o teste que mais importa não é a ida — é a VOLTA,
+# que é a parte que os jogos costumam errar.
+
+func _conferir_transferencia() -> void:
+	print("-- Fase 7: assumir o Pokémon, e voltar")
+	if _lab.companheiro == null:
+		return
+
+	var t = _lab.treinador
+	var p = _lab.companheiro
+	var c = _lab.controle
+
+	# Onde o treinador estava e pra onde olhava, pra conferir depois da volta.
+	var pos_do_treinador : Vector3 = t.global_position
+	t.camera.definir_yaw(1.234)   # um ângulo reconhecível
+
+	_conf(c.modo == "world", "começa como treinador")
+	_conf(p.acompanha == t, "e o Pokémon está acompanhando")
+
+	# ── A ida ────────────────────────────────────────────────────────────────
+	var r : Dictionary = _lab.assumir_pokemon()
+	_conf(bool(r["ok"]), "assumir o Pokémon funciona", str(r.get("motivo", "")))
+	_conf(c.modo == "combat", "o modo virou COMBAT")
+	_conf(p.controlado_pelo_jogador, "o Pokémon passou a obedecer o jogador")
+	_conf(p.camera != null, "e ganhou câmera de 1ª pessoa")
+	_conf(p.camera.camera.current, "que virou a câmera ativa")
+	_conf(not t.camera.camera.current, "e a do treinador saiu")
+
+	# §12: nunca dois donos. É a regra mais fácil de quebrar numa troca de corpo.
+	_conf(c.quantos_ativos() == 1, "só UM controlador recebe input",
+		"%d ativos" % c.quantos_ativos())
+	_conf(not t.is_processing_input(), "o treinador parou de escutar")
+
+	# §17: o treinador PERMANECE no mundo.
+	_conf(t.is_physics_processing(),
+		"o treinador continua com física — ele permanece no mundo (§17)")
+	_conf(t.intencao == Vector2.ZERO,
+		"mas com a intenção zerada, senão andaria pra sempre na última direção")
+	_conf(t.global_position.distance_to(pos_do_treinador) < 3.0,
+		"e continua onde estava", "moveu %.1f m" % t.global_position.distance_to(pos_do_treinador))
+
+	# O Pokémon não pode acompanhar e obedecer ao mesmo tempo.
+	_conf(p.acompanha == null, "o Pokémon deixou de acompanhar enquanto é o corpo")
+
+	# §19: a câmera usa o perfil DESTA espécie, não uma altura fixa.
+	var esperada : float = CameraProfile.altura_dos_olhos(float(p.altura))
+	_conf(absf(p.camera.position.y - esperada) < 0.01,
+		"a câmera está na altura dos olhos DESTA espécie (§19)",
+		"%.2f m" % p.camera.position.y)
+
+	# O ângulo foi herdado: a troca é um movimento só, não duas cenas coladas.
+	_conf(absf(p.camera.yaw() - 1.234) < 0.01,
+		"e herdou o ângulo em que o treinador estava olhando",
+		"%.3f" % p.camera.yaw())
+
+	# Assumir duas vezes é recusado, com motivo.
+	var r2 : Dictionary = _lab.assumir_pokemon()
+	_conf(not bool(r2["ok"]), "assumir de novo é recusado")
+	_conf(str(r2["motivo"]) != "", "com motivo em português", str(r2["motivo"]))
+
+	# ── A volta ──────────────────────────────────────────────────────────────
+	p.camera.definir_yaw(2.5)   # a luta girou o jogador
+	var v : Dictionary = _lab.voltar_ao_treinador()
+	_conf(bool(v["ok"]), "voltar ao treinador funciona")
+	_conf(c.modo == "world", "o modo voltou pra WORLD")
+	_conf(not p.controlado_pelo_jogador, "o Pokémon parou de obedecer")
+	_conf(p.acompanha == t, "e voltou a acompanhar o treinador")
+	_conf(t.camera.camera.current, "a câmera do treinador reassumiu")
+	_conf(not p.camera.camera.current, "e a de 1ª pessoa saiu")
+	_conf(c.quantos_ativos() == 1, "continua com UM dono do input")
+	_conf(t.is_processing_input(), "e o treinador voltou a escutar")
+
+	# 🔴 A decisão que dá o tom da volta: herdar o ângulo do Pokémon. A luta
+	# gira o jogador, e devolvê-lo virado pra trás é desorientação gratuita.
+	_conf(absf(t.camera.yaw() - 2.5) < 0.01,
+		"a câmera do treinador HERDOU o ângulo do Pokémon (§ desenho da Fase 7)",
+		"%.3f, esperado 2,500" % t.camera.yaw())
+
+	_conf(p.intencao == Vector2.ZERO, "e a intenção do Pokémon foi zerada")
+
+	# ── §4: cair devolve o controle sozinho ─────────────────────────────────
+	print("-- §4: o Pokémon cai e o treinador fica exposto")
+	_conf(Transf.deve_devolver_controle(true, false),
+		"caiu e não há outro em pé -> devolve o controle")
+	_conf(not Transf.deve_devolver_controle(true, true),
+		"caiu mas há outro -> não devolve")
+	_conf(not Transf.deve_devolver_controle(false, false),
+		"não caiu -> não devolve")
+
+	_lab.assumir_pokemon()
+	_conf(c.modo == "combat", "assumiu de novo pra testar a queda")
+	p.sofrer(p.vida_maxima * 3)
+	_conf(p.esta_derrotado(), "o Pokémon caiu")
+	_conf(c.modo == "world",
+		"e o controle voltou AUTOMATICAMENTE pro treinador (§4)")
+	_conf(c.quantos_ativos() == 1, "sem sobrar ninguém escutando")
+
+	# Assumir um Pokémon desmaiado é recusado, com o motivo certo.
+	var r3 : Dictionary = _lab.assumir_pokemon()
+	_conf(not bool(r3["ok"]), "e não dá pra assumir um Pokémon desmaiado")
+	_conf(str(r3["motivo"]).contains("desmaiado"), "com o motivo certo",
+		str(r3["motivo"]))
+
+	# A linha do tempo contou a história inteira — é o que transforma
+	# "travou quando virei bicho" num relatório investigável.
+	var eventos : Array = []
+	for e in PonteDeFeedback.linha_do_tempo():
+		eventos.append(str(e["o_que"]))
+	var texto := " | ".join(eventos)
+	_conf(texto.contains("assumiu"), "a linha do tempo registrou a ida")
+	_conf(texto.contains("voltou a ser o treinador"), "e a volta")
+	_conf(texto.contains("caiu"), "e a queda que devolveu o controle")

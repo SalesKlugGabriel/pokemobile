@@ -5382,3 +5382,43 @@ sai do **terreno**, não da trajetória, que é o que separa "andando" de
 
 Teleporte só quando ele já sumiu de vista — teletransportar um companheiro que
 o jogador está vendo quebra a ilusão inteira.
+
+## Fase 7 ✅ + Fase 8 ✅ — a troca de corpo, 40 conferências novas (160 no arquivo)
+
+**A fantasia central funciona de ponta a ponta:** assumir o Pokémon, obedecer em
+1ª pessoa com a câmera na altura dos olhos DAQUELA espécie, e voltar a ser o
+treinador — que continua onde foi deixado, com física ligada, permanecendo no
+mundo (§17).
+
+**A decisão que dá o tom da volta:** a câmera do treinador **herda o ângulo do
+Pokémon**. Das três opções (manter o ângulo antigo, herdar, ou apontar pro
+Pokémon), herdar é a única que faz a troca parecer um movimento só. A luta gira
+o jogador, e devolvê-lo virado pra trás é desorientação gratuita.
+
+**§4 provada matando o Pokémon no meio do combate:** o controle volta
+**automaticamente**. Não é escolha do jogador, é consequência — e é o que dá
+peso a andar sem ninguém fora da ball.
+
+Em 1ª pessoa o **corpo segue a câmera**, e não o movimento — o contrário da 3ª
+pessoa. É o que faz a mira bater com o que se vê (§22).
+
+### 🔴 Dois erros meus, e o primeiro é o pior do dia
+
+1. **Uma inserção de código falhou em silêncio e eu reportei sucesso.** O script
+   de edição não achou a âncora — as seções que supus eram do laboratório 2D,
+   não do 3D — mas imprimiu "transferência ligada" porque só verificava a última
+   escrita. **As três funções principais nunca entraram no arquivo.** É o mesmo
+   zero silencioso que passei o dia caçando, produzido na ferramenta que uso pra
+   editar. Passei a conferir cada função depois de inserir, por `grep`, em vez
+   de confiar na mensagem do script.
+2. **`CameraTerceiraPessoa` não tinha `definir_yaw`** — só a de 1ª pessoa tinha.
+   A ida funcionava e a volta chamava método inexistente. O teste pegou porque
+   **testa a volta**, não só a ida, que é a metade que os jogos erram.
+
+### Também nesta rodada
+
+Regra do `AGENTS.md` completada com a outra metade: **não editar o que está
+sendo medido**. Aconteceu duas vezes hoje comigo sozinho na máquina — disparei a
+suíte e continuei editando arquivos de teste, e ela mediu um estado
+intermediário que nunca existiu. Suíte disparada, mãos longe do repositório;
+se precisar trabalhar enquanto espera, trabalhar em `docs/`.

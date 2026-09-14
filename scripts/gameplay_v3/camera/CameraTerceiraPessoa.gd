@@ -66,6 +66,16 @@ func base_do_movimento() -> Basis:
 func yaw() -> float:
 	return _yaw
 
+## Define o ângulo diretamente. Existe pra a VOLTA da transferência (Fase 7):
+## a câmera do treinador herda o ângulo em que o Pokémon estava olhando, senão
+## o jogador reassume virado pra trás depois de uma luta que o girou.
+##
+## Faltava aqui e existia só na câmera de 1ª pessoa — o teste da Fase 7 pegou,
+## porque a ida funcionava e a volta chamava um método que não existia.
+func definir_yaw(novo: float) -> void:
+	_yaw = novo
+	_aplicar()
+
 ## §13: afastar/aproximar sem cortes. Usado pelo contexto de câmera
 ## (`contexto_de_camera`, contrato herdado da D-003) quando a briga cresce.
 func distancia_alvo(d: float, delta: float, velocidade: float = 6.0) -> void:

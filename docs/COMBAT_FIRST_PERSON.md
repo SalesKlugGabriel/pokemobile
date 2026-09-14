@@ -84,3 +84,84 @@ hurtbox), hitbox 3D, projétil 3D, e a transferência de controle.
 
 Dá pra lutar, ganhar, perder e **voltar a ser o treinador** — sem travar, sem
 perder o controle e sem a câmera se perder no meio.
+
+---
+
+# A transferência de controle (Fase 7) — desenho
+
+> Escrito em 14/09, antes de implementar. É **o coração da fantasia**, e a peça
+> que os jogos costumam errar não é a ida: é a volta.
+
+## O que precisa acontecer, em ordem
+
+```
+WORLD                          COMBAT
+  treinador tem input            Pokémon tem input
+  câmera 3ª pessoa nele          câmera 1ª pessoa nos olhos dele
+  companheiro o segue            companheiro deixa de seguir
+  ────────────────────────────►
+                    transferência
+  ◄────────────────────────────
+                       volta
+```
+
+## Os quatro problemas que este desenho resolve
+
+### 1. Nunca dois donos do input, nem por um quadro
+
+Já resolvido pelo `ControlModeManager` (§12) e já provado por teste: ele
+**desliga** quem não está ativo em vez de pedir que se comporte, e desliga todo
+mundo **antes** de ligar o novo. Um quadro com dois donos basta pra um passo
+duplo aparecer na tela.
+
+### 2. A câmera não pode ser destruída e recriada (§13)
+
+As duas câmeras **existem o tempo todo**. A troca é de `current`, com uma
+interpolação entre as duas poses — destruir e recriar perde o estado e produz
+o corte seco que a §13 proíbe.
+
+### 3. Para onde a câmera olha quando você volta
+
+O problema fino. Três opções, e a escolha muda como a volta *sente*:
+
+| Opção | Efeito |
+|---|---|
+| Voltar pro yaw que o treinador tinha | Você volta olhando pro lado errado se a luta girou |
+| Herdar o yaw do Pokémon | Continuidade de direção — você volta olhando pra onde estava lutando |
+| Apontar pro Pokémon | Bom pra ver quem lutou, ruim pra continuar andando |
+
+**Escolha: herdar o yaw do Pokémon.** A luta gira o jogador; devolvê-lo virado
+pra trás é desorientação gratuita. Continuidade de direção é o que faz a volta
+parecer um mesmo movimento, e não duas cenas coladas.
+
+### 4. O Pokémon cai no meio da luta
+
+A §4 é clara: sem Pokémon em pé, **o treinador fica vulnerável**. Então a queda
+do Pokémon **devolve o controle automaticamente** — não é escolha do jogador, é
+consequência. É o que dá peso a estar sem ninguém fora da ball.
+
+## O que é preservado na troca
+
+| | |
+|---|---|
+| Treinador | posição, física **ligada**, vida, stamina — ele permanece no mundo (§17) |
+| Treinador | intenção **zerada** — senão ele anda pra sempre na última direção |
+| Pokémon | vida, efeitos, recargas — a luta continua de onde estava |
+| Companheiro | deixa de seguir enquanto é controlado; volta a seguir depois |
+| Câmera | yaw herdado nos dois sentidos |
+
+## O contrato que a apresentação recebe
+
+```gdscript
+transferencia_iniciada(de: String, para: String, alvo_id: int)
+transferencia_concluida(modo: String)
+```
+
+O Codex decide a duração, a curva e o efeito da transição. Eu digo **quando** e
+**entre quem** — mesma fronteira da D-003, que funcionou.
+
+## O critério
+
+A §51, itens 8 a 11: assumir o Pokémon, lutar em 1ª pessoa, encerrar, **voltar a
+ser o treinador**. Sem travar, sem perder o controle, e sem a câmera se perder
+no meio.

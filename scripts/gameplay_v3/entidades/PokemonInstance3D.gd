@@ -205,6 +205,12 @@ var acompanha : Node3D = null
 ## como dois lugares passam a discordar sobre o mesmo fato.
 var estado_de_acompanhar : String = "parado"
 
+## §17: quando o jogador assume este Pokémon, ele ganha câmera de 1ª pessoa e
+## passa a obedecer o input. Só um por vez — quem garante é o ControlModeManager.
+var camera : CameraPrimeiraPessoa = null
+var controlado_pelo_jogador : bool = false
+var le_teclado : bool = true
+
 func velocidade_maxima() -> float:
 	return MovementProfile.velocidade(arquetipo, int(stats.get("spe", 50)))
 
@@ -212,6 +218,10 @@ func _physics_process(delta: float) -> void:
 	if _derrotado:
 		velocity = Vector3.ZERO
 		move_and_slide()
+		return
+
+	if controlado_pelo_jogador:
+		_obedecer(delta)
 		return
 
 	if acompanha != null and is_instance_valid(acompanha):
@@ -234,6 +244,90 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	rotation.y = Locomocao3D.girar_para(
 		rotation.y, velocity, delta, float(MovementProfile.obter(arquetipo)["giro"]))
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Controlado pelo jogador (§17, §18)
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Monta a câmera de 1ª pessoa com o perfil DESTA espécie (§19). Um Onix e um
+## Rattata não podem ver o mundo da mesma altura.
+func assumir_controle(yaw_herdado: float) -> void:
+	if camera == null:
+		camera = CameraPrimeiraPessoa.new()
+		camera.name = "CameraPrimeiraPessoa"
+		add_child(camera)
+	camera.aplicar_perfil(perfil_de_camera())
+	camera.definir_yaw(yaw_herdado)
+	camera.camera.current = true
+	controlado_pelo_jogador = true
+	# Para de seguir: ele não pode acompanhar o treinador e obedecer o jogador
+	# ao mesmo tempo.
+	acompanha = null
+	intencao = Vector2.ZERO
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func devolver_controle(volta_a_acompanhar: Node3D = null) -> void:
+	controlado_pelo_jogador = false
+	intencao = Vector2.ZERO
+	quer_correr = false
+	if camera != null and camera.camera != null:
+		camera.camera.current = false
+	if volta_a_acompanhar != null:
+		acompanha = volta_a_acompanhar
+
+func _unhandled_input(evento: InputEvent) -> void:
+	if not controlado_pelo_jogador:
+		return
+	if evento is InputEventMouseMotion and camera != null:
+		camera.girar((evento as InputEventMouseMotion).relative)
+
+## §18: WASD move, mouse olha. O movimento segue o olhar, não o norte do mundo.
+func _obedecer(delta: float) -> void:
+	if le_teclado:
+		intencao = Vector2(
+			Input.get_axis("move_left", "move_right"),
+			Input.get_axis("move_up", "move_down"))
+		quer_correr = Input.is_action_pressed("run")
+
+	var base : Basis = camera.base_do_movimento() if camera != null \
+		else Basis(Vector3.UP, rotation.y)
+	var alvo := Locomocao3D.velocidade_alvo(intencao, quer_correr, base)
+	if alvo != Vector3.ZERO:
+		alvo = alvo.normalized() * velocidade_maxima() * (1.4 if quer_correr else 1.0)
+	velocity = Locomocao3D.avancar(velocity, alvo, delta)
+
+	var g := MovementProfile.gravidade(arquetipo)
+	if g > 0.0:
+		velocity.y = Locomocao3D.aplicar_gravidade(velocity.y, is_on_floor(), delta * g)
+	else:
+		velocity.y = move_toward(velocity.y, 0.0, delta * 4.0)
+
+	move_and_slide()
+	# Em 1ª pessoa o CORPO segue a câmera, e não o movimento: quem olha pra
+	# esquerda está virado pra esquerda, mesmo andando de lado. É o contrário
+	# da 3ª pessoa, e é o que faz a mira bater com o que se vê (§22).
+	if camera != null:
+		rotation.y = camera.yaw()
+
+## A porta do toque e do teste, igual à do treinador.
+func mover(nova_intencao: Vector2, correndo: bool = false) -> void:
+	le_teclado = false
+	intencao = nova_intencao
+	quer_correr = correndo
+
+func soltar_movimento() -> void:
+	intencao = Vector2.ZERO
+	quer_correr = false
+	le_teclado = true
+
+## Ganchos do ControlModeManager (§12).
+func ao_assumir_controle() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func ao_perder_controle() -> void:
+	intencao = Vector2.ZERO
+	quer_correr = false
+	le_teclado = true
 
 ## §6: acompanhar o treinador. A DECISÃO é da `RegraDeAcompanhar`; aqui só se
 ## executa — é o que permite provar o comportamento sem subir física.

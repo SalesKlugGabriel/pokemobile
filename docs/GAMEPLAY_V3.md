@@ -31,9 +31,9 @@ continua Pokémon.
 
 | | |
 |---|---|
-| **Fase atual** | **7 — transferência Treinador → Pokémon** (0 a 6 fechadas) |
+| **Fase atual** | **9 — ataque básico** (0 a 8 fechadas) |
 | **Branch** | `agent/claude-v3` · `main` segue com a V2 |
-| **Código V3 escrito** | árbitro de input, locomoção, câmera, treinador, terreno, Pokémon 3D |
+| **Código V3 escrito** | input, locomoção, 2 câmeras, treinador, terreno, Pokémon, companheiro, transferência |
 | **Bloqueio** | nenhum — as 3 decisões estão fechadas |
 
 ### Decisões em aberto (precisam do Gabriel)
@@ -136,9 +136,9 @@ rodando** — não quando o código existe.
 | 4 | Terreno 3D | ✅ | 14/09 · altura, falésia, praia contínua e água · 17 conferências |
 | 5 | Pokémon 3D | ✅ | 14/09 · composição, 8 arquétipos declarados e 5 implementados · 36 conferências |
 | 6 | Companion Pokémon | ✅ | 14/09 · distância derivada do tamanho dos dois · 18 conferências |
-| 7 | Transferência Treinador → Pokémon | 🔵 próxima | **o coração da fantasia** |
-| 8 | Pokémon em 1ª pessoa | ⬜ | |
-| 9 | Ataque básico | ⬜ | |
+| 7 | Transferência Treinador → Pokémon | ✅ | 14/09 · ida, volta, e a queda devolvendo o controle · 40 conferências |
+| 8 | Pokémon em 1ª pessoa | ✅ | 14/09 · câmera por espécie, corpo segue a mira |
+| 9 | Ataque básico | 🔵 próxima | |
 | 10 | 4 skills | ⬜ | melee, projétil, área, drenagem |
 | 11 | Wild Pokémon | ⬜ | reusa `ComportamentoSelvagem` |
 | 12 | Combate 1v1 | ⬜ | |

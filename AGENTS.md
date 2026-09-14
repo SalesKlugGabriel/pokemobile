@@ -120,5 +120,15 @@ Duas causas, e as duas continuam valendo:
 ser reproduzida sozinha**. Rodar o teste isolado antes de sair caçando bug — ou
 pior, antes de "consertar" código que está certo.
 
+### A outra metade da regra: não edite o que está sendo medido
+
+Aconteceu **duas vezes em 14/09**, comigo sozinho na máquina: disparei a suíte e
+continuei editando arquivos de teste enquanto ela rodava. Ela mediu um estado
+intermediário que nunca existiu, e reprovou.
+
+Não é disputa de CPU — é medir um alvo em movimento. **Suíte disparada, mãos
+longe do repositório até ela fechar.** Se precisar trabalhar enquanto espera,
+trabalhe em `docs/`, que nenhum teste lê.
+
 Referências de configuração: [AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
 e [worktrees](https://learn.chatgpt.com/docs/environments/git-worktrees).

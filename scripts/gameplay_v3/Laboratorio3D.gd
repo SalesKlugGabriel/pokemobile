@@ -81,6 +81,11 @@ const TRIO_DE_TESTE : Array[Dictionary] = [
 var pokemons : Array = []
 var companheiro : PokemonInstance3D = null
 
+## Fase 7 — os sinais da transferência. O Codex decide duração, curva e efeito;
+## eu digo QUANDO e ENTRE QUEM (mesma fronteira da D-003).
+signal transferencia_iniciada(de: String, para: String, alvo_id: int)
+signal transferencia_concluida(modo: String)
+
 func _montar_pokemon() -> void:
 	for molde in TRIO_DE_TESTE:
 		var p := PokemonInstance3D.new()
@@ -99,6 +104,7 @@ func _montar_pokemon() -> void:
 	if not pokemons.is_empty() and treinador != null:
 		companheiro = pokemons[0]
 		companheiro.acompanha = treinador
+		companheiro.derrotado.connect(_ao_cair_o_pokemon)
 		companheiro.global_position = Terreno3D.ponto_em(
 			treinador.global_position.x + 2.0, treinador.global_position.z + 2.0, 0.5)
 		PonteDeFeedback.anotar("%s acompanha o treinador" % companheiro.nome_exibido)
@@ -364,3 +370,89 @@ func _encerrar() -> void:
 	# No navegador, entrega o resultado à página — é de lá que o Playwright lê.
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.__v3 = %s;" % JSON.stringify(relatorio), true)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 7 — a transferência de controle (§17)
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# O coração da fantasia: *"quando a batalha começa, eu assumo o controle do meu
+# Pokémon"*. O desenho, com as alternativas consideradas, está em
+# `docs/COMBAT_FIRST_PERSON.md`.
+
+## Assumir o Pokémon. Devolve {"ok", "motivo"} — motivo em português, porque é
+## ele que aparece na tela.
+func assumir_pokemon() -> Dictionary:
+	var pode : Dictionary = Transferencia.pode_assumir(companheiro, controle.modo)
+	if not bool(pode["pode"]):
+		return {"ok": false, "motivo": str(pode["motivo"])}
+
+	var estado : Dictionary = Transferencia.ao_assumir(
+		treinador, companheiro, treinador.camera.yaw())
+	transferencia_iniciada.emit(ControlModeManager.WORLD, ControlModeManager.COMBAT,
+		int(estado["pokemon_id"]))
+
+	# A ORDEM importa: o Pokémon precisa estar registrado ANTES de virar o modo,
+	# senão existe um quadro sem dono nenhum do input.
+	controle.registrar(ControlModeManager.COMBAT, companheiro)
+	companheiro.assumir_controle(float(estado["yaw_herdado"]))
+	controle.trocar_para(ControlModeManager.COMBAT)
+
+	if bool(estado["zerar_intencao_do_treinador"]):
+		treinador.soltar_movimento()
+		treinador.intencao = Vector2.ZERO
+	if treinador.camera != null and treinador.camera.camera != null:
+		treinador.camera.camera.current = false
+
+	PonteDeFeedback.anotar("assumiu %s" % companheiro.nome_exibido)
+	transferencia_concluida.emit(ControlModeManager.COMBAT)
+	return {"ok": true, "motivo": ""}
+
+## Voltar a ser o treinador. A câmera dele HERDA o ângulo do Pokémon: a luta
+## gira o jogador, e devolvê-lo virado pra trás é desorientação gratuita.
+func voltar_ao_treinador() -> Dictionary:
+	if controle.modo != ControlModeManager.COMBAT:
+		return {"ok": false, "motivo": "Você já é o treinador."}
+
+	var yaw : float = 0.0
+	if companheiro != null and is_instance_valid(companheiro) and companheiro.camera != null:
+		yaw = companheiro.camera.yaw()
+	var estado : Dictionary = Transferencia.ao_voltar(yaw)
+	transferencia_iniciada.emit(ControlModeManager.COMBAT, ControlModeManager.WORLD,
+		treinador.get_instance_id())
+
+	controle.trocar_para(ControlModeManager.WORLD)
+	if companheiro != null and is_instance_valid(companheiro):
+		companheiro.devolver_controle(
+			treinador if bool(estado["voltar_a_acompanhar"]) else null)
+	treinador.camera.definir_yaw(float(estado["yaw_herdado"]))
+	if treinador.camera.camera != null:
+		treinador.camera.camera.current = true
+
+	PonteDeFeedback.anotar("voltou a ser o treinador")
+	transferencia_concluida.emit(ControlModeManager.WORLD)
+	return {"ok": true, "motivo": ""}
+
+## §4: o Pokémon caiu. O controle volta **automaticamente** — não é escolha do
+## jogador, é consequência, e é o que dá peso a andar sem ninguém fora da ball.
+func _ao_cair_o_pokemon(_quem: Node) -> void:
+	if controle.modo != ControlModeManager.COMBAT:
+		return
+	if not Transferencia.deve_devolver_controle(true, false):
+		return
+	PonteDeFeedback.anotar("o Pokémon caiu — o treinador está exposto")
+	voltar_ao_treinador()
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entrada
+# ──────────────────────────────────────────────────────────────────────────────
+
+func _unhandled_input(evento: InputEvent) -> void:
+	if not (evento is InputEventKey and evento.pressed and not evento.is_echo()):
+		return
+	# T de "trocar de corpo": a fantasia inteira numa tecla.
+	if (evento as InputEventKey).keycode == KEY_T:
+		if controle.modo == ControlModeManager.WORLD:
+			assumir_pokemon()
+		else:
+			voltar_ao_treinador()
