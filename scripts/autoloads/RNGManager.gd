@@ -23,6 +23,22 @@ func randomize_seed() -> void:
 func get_seed() -> int:
 	return _seed
 
+## O estado interno agora — para quem precisa consultar o RNG sem MOVER a
+## sequência dos outros sorteios (achado do Codex, 14/09).
+##
+## O caso concreto: `DanoV2` chama `DamageCalculator.detalhar()` só pra pegar os
+## componentes da conta, e descarta o crítico e a variação que ela sorteia. O
+## dano sai determinístico, mas os dois sorteios já tinham avançado o RNG — e aí
+## um golpe deslocava, de lado, os sorteios de status, captura e loot.
+##
+## Ninguém mais precisa disso: quem sorteia de verdade continua avançando o
+## estado normalmente, como sempre.
+func get_state() -> int:
+	return _rng.state
+
+func set_state(estado: int) -> void:
+	_rng.state = estado
+
 ## Float entre 0.0 e 1.0
 func randf() -> float:
 	return _rng.randf()

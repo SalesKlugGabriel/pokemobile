@@ -175,11 +175,18 @@ func _current_spawn_interval() -> float:
 	var zone : Dictionary = zone_manager.get_current_zone()
 	if zone.is_empty():
 		return SPAWN_INTERVAL_SEC
+	# Perigo da zona (14/09): lugar perigoso tem MENOS encontros, e cada um pesa
+	# mais — pedido do Gabriel ("Sim, e também mais raro"). Ver `PerigoDaZona`.
+	var base : float = SPAWN_INTERVAL_SEC * PerigoDaZona.multiplicador_de_intervalo(zone)
+
 	var zone_id : String = str(zone.get("id", "")).to_lower()
 	if not zone_id.contains("forest"):
-		return SPAWN_INTERVAL_SEC
+		return base
+	# Floresta funda continua adensando — é o oposto do perigo, e de propósito:
+	# o mato alto é sobre volume, não sobre ameaça. Os dois se multiplicam, e
+	# uma floresta perigosa e funda acaba perto do intervalo normal.
 	var ratio : float = clampf(_forest_depth_tiles(zone) / FOREST_MAX_DEPTH_TILES, 0.0, 1.0)
-	return lerpf(SPAWN_INTERVAL_SEC, FOREST_MIN_INTERVAL_SEC, ratio)
+	return lerpf(base, FOREST_MIN_INTERVAL_SEC * PerigoDaZona.multiplicador_de_intervalo(zone), ratio)
 
 ## Distância (em tiles) até a borda mais próxima do tile_rect da zona —
 ## 0 = na borda/fora, cresce conforme o jogador entra mais no meio dela.
@@ -234,7 +241,7 @@ func _try_spawn() -> void:
 		return
 
 	# Sorteia pokémon por weight
-	var chosen := _weighted_pick(table)
+	var chosen := _weighted_pick(table, zone)
 	if chosen.is_empty():
 		return
 
@@ -243,7 +250,9 @@ func _try_spawn() -> void:
 	if spawn_pos == Vector2.ZERO:
 		return
 
-	_spawn_pokemon(chosen, spawn_pos, str(zone.get("id", "")))
+	# Elite: mais raro E mais forte, só em zona perigosa (0% em rota inicial).
+	var elite : bool = RNGManager.chance(PerigoDaZona.chance_de_elite(zone))
+	_spawn_pokemon(chosen, spawn_pos, str(zone.get("id", "")), elite)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Spawn fixo por terreno (mundo aberto) — ver comentário no topo do arquivo.
@@ -381,7 +390,8 @@ func _spawn_terrain_pokemon(species_id: int, level: int, pos: Vector2, zone_id: 
 	_wild_instances.append(instance)
 	EventBus.wild_pokemon_spawned.emit(instance)
 
-func _spawn_pokemon(entry: Dictionary, pos: Vector2, zone_id: String = "") -> void:
+func _spawn_pokemon(entry: Dictionary, pos: Vector2, zone_id: String = "",
+		elite: bool = false) -> void:
 	var instance := _wild_scene.instantiate()
 	if not instance:
 		return
@@ -389,10 +399,7 @@ func _spawn_pokemon(entry: Dictionary, pos: Vector2, zone_id: String = "") -> vo
 	instance.global_position = pos
 
 	# Injeta dados no WildPokemon se ele tiver método de inicialização
-	var level : int = RNGManager.randi_range(
-		entry.get("level_min", 1),
-		entry.get("level_max", 5)
-	)
+	var level : int = PerigoDaZona.nivel_do_encontro(entry, elite, RNGManager.randf())
 	if instance.has_method("initialize"):
 		# A zona pode mandar uma personalidade própria; sem isso, vale a da
 		# espécie (não mais "aggressive" pra qualquer um).
@@ -487,15 +494,20 @@ func _despawn_by_distance() -> void:
 ##   "so_em":  ["noite"]                      só aparece nesses períodos
 ## Sem esses campos, nada muda — toda zona que não quis variar continua
 ## exatamente como era.
-func _weighted_pick(table: Array) -> Dictionary:
+## `zona` entra pra o perigo poder puxar os raros pra cima (14/09). Sem ela o
+## comportamento é exatamente o de antes — nenhuma chamada antiga quebra.
+func _weighted_pick(table: Array, zona: Dictionary = {}) -> Dictionary:
 	var periodo := _periodo_agora()
 	var chovendo := _esta_chovendo()
 
 	var pesos : Array[float] = []
 	var total : float = 0.0
 	for entry in table:
-		pesos.append(PesoDeSpawn.efetivo(entry, periodo, chovendo))
-		total += pesos[pesos.size() - 1]
+		var w : float = PesoDeSpawn.efetivo(entry, periodo, chovendo)
+		if not zona.is_empty():
+			w = PerigoDaZona.peso_corrigido(w, zona)
+		pesos.append(w)
+		total += w
 
 	if total <= 0.0:
 		return {}

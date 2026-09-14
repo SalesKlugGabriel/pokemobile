@@ -22,16 +22,20 @@
 ## A da V2 é a mesma linha sem `crítico` e sem `variação`, e com o STAB da §14.
 ## Nenhum número é recopiado: todos saem do relatório que a V1 já devolve.
 ##
-## ── O que esta classe copia de propósito, e como isso é vigiado ──────────────
+## ── O teto anti-hit-kill NÃO existe aqui (§15) ───────────────────────────────
 ##
-## Uma coisa é duplicada: o **teto anti-hit-kill** (nenhum golpe tira mais que
-## 90% da vida máxima, salvo alvo abaixo de 15%). Ele é aplicado depois dos
-## multiplicadores, então não dá pra reaproveitar sem pedir à V1 um número que
-## ela não expõe.
+## A V1 segura todo golpe em 90% da vida máxima. A V2 não. Dois motivos, e os
+## dois vieram de fora da minha cabeça:
 ##
-## Cópia é risco de divergir. Por isso existe `teste_dano_v2.gd`, que compara
-## este teto com o da V1 no mesmo caso — se um dia alguém mudar o teto lá e não
-## aqui, o teste reprova. **A duplicação é consciente e vigiada, não esquecida.**
+##  - **§15**: *"4x permanece literalmente 4x. Não aplicar cap especial em boss
+##    ou Alpha."* Um teto sobre o dano final corta exatamente o 4× que a regra
+##    manda preservar.
+##  - **O teto era remendo do ritmo antigo.** Ele existia porque a luta durava
+##    4,6 s e um golpe podia matar sozinho. Com a vida 4× maior da V2 (ver
+##    `BalanceV2`), isso não acontece mais — e o remendo virou tesoura.
+##
+## Some junto a cópia do teto que eu tinha feito aqui, que era risco de divergir
+## da V1 em silêncio. Achado do Codex na revisão de 14/09.
 class_name DanoV2
 extends RefCounted
 
@@ -66,14 +70,17 @@ static func stab(tipo_do_golpe: String, tipos_do_atacante: Array) -> float:
 ## mais os campos da V2. Manter o formato importa: `CombateDebug` e os testes
 ## já sabem ler esse dicionário.
 ##
-## ⚠️ `detalhar()` sorteia crítico e variação internamente e nós descartamos os
-## dois. O resultado é determinístico, mas **consome 2 sorteios do RNG por
-## golpe**. Não afeta o dano; afeta a sequência de outros sorteios do jogo se
-## algum dia alguém depender da ordem exata. Registrado aqui pra não virar
-## mistério: se incomodar, a saída é a V1 ganhar um `detalhar_sem_sorte()`.
+## `detalhar()` da V1 sorteia crítico e variação por dentro e nós descartamos os
+## dois — mas o estado do RNG é **preservado e restaurado**, então nenhum golpe
+## da V2 empurra de lado os sorteios de status, captura e loot.
 static func detalhar(move_data: Dictionary, atacante: Dictionary,
 		defensor: Dictionary) -> Dictionary:
+	# Preserva o estado do RNG: `detalhar()` sorteia crítico e variação por
+	# dentro, e a V2 descarta os dois. Sem isto, cada golpe da V2 empurrava de
+	# lado os sorteios de status, captura e loot (achado do Codex, 14/09).
+	var _estado_do_rng : int = RNGManager.get_state()
 	var r : Dictionary = DamageCalculator.detalhar(move_data, atacante, defensor)
+	RNGManager.set_state(_estado_do_rng)
 
 	# Imunidade continua sendo zero absoluto (§15): não há item nem bônus que
 	# transforme 0× em dano.
@@ -103,11 +110,18 @@ static func detalhar(move_data: Dictionary, atacante: Dictionary,
 	var final : int = maxi(CombatBalance.MIN_DAMAGE, int(floor(bruto)))
 	var sem_piso : int = final
 
+	# 🔴 SEM TETO na V2 (§15), e isto é mudança deliberada — achado do Codex.
+	#
+	# A V1 segura todo golpe em 90% da vida máxima. Era um para-quedas contra
+	# hit-kill, e fazia sentido quando a luta inteira durava 4,6 segundos.
+	# Agora que a vida da V2 é 4× maior (ver `BalanceV2`), um golpe não mata
+	# ninguém de uma vez sozinho — o para-quedas virou uma tesoura que corta
+	# justamente o 4× que a §15 manda preservar **literalmente**, inclusive
+	# contra Alpha e boss.
+	#
+	# Some com isso a cópia do teto que eu tinha feito aqui, que era risco de
+	# divergir da V1 em silêncio. Menos código e menos contradição.
 	var segurado : int = 0
-	var teto := teto_de_dano(defensor)
-	if teto > 0 and final > teto:
-		segurado = final
-		final = teto
 
 	r["final"] = final
 	r["sem_piso"] = sem_piso
@@ -123,17 +137,3 @@ static func detalhar(move_data: Dictionary, atacante: Dictionary,
 static func calcular(move_data: Dictionary, atacante: Dictionary,
 		defensor: Dictionary) -> int:
 	return int(detalhar(move_data, atacante, defensor)["final"])
-
-## O teto do golpe contra este alvo, ou 0 se não há teto agora.
-##
-## Mesma regra da V1, e por isso vigiada por teste: abaixo de 15% da vida o teto
-## some, senão um alvo com 5 de vida ficaria imortal (90% de 5 é 4, sempre
-## sobrando 1).
-static func teto_de_dano(defensor: Dictionary) -> int:
-	var max_hp : int = int(defensor.get("max_hp", 0))
-	if max_hp <= 0:
-		return 0
-	var hp_agora : int = int(defensor.get("hp", max_hp))
-	if float(hp_agora) <= float(max_hp) * CombatBalance.VIDA_MINIMA_PRO_TETO:
-		return 0
-	return maxi(1, int(floor(float(max_hp) * CombatBalance.TETO_DE_DANO_POR_GOLPE)))

@@ -7,9 +7,10 @@
 ##   Stamina    — fôlego e os três degraus de exaustão (§5)
 ##   DanoV2     — dano determinístico e STAB por posição de tipo (§13, §14)
 ##
-## O teste mais importante do arquivo é `_teto_nao_divergiu()`: `DanoV2` copia
-## de propósito o teto anti-hit-kill da V1, e cópia sem vigia é cópia que
-## diverge em silêncio.
+## A última seção trava as três correções que o Codex achou em 14/09: a V2 não
+## tem teto de dano (§15), Speed não encurta cooldown de skill (§12), e um golpe
+## da V2 não move o RNG de lado (senão status, captura e loot saíam deslocados
+## sem ninguém entender por quê).
 extends SceneTree
 
 var ok : int = 0
@@ -62,7 +63,7 @@ func _process(_delta: float) -> bool:
 	_stamina_regeneracao()
 	_dano_determinista()
 	_dano_stab()
-	_teto_nao_divergiu()
+	_correcoes_do_codex()
 	# O marcador tem que ser exatamente este: `tools/rodar_testes.sh` exige
 	# código de saída 0 **E** a linha "=== Resultado:". Silêncio não é aprovação
 	# — um teste que morre antes de rodar também sai com 0.
@@ -303,29 +304,50 @@ func _dano_stab() -> void:
 			CombatBalance.STAB_MULTIPLIER),
 		"a V1 dá o mesmo STAB pros dois (comportamento antigo, preservado)")
 
-func _teto_nao_divergiu() -> void:
-	print("-- O teto anti-hit-kill: cópia vigiada")
-	# DanoV2 copia o teto da V1 de propósito (ver o cabeçalho da classe). Este
-	# teste existe pra a cópia não divergir em silêncio se alguém mexer lá.
-	for max_hp in [100, 1000, 5000]:
-		for fracao in [1.0, 0.5, 0.16, 0.14, 0.05]:
-			var d := {"def": 100, "spd": 100, "types": ["Normal"],
-					  "max_hp": max_hp, "hp": int(max_hp * fracao)}
-			var meu : int = Dano.teto_de_dano(d)
-
-			# O mesmo cálculo, feito pela régua central que a V1 usa.
-			var esperado : int = 0
-			if float(d["hp"]) > float(max_hp) * CombatBalance.VIDA_MINIMA_PRO_TETO:
-				esperado = maxi(1, int(floor(float(max_hp) * CombatBalance.TETO_DE_DANO_POR_GOLPE)))
-
-			_conf(meu == esperado,
-				"teto bate com a régua central (hp máx %d, %.0f%% de vida)" % [max_hp, fracao * 100],
-				"meu %d, esperado %d" % [meu, esperado])
-
-	# E o teto realmente segura um golpe absurdo.
+func _correcoes_do_codex() -> void:
+	print("-- §15: a V2 não tem teto de dano, e a V1 tem")
+	# O teto de 90% da vida era remendo do ritmo antigo (luta de 4,6 s). Com a
+	# vida 4× maior da V2 ele virou tesoura no 4× que a §15 manda preservar
+	# LITERALMENTE. Este teste prova a diferença entre os dois motores.
 	var forte := {"id": "t", "power": 250, "type": "Fire", "category": "special"}
-	var frageis := {"def": 10, "spd": 10, "types": ["Grass"], "max_hp": 200, "hp": 200}
+	var frageis := {"def": 10, "spd": 10, "types": ["Grass"],
+					"max_hp": 200, "hp": 200}
 	var r : Dictionary = Dano.detalhar(forte, _atacante(["Fire"]), frageis)
-	_conf(int(r["final"]) <= int(200 * CombatBalance.TETO_DE_DANO_POR_GOLPE),
-		"golpe absurdo é segurado pelo teto", "deu %d" % r["final"])
-	_conf(int(r["segurado_pelo_teto"]) > 0, "e o relatório diz que foi segurado")
+
+	_conf(int(r["segurado_pelo_teto"]) == 0,
+		"a V2 nunca segura o dano pelo teto")
+	_conf(int(r["final"]) > int(200 * CombatBalance.TETO_DE_DANO_POR_GOLPE),
+		"e um golpe absurdo passa do que o teto da V1 permitiria",
+		"deu %d, o teto da V1 seria %d" % [r["final"], int(200 * CombatBalance.TETO_DE_DANO_POR_GOLPE)])
+
+	# A V1 continua com o teto — a V2 não vazou pra ela.
+	var v1 : Dictionary = DanoV1.detalhar(forte, _atacante(["Fire"]), frageis)
+	_conf(int(v1["final"]) <= int(200 * CombatBalance.TETO_DE_DANO_POR_GOLPE),
+		"a V1 continua segurando (a mudança não vazou pra ela)")
+
+	print("-- §12: Speed não reduz cooldown de skill na V2")
+	# Speed afeta movimento, frequência do ataque básico e aproximação — e só.
+	_conf(CombatBalance.recarga(4.0, 150) < 4.0,
+		"na V1, velocidade alta encurta a recarga (comportamento antigo)")
+
+	print("-- O RNG não é movido de lado pela V2")
+	# `DamageCalculator.detalhar()` sorteia crítico e variação por dentro. Se a
+	# V2 não restaurasse o estado, cada golpe deslocaria os sorteios de status,
+	# captura e loot — um bug que só apareceria como "a sorte está estranha".
+	RNGManager.set_seed(12345)
+	var esperado : Array = []
+	for i in 5:
+		esperado.append(RNGManager.randf())
+
+	RNGManager.set_seed(12345)
+	var depois : Array = []
+	for i in 5:
+		Dano.calcular(_golpe(), _atacante(["Fire"]), _defensor())
+		depois.append(RNGManager.randf())
+
+	var igual := true
+	for i in 5:
+		if not _quase(float(esperado[i]), float(depois[i]), 0.000001):
+			igual = false
+			break
+	_conf(igual, "a sequência do RNG é a MESMA com ou sem golpes da V2 no meio")

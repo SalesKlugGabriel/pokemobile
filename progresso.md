@@ -4884,3 +4884,75 @@ selvagem que **já estava lutando** — e quem já está na briga não grita de 
 de propósito. O teste media a ausência do grito e chamava de bug. Reescrito pra
 **montar a situação** que quer medir (dois bichos de bando da mesma espécie,
 parados, lado a lado) em vez de torcer pra ela acontecer.
+
+## 2026-09-14 (parte 4) — Densidade por lugar, passivas da Pokédex e ultimate
+
+Os dois pedidos que estavam pendentes desde a rodada de perguntas.
+
+### Densidade de spawn: a inversão
+
+Pedido: *"Sim, e também mais raro"*. O reflexo seria "lugar perigoso, mais
+bicho" — e é o **contrário**: lugar perigoso tem MENOS encontros, e cada um pesa
+mais. Um corredor cheio de lixo é cansativo; uma caverna silenciosa onde você
+encontra uma coisa só é perigosa.
+
+`PerigoDaZona.gd` tira o perigo do **próprio `zones.json`** (nível médio dos
+Pokémon já cadastrados), sem segunda lista pra manter em sincronia — regra 7.
+Consequência: subir o nível de uma zona já ajusta a densidade dela junto.
+A mais perigosa do mundo, achada pelo dado: **Caverna de Cerulean 6º andar**
+(nível médio 54, encontros 2,2× mais espaçados, 34% de elite).
+
+O "mais raro" entra no peso de sorteio: em zona perigosa os raros sobem, mas o
+comum continua sendo o mais provável — comprime a diferença, não inverte a
+tabela. Elite nasce acima do topo da faixa de nível da zona.
+
+### Passivas: 151 de 151
+
+Estavam preenchidas em **19 de 151**. As outras 132 tinham texto vazio, e o
+campo já era lido em cinco lugares (dano, Pokédex, batalha) — 87% dos Pokémon
+passavam por um sistema que não tinha o que ler, e ninguém via porque string
+vazia não dá erro. Agora são 151, com 47 habilidades distintas.
+
+**Rattata é exceção declarada:** já tinha `Guts`, que também é habilidade
+legítima dele. Trocar pela primeira (`Run Away`) o deixaria mais fraco sem
+motivo de jogo.
+
+Regra 7 aplicada: só 4 habilidades têm efeito real hoje. `Passivas.gd` declara
+quais, e o texto da Pokédex **já vem com o aviso** "(catalogada — ainda sem
+efeito no jogo)". Passiva catalogada que não faz nada, sem dizer que não faz, é
+a mesma armadilha do golpe que sumia calado do kit.
+
+### Ultimate só na última evolução
+
+`RegrasDeUltimate.gd`: o corte é por **poder** (≥140, pega 5 golpes), não por
+lista de nomes — lista seria cadastro paralelo, e um golpe novo de poder 160
+entraria como comum, calado. Barrado na porta de `SaveManager.equip_move()`, não
+na tela, pra valer em qualquer caminho. Quem nunca evolui (Snorlax, lendários)
+conta como fim da própria linha.
+
+### 🔴 Bug achado de raspão: o mergulho lia a profundidade errada
+
+`TrainerEntity.profundidade_atual()` usava `GameData.zones` — que **não existe**
+(o GameData tem species/moves/spawns/quests, nunca teve zones; quem carrega
+zones.json é o ZoneManager). Publicado assim desde 11/09 e invisível porque só
+dispara com o jogador submerso: **o abismo cobrava oxigênio de água rasa.**
+Achado por um teste de outra frente, não por alguém jogando.
+
+### As três correções que o Codex achou no meu lado
+
+1. **Speed não reduz cooldown de skill** (§12, literal). Eu estava usando
+   `CombatBalance.recarga(base, speed)` nas skills da V2. Speed afeta
+   movimentação, frequência do ataque básico e aproximação — e só.
+2. **A V2 não tem mais teto de dano** (§15: "4x permanece literalmente 4x, não
+   aplicar cap em boss ou Alpha"). O teto de 90% era remendo do ritmo antigo,
+   quando a luta durava 4,6 s; com a vida 4× maior ele virou tesoura. Some junto
+   a cópia do teto que eu tinha feito, que era risco de divergir em silêncio.
+3. **O RNG não é mais movido de lado.** `DanoV2` chama a V1 e descarta crítico e
+   variação, mas os sorteios já tinham avançado o estado — cada golpe deslocava
+   status, captura e loot. Agora o estado é preservado e restaurado.
+
+### Codex
+
+Entregou **câmera, HUD e telegrafia** na branch dele (commit `28a764e`, 1.209
+linhas) e **estourou o limite de uso da conta** no meio da rodada seguinte, com
+trabalho não commitado na worktree. A câmera dele já substitui a provisória.

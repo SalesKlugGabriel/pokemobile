@@ -521,6 +521,13 @@ func equip_move(index: int, move_id: String, slot_index: int) -> bool:
 		if i != slot_index and str(moves[i].get("id", "")) == move_id:
 			return false
 	var dados := GameData.get_move(move_id)
+	# "A ultimate somente na última evolução" (pedido do Gabriel, 14/09).
+	# Barrado AQUI, na porta de equipar, e não na tela: a regra precisa valer
+	# pra qualquer caminho que equipe um golpe, inclusive um que ainda não
+	# existe.
+	if not bool(RegrasDeUltimate.conferir(dados, int(poke.get("species_id", 1)),
+			GameData.species)["pode"]):
+		return false
 	var entrada := {
 		"id": move_id,
 		"pp_current": int(dados.get("pp", 10)),

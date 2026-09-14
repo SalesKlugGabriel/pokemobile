@@ -483,8 +483,14 @@ func tem_roupa_de_mergulho() -> bool:
 func profundidade_atual() -> String:
 	var zona := ""
 	var zm = get_tree().current_scene.get_node_or_null("ZoneManager") if get_tree().current_scene else null
-	if zm != null and zm.has_method("find_zone_id"):
-		zona = str(zm.find_zone_id(grid_pos, GameData.zones, "fundo_do_mar"))
+	# 🔴 Corrigido em 14/09: aqui estava `GameData.zones`, que **não existe** —
+	# o GameData tem species/moves/spawns/quests, nunca teve `zones`. Quem
+	# carrega zones.json é o próprio ZoneManager. Publicado assim desde 11/09,
+	# e invisível porque só dispara com o jogador submerso: a profundidade caía
+	# sempre em "raso", ou seja o abismo cobrava oxigênio de água rasa.
+	# Achado por um teste novo de outra frente, não por alguém jogando.
+	if zm != null and zm.has_method("get_zone_id_at"):
+		zona = str(zm.get_zone_id_at(grid_pos))
 	match zona:
 		"mar_abisso": return Mergulho.ABISSO
 		"mar_algas":  return Mergulho.MEIO

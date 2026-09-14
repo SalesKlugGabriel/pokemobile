@@ -112,7 +112,12 @@ func _atualizar() -> void:
 # ──────────────────────────────────────────────────────────────────────────
 func _aba_status(dados: Dictionary) -> void:
 	_texto("Tipos: %s" % ", ".join(dados.get("types", [])))
-	_texto("Habilidade: %s" % str(dados.get("ability", "—")))
+	# O texto já vem com o aviso de "catalogada, ainda sem efeito" quando for o
+	# caso — regra 7 dos padrões: nunca transformar palpite em fato calado.
+	var hab_nome := str(dados.get("ability", ""))
+	_texto("Habilidade: %s" % (hab_nome if hab_nome != "" else "—"))
+	if hab_nome != "":
+		_texto("  %s" % Passivas.texto_para_tela(hab_nome))
 	var base : Dictionary = dados.get("base_stats", {})
 	var rotulos := {"hp": "Vida", "attack": "Ataque", "defense": "Defesa",
 		"sp_atk": "Ataque Esp.", "sp_def": "Defesa Esp.", "speed": "Velocidade"}

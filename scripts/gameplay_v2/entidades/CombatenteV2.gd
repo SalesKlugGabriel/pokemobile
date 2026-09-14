@@ -159,8 +159,12 @@ func usar(slot: int, direcao: Vector2, alvo: Node = null) -> String:
 		if not FormaDeArea.no_alcance(global_position, alvo as Node2D, g):
 			return "longe demais"
 
-	var recarga : float = CombatBalance.recarga(
-		float(g.get("cooldown", 2.0)), int(stats.get("spe", 50)))
+	# §12, literal: *"Speed NÃO reduz universalmente cooldown de skills."*
+	# Ela afeta movimentação, frequência do ataque básico e aproximação em
+	# TARGET — e só. A V1 encurta a recarga por velocidade; a V2 não, de
+	# propósito, senão o Pokémon rápido teria vantagem em tudo ao mesmo tempo.
+	# (Achado do Codex na revisão de 14/09.)
+	var recarga : float = float(g.get("cooldown", 2.0))
 	recargas[slot] = recarga
 	_recarga_total[slot] = recarga
 
