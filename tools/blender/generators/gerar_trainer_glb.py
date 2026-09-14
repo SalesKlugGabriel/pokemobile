@@ -1,4 +1,5 @@
 import bpy, math, os
+from mathutils import Vector
 
 OUT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../assets/models/trainer/player.glb"))
 
@@ -47,10 +48,56 @@ bpy.ops.object.transform_apply(location=True, rotation=False, scale=True)
 feet=min(v.co.y for v in mesh.data.vertices)
 for v in mesh.data.vertices: v.co.y -= feet
 mesh.data.update()
+# Convert the authored +Y construction frame to Blender's +Z-up frame before
+# rigging. glTF/Godot then receives +Y as height without a runtime correction.
+mesh.rotation_euler.x=math.radians(90)
+bpy.context.view_layer.objects.active=mesh
+bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
-# Bake Blender Z-up -> Godot Y-up conversion around an origin at the feet.
-bpy.ops.object.armature_add(enter_editmode=True, location=(0,0,0)); arm=bpy.context.object; arm.name="TrainerRig"; arm.data.edit_bones[0].head=(0,0,0); arm.data.edit_bones[0].tail=(0,1,0); bpy.ops.object.mode_set(mode='OBJECT')
-arm.rotation_euler.x=math.radians(90); mesh.parent=arm
+# Anatomical armature. Mesh components are rigidly weighted to their nearest
+# bone; the low-poly parts remain clean while still deforming through an
+# Armature Modifier (no whole-object bobbing).
+bpy.ops.object.armature_add(enter_editmode=True, location=(0,0,0))
+arm=bpy.context.object; arm.name="PKM_TRAINER_ARMATURE"
+for b in list(arm.data.edit_bones): arm.data.edit_bones.remove(b)
+bone_specs = {
+    "root": ((0,0,0),(0,0,.25)), "pelvis": ((0,0,.35),(0,0,.65)),
+    "spine": ((0,0,.65),(0,0,1.05)), "chest": ((0,0,1.02),(0,0,1.30)),
+    "neck": ((0,0,1.30),(0,0,1.45)), "head": ((0,0,1.45),(0,0,1.72)),
+    "arm_l": ((-.30,0,1.08),(-.42,0,.80)), "arm_r": ((.30,0,1.08),(.42,0,.80)),
+    "leg_l": ((-.13,0,.38),(-.13,0,.08)), "leg_r": ((.13,0,.38),(.13,0,.08)),
+}
+for name, (head, tail) in bone_specs.items():
+    b=arm.data.edit_bones.new(name); b.head=head; b.tail=tail
+    if name != "root": b.parent=arm.data.edit_bones["root"]
+bpy.ops.object.mode_set(mode='OBJECT')
+arm.rotation_euler.x=0.0
+
+groups = {name: mesh.vertex_groups.new(name=name) for name in bone_specs}
+points = {name: Vector(spec[0]) for name, spec in bone_specs.items()}
+for vertex in mesh.data.vertices:
+    nearest = min(points, key=lambda name: (vertex.co - points[name]).length)
+    groups[nearest].add([vertex.index], 1.0, 'REPLACE')
+mesh.parent=arm
+modifier=mesh.modifiers.new("PKM_TRAINER_ARMATURE_MODIFIER", 'ARMATURE'); modifier.object=arm
+
+def action(name, frames, poses):
+    act=bpy.data.actions.new(name); arm.animation_data_create(); arm.animation_data.action=act
+    for frame, pose in zip(frames, poses):
+        for bone_name, rotation in pose.items():
+            pb=arm.pose.bones[bone_name]; pb.rotation_mode='XYZ'; pb.rotation_euler=rotation; pb.keyframe_insert('rotation_euler', frame=frame)
+    act.frame_start=frames[0]; act.frame_end=frames[-1]
+    track=arm.animation_data.nla_tracks.new(); track.name=name
+    strip=track.strips.new(name, frames[0], act); strip.action_frame_start=frames[0]; strip.action_frame_end=frames[-1]
+    arm.animation_data.action=None
+
+zero={}
+action("PKM_TRAINER_IDLE", [1,20,40], [zero, {"chest":(math.radians(2),0,0)}, zero])
+action("PKM_TRAINER_WALK", [1,10,20], [{"leg_l":(.45,0,0),"leg_r":(-.45,0,0),"arm_l":(-.35,0,0),"arm_r":(.35,0,0)}, zero, {"leg_l":(-.45,0,0),"leg_r":(.45,0,0),"arm_l":(.35,0,0),"arm_r":(-.35,0,0)}])
+action("PKM_TRAINER_RUN", [1,8,16], [{"leg_l":(.75,0,0),"leg_r":(-.75,0,0),"arm_l":(-.55,0,0),"arm_r":(.55,0,0)}, zero, {"leg_l":(-.75,0,0),"leg_r":(.75,0,0),"arm_l":(.55,0,0),"arm_r":(-.55,0,0)}])
+action("PKM_TRAINER_HIT", [1,5,12], [zero, {"chest":(0,0,math.radians(-18)),"head":(0,0,math.radians(-10))}, zero])
+action("PKM_TRAINER_FAINT", [1,12,30], [zero, {"root":(0,0,math.radians(-35))}, {"root":(0,0,math.radians(-70))}])
+
 bpy.ops.object.select_all(action='DESELECT'); arm.select_set(True); mesh.select_set(True); bpy.context.view_layer.objects.active=arm
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 bpy.ops.export_scene.gltf(filepath=OUT, export_format='GLB', use_selection=True, export_apply=True)

@@ -113,33 +113,50 @@ for v in mesh.data.vertices:
     v.co.y -= (min_depth + max_depth) * 0.5
 mesh.data.update()
 
-# One-bone rig; actions prove the required four animation states without coupling gameplay to species.
+# Species-adapted rig in the converted Blender Z-up frame.
 bpy.ops.object.armature_add(enter_editmode=True, location=(0,0,0))
-arm = bpy.context.object; arm.name = "CharizardRig"
-bone = arm.data.edit_bones[0]; bone.name = "root"; bone.head=(0,0,0); bone.tail=(0,1,0)
-bpy.ops.object.mode_set(mode='POSE')
-pb = arm.pose.bones["root"]
-mesh.parent = arm
-mod = mesh.modifiers.new("CharizardArmature", 'ARMATURE'); mod.object = arm
-
-def action(name, frames, rotations=None, locations=None):
-    act = bpy.data.actions.new(name); arm.animation_data_create(); arm.animation_data.action = act
-    pb.rotation_mode='XYZ'
-    for f in frames:
-        pb.rotation_euler = rotations.get(f, (0,0,0)) if rotations else (0,0,0)
-        pb.location = locations.get(f, (0,0,0)) if locations else (0,0,0)
-        pb.keyframe_insert("rotation_euler", frame=f); pb.keyframe_insert("location", frame=f)
-    act.frame_start=min(frames); act.frame_end=max(frames)
-    # Exporter picks up all actions when NLA strips are present.
-    track = arm.animation_data.nla_tracks.new(); track.name=name
-    strip = track.strips.new(name, int(act.frame_start), act); strip.action_frame_start=act.frame_start; strip.action_frame_end=act.frame_end
-    arm.animation_data.action = None
-
-action("idle", [1,20,40], locations={1:(0,0,0),20:(0,0.015,0),40:(0,0,0)})
-action("walk", [1,10,20], rotations={1:(0,0,0),10:(0,0.08,0),20:(0,0,0)})
-action("attack", [1,8,16], rotations={1:(0,0,0),8:(-0.18,0,0),16:(0,0,0)})
-action("hurt", [1,5,12], rotations={1:(0,0,0),5:(0,0,-0.20),12:(0,0,0)})
+arm = bpy.context.object; arm.name = "PKM_CHARIZARD_ARMATURE"
+for b in list(arm.data.edit_bones): arm.data.edit_bones.remove(b)
+bone_specs = {
+    "root": ((0,0,0),(0,0,.25)), "pelvis": ((0,.05,.45),(0,.04,.72)),
+    "spine": ((0,.03,.72),(0,-.02,1.05)), "chest": ((0,-.04,1.02),(0,-.05,1.25)),
+    "neck": ((0,-.12,1.22),(0,-.15,1.40)), "head": ((0,-.20,1.40),(0,-.28,1.62)),
+    "jaw": ((0,-.35,1.32),(0,-.48,1.32)),
+    "arm_l": ((-.25,-.08,1.08),(-.42,-.03,.88)), "arm_r": ((.25,-.08,1.08),(.42,-.03,.88)),
+    "leg_l": ((-.18,.04,.52),(-.20,-.05,.18)), "leg_r": ((.18,.04,.52),(.20,-.05,.18)),
+    "wing_l": ((-.45,.15,1.15),(-.95,.24,1.42)), "wing_r": ((.45,.15,1.15),(.95,.24,1.42)),
+    "tail": ((0,.30,.62),(0,.92,.78)),
+}
+for name, (head, tail) in bone_specs.items():
+    b=arm.data.edit_bones.new(name); b.head=head; b.tail=tail
+    if name != "root": b.parent=arm.data.edit_bones["root"]
 bpy.ops.object.mode_set(mode='OBJECT')
+groups = {name: mesh.vertex_groups.new(name=name) for name in bone_specs}
+points = {name: Vector(spec[0]) for name, spec in bone_specs.items()}
+for vertex in mesh.data.vertices:
+    nearest = min(points, key=lambda name: (vertex.co - points[name]).length)
+    groups[nearest].add([vertex.index], 1.0, 'REPLACE')
+mesh.parent=arm
+mod = mesh.modifiers.new("PKM_CHARIZARD_ARMATURE_MODIFIER", 'ARMATURE'); mod.object = arm
+
+def action(name, frames, poses):
+    act=bpy.data.actions.new(name); arm.animation_data_create(); arm.animation_data.action=act
+    for frame, pose in zip(frames, poses):
+        for bone_name, rotation in pose.items():
+            pb=arm.pose.bones[bone_name]; pb.rotation_mode='XYZ'; pb.rotation_euler=rotation; pb.keyframe_insert('rotation_euler', frame=frame)
+    act.frame_start=frames[0]; act.frame_end=frames[-1]
+    track=arm.animation_data.nla_tracks.new(); track.name=name
+    strip=track.strips.new(name, frames[0], act); strip.action_frame_start=frames[0]; strip.action_frame_end=frames[-1]
+    arm.animation_data.action=None
+
+zero={}
+action("PKM_CHARIZARD_IDLE", [1,20,40], [zero, {"chest":(math.radians(2),0,0)}, zero])
+action("PKM_CHARIZARD_WALK", [1,10,20], [{"leg_l":(.35,0,0),"leg_r":(-.35,0,0),"arm_l":(-.20,0,0),"arm_r":(.20,0,0),"tail":(0,.12,0)}, zero, {"leg_l":(-.35,0,0),"leg_r":(.35,0,0),"arm_l":(.20,0,0),"arm_r":(-.20,0,0),"tail":(0,-.12,0)}])
+action("PKM_CHARIZARD_RUN", [1,8,16], [{"leg_l":(.65,0,0),"leg_r":(-.65,0,0),"arm_l":(-.35,0,0),"arm_r":(.35,0,0),"wing_l":(.18,0,0),"wing_r":(-.18,0,0)}, zero, {"leg_l":(-.65,0,0),"leg_r":(.65,0,0),"arm_l":(.35,0,0),"arm_r":(-.35,0,0),"wing_l":(-.18,0,0),"wing_r":(.18,0,0)}])
+action("PKM_CHARIZARD_ATTACK_01", [1,8,16], [zero, {"chest":(math.radians(-18),0,0),"jaw":(math.radians(-14),0,0),"arm_l":(math.radians(-20),0,0),"arm_r":(math.radians(-20),0,0)}, zero])
+action("PKM_CHARIZARD_HIT", [1,5,12], [zero, {"chest":(0,0,math.radians(-18)),"head":(0,0,math.radians(-10))}, zero])
+action("PKM_CHARIZARD_FAINT", [1,12,30], [zero, {"root":(0,0,math.radians(-35))}, {"root":(0,0,math.radians(-70))}])
+action("PKM_CHARIZARD_FLY", [1,8,16], [{"wing_l":(.35,0,0),"wing_r":(-.35,0,0)}, zero, {"wing_l":(-.35,0,0),"wing_r":(.35,0,0)}])
 
 # Blender's native up axis is +Z, while the construction above deliberately
 # uses Godot-style +Y coordinates. Bake the conversion into the asset so Godot
