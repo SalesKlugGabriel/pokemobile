@@ -16,6 +16,10 @@ def mat(name, color, roughness=0.8):
 
 ORANGE = mat("charizard_orange", (0.82, 0.20, 0.055))
 BLUE = mat("charizard_wing_dark", (0.035, 0.13, 0.24))
+CREAM = mat("charizard_belly_cream", (0.93, 0.66, 0.30), 0.72)
+WING_MEMBRANE = mat("charizard_wing_membrane", (0.12, 0.27, 0.34), 0.76)
+CLAW = mat("charizard_claw_ivory", (0.96, 0.82, 0.55), 0.62)
+FLAME = mat("charizard_flame", (1.0, 0.34, 0.035), 0.52)
 
 parts = []
 def add_uv(name, loc, scale, material=ORANGE, segments=12, rings=8):
@@ -38,12 +42,13 @@ def add_wing(name, side):
     verts = [(0.16*x,1.22,0.12),(0.52*x,1.42,0.18),(1.02*x,1.60,0.30),
              (1.20*x,1.45,0.40),(0.78*x,0.72,0.34),(0.36*x,0.86,0.18)]
     faces = [(0,1,5),(1,2,3,4,5),(0,5,4)]
-    me = bpy.data.meshes.new(name+"Mesh"); me.from_pydata(verts, [], faces); me.materials.append(BLUE)
+    me = bpy.data.meshes.new(name+"Mesh"); me.from_pydata(verts, [], faces); me.materials.append(WING_MEMBRANE)
     o = bpy.data.objects.new(name, me); bpy.context.collection.objects.link(o); parts.append(o); return o
 
 # Compact, deliberately low-poly silhouette: body, neck, head, muzzle, limbs, wings and tail.
 add_uv("body", (0,0.86,0.08), (0.38,0.56,0.30))
 add_uv("chest", (0,1.10,-0.18), (0.28,0.37,0.24))
+add_uv("belly", (0,0.98,-0.39), (0.22,0.38,0.10), CREAM, 12, 8)
 add_uv("head", (0,1.43,-0.23), (0.27,0.27,0.25))
 add_uv("muzzle", (0,1.35,-0.47), (0.20,0.15,0.16))
 # Face cues make the -Z front unmistakable in third person. Eyes and nostrils
@@ -61,12 +66,16 @@ for s in (-1,1):
     add_uv("hand", (0.34*s,0.88,-0.18), (0.11,0.10,0.11))
     add_uv("leg", (0.19*s,0.48,0.04), (0.15,0.34,0.15))
     add_uv("foot", (0.21*s,0.20,-0.10), (0.18,0.10,0.25))
+    # Three small claws make the feet read as anatomy instead of a single blob.
+    for toe in (-0.10, 0.0, 0.10):
+        add_cone("claw", (0.21*s + toe * 0.45, 0.20, -0.34), .038, .006, .18, CLAW, (0,0,0), 8)
     add_wing("wing_l" if s < 0 else "wing_r", s)
 # Tail: three overlapping tapered segments ending in the flame tip.
 add_cone("tail_base", (0,0.60,0.38), .16, .10, .58, ORANGE, (math.pi/2,0,0))
 add_cone("tail_mid", (0,0.52,0.82), .11, .065, .48, ORANGE, (math.pi/2,0,0))
 add_cone("tail_tip", (0,0.65,1.19), .08, .025, .40, ORANGE, (math.pi/2,0,0))
-add_uv("flame", (0,0.86,1.40), (0.12,0.22,0.12), ORANGE)
+add_uv("flame_core", (0,0.86,1.40), (0.12,0.22,0.12), FLAME)
+add_uv("flame_tip", (0,0.86,1.56), (0.07,0.14,0.07), CREAM, 10, 6)
 
 # Join into one render mesh while retaining the two material slots.
 bpy.ops.object.select_all(action='DESELECT')
