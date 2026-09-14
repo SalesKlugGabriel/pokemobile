@@ -69,6 +69,15 @@ func _process(delta: float) -> bool:
 				_conferir_arbitro()
 				_conferir_terreno()
 				_conferir_pokemon()
+				_conferir_modelo_entregue()
+				_conferir_companheiro()
+				_andar_de_novo()
+				_fase = 35
+				_tempo = 0.0
+		35:
+			# O companheiro precisa de tempo pra reagir ao treinador andando.
+			if _tempo > 2.0:
+				_conferir_companheiro_seguiu()
 				_fase = 4
 		_:
 			print("=== Resultado: %d ok, %d falha(s) ===" % [ok, fail])
@@ -417,8 +426,13 @@ func _conferir_pokemon() -> void:
 
 	# 🔴 A decisão do Gabriel: modelo 3D. Enquanto não existe, o primitivo
 	# entra — mas AVISANDO, nunca em silêncio.
-	_conf(not terrestre.tem_modelo,
-		"sem modelo 3D ainda, o Pokémon entra como primitivo")
+	# O Charizard (#6) JÁ tem modelo desde 14/09 — esta asserção dizia o
+	# contrário e envelheceu no dia em que o Codex entregou. O que continua
+	# valendo, e é o que importa, é o caminho do que NÃO tem.
+	_conf(terrestre.tem_modelo,
+		"espécie COM modelo carrega o modelo (Charizard, #6)")
+	_conf(not aquatico.tem_modelo,
+		"espécie SEM modelo cai no primitivo (Gyarados, #130)")
 	var avisou := false
 	for e in PonteDeFeedback.linha_do_tempo():
 		if str(e["o_que"]).contains("sem modelo 3D"):
@@ -436,3 +450,175 @@ func _conferir_pokemon() -> void:
 
 	onix.queue_free()
 	diglett.queue_free()
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# O primeiro modelo entregue (Charizard, Codex, 14/09)
+# ──────────────────────────────────────────────────────────────────────────────
+
+func _conferir_modelo_entregue() -> void:
+	print("-- O modelo do Codex contra o contrato")
+	var caminho := "res://assets/models/pokemon/6.glb"
+	_conf(ResourceLoader.exists(caminho), "o modelo do Charizard está no projeto")
+	if not ResourceLoader.exists(caminho):
+		return
+
+	var charizard = Pokemon3D.new()
+	_lab.add_child(charizard)
+	charizard.montar(6, 30, "ground_biped")
+	_conf(charizard.tem_modelo, "e a entidade carregou o modelo, não o primitivo")
+
+	var suporte = charizard.get_node_or_null("Modelo")
+	_conf(suporte != null, "o modelo entrou dentro do nó de suporte")
+	if suporte == null:
+		return
+
+	# 🔴 O achado: o modelo veio DEITADO — eixo de altura no −Z em vez do +Y,
+	# Blender Z-up sem conversão. Medido no Godot, não estimado na mão: girando
+	# 90° em X a altura bate 1,700 m exato e os pés caem em zero.
+	_conf(not is_zero_approx(suporte.rotation_degrees.x),
+		"o validador detectou o eixo trocado e girou como remendo",
+		"girou %+.0f°" % suporte.rotation_degrees.x)
+
+	# Depois do remendo, ele tem que bater o contrato.
+	var r : Dictionary = ValidadorDeModelo.conferir(suporte, 6)
+	_conf(bool(r["ok"]),
+		"com a correção, o modelo passa no contrato",
+		", ".join(r["problemas"]))
+	_conf(absf(float(r["altura"]) - 1.7) < 0.05,
+		"e a altura bate a Pokédex",
+		"%.3f m, esperado 1,700" % float(r["altura"]))
+	_conf(absf(float(r["pes"])) < ValidadorDeModelo.TOLERANCIA_DOS_PES,
+		"com os pés no chão", "pés em %.3f" % float(r["pes"]))
+
+	# As 4 animações do contrato.
+	var an : Dictionary = ValidadorDeModelo.conferir_animacoes(charizard)
+	_conf(bool(an["ok"]), "as 4 animações exigidas estão lá",
+		"faltam: %s" % ", ".join(an["faltando"]))
+
+	# O validador precisa REPROVAR o que está errado, senão ele é decoração.
+	# Um cubo de 1 m no lugar de um Charizard de 1,7 m tem que ser pego.
+	var falso := Node3D.new()
+	_lab.add_child(falso)
+	var m := MeshInstance3D.new()
+	var caixa := BoxMesh.new()
+	caixa.size = Vector3(1, 1, 1)
+	m.mesh = caixa
+	m.position.y = 0.5
+	falso.add_child(m)
+	var rf : Dictionary = ValidadorDeModelo.conferir(falso, 6)
+	_conf(not bool(rf["ok"]),
+		"o validador REPROVA um modelo de altura errada (senão é decoração)")
+	_conf(str(ValidadorDeModelo.relatorio(falso, 6)).contains("Pokédex"),
+		"e o relatório diz contra o que ele foi medido")
+
+	# E não pode inventar correção onde não há: um cubo não vira Charizard
+	# girando. Corrigir demais transformaria o contrato em ficção.
+	_conf(is_zero_approx(float(rf["correcao_x"])),
+		"e NÃO inventa correção pra um modelo que está só errado")
+
+	# A linha do tempo registrou — se o Gabriel reportar "o bicho está deitado",
+	# o recado dele já vai dizer que o modelo estava fora do contrato.
+	var avisou := false
+	for e in PonteDeFeedback.linha_do_tempo():
+		if str(e["o_que"]).contains("fora do contrato"):
+			avisou = true
+			break
+	_conf(avisou, "o problema do modelo entra na linha do tempo do feedback")
+
+	falso.queue_free()
+	charizard.queue_free()
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 6 — o Pokémon companheiro (§6)
+# ──────────────────────────────────────────────────────────────────────────────
+
+var _dist_antes : float = 0.0
+
+func _conferir_companheiro() -> void:
+	print("-- Fase 6: o companheiro")
+	_conf(_lab.companheiro != null, "o treinador tem um companheiro")
+	if _lab.companheiro == null:
+		return
+	_conf(_lab.companheiro.acompanha == _lab.treinador,
+		"e ele está acompanhando o treinador")
+
+	# A regra pura, sem depender da cena.
+	print("-- §6: a distância sai do TAMANHO dos dois, não de uma constante")
+	var perto_grande : float = RegraDeAcompanhar.distancia_de_repouso(0.35, 1.6)
+	var perto_pequeno : float = RegraDeAcompanhar.distancia_de_repouso(0.35, 0.1)
+	_conf(perto_grande > perto_pequeno,
+		"um Pokémon grande fica MAIS longe que um pequeno",
+		"grande %.2f m, pequeno %.2f m" % [perto_grande, perto_pequeno])
+	# É o que a V2 errava: lá a distância era constante (190 px), e funcionava
+	# só porque todo sprite tinha o mesmo tamanho na tela.
+	_conf(perto_grande - perto_pequeno > 1.0,
+		"e a diferença é grande o bastante pra importar",
+		"%.2f m de diferença" % (perto_grande - perto_pequeno))
+
+	print("-- §6: evitar ficar em cima do treinador")
+	var repouso : float = 2.0
+	_conf(RegraDeAcompanhar.estado(0.3, repouso) == "recuar",
+		"colado no treinador, ele RECUA")
+	_conf(RegraDeAcompanhar.estado(repouso, repouso) == "parado",
+		"na distância certa, fica parado")
+	_conf(RegraDeAcompanhar.estado(repouso + 0.1, repouso) == "parado",
+		"e não fica tremendo por 10 cm (zona morta)")
+	_conf(RegraDeAcompanhar.estado(repouso * 1.5, repouso) == "andar",
+		"um pouco longe, anda")
+	_conf(RegraDeAcompanhar.estado(repouso * 5.0, repouso) == "correr",
+		"muito longe, corre pra alcançar")
+
+	# Teleporte só quando ele já sumiu de vista — teletransportar um companheiro
+	# que o jogador está vendo quebra a ilusão inteira.
+	_conf(not RegraDeAcompanhar.deve_teleportar(60.0, true),
+		"NÃO teleporta se o jogador está vendo")
+	_conf(RegraDeAcompanhar.deve_teleportar(60.0, false),
+		"teleporta só quando sumiu de vista e está muito longe")
+	_conf(not RegraDeAcompanhar.deve_teleportar(10.0, false),
+		"e nem por sumir de vista, se estiver perto")
+
+	# O ponto ideal fica ATRÁS — senão ele entra na frente da câmera toda vez
+	# que o jogador gira.
+	var pos := Vector3.ZERO
+	var olhando := Vector3.FORWARD   # -Z
+	var ideal := RegraDeAcompanhar.ponto_ideal(pos, olhando, 0.35, 0.5)
+	_conf(ideal.z > 0.0, "o ponto ideal fica ATRÁS de quem olha pra frente",
+		"z = %.2f" % ideal.z)
+	_conf(is_zero_approx(ideal.y), "e no mesmo plano — não flutua (§6)")
+
+	_dist_antes = Vector3(_lab.companheiro.global_position.x, 0,
+		_lab.companheiro.global_position.z).distance_to(
+		Vector3(_lab.treinador.global_position.x, 0, _lab.treinador.global_position.z))
+
+func _andar_de_novo() -> void:
+	# O treinador foge; o companheiro tem que ir atrás.
+	_lab.treinador.mover(Vector2(1, 0), true)
+
+func _conferir_companheiro_seguiu() -> void:
+	if _lab.companheiro == null:
+		return
+	_lab.treinador.soltar_movimento()
+	var c = _lab.companheiro
+	var t = _lab.treinador
+	var distancia : float = Vector3(c.global_position.x, 0, c.global_position.z) \
+		.distance_to(Vector3(t.global_position.x, 0, t.global_position.z))
+
+	# O teste que importa: ele acompanhou de verdade, andando. Se tivesse
+	# ficado parado, a distância teria explodido — o treinador correu 2 s.
+	_conf(distancia < 12.0,
+		"o companheiro acompanhou o treinador correndo",
+		"ficou a %.1f m" % distancia)
+	_conf(c.estado_de_acompanhar in ["parado", "andar", "correr", "recuar"],
+		"e reporta um estado válido", c.estado_de_acompanhar)
+
+	# §6: "não deve parecer flutuar". Ele tem que estar sobre o terreno.
+	var chao : float = Terreno3D.altura_em(c.global_position.x, c.global_position.z)
+	_conf(c.global_position.y > chao - 1.0 and c.global_position.y < chao + 3.0,
+		"e está sobre o terreno, não flutuando nem afundado",
+		"y %.2f, chão %.2f" % [c.global_position.y, chao])
+
+	# E não está em cima do treinador.
+	_conf(distancia > 0.5, "sem ficar em cima do treinador (§6)",
+		"%.2f m" % distancia)

@@ -116,9 +116,15 @@ func _montar_visual() -> void:
 	if ResourceLoader.exists(caminho):
 		var cena := load(caminho)
 		if cena != null:
+			# O modelo entra dentro de um nó próprio, e não direto — é esse nó
+			# que recebe a correção de eixo quando o export vem torto.
+			var suporte := Node3D.new()
+			suporte.name = "Modelo"
+			add_child(suporte)
 			_visual = (cena as PackedScene).instantiate()
-			add_child(_visual)
+			suporte.add_child(_visual)
 			tem_modelo = true
+			_validar_modelo(suporte)
 			return
 
 	# Sem modelo: primitivo, e o aviso vai pro log E pra linha do tempo do
@@ -141,6 +147,34 @@ func _montar_visual() -> void:
 	(_visual as MeshInstance3D).material_override = mat
 	add_child(_visual)
 
+## 🔴 A régua do modelo (14/09). O primeiro modelo entregue — Charizard, pelo
+## Codex — estava **certo em tudo e deitado**: o eixo de altura tinha ido pro −Z
+## em vez do +Y, clássico Blender Z-up sem conversão no export. Girando 90° em
+## X, a altura batia a Pokédex **exatamente** (1,700 m) e os pés caíam em zero.
+##
+## Vão chegar 151 modelos ao longo de meses. Um torto entrando em silêncio é um
+## Pokémon afundado no chão sem ninguém ligar a causa a um export de semanas
+## atrás. Então: **mede, corrige o que é inequívoco, e GRITA.**
+##
+## A correção automática é deliberadamente estreita — só o giro de 90° em X, que
+## tem assinatura própria e não se confunde com "modelo mal feito". Corrigir
+## mais que isso transformaria o contrato em ficção, e o próximo modelo, esse
+## exportado certo, sairia torto.
+func _validar_modelo(suporte: Node3D) -> void:
+	var r : Dictionary = ValidadorDeModelo.conferir(suporte, species_id)
+	if bool(r["ok"]):
+		return
+
+	var texto := ValidadorDeModelo.relatorio(suporte, species_id)
+	push_warning(texto)
+	PonteDeFeedback.anotar("modelo #%d fora do contrato (ver log)" % species_id)
+
+	var correcao : float = float(r["correcao_x"])
+	if not is_zero_approx(correcao):
+		suporte.rotation_degrees.x = correcao
+		push_warning("modelo #%d girado %+.0f° em X como remendo — CONSERTE O EXPORT, não o jogo"
+			% [species_id, correcao])
+
 ## Cor pelo tipo primário. Placeholder precisa ser **legível**: um campo de
 ## cápsulas cinzas idênticas não deixa testar nada de combate.
 func _cor_do_tipo() -> Color:
@@ -162,6 +196,15 @@ func _cor_do_tipo() -> Color:
 var intencao : Vector2 = Vector2.ZERO
 var quer_correr : bool = false
 
+## §6: quando preenchido, este Pokémon acompanha o treinador. Vazio = ele se
+## vira sozinho (selvagem, ou controlado pelo jogador em combate).
+var acompanha : Node3D = null
+
+## O que ele está fazendo agora, na palavra que `RegraDeAcompanhar` devolve.
+## A HUD e a animação leem daqui em vez de deduzir da velocidade — deduzir é
+## como dois lugares passam a discordar sobre o mesmo fato.
+var estado_de_acompanhar : String = "parado"
+
 func velocidade_maxima() -> float:
 	return MovementProfile.velocidade(arquetipo, int(stats.get("spe", 50)))
 
@@ -169,6 +212,10 @@ func _physics_process(delta: float) -> void:
 	if _derrotado:
 		velocity = Vector3.ZERO
 		move_and_slide()
+		return
+
+	if acompanha != null and is_instance_valid(acompanha):
+		_seguir(delta)
 		return
 
 	var base := Basis(Vector3.UP, rotation.y)
@@ -183,6 +230,57 @@ func _physics_process(delta: float) -> void:
 		velocity.y = Locomocao3D.aplicar_gravidade(velocity.y, is_on_floor(), delta * g)
 	else:
 		velocity.y = move_toward(velocity.y, 0.0, delta * 4.0)
+
+	move_and_slide()
+	rotation.y = Locomocao3D.girar_para(
+		rotation.y, velocity, delta, float(MovementProfile.obter(arquetipo)["giro"]))
+
+## §6: acompanhar o treinador. A DECISÃO é da `RegraDeAcompanhar`; aqui só se
+## executa — é o que permite provar o comportamento sem subir física.
+func _seguir(delta: float) -> void:
+	var meu_raio : float = float(CombatProfile.corpo(altura)["raio"])
+	var raio_dele : float = 0.35   # o colisor do treinador
+	var repouso : float = RegraDeAcompanhar.distancia_de_repouso(raio_dele, meu_raio)
+
+	var olhar := -acompanha.global_transform.basis.z
+	var ideal := RegraDeAcompanhar.ponto_ideal(
+		acompanha.global_position, olhar, raio_dele, meu_raio)
+
+	var plano_meu := Vector3(global_position.x, 0.0, global_position.z)
+	var plano_dele := Vector3(acompanha.global_position.x, 0.0, acompanha.global_position.z)
+	var distancia : float = plano_meu.distance_to(plano_dele)
+	estado_de_acompanhar = RegraDeAcompanhar.estado(distancia, repouso)
+
+	var alvo := Vector3.ZERO
+	match estado_de_acompanhar:
+		"parado":
+			alvo = Vector3.ZERO
+		"recuar":
+			# Afasta-se do treinador, não do ponto ideal: perto demais, o que
+			# importa é sair de cima dele (§6).
+			var fuga := (plano_meu - plano_dele)
+			if fuga.length_squared() < 0.001:
+				fuga = Vector3.BACK
+			alvo = fuga.normalized() * velocidade_maxima() * 0.6
+		_:
+			var para_o_ideal := Vector3(ideal.x - global_position.x, 0.0,
+										ideal.z - global_position.z)
+			var rapido : float = 1.5 if estado_de_acompanhar == "correr" else 1.0
+			alvo = para_o_ideal.normalized() * velocidade_maxima() * rapido
+
+	velocity = Locomocao3D.avancar(velocity, alvo, delta)
+
+	# §6: "não deve parecer flutuar". A gravidade é do arquétipo, e o voador
+	# ganha uma altura de voo sobre o TERRENO — não sobre a trajetória, senão
+	# ele mergulha em qualquer descida.
+	var g := MovementProfile.gravidade(arquetipo)
+	if g > 0.0:
+		velocity.y = Locomocao3D.aplicar_gravidade(velocity.y, is_on_floor(), delta * g)
+	else:
+		var chao : float = RegraDeAcompanhar.altura_no_terreno(
+			global_position.x, global_position.z)
+		var altura_de_voo : float = chao + 3.0 + altura
+		velocity.y = (altura_de_voo - global_position.y) * 2.0
 
 	move_and_slide()
 	rotation.y = Locomocao3D.girar_para(

@@ -66,7 +66,7 @@ func _ready() -> void:
 		return
 
 	_montar_treinador()
-	_montar_pokemon()
+	_montar_pokemon()   # precisa do treinador pronto: o 1º do trio o acompanha
 	_povoar(600)   # vegetação leve, só pra ter referência de movimento no mundo
 	PonteDeFeedback.anotar("Laboratório 3D aberto (Fase 3)")
 
@@ -79,6 +79,7 @@ const TRIO_DE_TESTE : Array[Dictionary] = [
 ]
 
 var pokemons : Array = []
+var companheiro : PokemonInstance3D = null
 
 func _montar_pokemon() -> void:
 	for molde in TRIO_DE_TESTE:
@@ -92,6 +93,15 @@ func _montar_pokemon() -> void:
 		p.global_position = Terreno3D.ponto_em(onde.x, onde.y, acima) if terreno != null \
 			else Vector3(onde.x, 2.0, onde.y)
 		pokemons.append(p)
+
+	# §6: o primeiro do trio vira o COMPANHEIRO — ele acompanha o treinador
+	# pelo mundo. É a peça que a Fase 7 vai transformar em "assumir o controle".
+	if not pokemons.is_empty() and treinador != null:
+		companheiro = pokemons[0]
+		companheiro.acompanha = treinador
+		companheiro.global_position = Terreno3D.ponto_em(
+			treinador.global_position.x + 2.0, treinador.global_position.z + 2.0, 0.5)
+		PonteDeFeedback.anotar("%s acompanha o treinador" % companheiro.nome_exibido)
 
 ## §11 + §12: o treinador nasce, e o árbitro de input é quem lhe dá o controle.
 ## Nunca o contrário — o controlador não se auto-ativa.

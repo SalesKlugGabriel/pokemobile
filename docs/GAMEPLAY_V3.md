@@ -31,7 +31,7 @@ continua Pokémon.
 
 | | |
 |---|---|
-| **Fase atual** | **6 — companion Pokémon** (0 a 5 fechadas) |
+| **Fase atual** | **7 — transferência Treinador → Pokémon** (0 a 6 fechadas) |
 | **Branch** | `agent/claude-v3` · `main` segue com a V2 |
 | **Código V3 escrito** | árbitro de input, locomoção, câmera, treinador, terreno, Pokémon 3D |
 | **Bloqueio** | nenhum — as 3 decisões estão fechadas |
@@ -43,6 +43,22 @@ continua Pokémon.
 | 1 | ~~Billboard ou modelo?~~ | ✅ **MODELO 3D** (Gabriel, 14/09). Ver abaixo |
 | 2 | ~~Manter `gl_compatibility`?~~ | ✅ **RESOLVIDO** — medido, aguenta. Ver abaixo |
 | 3 | ~~`Terrain3D` de terceiros ou malha própria?~~ | ✅ **malha própria** (Claude, 14/09). Ver abaixo |
+
+### 📦 Primeiro modelo entregue — Charizard (Codex, 14/09)
+
+**Certo em tudo, e deitado.** Formato, materiais, as 4 animações e a escala
+**exata** — mas o eixo de altura foi exportado no −Z (Blender Z-up sem
+conversão). Girando +90° em X: altura **1,700 m** (a Pokédex, exata) e pés em
+**0,000**.
+
+Construído `ValidadorDeModelo.gd`: mede todo modelo contra `heights.json`,
+reprova o que não bate, e corrige **só** o giro de 90° — que tem assinatura
+própria — gritando "conserte o export, não o jogo". Não inventa correção pra
+modelo que está só errado, e há teste provando isso.
+
+Retorno ao Codex em `docs/agent-reviews/claude/2026-09-14-modelo-charizard.md`.
+**Esperando o reexport.** Se a altura sair 1,700 direto, o contrato está provado
+e os outros 150 vêm em fila sem conferência manual.
 
 ### ✅ Decisão 1 — modelo 3D (Gabriel, 14/09)
 
@@ -119,8 +135,8 @@ rodando** — não quando o código existe.
 | 3 | Treinador em 3ª pessoa | ✅ | 14/09 · 36 conferências · `ControlModeManager` + `Locomocao3D` + `CameraTerceiraPessoa` |
 | 4 | Terreno 3D | ✅ | 14/09 · altura, falésia, praia contínua e água · 17 conferências |
 | 5 | Pokémon 3D | ✅ | 14/09 · composição, 8 arquétipos declarados e 5 implementados · 36 conferências |
-| 6 | Companion Pokémon | 🔵 próxima | |
-| 7 | Transferência Treinador → Pokémon | ⬜ | o coração da fantasia |
+| 6 | Companion Pokémon | ✅ | 14/09 · distância derivada do tamanho dos dois · 18 conferências |
+| 7 | Transferência Treinador → Pokémon | 🔵 próxima | **o coração da fantasia** |
 | 8 | Pokémon em 1ª pessoa | ⬜ | |
 | 9 | Ataque básico | ⬜ | |
 | 10 | 4 skills | ⬜ | melee, projétil, área, drenagem |

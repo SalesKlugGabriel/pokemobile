@@ -5333,3 +5333,52 @@ três armadilhas que já custaram caro nesta migração. O item que mais importa
 o **modelo 3D**, que virou o caminho crítico do projeto.
 
 ⚠️ **O Codex continua sem ser disparado.** Os dois documentos estão commitados.
+
+## 📦 Primeiro modelo do Codex — Charizard: certo em tudo, e deitado
+
+Formato, 1 malha, 2 materiais, as **4 animações exatas** do contrato, centrado
+em X, 2.372 triângulos. E a escala **exata** — não aproximada.
+
+🔴 **O eixo de altura foi exportado no −Z** (Blender Z-up sem conversão pro
+Y-up do Godot). Medido dentro do Godot, girando uma cópia:
+
+| | Altura | Pés |
+|---|---:|---:|
+| como veio | 2,239 m | −0,659 |
+| **+90° em X** | **1,700 m** | **0,000** |
+
+A assinatura estava no arquivo: a malha crua tem **exatamente 1,700 no eixo Z**.
+
+**Nota de método:** minha primeira conferência foi na mão, lendo o JSON e
+aplicando rotação por trigonometria — deu três violações e um diagnóstico
+confuso. Refazendo **dentro do Godot**, o padrão apareceu limpo: uma causa só.
+Mesma lição da régua de densidade — medir com a ferramenta que o jogo usa, não
+com a conta que eu acho que ela faz.
+
+Construído `ValidadorDeModelo.gd` em vez de consertar o arquivo: vão chegar 151
+modelos ao longo de meses, e um torto em silêncio é um Pokémon afundado no chão
+sem ninguém ligar a causa a um export de semanas atrás. O remendo automático é
+**estreito** (só o giro de 90°) e **barulhento**, e há teste provando que ele
+não inventa correção pra um modelo que está só errado.
+
+## Fase 6 ✅ — o companheiro, 18 conferências novas (120 no arquivo)
+
+`RegraDeAcompanhar`, classe pura. **A distância de repouso é derivada do tamanho
+dos dois**, não uma constante.
+
+É a lição da V2: lá eram 190 px fixos, e funcionava porque todo sprite tinha o
+mesmo tamanho na tela. Em 3D isso quebra — um Onix de 5,6 m parado a 1,9 m do
+treinador **está em cima dele**, e um Diglett de 0,2 m a 1,9 m parece
+abandonado. É o §6 ("respeitar o tamanho real relativo") virando número em vez
+de comentário.
+
+Outras decisões do §6 viradas regra: ele **recua** quando está perto demais (um
+companheiro que só sabe se aproximar acaba empurrando o jogador); tem **zona
+morta** de 35 cm, senão fica tremendo em volta do ponto ideal — o defeito mais
+visível de companheiro em qualquer jogo; fica **atrás**, não ao lado, porque ao
+lado ele entra na frente da câmera toda vez que o jogador gira; e a altura dele
+sai do **terreno**, não da trajetória, que é o que separa "andando" de
+"deslizando no ar" (§6: *"não deve parecer flutuar"*).
+
+Teleporte só quando ele já sumiu de vista — teletransportar um companheiro que
+o jogador está vendo quebra a ilusão inteira.
