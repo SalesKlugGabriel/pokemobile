@@ -289,29 +289,66 @@ func _resolver_cast() -> void:
 	golpe_encerrado.emit(slot, "impacto")
 	telegrafia_encerrada.emit(_cast_id, "impacto")
 
-## §17/§18: o status do golpe, se ele tiver um e a sorte deixar. A imunidade de
-## 1 segundo é responsabilidade do LIVRO do alvo, não deste código — por isso a
-## aplicação pode falhar em silêncio aqui, e o dano já foi dado de qualquer jeito.
+## §17/§18: o status do golpe, se ele tiver um e a sorte deixar.
+##
+## 🔴 Reescrito em 14/09 na auditoria de dados. A primeira versão lia
+## `golpe.effect` **como se fosse o nome do status** e exigia `status_chance > 0`
+## — e as duas coisas estavam erradas:
+##
+##  - o campo `effect` é uma linguagem própria: `burn_10` é queimar com 10% de
+##    chance, `paralysis` é paralisar com a chance padrão. "burn_10" nunca seria
+##    o nome de um status.
+##  - `status_chance` vale 0 em 160 dos 192 golpes, porque a chance mora DENTRO
+##    do `effect` na maioria deles.
+##
+## Resultado: **status nunca era aplicado na V2, em golpe nenhum**, e nada
+## avisava. `StatusEffectController` já sabia decodificar isso desde sempre — o
+## erro foi eu escrever um segundo interpretador em vez de procurar o que
+## existia.
 func _aplicar_status(golpe: Dictionary, alvo: CombatenteV2) -> void:
-	var efeito := str(golpe.get("effect", ""))
-	if efeito == "":
+	var efeito := str(golpe.get("effect", "none"))
+	if efeito == "" or efeito == "none":
 		return
-	var chance : float = float(golpe.get("status_chance", 0)) / 100.0
-	if chance <= 0.0 or not RNGManager.chance(chance):
+	var padrao : int = StatusEffectController.chance_do_golpe(golpe)
+	var r : Dictionary = StatusEffectController.resolve_status_effect(efeito, padrao)
+	if r.is_empty():
 		return
-	if alvo.efeitos.aplicar_status(efeito, 6.0, float(golpe.get("power", 20)) * 0.15):
+	if not RNGManager.chance(float(r["chance"]) / 100.0):
+		return
+	var nome := str(r["status"])
+	var duracao : float = StatusEffectController.roll_sleep_duration() \
+		if nome == "sleep" else 6.0
+	if alvo.efeitos.aplicar_status(nome, duracao, float(golpe.get("power", 20)) * 0.15):
 		FloatingText.show_text(get_tree().current_scene,
-			alvo.global_position + Vector2(0, -180), efeito, Color(0.9, 0.6, 0.9))
+			alvo.global_position + Vector2(0, -180),
+			StatusEffectController.status_label(nome) + "!", Color(0.9, 0.6, 0.9))
 
 ## §20: *"skills de drenagem curam baseado no dano REAL causado. Se dano final
 ## = 0, cura = 0. Nunca pode ultrapassar 100% do dano."*
 ##
 ## "Dano real" é o ponto: curar pelo dano teórico faria drenagem contra um alvo
 ## imune curar do mesmo jeito, o que a §20 proíbe com todas as letras.
+## 🔴 Também reescrito na auditoria: a primeira versão lia um campo `drenagem`
+## que **nenhum dos 192 golpes tem**. A drenagem é codificada no `effect`, como
+## `drain_50`. Outro zero silencioso meu, no mesmo arquivo e no mesmo dia.
+##
+## Achado junto: a drenagem **nunca funcionou na V1 tampouco** — `drain_50`
+## aparece em 4 golpes (Absorb, Mega Drain, Giga Drain, Dream Eater) e nenhum
+## código do jogo lê. Eles davam dano e curavam nada desde sempre.
+static func fracao_de_drenagem(golpe: Dictionary) -> float:
+	var efeito := str(golpe.get("effect", "none"))
+	if not efeito.begins_with("drain_"):
+		return 0.0
+	# `drain_50` e `drain_50_sleeping_only` — pega o primeiro número depois do _
+	var partes := efeito.split("_")
+	if partes.size() < 2 or not partes[1].is_valid_int():
+		return 0.0
+	return clampf(float(partes[1].to_int()) / 100.0, 0.0, 1.0)
+
 func _drenar(golpe: Dictionary, dano_causado: int) -> void:
 	if dano_causado <= 0:
 		return
-	var fracao : float = clampf(float(golpe.get("drenagem", 0.0)), 0.0, 1.0)
+	var fracao : float = fracao_de_drenagem(golpe)
 	if fracao <= 0.0:
 		return
 	var cura : int = mini(dano_causado, int(round(float(dano_causado) * fracao)))

@@ -5019,3 +5019,64 @@ A zona mais perigosa do mundo, tirada do próprio dado: Caverna de Cerulean 6º
 andar — encontros 2,2× mais espaçados e 34% de chance de elite.
 
 **148 conferências novas nesta parte (75 + 73), 0 falhas.**
+
+## 2026-09-14 (parte 6) — Auditoria de dados: golpes, natures, IVs, tipos
+
+Pedido: *"revise todos os golpes e todas as tabelas de dano, cooldown e timer
+das nature, ivs, buffs, debuffs, etc para ter certeza de que não tem nada errado
+ou vazio para dar erro"*.
+
+`teste_auditoria_de_dados.gd` — 50 conferências. A pergunta que ele faz **não é
+"o campo existe?"**, é **"o valor serve?"**. É a diferença que produz zero
+silencioso: o jogo roda, nada dá erro, e uma mecânica inteira não acontece.
+
+### 🔴 Achado grave: a tabela de tipos tinha 15 dos 18
+
+Faltavam **Dark, Steel e Fairy**. A tabela é Gen 1, mas o DADO do jogo é
+moderno. Com os três fora, `get_type_multiplier()` caía no retorno neutro e
+ninguém via:
+
+- **Bite e Crunch** (Dark) nunca eram super-efetivos em Psychic ou Ghost;
+- **Iron Head e Heavy Slam** (Steel) nunca eram super-efetivos;
+- **Dazzling Gleam** (Fairy) era neutro em tudo;
+- **Clefairy, Clefable, Jigglypuff, Wigglytuff e Mr-Mime** não tinham fraqueza,
+  resistência nem imunidade nenhuma — inclusive a imunidade a Dragon;
+- **Magnemite e Magneton** (Steel) sem nenhuma das resistências deles.
+
+Completada. **As particularidades de Gen 1 que já estavam lá foram mantidas de
+propósito** (Ghost→Psychic 0, Poison→Bug 2×, Bug→Poison 2×) — são escolha do
+projeto, e mexer nelas seria balanceamento, não auditoria.
+
+### 🔴 Dois zeros silenciosos MEUS, do mesmo dia e do mesmo arquivo
+
+1. **`_aplicar_status` lia `effect` como se fosse nome de status** e exigia
+   `status_chance > 0`. As duas coisas erradas: `effect` é uma linguagem
+   (`burn_10` = queimar com 10%), e `status_chance` vale 0 em 160 dos 192
+   golpes porque a chance mora dentro do `effect`. **Status nunca era aplicado
+   na V2, em golpe nenhum.** `StatusEffectController` já sabia decodificar isso
+   desde sempre — meu erro foi escrever um segundo interpretador em vez de
+   procurar o que existia.
+2. **`_drenar` lia um campo `drenagem` que nenhum dos 192 golpes tem.** A
+   drenagem é `drain_50` dentro do `effect`.
+
+Achado junto: **drenagem nunca funcionou na V1 tampouco.** Absorb, Mega Drain,
+Giga Drain e Dream Eater davam dano e curavam nada, desde sempre. Agora a V2 lê.
+
+### O que está certo (conferido, não suposto)
+
+192 golpes com os 18 campos, nenhum nome vazio; recarga, alcance e PP sempre
+> 0; nenhum cast mais longo que a própria recarga; `status_chance` sempre entre
+0 e 100; todo golpe de dano com poder 0 tem efeito que define o dano de outro
+jeito (OHKO, dano fixo, dano por nível); toda forma de área é reconhecida pelo
+motor e tem raio próprio. 151 espécies com os 6 stats base > 0, tipos válidos,
+catch_rate entre 1 e 255, habilidade preenchida e evolução apontando pra
+espécie existente; nenhum learnset ensina golpe inexistente. 25 natures, 5
+neutras, multiplicadores 1,1/0,9/1,0 e nature não mexe no HP. IVs entre 0 e 31
+em 300 sorteios, e IV 31 dá mais stat que IV 0.
+
+### Avisos declarados (legítimos, mas não escondidos)
+
+- 42 golpes com `accuracy` 0 — nunca erram, por decisão do motor
+- **108 dos 192 com `cast_time` 0** — sem janela de leitura (§9)
+- 6 golpes com `priority` != 0, e **o campo não é lido por ninguém**
+- 89 efeitos distintos; só 32 golpes têm efeito que o motor interpreta hoje
