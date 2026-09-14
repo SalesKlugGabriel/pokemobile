@@ -23,6 +23,8 @@ var _erro_ao_montar : String = ""
 
 ## Autoload não é identificador em teste `--script` — preenchido no 1º quadro.
 var PonteDeFeedback : Node
+## Mesma armadilha de sempre: esta classe toca em `RNGManager`.
+var Comportamento : GDScript
 
 # Nenhuma classe da V2 é citada por NOME neste arquivo, de propósito: citar
 # `TreinadorV2` obriga o Godot a compilá-la agora, e ela usa autoload — que
@@ -44,6 +46,7 @@ func _process(delta: float) -> bool:
 	match _fase:
 		0:
 			PonteDeFeedback = root.get_node("PonteDeFeedback")
+			Comportamento = load("res://scripts/combat/ComportamentoSelvagem.gd")
 			_montar()
 			_fase = 1
 			_tempo = 0.0
@@ -69,7 +72,15 @@ func _process(delta: float) -> bool:
 			# movimento se mede em tempo decorrido, não na linha seguinte.
 			if _tempo > 0.6:
 				_conferir_fachada_moveu()
+				_provocar_o_bando()
 				_fase = 5
+				_tempo = 0.0
+		5:
+			# O bando acorda com atraso sorteado (0,4 a 1,8 s): medir antes
+			# disso mediria o sorteio, não a regra.
+			if _tempo > 3.0:
+				_conferir_bando()
+				_fase = 6
 		_:
 			print("=== Resultado: %d ok, %d falha(s) ===" % [ok, fail])
 			quit(1 if fail > 0 else 0)
@@ -293,3 +304,90 @@ func _conferir_fachada_moveu() -> void:
 		"andou %.0f px" % andou)
 	_lab.soltar_movimento()
 	_conf(_lab.treinador.le_teclado, "soltar_movimento() devolve o teclado")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §26: o grito do bando
+# ──────────────────────────────────────────────────────────────────────────────
+
+var _gritador = null
+var _perseguindo_antes : Array = []
+
+## Monta a situação que se quer medir, em vez de torcer pra ela acontecer.
+##
+## A primeira versão deste teste bateu num selvagem que **já estava lutando** —
+## e quem já está na briga não grita de novo, de propósito. O teste media a
+## ausência do grito e chamava de bug. Agora ele arruma dois bichos de bando da
+## mesma espécie, parados e perto um do outro, e só então provoca.
+func _provocar_o_bando() -> void:
+	var bando : Array = []
+	for n in root.get_tree().get_nodes_in_group("selvagem_v2"):
+		if not n.esta_derrotado() and str(n.personalidade) == "pack":
+			bando.append(n)
+	if bando.size() < 2:
+		_conf(false, "havia pelo menos 2 selvagens de bando na área",
+			"achei %d" % bando.size())
+		return
+
+	_gritador = bando[0]
+	var vizinho = bando[1]
+	# Longe da briga, parados, e um ao lado do outro — dentro do raio do grito.
+	_gritador.global_position = Vector2(6000, 6000)
+	vizinho.global_position = Vector2(6000, 6000) + Vector2(CombatBalance.TILE_PX * 2, 0)
+	for n in [_gritador, vizinho]:
+		n._estado = 0            # PATRULHA
+		n.alvo = null
+		n.saltos_de_grito = 0
+		n.casa = n.global_position
+
+	_perseguindo_antes = _quem_persegue()
+	_gritador.sofrer(1, _lab.pokemon)
+
+func _quem_persegue() -> Array:
+	var out : Array = []
+	for s in root.get_tree().get_nodes_in_group("selvagem_v2"):
+		if not s.esta_derrotado() and int(s._estado) == 1:
+			out.append(s)
+	return out
+
+func _conferir_bando() -> void:
+	if _gritador == null:
+		return
+	_conf(int(_gritador._estado) == 1, "quem apanhou entrou em perseguição")
+
+	var agora : Array = _quem_persegue()
+	var novos : Array = []
+	for s in agora:
+		if s != _gritador and not (s in _perseguindo_antes):
+			novos.append(s)
+
+	_conf(novos.size() >= 1, "o grito acordou vizinho da MESMA espécie (§26)",
+		"acordaram %d" % novos.size())
+
+	# §27: quem foi CHAMADO entra com 1 salto e não pode gritar de novo. Sem
+	# isso, A chama B, B chama C, e o mapa inteiro vem junto.
+	var com_salto_errado : int = 0
+	for s in novos:
+		if int(s.saltos_de_grito) != 1:
+			com_salto_errado += 1
+	_conf(com_salto_errado == 0,
+		"todo chamado entra marcado como chamado (sem corrente de aggro)",
+		"%d com salto errado" % com_salto_errado)
+
+	_conf(novos.size() <= CombatBalance.MAX_PACK_SIZE,
+		"o grito respeita o teto do bando",
+		"acordaram %d, teto %d" % [novos.size(), CombatBalance.MAX_PACK_SIZE])
+
+	# O bicho de bando é o único que grita: um territorial apanhando não chama.
+	_conf(Comportamento.chama_o_bando("pack")
+			and not Comportamento.chama_o_bando("territorial"),
+		"só a personalidade de bando chama os outros")
+
+	# A linha do tempo registrou — é o que transforma "apareceu um monte de
+	# bicho do nada" num relatório que dá pra investigar.
+	var achou := false
+	for e in PonteDeFeedback.linha_do_tempo():
+		if str(e["o_que"]).contains("chamou o bando"):
+			achou = true
+			break
+	_conf(achou, "o grito aparece na linha do tempo do feedback")

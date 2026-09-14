@@ -4862,3 +4862,25 @@ que é o padrão das referências que o Gabriel deu (Tibia, PXG, Eterspire).
 Com o Alpha fixo em +35% pela §30, a pergunta virou "o que isso exige do
 jogador": **4 níveis de vantagem**. É o número que decide onde um Alpha pode
 aparecer no mundo.
+
+### Passo 9 — o grito do bando (§26, §27)
+
+Último item meu antes do playtest. Reaproveita `ComportamentoSelvagem.quem_ouve_o_grito()`
+inteiro — só da mesma espécie, só dentro do raio, no máximo N, os mais perto
+primeiro. O que faltava era o corpo chamar.
+
+Duas decisões que a especificação exige e que é fácil perder:
+
+- **Quem foi chamado não grita de novo.** Cada bicho carrega `saltos_de_grito`;
+  quem viu sozinho entra com 0, quem foi chamado entra com 1. Sem isso, A chama
+  B, B chama C, e em segundos o mapa inteiro está em cima do jogador — a
+  corrente de aggro que a §27 manda evitar.
+- **Atraso sorteado por bicho** (0,4 a 1,8 s). O bando inteiro pulando no mesmo
+  quadro parece script, não animal — e o atraso é o que dá ao jogador a chance
+  de ver o segundo vindo e reagir.
+
+🔴 **O primeiro teste do grito estava errado, não o código.** Ele batia num
+selvagem que **já estava lutando** — e quem já está na briga não grita de novo,
+de propósito. O teste media a ausência do grito e chamava de bug. Reescrito pra
+**montar a situação** que quer medir (dois bichos de bando da mesma espécie,
+parados, lado a lado) em vez de torcer pra ela acontecer.

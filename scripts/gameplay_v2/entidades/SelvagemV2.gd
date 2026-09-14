@@ -32,6 +32,12 @@ var alvo : Node2D = null
 var _estado : Estado = Estado.PATRULHA
 var _dir_patrulha : Vector2 = Vector2.ZERO
 var _t_patrulha : float = 0.0
+## §26: quantos "saltos" de grito já aconteceram até chegar neste bicho. Zero =
+## ele viu sozinho. Um = foi chamado — e quem foi chamado **não grita de novo**,
+## senão A chama B, B chama C e em segundos o mapa inteiro está em cima do
+## jogador. É a corrente de aggro que a §27 manda evitar.
+var saltos_de_grito : int = 0
+
 ## §27: memória temporária — ele lembra de quem o atacou por um tempo depois de
 ## perder o alvo de vista. Sem isso, sair do raio por meio segundo apaga a briga.
 var _memoria : float = 0.0
@@ -60,9 +66,52 @@ func velocidade() -> float:
 ## §26: apanhar acorda, sempre — mesmo o passivo, que não começa briga.
 func ao_ser_atingido(de_quem: Node) -> void:
 	if de_quem is Node2D:
-		alvo = de_quem as Node2D
-		_estado = Estado.PERSEGUIR
-		_memoria = MEMORIA_SEGUNDOS
+		_engajar(de_quem as Node2D, saltos_de_grito)
+
+## Entrar na briga, e — se for do tipo que chama — gritar.
+##
+## `saltos` é quantos gritos já encadearam até aqui. Um bicho que foi CHAMADO
+## entra com 1 e por isso não chama mais ninguém.
+func _engajar(quem: Node2D, saltos: int) -> void:
+	var ja_estava := _estado == Estado.PERSEGUIR
+	alvo = quem
+	_estado = Estado.PERSEGUIR
+	_memoria = MEMORIA_SEGUNDOS
+	saltos_de_grito = saltos
+	if ja_estava:
+		return
+	PonteDeFeedback.anotar("%s partiu pra cima" % nome_exibido)
+	if ComportamentoSelvagem.chama_o_bando(personalidade):
+		_gritar(quem)
+
+## §26: o bando acorda. Só da MESMA espécie, só dentro do raio, no máximo N —
+## e cada um com um atraso sorteado, porque o bando inteiro pulando no mesmo
+## quadro parece script, não animal. O atraso é o que dá ao jogador a chance de
+## ver o segundo vindo e reagir.
+func _gritar(contra: Node2D) -> void:
+	var ouviram : Array = ComportamentoSelvagem.quem_ouve_o_grito(
+		self, get_tree().get_nodes_in_group("selvagem_v2"), species_id,
+		saltos_de_grito)
+	if ouviram.is_empty():
+		return
+	PonteDeFeedback.anotar("%s chamou o bando (%d)" % [nome_exibido, ouviram.size()])
+	for n in ouviram:
+		if not (n is SelvagemV2) or (n as SelvagemV2).esta_derrotado():
+			continue
+		var atraso : float = RNGManager.randf_range(
+			CombatBalance.ATRASO_DO_BANDO_MIN, CombatBalance.ATRASO_DO_BANDO_MAX)
+		(n as SelvagemV2).acordar_em(atraso, contra)
+
+var _acordar_em : float = -1.0
+var _acordar_contra : Node2D = null
+
+## Marcado pra entrar na briga daqui a `segundos`. Não engaja na hora — o
+## atraso É a mecânica (§26).
+func acordar_em(segundos: float, contra: Node2D) -> void:
+	if _estado == Estado.PERSEGUIR or _acordar_em > 0.0:
+		return
+	_acordar_em = segundos
+	_acordar_contra = contra
 
 func _physics_process(delta: float) -> void:
 	if esta_derrotado():
@@ -73,6 +122,12 @@ func _physics_process(delta: float) -> void:
 	_tick_combate(delta)
 	if _memoria > 0.0:
 		_memoria -= delta
+	if _acordar_em > 0.0:
+		_acordar_em -= delta
+		if _acordar_em <= 0.0 and _acordar_contra != null and is_instance_valid(_acordar_contra):
+			# Entra com 1 salto: foi chamado, então não chama mais ninguém.
+			_engajar(_acordar_contra, 1)
+			_acordar_contra = null
 
 	match _estado:
 		Estado.PATRULHA:  _patrulhar(delta)
@@ -103,10 +158,7 @@ func _patrulhar(delta: float) -> void:
 		return
 	var raio := ComportamentoSelvagem.raio_de_aggro(personalidade) * TILE
 	if global_position.distance_to(candidato.global_position) <= raio:
-		alvo = candidato
-		_estado = Estado.PERSEGUIR
-		_memoria = MEMORIA_SEGUNDOS
-		PonteDeFeedback.anotar("%s partiu pra cima" % nome_exibido)
+		_engajar(candidato, 0)
 
 func _perseguir(delta: float) -> void:
 	if alvo == null or not is_instance_valid(alvo) or _alvo_caiu():
