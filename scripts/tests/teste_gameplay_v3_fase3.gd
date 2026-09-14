@@ -63,6 +63,7 @@ func _process(delta: float) -> bool:
 		3:
 			if _tempo > 0.5:
 				_conferir_arbitro()
+				_conferir_terreno()
 				_fase = 4
 		_:
 			print("=== Resultado: %d ok, %d falha(s) ===" % [ok, fail])
@@ -198,3 +199,109 @@ func _conferir_arbitro() -> void:
 			achou = true
 			break
 	_conf(achou, "a troca de modo entra na linha do tempo do feedback")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 4 — o terreno (§23, §26)
+# ──────────────────────────────────────────────────────────────────────────────
+
+func _conferir_terreno() -> void:
+	print("-- Fase 4: terreno com altura, praia e água")
+	_conf(_lab.terreno != null, "o terreno existe na cena")
+	if _lab.terreno == null:
+		return
+
+	# Visual e colisão leem a MESMA função de altura. Se divergirem, o jogador
+	# anda no ar ou afunda — e é bug difícil de enxergar.
+	_conf(_lab.terreno.get_node_or_null("Superficie") != null, "tem malha visível")
+	_conf(_lab.terreno.get_node_or_null("Colisao") != null, "e corpo de colisão")
+	_conf(_lab.terreno.get_node_or_null("Agua") != null, "e o plano de água")
+
+	# Determinismo: a mesma coordenada dá sempre a mesma altura. É o que permite
+	# nascer entidade sem raycast e o que faz colisão e visual concordarem.
+	var a1 : float = Terreno3D.altura_em(12.0, -8.0)
+	var a2 : float = Terreno3D.altura_em(12.0, -8.0)
+	_conf(is_equal_approx(a1, a2), "a altura é determinística")
+
+	# §23: o terreno tem relevo de verdade, não é um plano disfarçado.
+	var menor : float = 9999.0
+	var maior : float = -9999.0
+	for i in 40:
+		for j in 40:
+			var x : float = -70.0 + i * 3.5
+			var z : float = -70.0 + j * 3.5
+			var y : float = Terreno3D.altura_em(x, z)
+			menor = minf(menor, y)
+			maior = maxf(maior, y)
+	_conf(maior - menor > 12.0, "há desnível de verdade no terreno",
+		"de %.1f a %.1f m" % [menor, maior])
+
+	# §26: as quatro superfícies existem, e a praia não é uma linha.
+	var achadas : Dictionary = {}
+	var pontos_de_areia : int = 0
+	for i in 60:
+		for j in 60:
+			var x : float = -75.0 + i * 2.5
+			var z : float = -75.0 + j * 2.5
+			var sup := Terreno3D.superficie_em(x, z)
+			achadas[sup] = true
+			if sup == "areia":
+				pontos_de_areia += 1
+	for esperada in ["terra", "areia", "agua_rasa", "agua_profunda"]:
+		_conf(achadas.has(esperada), "existe superfície '%s' no mapa" % esperada)
+	_conf(pontos_de_areia > 60,
+		"a praia é uma FAIXA caminhável, não uma linha (§26)",
+		"%d pontos de areia" % pontos_de_areia)
+
+	# §26: a transição tem que ser contínua. Um degrau na costa é exatamente a
+	# "parede artificial entre mar e terra" que o pedido proíbe.
+	var maior_degrau : float = 0.0
+	for j in 200:
+		var z : float = -78.0 + j * 0.78
+		var d : float = absf(Terreno3D.altura_em(0.0, z) - Terreno3D.altura_em(0.0, z + 0.78))
+		maior_degrau = maxf(maior_degrau, d)
+	_conf(maior_degrau < 1.2,
+		"nenhum degrau abrupto atravessando a costa (§26)",
+		"maior salto foi %.2f m em 0,78 m" % maior_degrau)
+
+	# Caminhável: terra sim, fundo do mar não — ali é surf (§27).
+	var achou_caminhavel := false
+	var achou_agua := false
+	for i in 60:
+		for j in 60:
+			var x : float = -75.0 + i * 2.5
+			var z : float = -75.0 + j * 2.5
+			if Terreno3D.caminhavel(x, z):
+				achou_caminhavel = true
+			else:
+				achou_agua = true
+	_conf(achou_caminhavel and achou_agua,
+		"existe chão pra andar E água pra não andar")
+
+	# `ponto_em` põe a entidade SOBRE o terreno — é como o treinador nasceu.
+	var p := Terreno3D.ponto_em(20.0, 20.0, 1.0)
+	_conf(is_equal_approx(p.y, Terreno3D.altura_em(20.0, 20.0) + 1.0),
+		"ponto_em coloca a entidade sobre o terreno, sem raycast")
+
+	# O treinador nasceu no chão, não dentro dele nem caindo do céu.
+	var t = _lab.treinador
+	var chao_ali : float = Terreno3D.altura_em(t.global_position.x, t.global_position.z)
+	_conf(t.global_position.y > chao_ali - 1.0,
+		"o treinador está sobre o terreno, não afundado",
+		"y %.2f, chão %.2f" % [t.global_position.y, chao_ali])
+
+	# A inclinação lida bate com a regra de subida do controlador.
+	var tem_subivel := false
+	var tem_ingreme := false
+	for i in 50:
+		for j in 50:
+			var x : float = -70.0 + i * 3.0
+			var z : float = -70.0 + j * 3.0
+			var ang : float = Terreno3D.inclinacao_em(x, z)
+			if ang < Locomocao3D.ANGULO_MAXIMO_DE_SUBIDA:
+				tem_subivel = true
+			else:
+				tem_ingreme = true
+	_conf(tem_subivel, "há encosta que o treinador sobe")
+	_conf(tem_ingreme, "e encosta íngreme demais — o par que prova a regra",
+		"(se faltar, o terreno é plano demais pra testar inclinação)")

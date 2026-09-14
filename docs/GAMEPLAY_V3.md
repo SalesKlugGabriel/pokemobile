@@ -31,18 +31,52 @@ continua Pokémon.
 
 | | |
 |---|---|
-| **Fase atual** | **4 — terreno 3D** (0 a 3 fechadas) |
+| **Fase atual** | **5 — Pokémon 3D** (0 a 4 fechadas) |
 | **Branch** | `agent/claude-v3` · `main` segue com a V2 |
-| **Código V3 escrito** | árbitro de input, locomoção 3D, câmera de 3ª pessoa, treinador |
-| **Bloqueio** | decisão 1 (billboard × modelo) trava a Fase 5 |
+| **Código V3 escrito** | árbitro de input, locomoção 3D, câmera 3ª pessoa, treinador, terreno |
+| **Bloqueio** | nenhum — as 3 decisões estão fechadas |
 
 ### Decisões em aberto (precisam do Gabriel)
 
 | # | Decisão | Quando trava |
 |---|---|---|
-| 1 | **Billboard ou modelo 3D pros Pokémon?** 605 sprites existem, 0 modelos | Fase 5 |
+| 1 | ~~Billboard ou modelo?~~ | ✅ **MODELO 3D** (Gabriel, 14/09). Ver abaixo |
 | 2 | ~~Manter `gl_compatibility`?~~ | ✅ **RESOLVIDO** — medido, aguenta. Ver abaixo |
-| 3 | `Terrain3D` de terceiros ou malha própria? | Fase 4 |
+| 3 | ~~`Terrain3D` de terceiros ou malha própria?~~ | ✅ **malha própria** (Claude, 14/09). Ver abaixo |
+
+### ✅ Decisão 1 — modelo 3D (Gabriel, 14/09)
+
+Os Pokémon serão **modelos 3D**, não sprites em billboard.
+
+**O que isso custa, declarado:** os **605 sprites deixam de servir** para o
+mundo (continuam valendo para Pokédex, HUD e menus, que são `Control`). A
+produção de modelos vira o **caminho crítico** do projeto — não o código.
+
+**O que isso NÃO bloqueia:** a §16 do pedido permite placeholder, e o slice
+precisa de **3 Pokémon** (um terrestre, um aquático, um voador), não de 151.
+Então a Fase 5 anda com cápsulas e formas primitivas enquanto o modelo real não
+existe.
+
+**A consequência de arquitetura, e é a que importa:** `PokemonInstance3D` tem de
+carregar o visual **por dado**, nunca por espécie cravada em script. Um modelo
+que chega depois entra trocando um caminho de arquivo, sem tocar em entidade,
+combate ou IA. O contrato do que um modelo precisa entregar está em
+`docs/POKEMON_MODEL_PIPELINE.md`.
+
+O Blender 4.2.9 headless já está instalado nesta VPS desde 11/09, com pipeline
+de render e validação de asset — é por ali que a produção começa.
+
+### ✅ Decisão 3 — malha própria, sem plugin (Claude, 14/09)
+
+Terreno gerado por código, não `Terrain3D` de terceiros. Três motivos:
+
+1. O renderer é `gl_compatibility`; plugin de terreno costuma assumir Forward+.
+2. O slice é **pequeno de propósito** (§10) — ferramenta de edição de terreno
+   resolve um problema que ainda não temos.
+3. Dependência externa num pivô que já tem risco suficiente.
+
+Reversível: se o mundo grande pedir ferramenta, troca-se a geração mantendo o
+contrato de colisão e altura.
 
 ### ✅ A medição da Fase 2 (14/09, desktop, navegador real)
 
@@ -83,8 +117,8 @@ rodando** — não quando o código existe.
 | 1 | Documentação / RFC | ✅ | 6 documentos |
 | 2 | Cena 3D experimental isolada | ✅ | 14/09 · **medido em navegador real: piso de 67 FPS** |
 | 3 | Treinador em 3ª pessoa | ✅ | 14/09 · 36 conferências · `ControlModeManager` + `Locomocao3D` + `CameraTerceiraPessoa` |
-| 4 | Terreno 3D | 🔵 próxima | decisão 3 · relevo provisório já existe no laboratório |
-| 5 | Pokémon 3D | ⬜ | **decisão 1** |
+| 4 | Terreno 3D | ✅ | 14/09 · altura, falésia, praia contínua e água · 17 conferências |
+| 5 | Pokémon 3D | 🔵 próxima | **modelo 3D** · contrato em `POKEMON_MODEL_PIPELINE.md` |
 | 6 | Companion Pokémon | ⬜ | |
 | 7 | Transferência Treinador → Pokémon | ⬜ | o coração da fantasia |
 | 8 | Pokémon em 1ª pessoa | ⬜ | |

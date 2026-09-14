@@ -5250,3 +5250,47 @@ do que a tabela de migração afirmava.
    dessa altura é *parede* pra uma cápsula (o Godot 4 não tem step-climb
    automático). Baixei os degraus e movi a medição pra antes do obstáculo.
    O step-climb de verdade é problema da Fase 4, e fica declarado.
+
+## Decisão 1 do Gabriel: **modelo 3D** (não billboard)
+
+Custo declarado: os **605 sprites deixam de servir no mundo** (continuam em
+Pokédex, HUD e menus, que são `Control`), e a produção de modelos vira o
+**caminho crítico** do projeto — não o código.
+
+O que isso NÃO bloqueia: a §16 permite placeholder e o slice precisa de **3**
+Pokémon, não de 151. A consequência de arquitetura é a que importa:
+`PokemonInstance3D` carrega o visual **por dado**, nunca por espécie cravada em
+script, pra um modelo que chegue depois entrar trocando um caminho de arquivo.
+Contrato em `docs/POKEMON_MODEL_PIPELINE.md` — formato, escala em metros, origem
+nos pés, frente em −Z, e os 4 estados de animação mínimos.
+
+**Modelo ausente cai num primitivo e AVISA.** Não é detalhe: asset faltando que
+aparece como cápsula silenciosa é o mesmo zero silencioso que já mordeu este
+projeto três vezes.
+
+## Decisão 3, minha: **malha própria**, sem plugin de terreno
+
+O renderer é `gl_compatibility` e plugin de terreno costuma assumir Forward+;
+o slice é pequeno de propósito; e dependência externa num pivô que já tem risco
+é risco a mais. Reversível: troca-se a geração mantendo o contrato de altura.
+
+## Fase 4 ✅ — terreno, 17 conferências novas (53 no total do arquivo)
+
+`Terreno3D` com altura por **função pura e determinística**. Visual e colisão
+leem a MESMA função, então não podem divergir — e dá pra perguntar a altura de
+um ponto sem raycast, que é o que o spawn vai precisar.
+
+### 🔴 Dois bugs achados pelo teste, e o primeiro é irônico
+
+1. **O código escrito pra evitar a "parede artificial entre mar e terra" estava
+   construindo uma.** O achatamento da praia era condicional (`if distância <
+   2,5`), e achatamento condicional **cria degrau na borda da condição**: ponto
+   logo dentro era puxado, ponto logo fora não, e a diferença virava um salto
+   de **1,60 m em 0,78 m**. Exatamente a §26 sendo violada pelo código que
+   existia pra cumpri-la. Corrigido com `smoothstep` — força máxima no nível do
+   mar, caindo até zero na borda.
+2. **Não havia uma única encosta íngreme no mapa inteiro.** O morro subia 14 m
+   em 26 m de raio: ~28°, que o treinador sobe andando. Então a regra de ângulo
+   máximo do controlador nunca era exercida, e a §23 pedia falésia que não
+   existia. Agora o morro tem platô no topo e **parede de ~70°** na borda — a
+   diferença entre relevo e decoração.

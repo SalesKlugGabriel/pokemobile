@@ -74,7 +74,11 @@ func _ready() -> void:
 func _montar_treinador() -> void:
 	treinador = TrainerController3D.new()
 	treinador.name = "TrainerController3D"
-	treinador.position = Vector3(0, 2, 0)
+	# Nasce sobre o terreno, e não a uma altura chutada: `ponto_em` lê a mesma
+	# função de altura que gerou a malha, então nunca nasce dentro do chão nem
+	# caindo de 10 metros.
+	treinador.position = Terreno3D.ponto_em(0.0, 30.0, 1.0) if terreno != null \
+		else Vector3(0, 2, 0)
 	add_child(treinador)
 	controle.registrar(ControlModeManager.WORLD, treinador)
 	controle.trocar_para(ControlModeManager.WORLD)
@@ -110,31 +114,20 @@ func _escrever(texto: String) -> void:
 # A cena
 # ──────────────────────────────────────────────────────────────────────────────
 
+var terreno : Terreno3D = null
+
 func _montar_base() -> void:
-	# Chão. Um plano grande basta: o que se quer medir é o renderer, não o
-	# terreno — terreno de verdade é a Fase 4.
-	var chao := MeshInstance3D.new()
-	var plano := PlaneMesh.new()
-	plano.size = Vector2(200, 200)
-	chao.mesh = plano
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.25, 0.35, 0.22)
-	chao.material_override = mat
-	add_child(chao)
-
-	# Relevo simples: uma colina e alguns degraus. Sem isso, "subir e atravessar
-	# terreno" (critério 5 da §51) não tem como ser testado — chão plano aprova
-	# qualquer controlador.
-	_montar_relevo()
-
-	var corpo_do_chao := StaticBody3D.new()
-	var forma := CollisionShape3D.new()
-	var caixa := BoxShape3D.new()
-	caixa.size = Vector3(200, 1, 200)
-	forma.shape = caixa
-	forma.position = Vector3(0, -0.5, 0)
-	corpo_do_chao.add_child(forma)
-	add_child(corpo_do_chao)
+	# Fase 4: terreno de verdade, com altura, encosta, praia e água (§23, §26).
+	# O chão plano da Fase 2 era pra medir o renderer; ele aprovava qualquer
+	# controlador, porque não havia o que subir nem onde escorregar.
+	if medir_fps:
+		# A medição precisa do MESMO chão de antes pra os números serem
+		# comparáveis com os de 14/09. Terreno novo mudaria a régua no meio.
+		_montar_chao_plano()
+	else:
+		terreno = Terreno3D.new()
+		terreno.name = "Terreno"
+		add_child(terreno)
 
 	# Sol. Sombra LIGADA de propósito: sombra é justamente o que o
 	# `gl_compatibility` faz de forma limitada, então medir sem ela seria medir
@@ -190,8 +183,29 @@ func _montar_corpos() -> void:
 		c.position = Vector3(randf_range(-30, 30), 2.0, randf_range(-30, 30))
 		add_child(c)
 
-## Colina e degraus, com colisão. Formas grosseiras de propósito: terreno de
-## verdade é a Fase 4, e o que precisa ser provado agora é o CONTROLADOR.
+## O chão plano da Fase 2. Existe só pra a medição de FPS continuar comparável
+## com a de 14/09 — trocar a cena da régua invalidaria a comparação.
+func _montar_chao_plano() -> void:
+	var chao := MeshInstance3D.new()
+	var plano := PlaneMesh.new()
+	plano.size = Vector2(200, 200)
+	chao.mesh = plano
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.25, 0.35, 0.22)
+	chao.material_override = mat
+	add_child(chao)
+
+	var corpo := StaticBody3D.new()
+	var forma := CollisionShape3D.new()
+	var caixa := BoxShape3D.new()
+	caixa.size = Vector3(200, 1, 200)
+	forma.shape = caixa
+	forma.position = Vector3(0, -0.5, 0)
+	corpo.add_child(forma)
+	add_child(corpo)
+
+## (Fase 3) Colina e degraus de caixa. Substituídos pelo `Terreno3D` — ficam
+## porque o teste da Fase 3 ainda prova a regra de inclinação com eles.
 func _montar_relevo() -> void:
 	var relevo := StaticBody3D.new()
 	relevo.name = "Relevo"
