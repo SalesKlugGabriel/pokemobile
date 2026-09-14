@@ -74,7 +74,85 @@ func _rodar() -> void:
 
 	raiz.queue_free()
 	await process_frame
+	await _testar_laboratorio_integrado()
 	_finalizar()
+
+func _testar_laboratorio_integrado() -> void:
+	print("-- Integração com o Laboratório real --")
+	var cena := load("res://scenes/gameplay_v2/Laboratorio.tscn") as PackedScene
+	_confirmar(cena != null, "a cena real do Laboratório carrega com a apresentação")
+	if cena == null:
+		return
+	var lab := cena.instantiate()
+	root.add_child(lab)
+	current_scene = lab
+	await process_frame
+	await process_frame
+
+	var camera := lab.get_node_or_null("CameraDeCombate") as CameraDeCombate
+	var hud := lab.get_node_or_null("HudV2") as HudV2
+	var tele := lab.get_node_or_null("TelegraphV2") as TelegraphV2
+	var integracao := lab.get_node_or_null("IntegracaoVisualV2") as IntegracaoVisualV2
+	_confirmar(camera != null and hud != null and tele != null and integracao != null,
+		"Laboratório nasce com câmera, HUD, telegraph e integração")
+	var cameras := lab.find_children("*", "Camera2D", true, false)
+	_confirmar(cameras.size() == 1, "a câmera provisória não duplica a câmera integrada")
+	if hud == null or camera == null or tele == null:
+		lab.queue_free()
+		await process_frame
+		return
+
+	var snapshot : Dictionary = lab.estado()
+	var treinador : Dictionary = snapshot.get("treinador", {})
+	var pokemon : Dictionary = snapshot.get("pokemon", {})
+	var hp_treinador := hud.get_node("Interface/MargemSuperior/PainelStatus/Status/VidaTreinador/HP") as ProgressBar
+	var nome_pokemon := hud.get_node("Interface/MargemSuperior/PainelStatus/Status/VidaPokemon/Nome") as Label
+	var grade := hud.get_node("Interface/MargemSkills/PainelSkills/Skills/Grade") as GridContainer
+	_confirmar(int(hp_treinador.value) == int(treinador.get("vida", -1)),
+		"HUD nasce da vida numérica do Laboratório")
+	_confirmar(nome_pokemon.text == str(pokemon.get("nome", "")).to_upper(),
+		"HUD nasce com o Pokémon ativo real")
+	_confirmar(grade.get_child_count() == 8 and int(pokemon.get("capacidade", 0)) == 4,
+		"HUD mantém oito slots e mostra a capacidade recebida")
+
+	lab.treinador.stamina_mudou.emit(20.0, 100.0, "exaustao_2")
+	var estado_stamina := hud.get_node("Interface/MargemSuperior/PainelStatus/Status/Folego/Estado") as Label
+	_confirmar(estado_stamina.text == "EXAUSTÃO II", "sinal real de stamina atualiza a HUD")
+
+	lab.contexto_de_camera.emit("boss", 30)
+	_confirmar(camera.contexto_ativo() == "boss", "contexto real do Laboratório atualiza a câmera")
+
+	var inimigos : Array = root.get_tree().get_nodes_in_group("selvagem_v2")
+	if not inimigos.is_empty():
+		var alvo : Node = inimigos[0]
+		_confirmar(lab.ordenar("atacar", {"alvo": alvo}), "ordem real é aceita pela fachada")
+		await process_frame
+		var painel_alvo := hud.get_node("Interface/MargemAlvo/PainelAlvo") as PanelContainer
+		var nome_alvo := hud.get_node("Interface/MargemAlvo/PainelAlvo/Alvo/Nome") as Label
+		_confirmar(painel_alvo.visible and nome_alvo.text == str(alvo.nome_exibido).to_upper(),
+			"ordem e alvo reais aparecem na HUD")
+
+	tele.limpar()
+	var dados_cast := {
+		"area_type": "ring", "origem": Vector2(900, 700), "direcao": Vector2.RIGHT,
+		"duracao": 0.0, "hostil": true, "raio": 180.0, "fracao_vazia": 0.6,
+	}
+	lab.pokemon.golpe_telegrafado.emit(900, dados_cast)
+	_confirmar(tele.quantidade_ativa() == 0, "golpe instantâneo não cria aviso visual falso")
+	dados_cast["duracao"] = 1.0
+	lab.pokemon.golpe_telegrafado.emit(901, dados_cast)
+	_confirmar(tele.quantidade_ativa() == 1, "cast real chega ao renderer por sinal")
+	lab.pokemon.telegrafia_encerrada.emit(901, "interrompido")
+	await create_timer(0.22).timeout
+	_confirmar(tele.quantidade_ativa() == 0, "interrupção real remove o aviso pelo cast_id")
+
+	var trocou : bool = lab.proximo_pokemon()
+	await process_frame
+	_confirmar(trocou and nome_pokemon.text == str(lab.pokemon.nome_exibido).to_upper(),
+		"troca real reconecta HUD e câmera ao novo Pokémon")
+
+	lab.queue_free()
+	await process_frame
 
 func _confirmar(condicao: bool, texto: String) -> void:
 	if condicao:

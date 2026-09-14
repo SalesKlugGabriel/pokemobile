@@ -140,12 +140,13 @@ func _montar_treinador() -> void:
 	_colisao(treinador, 34.0)
 	add_child(treinador)
 
-	# ⚠️ Câmera PROVISÓRIA. Enquadramento, zoom, curva e transição são do Codex
-	# (RFC-GAMEPLAY-V2, resposta 1). Isto aqui só existe pra dar pra ver a cena
-	# enquanto a mecânica é testada — não é proposta de câmera.
-	_camera = Camera2D.new()
-	_camera.zoom = Vector2(0.75, 0.75)
-	treinador.add_child(_camera)
+	# A cena integrada traz a câmera do Codex. O fallback mantém este script
+	# executável sozinho em testes ou cenas mínimas sem duplicar duas câmeras.
+	_camera = get_node_or_null("CameraDeCombate") as Camera2D
+	if _camera == null:
+		_camera = Camera2D.new()
+		_camera.zoom = Vector2(0.75, 0.75)
+		treinador.add_child(_camera)
 
 func _montar_selvagens() -> void:
 	var posicoes := [Vector2(14, 8), Vector2(26, 10), Vector2(10, 24),

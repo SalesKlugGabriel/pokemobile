@@ -8,6 +8,7 @@ signal contexto_visual_aplicado(nome: String)
 @export var treinador_path : NodePath
 @export var pokemon_path : NodePath
 @export var zoom_exploracao := Vector2(0.72, 0.72)
+@export var zoom_combate := Vector2(0.68, 0.68)
 @export var zoom_combate_grande := Vector2(0.62, 0.62)
 @export var zoom_boss := Vector2(0.54, 0.54)
 @export var zoom_interior := Vector2(0.82, 0.82)
@@ -30,7 +31,6 @@ func _ready() -> void:
 	_pokemon = get_node_or_null(pokemon_path) as Node2D
 	_zoom_alvo = _zoom_do_contexto(_contexto_ativo)
 	zoom = _zoom_alvo
-	_tentar_conectar_contrato()
 
 func definir_alvos(treinador: Node2D, pokemon: Node2D = null) -> void:
 	_treinador = treinador
@@ -59,6 +59,18 @@ func ao_contexto_de_camera(nome: String, prioridade: int) -> void:
 
 func contexto_ativo() -> String:
 	return _contexto_ativo
+
+func contexto_feedback() -> Dictionary:
+	return {
+		"contexto": _contexto_ativo,
+		"posicao": global_position,
+		"zoom": zoom,
+		"zoom_alvo": _zoom_alvo,
+		"treinador_id": _treinador.get_instance_id() if is_instance_valid(_treinador) else 0,
+		"pokemon_id": _pokemon.get_instance_id() if is_instance_valid(_pokemon) else 0,
+		"limites": Rect2(limit_left, limit_top, limit_right - limit_left, limit_bottom - limit_top),
+		"tremor_ativo": _tempo_tremor > 0.0,
+	}
 
 func tremer(intensidade: float = 1.0, duracao: float = 0.18) -> void:
 	_intensidade_tremor = maxf(_intensidade_tremor, clampf(intensidade, 0.0, 1.0))
@@ -122,6 +134,8 @@ func _zoom_do_contexto(nome: String) -> Vector2:
 			return zoom_boss
 		"combate_grande":
 			return zoom_combate_grande
+		"combate":
+			return zoom_combate
 		"interior":
 			return zoom_interior
 		_:
@@ -136,11 +150,3 @@ func _atualizar_tremor(delta: float) -> void:
 	offset = Vector2(randf_range(-forca, forca), randf_range(-forca, forca))
 	if _tempo_tremor <= 0.0:
 		_intensidade_tremor = 0.0
-
-func _tentar_conectar_contrato() -> void:
-	var barramento := get_node_or_null("/root/EventBus")
-	if barramento == null or not barramento.has_signal("contexto_de_camera"):
-		return
-	var callback := Callable(self, "ao_contexto_de_camera")
-	if not barramento.is_connected("contexto_de_camera", callback):
-		barramento.connect("contexto_de_camera", callback)

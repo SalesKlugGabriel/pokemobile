@@ -1,5 +1,29 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — integração V2 concluída antes do pivô V3
+
+Após a publicação dos contratos D-003, a apresentação foi ligada ao Laboratório
+real em vez de permanecer apenas como fixture: `HudV2` consome o retrato
+`Laboratorio.estado()`, `CameraDeCombate` recebe `contexto_de_camera`,
+`TelegraphV2` recebe `golpe_telegrafado`/`telegrafia_encerrada`, e a troca de
+Pokémon reconecta HUD, câmera e sinais ao novo nó. A câmera provisória só fica
+como fallback para cenas mínimas; o Laboratório integrado tem uma única câmera.
+
+O contrato visual também passou a respeitar `fracao_vazia` dos anéis e não exibe
+telegraph falso para golpes com duração zero. A integração registra fontes
+`ui_v2` e `camera_v2` na PonteDeFeedback e encaminha skills pela fachada pública.
+
+Validação deste checkpoint: apresentação isolada **25 verificações, 0 falhas**;
+`teste_laboratorio_v2.gd` **56 verificações, 0 falhas**; `teste_tudo_compila.gd`
+**120 scripts, 0 quebrados**.
+
+Este é o último trabalho V2 desta branch. O pivô para V3/3D está em
+`agent/claude-v3`; conforme `FILA-DO-CODEX-V3.md`, o Codex não deve criar código,
+asset, shader ou cena 3D até o vertical slice fechar transferência, controle em
+primeira pessoa, ataque, quatro skills, retorno, surf e voo.
+
+---
+
 ## Atualização Codex — 14/09, apresentação isolada da Gameplay V2
 
 **Workspace:** `/root/pokemobile-v2-codex`

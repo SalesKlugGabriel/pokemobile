@@ -34,26 +34,40 @@ func _ready() -> void:
 	_colorir_barras()
 	get_viewport().size_changed.connect(_ajustar_layout)
 	_ajustar_layout()
-	_tentar_conectar_contrato()
-	_tentar_ler_snapshot()
 
 func aplicar_estado_inicial(snapshot: Dictionary) -> void:
 	var t : Dictionary = snapshot.get("treinador", {})
 	if not t.is_empty():
-		atualizar_vida_treinador(int(t.get("hp", 0)), int(t.get("hp_max", 1)), str(t.get("nome", "TREINADOR")))
-	var f : Dictionary = snapshot.get("stamina", {})
-	if not f.is_empty():
-		atualizar_stamina(float(f.get("atual", 0.0)), float(f.get("maximo", 1.0)), str(f.get("estado", "normal")))
+		atualizar_vida_treinador(
+			int(t.get("vida", t.get("hp", 0))),
+			int(t.get("vida_maxima", t.get("hp_max", 1))),
+			str(t.get("nome", "TREINADOR")))
+	if t.has("stamina"):
+		atualizar_stamina(float(t.get("stamina", 0.0)),
+			float(t.get("stamina_maxima", 1.0)), str(t.get("stamina_estado", "normal")))
+	else:
+		var f : Dictionary = snapshot.get("stamina", {})
+		if not f.is_empty():
+			atualizar_stamina(float(f.get("atual", 0.0)), float(f.get("maximo", 1.0)), str(f.get("estado", "normal")))
 	var p : Dictionary = snapshot.get("pokemon", {})
 	if not p.is_empty():
 		atualizar_pokemon(p)
 	else:
 		atualizar_pokemon({})
-	atualizar_alvo(snapshot.get("alvo", {}))
+	var alvo : Dictionary = snapshot.get("alvo", {})
+	var alvo_id := int(p.get("alvo_id", 0))
+	if alvo.is_empty() and alvo_id != 0:
+		for candidato in snapshot.get("inimigos", []):
+			if candidato is Dictionary and int(candidato.get("id", 0)) == alvo_id:
+				alvo = candidato
+				break
+	atualizar_alvo(alvo)
 	var o : Dictionary = snapshot.get("ordem", {})
-	atualizar_ordem(str(o.get("tipo", "seguir")), str(o.get("rotulo", "")))
-	var skills : Array = snapshot.get("skills", [])
-	atualizar_skills(skills, int(snapshot.get("capacidade_skills", max(4, skills.size()))))
+	var tipo_ordem := str(p.get("ordem", o.get("tipo", "seguir")))
+	atualizar_ordem(tipo_ordem, str(o.get("rotulo", alvo.get("nome", ""))))
+	var skills : Array = p.get("kit", snapshot.get("skills", []))
+	var capacidade := int(p.get("capacidade", snapshot.get("capacidade_skills", max(4, skills.size()))))
+	atualizar_skills(skills, capacidade)
 
 func atualizar_vida_treinador(atual: int, maximo: int, nome: String = "TREINADOR") -> void:
 	nome_treinador.text = nome.to_upper()
@@ -69,10 +83,14 @@ func atualizar_stamina(atual: float, maximo: float, estado: String) -> void:
 func atualizar_pokemon(dados: Dictionary) -> void:
 	var ativo := not dados.is_empty() and bool(dados.get("ativo", true))
 	nome_pokemon.text = str(dados.get("nome", "SEM POKÉMON")).to_upper()
-	_definir_barra(hp_pokemon, int(dados.get("hp", 0)), int(dados.get("hp_max", 1)))
+	_definir_barra(hp_pokemon, int(dados.get("vida", dados.get("hp", 0))),
+		int(dados.get("vida_maxima", dados.get("hp_max", 1))))
 	hp_pokemon.visible = ativo
 	status_pokemon.text = str(dados.get("status", "")).to_upper()
 	status_pokemon.visible = ativo and not status_pokemon.text.is_empty() and status_pokemon.text != "NONE"
+
+func atualizar_vida_pokemon(atual: int, maximo: int) -> void:
+	_definir_barra(hp_pokemon, atual, maximo)
 
 func atualizar_alvo(dados: Dictionary) -> void:
 	var visivel := not dados.is_empty() and bool(dados.get("valido", true))
@@ -80,7 +98,8 @@ func atualizar_alvo(dados: Dictionary) -> void:
 	if not visivel:
 		return
 	nome_alvo.text = str(dados.get("nome", "ALVO")).to_upper()
-	_definir_barra(hp_alvo, int(dados.get("hp", 0)), int(dados.get("hp_max", 1)))
+	_definir_barra(hp_alvo, int(dados.get("vida", dados.get("hp", 0))),
+		int(dados.get("vida_maxima", dados.get("hp_max", 1))))
 	var nivel := int(dados.get("nivel", 0))
 	var categoria := str(dados.get("categoria", "SELVAGEM")).to_upper()
 	detalhe_alvo.text = "%s  •  NV.%d" % [categoria, nivel] if nivel > 0 else categoria
@@ -123,6 +142,30 @@ func atualizar_recarga(slot: int, progresso: float) -> void:
 func definir_ajuda(texto: String) -> void:
 	ajuda.text = texto
 	ajuda.visible = not texto.is_empty()
+
+func contexto_feedback() -> Dictionary:
+	var visiveis := 0
+	var habilitados := 0
+	var em_recarga := 0
+	for i in _botoes.size():
+		if not _botoes[i].visible:
+			continue
+		visiveis += 1
+		if not _botoes[i].disabled:
+			habilitados += 1
+		if _barras[i].value < 1.0:
+			em_recarga += 1
+	var tamanho := get_viewport().get_visible_rect().size
+	return {
+		"viewport": tamanho,
+		"orientacao": "portrait" if tamanho.y > tamanho.x else "landscape",
+		"layout_compacto": tamanho.x < 900.0,
+		"slots_visiveis": visiveis,
+		"slots_habilitados": habilitados,
+		"slots_em_recarga": em_recarga,
+		"ordem": ordem.text,
+		"alvo": nome_alvo.text if painel_alvo.visible else "",
+	}
 
 func _criar_slots() -> void:
 	for i in 8:
@@ -214,13 +257,6 @@ func _definir_cor_barra(barra: ProgressBar, cor: Color) -> void:
 	barra.add_theme_stylebox_override("background", fundo)
 	barra.add_theme_stylebox_override("fill", preenchimento)
 
-func _tentar_ler_snapshot() -> void:
-	var estado := get_node_or_null("/root/EstadoV2")
-	if estado != null and estado.has_method("instantaneo"):
-		var snapshot = estado.call("instantaneo")
-		if snapshot is Dictionary:
-			aplicar_estado_inicial(snapshot)
-
 func _definir_barra(barra: ProgressBar, atual: float, maximo: float) -> void:
 	barra.max_value = maxf(1.0, maximo)
 	barra.value = clampf(atual, 0.0, barra.max_value)
@@ -236,22 +272,3 @@ func _info_de_exaustao(estado: String) -> Dictionary:
 			return {"texto": "EXAUSTÃO III", "cor": Color(1.0, 0.28, 0.20)}
 		_:
 			return {"texto": "PRONTO", "cor": Color(0.48, 0.92, 0.72)}
-
-func _tentar_conectar_contrato() -> void:
-	var barramento := get_node_or_null("/root/EventBus")
-	if barramento == null:
-		return
-	_conectar_se_existe(barramento, "stamina_mudou", Callable(self, "atualizar_stamina"))
-	_conectar_se_existe(barramento, "trainer_hp_changed", Callable(self, "_ao_hp_treinador"))
-	_conectar_se_existe(barramento, "follower_hp_changed", Callable(self, "_ao_hp_pokemon"))
-	_conectar_se_existe(barramento, "follower_skill_cooldown_updated", Callable(self, "atualizar_recarga"))
-
-func _conectar_se_existe(barramento: Node, sinal: StringName, callback: Callable) -> void:
-	if barramento.has_signal(sinal) and not barramento.is_connected(sinal, callback):
-		barramento.connect(sinal, callback)
-
-func _ao_hp_treinador(atual: int, maximo: int) -> void:
-	atualizar_vida_treinador(atual, maximo, nome_treinador.text)
-
-func _ao_hp_pokemon(atual: int, maximo: int) -> void:
-	_definir_barra(hp_pokemon, atual, maximo)

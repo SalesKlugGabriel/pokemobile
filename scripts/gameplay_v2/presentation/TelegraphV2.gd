@@ -11,7 +11,6 @@ var _casts : Dictionary = {}
 
 func _ready() -> void:
 	z_index = 1
-	_tentar_conectar_contrato()
 
 func mostrar_golpe(cast_id: int, dados: Dictionary) -> void:
 	if cast_id < 0 or not _dados_validos(dados):
@@ -84,7 +83,9 @@ func _desenhar_cast(dados: Dictionary) -> void:
 
 	match forma:
 		"ring":
-			var interno := maxf(0.0, float(dados.get("raio_interno", raio * 0.45)))
+			var interno := raio * clampf(float(dados.get("fracao_vazia", 0.45)), 0.0, 1.0)
+			if dados.has("raio_interno"):
+				interno = maxf(0.0, float(dados["raio_interno"]))
 			_desenhar_anel(origem, interno, raio, cor, progresso)
 		"cone":
 			_desenhar_cone(origem, direcao, comprimento, abertura, cor, progresso)
@@ -155,15 +156,4 @@ func _cor_do_cast(dados: Dictionary) -> Color:
 
 func _dados_validos(dados: Dictionary) -> bool:
 	return dados.has("area_type") and dados.has("origem") and dados.has("direcao") \
-		and dados.has("duracao") and dados.has("hostil")
-
-func _tentar_conectar_contrato() -> void:
-	var barramento := get_node_or_null("/root/EventBus")
-	if barramento == null:
-		return
-	var inicio := Callable(self, "mostrar_golpe")
-	var fim := Callable(self, "encerrar_golpe")
-	if barramento.has_signal("golpe_telegrafado") and not barramento.is_connected("golpe_telegrafado", inicio):
-		barramento.connect("golpe_telegrafado", inicio)
-	if barramento.has_signal("golpe_encerrado") and not barramento.is_connected("golpe_encerrado", fim):
-		barramento.connect("golpe_encerrado", fim)
+		and dados.has("duracao") and float(dados["duracao"]) > 0.0 and dados.has("hostil")
