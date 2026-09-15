@@ -17,6 +17,6 @@ void vertex() {
 
 void fragment() {
 	float variation = 0.5 + 0.5 * sin(world_pos.x * 4.7 + world_pos.z * 2.1);
-	ALBEDO = mix(vec3(0.08, 0.24, 0.07), vec3(0.24, 0.48, 0.12), variation);
+	ALBEDO = mix(vec3(0.10, 0.30, 0.08), vec3(0.34, 0.56, 0.16), variation);
 	ROUGHNESS = 0.95;
 }

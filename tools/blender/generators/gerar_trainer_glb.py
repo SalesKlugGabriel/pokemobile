@@ -85,9 +85,20 @@ arm.rotation_euler.x=0.0
 
 groups = {name: mesh.vertex_groups.new(name=name) for name in bone_specs}
 points = {name: Vector(spec[0]) for name, spec in bone_specs.items()}
-for vertex in mesh.data.vertices:
-    nearest = min(points, key=lambda name: (vertex.co - points[name]).length)
-    groups[nearest].add([vertex.index], 1.0, 'REPLACE')
+neighbors=[[] for _ in mesh.data.vertices]
+for poly in mesh.data.polygons:
+    for a in poly.vertices: neighbors[a].extend(b for b in poly.vertices if b!=a)
+seen=set()
+for start in range(len(neighbors)):
+    if start in seen: continue
+    stack=[start]; seen.add(start); component=[]
+    while stack:
+        vertex=stack.pop(); component.append(vertex)
+        for neighbor in neighbors[vertex]:
+            if neighbor not in seen: seen.add(neighbor); stack.append(neighbor)
+    center=sum((mesh.data.vertices[i].co for i in component),Vector())/len(component)
+    nearest=min(points,key=lambda name:(center-points[name]).length)
+    groups[nearest].add(component,1.0,'REPLACE')
 mesh.parent=arm
 modifier=mesh.modifiers.new("PKM_TRAINER_ARMATURE_MODIFIER", 'ARMATURE'); modifier.object=arm
 

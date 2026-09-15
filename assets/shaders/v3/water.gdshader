@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode blend_mix, depth_draw_alpha_prepass, cull_back;
+render_mode blend_mix, depth_prepass_alpha, cull_back;
 
 varying vec3 world_pos;
 
