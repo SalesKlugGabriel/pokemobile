@@ -45,7 +45,7 @@ asset tem de ser visível.
 | Malha | uma só, ou poucas | `gl_compatibility` não gosta de muitos materiais |
 | Materiais | máximo 2 | idem |
 | Rig | opcional no começo | Sem rig, entra parado. É pior, mas entra |
-| Animações | `idle`, `walk`, `attack`, `hurt` | Os quatro estados mínimos que o combate produz |
+| Animações | 4 **papéis**: parado, locomoção, ataque, dano | Ver abaixo — o NOME é livre |
 
 ### O que o modelo **não** define
 
@@ -88,3 +88,45 @@ a régua contra um caso conhecido antes de confiar nela.**
 1. Fase 5 anda com **primitivos** e o aviso de modelo ausente.
 2. Um modelo real de teste valida o contrato inteiro.
 3. Só então produção em volume — e aí é trabalho do Codex (§47), não meu.
+
+
+---
+
+## ✅ Contrato revisado (16/09) — os três primeiros modelos
+
+Charizard (#6), Gyarados (#130) e Pidgeot (#18) entregues pelo Codex e
+**aprovados**: altura exata da Pokédex (1,700 / 6,500 / 1,500 m), pés em 0,000,
+animações completas.
+
+Duas coisas que a entrega mostrou que **o contrato estava errado**, não o modelo:
+
+### 1. O nome da animação é livre; o que importa é o papel
+
+Eu tinha exigido `idle`, `walk`, `attack`, `hurt`. Ele entregou **sete** por
+espécie, com prefixo: `PKM_CHARIZARD_IDLE`, `_WALK`, `_RUN`, `_ATTACK_01`,
+`_HIT`, `_FAINT`, `_FLY`.
+
+**A convenção dele é melhor** — o prefixo evita colisão quando várias animações
+vivem na mesma biblioteca. A régua passou a casar por **sufixo**, sem diferenciar
+maiúscula, com sinônimos:
+
+| Papel | Nomes aceitos, em ordem de preferência |
+|---|---|
+| parado | `idle` |
+| **locomoção** | `walk` · `run` · `swim` · `fly` · `move` |
+| ataque | `attack` · `atk` |
+| dano | `hurt` · `hit` · `damage` |
+
+### 2. Nem todo Pokémon anda
+
+O Gyarados não tinha `walk`, **e não deveria ter**: ele nada. O contrato
+assumia que todo Pokémon caminha, o que é falso pra dois dos três arquétipos que
+a §15 pede.
+
+O papel é **locomoção**. Um modelo precisa de **uma** animação de deslocamento,
+com o nome que fizer sentido pro bicho.
+
+⚠️ **A ordem de preferência importa**, e a primeira versão errou: varrendo a
+lista de animações por fora, o Charizard resolvia locomoção como `_FLY` — um
+Charizard terrestre voando pra andar. Varrendo os **sinônimos** por fora,
+`walk` ganha de `run`, que ganha de `swim`, que ganha de `fly`.

@@ -98,19 +98,78 @@ static func _altura_girando(no: Node3D, graus: float, esperada: float) -> bool:
 	return absf(girada.size.y - esperada) / maxf(0.01, esperada) <= TOLERANCIA_DE_ALTURA
 
 ## As animações que o contrato exige (`docs/POKEMON_MODEL_PIPELINE.md`).
+## `walk` aqui significa **locomoção**, seja andar, nadar ou voar — ver
+## `SINONIMOS` logo abaixo pro motivo.
 const ANIMACOES_EXIGIDAS : Array[String] = ["idle", "walk", "attack", "hurt"]
+
+## 🔴 Ajustado em 16/09, depois dos três primeiros modelos do Codex.
+##
+## Ele entregou **7** animações por espécie, não 4, com convenção própria:
+## `PKM_CHARIZARD_IDLE`, `_WALK`, `_RUN`, `_ATTACK_01`, `_HIT`, `_FAINT`, `_FLY`.
+##
+## A entrega é **mais rica** que o contrato, e a convenção dele é melhor: o
+## prefixo por espécie evita colisão quando várias animações vivem na mesma
+## biblioteca. Quem estava desatualizado era a régua, não o modelo.
+##
+## Então o casamento é por **sufixo, sem diferenciar maiúscula**, com sinônimos
+## pros papéis que ele nomeou diferente. `hurt` e `HIT` são a mesma coisa; forçar
+## ele a renomear 3 modelos × 7 animações por causa de uma palavra seria trocar
+## trabalho útil por cerimônia.
+## 🔴 Segunda correção, no mesmo dia: o Gyarados não tinha `walk`, **e não
+## deveria ter**. Ele nada. O contrato assumiu que todo Pokémon anda, e isso é
+## falso pra dois dos três arquétipos que o próprio §15 pede (aquático e voador).
+##
+## O papel é **locomoção**, não caminhada. Quem decide como se locomove é o
+## `MovementProfile`, e o modelo só precisa entregar UMA animação de
+## deslocamento — com o nome que fizer sentido pro bicho.
+const SINONIMOS : Dictionary = {
+	"idle":   ["idle"],
+	"walk":   ["walk", "run", "swim", "fly", "move"],
+	"attack": ["attack", "atk"],
+	"hurt":   ["hurt", "hit", "damage"],
+}
+
+## O nome real da animação de um papel, ou "" se não houver.
+## É por aqui que a entidade pede "toca o idle" sem saber como ele se chama.
+static func animacao_de(ap: AnimationPlayer, papel: String) -> String:
+	if ap == null:
+		return ""
+	var alvos : Array = SINONIMOS.get(papel, [papel])
+	var lista : Array = ap.get_animation_list()
+	# Duas passadas: primeiro o nome exato, depois o sufixo. Assim um modelo que
+	# segue o contrato à risca nunca é resolvido por aproximação.
+	for nome in lista:
+		if str(nome).to_lower() in alvos:
+			return str(nome)
+	# A ordem dos LAÇOS importa, e a primeira versão errou: varrendo a lista por
+	# fora, o Charizard resolvia `walk` como `PKM_CHARIZARD_FLY`, porque FLY vem
+	# antes de WALK na lista. Um Charizard terrestre voando pra andar.
+	#
+	# Varrendo os SINÔNIMOS por fora, a preferência é respeitada: `walk` ganha de
+	# `run`, que ganha de `swim`, que ganha de `fly`.
+	for alvo in alvos:
+		for nome in lista:
+			var minusculo := str(nome).to_lower()
+			if minusculo.ends_with("_" + str(alvo)) or minusculo.contains("_" + str(alvo) + "_"):
+				return str(nome)
+	return ""
 
 static func conferir_animacoes(no: Node) -> Dictionary:
 	var ap = no.find_child("AnimationPlayer", true, false)
 	if ap == null:
 		return {"ok": false, "faltando": ANIMACOES_EXIGIDAS.duplicate(),
-				"achadas": []}
+				"achadas": [], "mapa": {}}
 	var tem : Array = ap.get_animation_list()
 	var faltando : Array[String] = []
-	for nome in ANIMACOES_EXIGIDAS:
-		if not nome in tem:
-			faltando.append(nome)
-	return {"ok": faltando.is_empty(), "faltando": faltando, "achadas": tem}
+	var mapa : Dictionary = {}
+	for papel in ANIMACOES_EXIGIDAS:
+		var achada := animacao_de(ap, papel)
+		if achada == "":
+			faltando.append(papel)
+		else:
+			mapa[papel] = achada
+	return {"ok": faltando.is_empty(), "faltando": faltando,
+			"achadas": tem, "mapa": mapa}
 
 ## O relatório inteiro, em português, pra log e pro recado de feedback.
 static func relatorio(no: Node3D, species_id: int) -> String:
