@@ -221,6 +221,47 @@ tilesets ficam no repositório mesmo depreciados, até a V3 substituir de verdad
 
 ---
 
+## 🔴 BUG DE CONTROLE DIAGNOSTICADO, NÃO CORRIGIDO (16/09)
+
+**Retomar por aqui.** O Gabriel relatou: *"se aperto W ele vem em direção da
+câmera e não na direção do mouse"*. Diagnosticado, **a correção não foi
+aplicada** — a sessão mudou de prioridade antes.
+
+São **dois bugs somados**, e o segundo é de arquitetura:
+
+### 1. `Locomocao3D.girar_para()` está 180° errado
+
+Medido, isolando a conta:
+
+| Indo para | Ângulo que devolve | Correto |
+|---|---:|---:|
+| −Z (frente) | −3,14 | 0,00 |
+| +Z | 0,00 | −3,14 |
+| +X | 1,57 | −1,57 |
+
+Em Godot, um nó com `rotation.y = 0` olha pra **−Z**. Pra olhar na direção `d`,
+o ângulo é `atan2(-d.x, -d.z)` — e o código usa `atan2(d.x, d.z)`.
+
+### 2. A câmera é FILHA do corpo que gira — realimentação
+
+`CameraTerceiraPessoa` é filha do `TrainerController3D`, então o yaw dela é
+**relativo** ao corpo. E o corpo gira pra direção do movimento.
+
+O laço: aperta W → corpo anda pra −Z → `girar_para` vira o corpo 180° (bug 1) →
+a câmera, sendo filha, vira junto → agora "frente da câmera" é +Z → W passa a
+andar pro outro lado. **É exatamente o "ele vem em direção da câmera".**
+
+### A correção (a aplicar)
+
+1. Consertar o sinal em `girar_para`.
+2. **A câmera não pode herdar a rotação do corpo.** `top_level = true` no
+   `SpringArm3D`, seguindo só a POSIÇÃO do treinador a cada quadro.
+3. O Gabriel pediu que *"o mouse seja o indicador de caminho"* — com a câmera
+   independente, W passa a andar pra onde se olha, que é o que ele quer.
+
+⚠️ Testar os quatro sentidos (W, S, A, D) em navegador real depois: o teste
+headless não pega sensação de controle.
+
 ## 🎮 Primeiro playtest do 3D (Gabriel, 14/09)
 
 **Veredito dele:** *"temos um motor rodando e funcionando"*. Primeira vez que
