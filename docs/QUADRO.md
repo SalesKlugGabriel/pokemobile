@@ -9,7 +9,7 @@
 
 **Estado em:** 17/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **116 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **117 arquivos, 0 com falha**
 
 ---
 
@@ -34,8 +34,8 @@ verdade.
 | 0–8 | Auditoria, RFCs, cena 3D, treinador, terreno, Pokémon 3D, companheiro, transferência, 1ª pessoa | ✅ 14/09 |
 | 9 | **Ataque básico** | ✅ 17/09 · 50 conferências |
 | 10 | **4 skills** (single/circle/cone/line, aviso, drenagem) | ✅ 17/09 · 61 conferências |
-| 11 | Wild Pokémon | 🔵 **próxima** — destravada em 17/09 |
-| 12 | Combate 1v1 | ⬜ |
+| 11 | **Wild Pokémon** | ✅ 17/09 · `RegraDeSpawn` + `IASelvagem3D` + `SpawnerSelvagem3D` · 63 conferências |
+| 12 | Combate 1v1 | 🔵 **próxima** |
 | 13 | Combate → Mundo | ⬜ |
 | 14–15 | Surf · Fly | ⬜ |
 | 16–18 | TM/HM · Move Pool · Alpha | ⬜ · as regras já existem na V2 |
@@ -78,8 +78,8 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Bloqueado? |
 |---|---|---|
-| 1 | Fase 11 — Wild Pokémon (reusa `ComportamentoSelvagem` da V2) | não — **é a próxima** |
-| 2 | Fases 12 a 18, na ordem | sim, em cadeia |
+| 1 | Fase 12 — Combate 1v1 | não — **é a próxima** |
+| 2 | Fases 13 a 18, na ordem | sim, em cadeia |
 | 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
 
 ---
@@ -141,6 +141,9 @@ no backend, nunca na tela.
 | **Cooldown por golpe, não por slot** | Por slot, trocar a ordem das skills zeraria os cooldowns — exploit de graça |
 | **A direção do aviso é travada no início** | Relida na resolução, o aviso não custaria nada e ninguém desviaria de nada |
 | **Modelo ausente cai no primitivo E AVISA** | Asset faltando que aparece como cápsula silenciosa é zero silencioso |
+| **Selvagem nasce num ANEL** (12 a 28 m), nunca perto | Fora do raio de aggro de um agressivo (5 m): o bicho tem de aparecer e se aproximar, não materializar na cara. E protege do contrato de nascimento |
+| **Lugar perigoso: menos encontro, e mais raro** | Pedido do Gabriel. Esticar só o intervalo não bastaria — a população acumularia até igualar a zona segura. Por isso o teto de população cai junto |
+| **Classe pura nunca cita autoload** | Autoload não é identificador em teste `--script`. Vai por `Sorteio`, que resolve em tempo de chamada e preserva a sequência do jogo |
 
 ---
 
@@ -159,6 +162,7 @@ apareceu neste projeto:
 | Gráfico do Simulador | faltava **um argumento** na chamada — nenhum marcador de evento, nenhum erro |
 | Dano da skill (17/09) | `detalhe.get("dano", 0)` quando o contrato é `final` — relatório completo, dano zero |
 | Ordem de nascimento (17/09) | posicionar depois do `add_child` catapultava quem estava na origem, sem erro nenhum |
+| Autoload em classe pura (17/09) | `Compile Error: Identifier not found: RNGManager` impresso na suíte **com o teste passando** — erro que não reprova |
 
 **As duas regras que saem disso:**
 

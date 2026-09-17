@@ -255,6 +255,32 @@ func velocidade_maxima() -> float:
 var _pos_ao_nascer : Vector3 = Vector3.ZERO
 var _viu_fisica : bool = false
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 11 — modo selvagem
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Ligado pelo spawner. Um Pokémon de time nunca é selvagem, e um selvagem nunca
+## acompanha o treinador — são modos, não graus.
+var selvagem : bool = false
+
+## Uma das sete de `ComportamentoSelvagem`. Vem de `species.json: behavior`, que
+## já traz as 151 espécies classificadas — nada a inventar aqui.
+var personalidade : String = ComportamentoSelvagem.DEFENSIVO
+
+## Onde ele nasceu. É o centro da coleira (§26) e o ponto de volta.
+var casa : Vector3 = Vector3.ZERO
+
+## Já apanhou, ou já ouviu o grito do bando. Um defensivo provocado persegue
+## mesmo fora do raio curto dele — é o que faz "não mexe comigo" ter consequência.
+var provocado : bool = false
+
+## Quem ele considera hostil. O spawner liga no treinador/Pokémon do jogador.
+var alvo_hostil : Node3D = null
+
+## O estado da última decisão, em palavra. Existe pra log e pra HUD — e pra o
+## teste poder afirmar o COMPORTAMENTO, não só a posição.
+var estado_selvagem : String = IASelvagem3D.PARADO
+
 ## 🔴 Pega o erro de ordem de nascimento no único quadro em que ele é perigoso.
 ##
 ## Reposicionar DEPOIS do `add_child` e ANTES do primeiro quadro de física é a
@@ -294,6 +320,10 @@ func _physics_process(delta: float) -> void:
 
 	if acompanha != null and is_instance_valid(acompanha):
 		_seguir(delta)
+		return
+
+	if selvagem:
+		_agir_como_selvagem(delta)
 		return
 
 	var base := Basis(Vector3.UP, rotation.y)
@@ -417,6 +447,61 @@ func ao_perder_controle() -> void:
 	quer_correr = false
 	le_teclado = true
 
+## Liga o modo selvagem. Chamado pelo spawner logo depois do `nascer()`.
+##
+## A personalidade vem do DADO (`species.json: behavior`) — não é parâmetro com
+## padrão escondido. Se a espécie não declarar, `ComportamentoSelvagem.normalizar`
+## devolve DEFENSIVO, que é o mais inofensivo dos que ainda reagem: um erro de
+## digitação no JSON nunca vira um bicho que caça o jogador pelo mapa.
+func virar_selvagem(hostil: Node3D = null) -> void:
+	selvagem = true
+	add_to_group("selvagem_v3")
+	acompanha = null
+	casa = global_position
+	alvo_hostil = hostil
+	var esp : Dictionary = GameData.get_species(species_id) if GameData != null else {}
+	personalidade = ComportamentoSelvagem.normalizar(str(esp.get("behavior", "")))
+
+## Um quadro de vida de selvagem: decide (regra) e anda (geometria).
+##
+## A decisão inteira está em `IASelvagem3D.decidir`, que é pura — então o
+## comportamento das sete personalidades se prova sem subir mundo, e o que
+## sobra aqui é só mover o corpo.
+func _agir_como_selvagem(delta: float) -> void:
+	var alvo_valido : bool = alvo_hostil != null and is_instance_valid(alvo_hostil)
+	var pos_do_alvo : Vector3 = alvo_hostil.global_position if alvo_valido else global_position
+	var dist_ao_alvo : float = INF
+	if alvo_valido:
+		dist_ao_alvo = Vector3(pos_do_alvo.x - global_position.x, 0.0,
+								pos_do_alvo.z - global_position.z).length()
+	var dist_de_casa : float = Vector3(casa.x - global_position.x, 0.0,
+										casa.z - global_position.z).length()
+	var fracao : float = float(vida) / float(maxi(1, vida_maxima))
+
+	estado_selvagem = IASelvagem3D.decidir(
+		personalidade, dist_ao_alvo, dist_de_casa, fracao, provocado, alcance_basico())
+
+	# Atacar é decisão da IA, mas o cooldown é do ataque — `atacar()` recusa
+	# sozinho quando está esfriando, e por isso não há segunda trava aqui.
+	if estado_selvagem == IASelvagem3D.ATACAR:
+		atacar()
+
+	var dir := IASelvagem3D.direcao(estado_selvagem, global_position, pos_do_alvo, casa)
+	# Fugir é mais rápido que perseguir. Não é balanceamento solto: é o que faz a
+	# fuga do FUGITIVO ter chance de funcionar, e o §26 pede que ela funcione.
+	var pressa : float = 1.25 if estado_selvagem == IASelvagem3D.FUGIR else 1.0
+	var alvo_v := dir * velocidade_maxima() * pressa
+	velocity = Locomocao3D.avancar(velocity, alvo_v, delta)
+
+	var g := MovementProfile.gravidade(arquetipo)
+	if g > 0.0:
+		velocity.y = Locomocao3D.aplicar_gravidade(velocity.y, is_on_floor(), delta * g)
+	else:
+		velocity.y = move_toward(velocity.y, 0.0, delta * 4.0)
+
+	move_and_slide()
+	rotation.y = Locomocao3D.girar_para(rotation.y, velocity, delta)
+
 ## §6: acompanhar o treinador. A DECISÃO é da `RegraDeAcompanhar`; aqui só se
 ## executa — é o que permite provar o comportamento sem subir física.
 func _seguir(delta: float) -> void:
@@ -484,14 +569,40 @@ func stats_de_defesa() -> Dictionary:
 			"def": int(stats.get("def", 50)), "spd": int(stats.get("spd", 50)),
 			"max_hp": vida_maxima, "hp": vida}
 
-func sofrer(dano: int, _de_quem: Node = null) -> void:
+func sofrer(dano: int, de_quem: Node = null) -> void:
 	if _derrotado or dano <= 0:
 		return
 	vida = maxi(0, vida - dano)
+
+	# §25/§27: apanhar provoca, e quem chama o bando grita UMA vez. A trava de
+	# saltos é na origem — quem foi chamado não grita de novo, senão A chama B,
+	# B chama C, e em segundos o mapa inteiro está em cima do jogador.
+	if selvagem and not provocado:
+		provocado = true
+		if de_quem is Node3D:
+			alvo_hostil = de_quem
+		if IASelvagem3D.chama_o_bando(personalidade):
+			_gritar_pro_bando()
 	vida_mudou.emit(vida, vida_maxima)
 	if vida <= 0:
 		_derrotado = true
 		derrotado.emit(self)
+
+## Chama os vizinhos da mesma espécie. Quem responde fica provocado, mas **não
+## grita** — é a quarta trava da §27, e é ela que impede a reação em cadeia.
+func _gritar_pro_bando() -> void:
+	var candidatos : Array = []
+	for no in get_tree().get_nodes_in_group("selvagem_v3"):
+		if no == self or not is_instance_valid(no):
+			continue
+		if not (no is PokemonInstance3D) or no.esta_derrotado():
+			continue
+		candidatos.append({"quem": no, "posicao": no.global_position, "especie": no.species_id})
+
+	for quem in IASelvagem3D.quem_ouve_o_grito(global_position, species_id, candidatos):
+		quem.provocado = true
+		if alvo_hostil != null:
+			quem.alvo_hostil = alvo_hostil
 
 ## O ponto de onde o golpe sai, e o de onde se enxerga. Os dois vêm de perfil,
 ## não de posição chutada no código da cena.

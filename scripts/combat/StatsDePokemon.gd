@@ -136,7 +136,7 @@ static func conjunto(base_stats: Dictionary, nivel: int, nature: String = "",
 static func sortear_ivs() -> Dictionary:
 	var ivs : Dictionary = {}
 	for chave in CHAVES:
-		ivs[chave] = RNGManager.randi_range(CombatBalance.IV_MIN, CombatBalance.IV_MAX)
+		ivs[chave] = Sorteio.randi_range(CombatBalance.IV_MIN, CombatBalance.IV_MAX)
 	return ivs
 
 # ──────────────────────────────────────────────────────────────────────────────

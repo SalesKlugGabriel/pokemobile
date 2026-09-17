@@ -112,7 +112,7 @@ static func acertou(move_data: Dictionary) -> bool:
 	var precisao : int = int(move_data.get("accuracy", 100))
 	if precisao <= 0 or precisao >= 100:
 		return true
-	return RNGManager.chance(float(precisao) / 100.0)
+	return Sorteio.chance(float(precisao) / 100.0)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Dano de fim-de-turno — mesmas frações de BattlePokemon.tick_status()
@@ -127,23 +127,23 @@ static func tick_damage(status: String, max_hp: int, bad_poison_stacks: int) -> 
 
 ## true = degelou este "turno" — mesma chance de BattlePokemon.tick_status().
 static func should_thaw() -> bool:
-	return RNGManager.chance(0.2)
+	return Sorteio.chance(0.2)
 
 ## true = a paralisia impediu a ação desta tentativa — mesma chance de
 ## BattlePokemon.can_move().
 static func should_paralysis_fail() -> bool:
-	return RNGManager.chance(0.25)
+	return Sorteio.chance(0.25)
 
 ## true = a confusão fez o Pokémon se acertar em vez de agir — mesma chance
 ## (1/3) de BattleManager._on_attacker_turn().
 static func should_confuse_self_hit() -> bool:
-	return RNGManager.chance(1.0 / 3.0)
+	return Sorteio.chance(1.0 / 3.0)
 
 static func roll_sleep_duration() -> float:
-	return float(RNGManager.randi_range(1, 3)) * TURN_SECONDS
+	return float(Sorteio.randi_range(1, 3)) * TURN_SECONDS
 
 static func roll_confuse_duration() -> float:
-	return float(RNGManager.randi_range(2, 5)) * TURN_SECONDS
+	return float(Sorteio.randi_range(2, 5)) * TURN_SECONDS
 
 ## true = totalmente incapaz de agir (sono/congelado). Paralisia NÃO entra
 ## aqui — ela é uma chance por TENTATIVA de ataque (should_paralysis_fail),

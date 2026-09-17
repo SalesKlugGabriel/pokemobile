@@ -229,7 +229,7 @@ static func nota_do_golpe(golpe: Dictionary, distancia: float, contexto: Diction
 	# 5. Um empurrãozinho aleatório pra não ser um robô 100% previsível — o
 	#    suficiente pra variar entre dois golpes parecidos, nunca pra escolher
 	#    o pior de dois muito diferentes.
-	var sorte : float = RNGManager.randf_range(0.92, 1.08)
+	var sorte : float = Sorteio.randf_range(0.92, 1.08)
 
 	return power * efetividade * adequacao * potencial * tatico * sorte
 

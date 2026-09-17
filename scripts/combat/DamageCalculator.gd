@@ -216,7 +216,7 @@ static func detalhar(
 	var stab      : float = stab_multiplier(mv_type, attacker_stats.get("types", []))
 	var critico   : bool  = is_critical()
 	var crit_mult : float = CombatBalance.CRIT_MULTIPLIER if critico else 1.0
-	var variacao  : float = RNGManager.randf_range(
+	var variacao  : float = Sorteio.randf_range(
 		CombatBalance.DAMAGE_VARIANCE_MIN, CombatBalance.DAMAGE_VARIANCE_MAX)
 
 	var habilidade : String = str(attacker_stats.get("ability", ""))
@@ -382,7 +382,7 @@ static func get_type_multiplier(move_type: String, defender_types: Array) -> flo
 
 ## Retorna true se o ataque é crítico (chance base 6.25%).
 static func is_critical() -> bool:
-	return RNGManager.chance(CRIT_CHANCE)
+	return Sorteio.chance(CRIT_CHANCE)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Velocidade

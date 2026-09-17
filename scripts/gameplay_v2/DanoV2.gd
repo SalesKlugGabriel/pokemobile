@@ -78,9 +78,9 @@ static func detalhar(move_data: Dictionary, atacante: Dictionary,
 	# Preserva o estado do RNG: `detalhar()` sorteia crítico e variação por
 	# dentro, e a V2 descarta os dois. Sem isto, cada golpe da V2 empurrava de
 	# lado os sorteios de status, captura e loot (achado do Codex, 14/09).
-	var _estado_do_rng : int = RNGManager.get_state()
+	var _estado_do_rng : int = Sorteio.get_state()
 	var r : Dictionary = DamageCalculator.detalhar(move_data, atacante, defensor)
-	RNGManager.set_state(_estado_do_rng)
+	Sorteio.set_state(_estado_do_rng)
 
 	# Imunidade continua sendo zero absoluto (§15): não há item nem bônus que
 	# transforme 0× em dano.
