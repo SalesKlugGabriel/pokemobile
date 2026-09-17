@@ -138,9 +138,9 @@ rodando** — não quando o código existe.
 | 6 | Companion Pokémon | ✅ | 14/09 · distância derivada do tamanho dos dois · 18 conferências |
 | 7 | Transferência Treinador → Pokémon | ✅ | 14/09 · ida, volta, e a queda devolvendo o controle · 40 conferências |
 | 8 | Pokémon em 1ª pessoa | ✅ | 14/09 · câmera por espécie, corpo segue a mira |
-| 9 | Ataque básico | 🔵 próxima | |
-| 10 | 4 skills | ⬜ | melee, projétil, área, drenagem |
-| 11 | Wild Pokémon | ⬜ | reusa `ComportamentoSelvagem` |
+| 9 | Ataque básico | ✅ | 17/09 · `AtaqueBasico` + `RelatorioDeGolpe.montar_3d` · 50 conferências |
+| 10 | 4 skills | ✅ | 17/09 · `FormaDeArea3D` + `UsoDeSkill` · single/circle/cone/line, aviso e drenagem · 61 conferências |
+| 11 | Wild Pokémon | 🔵 próxima | reusa `ComportamentoSelvagem` · **resolver primeiro o achado de contato abaixo** |
 | 12 | Combate 1v1 | ⬜ | |
 | 13 | Combate → Mundo | ⬜ | fecha o laço da fantasia |
 | 14 | Surf | ⬜ | |
@@ -288,6 +288,39 @@ caçando.
 ⚠️ **Falta o Gabriel sentir.** O teste prova direção e independência da câmera;
 **não prova sensação de controle** — velocidade, sensibilidade do mouse,
 aceleração, distância da câmera. Isso só o playtest diz.
+
+## 🔴 ACHADO ABERTO (17/09) — dois Pokémon parados se deslocam sozinhos
+
+**Reproduzível e determinístico.** Dois `PokemonInstance3D` num mundo limpo, um
+Charizard na origem e um Rattata a **1,2 m** à frente, os dois com velocidade
+zero. Em **um quadro** o Charizard vai pra cima do Rattata:
+
+```
+posição inicial      (0, 0, 0)
+um quadro depois     (0, 0.397, -1.2)     ← em cima da cabeça do Rattata
+deslocamento         1,264 m
+três execuções       1,264 m nas três
+```
+
+**Não sei a causa, e não vou inventar uma.** O que já foi descartado, medido:
+
+| Hipótese | Medição |
+|---|---|
+| As cápsulas se sobrepõem | **Não.** 0,476 + 0,180 = 0,656 m < 1,2 m |
+| O modelo .glb traz nó de colisão | **Não.** Charizard: 0 nós de colisão |
+| Alguém está seguindo alguém | `acompanha` é `null` nos dois |
+| O código da entidade move alguém | Não há nenhuma atribuição de `global_position` em `PokemonInstance3D` |
+| É deriva de física acumulada | Acontece em UM quadro, com `velocity` zero |
+
+**Com 10 m de distância, o deslocamento é zero.** É por isso que as Fases 3 a 10
+não tropeçaram nisto: nenhuma delas põe dois Pokémon perto e parados.
+
+⚠️ **Precisa ser resolvido ANTES da Fase 11.** Um mundo com Pokémon selvagem vai
+criar essa situação a cada spawn, e um bicho que escala outro sozinho é o tipo de
+coisa que o jogador vê em dois minutos de jogo.
+
+O teste da Fase 10 (`teste_gameplay_v3_fase10.gd`) **pina as posições a cada
+quadro** pra medir a skill em vez do contato — está comentado lá por quê.
 
 ## 🎮 Primeiro playtest do 3D (Gabriel, 14/09)
 

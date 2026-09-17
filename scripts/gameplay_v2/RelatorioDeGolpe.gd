@@ -70,11 +70,38 @@ static func frase(efetividade: String) -> String:
 ## recalcula e não classifica nada por conta própria (AGENTS.md).
 static func montar(golpe: Dictionary, atacante: Node2D, alvo: Node2D,
 		dano: int, detalhe: Dictionary, vida_depois: int, vida_maxima: int) -> Dictionary:
-	var mult : float = float(detalhe.get("mult_tipo", 1.0))
-	var efet := classificar(mult)
 	var origem : Vector2 = atacante.global_position if atacante != null else Vector2.ZERO
 	var destino : Vector2 = alvo.global_position if alvo != null else Vector2.ZERO
 	var direcao : Vector2 = (destino - origem).normalized() if destino != origem else Vector2.RIGHT
+	var r := _significado(golpe, atacante, alvo, dano, detalhe, vida_depois, vida_maxima)
+	r["origem"] = origem
+	r["destino"] = destino
+	r["direcao"] = direcao
+	return r
+
+## A mesma coisa em 3D (Fase 9 da V3). Só a geometria muda — `Vector3` em vez de
+## `Vector2`; tipo, efetividade, frase e fração da vida são idênticos, e é por
+## isso que as duas versões dividem `_significado`.
+##
+## ⚠️ Duas cópias do dicionário inteiro era o caminho fácil aqui, e seria a
+## receita pra a V2 e a V3 discordarem sobre o que "muito_forte" quer dizer no
+## primeiro ajuste que alguém fizesse num dos lados.
+static func montar_3d(golpe: Dictionary, atacante: Node3D, alvo: Node3D,
+		dano: int, detalhe: Dictionary, vida_depois: int, vida_maxima: int) -> Dictionary:
+	var origem : Vector3 = atacante.global_position if atacante != null else Vector3.ZERO
+	var destino : Vector3 = alvo.global_position if alvo != null else Vector3.ZERO
+	var direcao : Vector3 = (destino - origem).normalized() if destino != origem else Vector3.FORWARD
+	var r := _significado(golpe, atacante, alvo, dano, detalhe, vida_depois, vida_maxima)
+	r["origem"] = origem
+	r["destino"] = destino
+	r["direcao"] = direcao
+	return r
+
+## Tudo que NÃO depende de o mundo ser 2D ou 3D.
+static func _significado(golpe: Dictionary, atacante: Node, alvo: Node,
+		dano: int, detalhe: Dictionary, vida_depois: int, vida_maxima: int) -> Dictionary:
+	var mult : float = float(detalhe.get("mult_tipo", 1.0))
+	var efet := classificar(mult)
 
 	return {
 		# Quem e o quê
@@ -86,11 +113,6 @@ static func montar(golpe: Dictionary, atacante: Node2D, alvo: Node2D,
 		"contato": bool(golpe.get("contact", false)),
 		"atacante_id": atacante.get_instance_id() if atacante != null else 0,
 		"alvo_id": alvo.get_instance_id() if alvo != null else 0,
-
-		# Onde — pra a tela saber de onde veio o golpe, literalmente
-		"origem": origem,
-		"destino": destino,
-		"direcao": direcao,
 
 		# Quanto, e o que isso significa
 		"dano": dano,

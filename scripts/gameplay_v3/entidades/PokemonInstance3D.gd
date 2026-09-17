@@ -215,6 +215,11 @@ func velocidade_maxima() -> float:
 	return MovementProfile.velocidade(arquetipo, int(stats.get("spe", 50)))
 
 func _physics_process(delta: float) -> void:
+	# O aviso de skill corre ANTES da guarda de derrotado, de propósito: quem cai
+	# no meio do próprio aviso precisa cancelá-lo, senão o telegrafe fica
+	# desenhado no chão pra sempre e o golpe resolve de um morto.
+	_tick_cast()
+
 	if _derrotado:
 		velocity = Vector3.ZERO
 		move_and_slide()
@@ -280,6 +285,26 @@ func _unhandled_input(evento: InputEvent) -> void:
 		return
 	if evento is InputEventMouseMotion and camera != null:
 		camera.girar((evento as InputEventMouseMotion).relative)
+		return
+	# §18: LMB é o básico. Eu tinha posto espaço como segunda tecla, e o
+	# `teste_pilha_de_telas.gd` reprovou: espaço já é a **pokébola**. Jogar uma
+	# bola por engano no lugar de atacar é bem pior que não ter tecla alternativa
+	# — e a regra de "nenhuma tecla com dois donos" existe justamente porque é
+	# assim que nasce o bug de dois controladores no mesmo botão (§12).
+	#
+	# A guarda de `controlado_pelo_jogador` acima é o que impede um Pokémon que está só
+	# acompanhando o treinador de atacar sozinho ao clique — e o
+	# `ControlModeManager` desliga o input de quem não está ativo, então são duas
+	# travas independentes pro mesmo erro (§12).
+	if evento.is_action_pressed("ataque_basico"):
+		atacar()
+		return
+	# §18: Q E R F são as 4 skills — e `skill_1..4` no InputMap já mapeiam essas
+	# teclas (mais 1-4), desde a V2. Nada cravado aqui.
+	for i in 4:
+		if evento.is_action_pressed("skill_%d" % (i + 1)):
+			usar_skill(i)
+			return
 
 ## §18: WASD move, mouse olha. O movimento segue o olhar, não o norte do mundo.
 func _obedecer(delta: float) -> void:
@@ -418,3 +443,281 @@ func perfil_de_camera() -> Dictionary:
 
 func alcance_basico() -> float:
 	return CombatProfile.alcance_basico(altura)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 9 — o ataque básico
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Quando o último básico saiu, no relógio do próprio nó. Negativo = nunca.
+var _ultimo_basico : float = -1.0
+
+## O básico já esfriou? A HUD pergunta isto; a regra vive em `AtaqueBasico`.
+func basico_pronto() -> bool:
+	return AtaqueBasico.pronto(_agora(), _ultimo_basico)
+
+func basico_esfriando() -> float:
+	return AtaqueBasico.esfriando(_agora(), _ultimo_basico)
+
+func _agora() -> float:
+	return float(Time.get_ticks_msec()) / 1000.0
+
+## Bate. Devolve o relatório do acerto, ou `{}` quando não houve golpe — porque
+## estava esfriando, porque nada estava no arco, ou porque já foi derrotado.
+##
+## ── Por que devolve o relatório em vez de só emitir o sinal ─────────────────
+##
+## O sinal (`EventBus.golpe_resolvido`) é pra a tela. O retorno é pra quem
+## chamou: o teste, e mais tarde a IA (Fase 11), que precisa saber se o golpe
+## dela conectou pra decidir o próximo passo. Sinal não serve de resposta.
+##
+## ── Sem RNG (§22) ──────────────────────────────────────────────────────────
+##
+## Não há rolagem de precisão. Quem está no alcance E no arco é acertado; quem
+## não está, não é. `AtaqueBasico.acertou` é a regra inteira, e ela é testável
+## sem física porque é geometria pura.
+func atacar() -> Dictionary:
+	if _derrotado:
+		return {}
+	if not basico_pronto():
+		return {}
+
+	var alvo := _alvo_na_frente()
+	# O cooldown conta a TENTATIVA, não o acerto. Se contasse só o acerto, errar
+	# não custaria nada e o jogador spammaria o botão sem risco — o oposto do que
+	# um combate de ação pede.
+	_ultimo_basico = _agora()
+	if alvo == null:
+		return {}
+
+	var golpe := AtaqueBasico.golpe()
+	var detalhe : Dictionary = DanoV2.detalhar(golpe, stats_de_ataque(), alvo.stats_de_defesa())
+
+	# 🔴 A chave é `final`, não `dano`. Eu escrevi `detalhe.get("dano", 0)` na
+	# primeira versão e o ataque saiu com relatório completo, sinal emitido,
+	# efetividade classificada — e **dano zero**, porque `Dictionary.get` com
+	# padrão devolve o padrão sem reclamar de chave errada.
+	#
+	# O teste da Fase 9 pegou na primeira rodada, e só porque ele exige que a
+	# VIDA MUDE em vez de conferir se "não deu erro".
+	#
+	# Por isso aqui NÃO tem valor padrão: chave errada passa a estourar na hora
+	# em vez de virar zero silencioso. `DanoV2` sempre devolve `final` — quando
+	# não devolver, quero saber.
+	assert(detalhe.has("final"), "DanoV2.detalhar mudou de contrato: sem a chave 'final'")
+	var dano : int = int(detalhe["final"])
+	alvo.sofrer(dano, self)
+
+	var relatorio := RelatorioDeGolpe.montar_3d(
+		golpe, self, alvo, dano, detalhe, alvo.vida, alvo.vida_maxima)
+	EventBus.golpe_resolvido.emit(relatorio)
+	return relatorio
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 10 — as 4 skills
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Os golpes nos slots, por id de `moves.json`. Quem monta o kit de verdade é
+## `KitDeCombate` (Fase 17); aqui é só a lista que a entidade usa.
+var kit : Array = []
+
+## Último uso POR GOLPE, não por slot: trocar a ordem das skills não pode zerar
+## cooldown. Ver `UsoDeSkill`.
+var _cooldowns : Dictionary = {}
+
+## O aviso no ar, quando há. `{}` = nada anunciado.
+var _cast : Dictionary = {}
+
+func golpe_do_slot(indice: int) -> Dictionary:
+	if indice < 0 or indice >= kit.size():
+		return {}
+	var id := str(kit[indice])
+	var dados = GameData.moves.get(id, null) if GameData != null else null
+	return dados if dados is Dictionary else {}
+
+func esta_anunciando() -> bool:
+	return not _cast.is_empty()
+
+## Quanto falta esfriar o slot. A HUD pergunta; ela não recalcula.
+func skill_esfriando(indice: int) -> float:
+	var g := golpe_do_slot(indice)
+	if g.is_empty():
+		return 0.0
+	return UsoDeSkill.esfriando(_agora(), float(_cooldowns.get(str(g.get("id", "?")), -1.0)), g)
+
+## Usa a skill do slot. Devolve:
+##
+##   `{"recusado": motivo}`  não pôde sair, e por quê
+##   `{"anuncio": {...}}`    tem aviso: anunciou agora, resolve depois
+##   `{"alvos": [...]}`      instantâneo: já resolveu
+##
+## Três formas de retorno porque são três coisas diferentes, e achatar as três
+## num booleano é como a tela perde a informação de que precisa pra explicar o
+## que aconteceu.
+func usar_skill(indice: int) -> Dictionary:
+	var golpe := golpe_do_slot(indice)
+	var agora := _agora()
+	var ultimo : float = float(_cooldowns.get(str(golpe.get("id", "?")), -1.0))
+	var motivo := UsoDeSkill.por_que_nao(agora, ultimo, golpe, _derrotado, esta_anunciando())
+	if motivo != "":
+		return {"recusado": motivo}
+
+	var direcao : Vector3 = camera.direcao_de_mira() if camera != null else -global_transform.basis.z
+	# O cooldown conta o COMEÇO, não o fim. Um golpe de aviso longo não pode
+	# ficar imune a cooldown durante o aviso.
+	_cooldowns[str(golpe.get("id", "?"))] = agora
+
+	if not UsoDeSkill.tem_aviso(golpe):
+		return {"alvos": _resolver_skill(golpe, direcao)}
+
+	# Direção TRAVADA aqui — ver o porquê em UsoDeSkill.
+	_cast = UsoDeSkill.anuncio(golpe, origem_do_golpe(), direcao, agora)
+	_cast["_golpe_completo"] = golpe
+	EventBus.skill_anunciada.emit(_cast.duplicate(true))
+	return {"anuncio": _cast.duplicate(true)}
+
+## Chamado a cada quadro. Resolve o aviso quando a hora chega, e cancela quando
+## o dono cai no meio.
+func _tick_cast() -> void:
+	if _cast.is_empty():
+		return
+	if _derrotado:
+		var id := str(_cast.get("golpe", "?"))
+		_cast = {}
+		EventBus.skill_cancelada.emit(id)
+		return
+	if _agora() < float(_cast.get("resolve_em", 0.0)):
+		return
+	var golpe : Dictionary = _cast.get("_golpe_completo", {})
+	var direcao : Vector3 = _cast.get("direcao", -global_transform.basis.z)
+	_cast = {}
+	_resolver_skill(golpe, direcao)
+
+## Aplica o golpe em quem a forma pegar. Devolve os relatórios, um por alvo.
+func _resolver_skill(golpe: Dictionary, direcao: Vector3) -> Array:
+	var candidatos := _candidatos_ao_redor(
+		maxf(FormaDeArea3D.alcance_em_metros(golpe), FormaDeArea3D.raio_em_metros(golpe)))
+	var alvos : Array = FormaDeArea3D.alvos(golpe, origem_do_golpe(), direcao, candidatos)
+
+	var relatorios : Array = []
+	var dano_total : int = 0
+	for alvo in alvos:
+		var detalhe : Dictionary = DanoV2.detalhar(golpe, stats_de_ataque(), alvo.stats_de_defesa())
+		assert(detalhe.has("final"), "DanoV2.detalhar mudou de contrato: sem a chave 'final'")
+		var dano : int = int(detalhe["final"])
+		alvo.sofrer(dano, self)
+		dano_total += dano
+		var r := RelatorioDeGolpe.montar_3d(
+			golpe, self, alvo, dano, detalhe, alvo.vida, alvo.vida_maxima)
+		EventBus.golpe_resolvido.emit(r)
+		relatorios.append(r)
+
+	_drenar(golpe, dano_total)
+	return relatorios
+
+## §20: drenagem cura pelo dano REAL causado, nunca pelo teórico.
+##
+## A fração vem de `CombatenteV2.fracao_de_drenagem`, a MESMA função da V2 — ela
+## é estática e pura, e reescrevê-la aqui seria criar a segunda implementação
+## que um dia discorda da primeira. Vale lembrar por que ela existe: a drenagem
+## nunca funcionou nem na V1, porque o código lia um campo `drenagem` que nenhum
+## dos 192 golpes tem. A codificação real é `effect: "drain_50"`.
+func _drenar(golpe: Dictionary, dano_causado: int) -> void:
+	if dano_causado <= 0 or _derrotado:
+		return
+	var fracao : float = CombatenteV2.fracao_de_drenagem(golpe)
+	if fracao <= 0.0 or vida >= vida_maxima:
+		return
+	var cura : int = mini(dano_causado, int(round(float(dano_causado) * fracao)))
+	if cura <= 0:
+		return
+	vida = mini(vida_maxima, vida + cura)
+	vida_mudou.emit(vida, vida_maxima)
+
+## Todo Pokémon acertável dentro de `raio`, com posição e raio de corpo — a
+## matéria-prima que `FormaDeArea3D` filtra. A física entra só aqui.
+func _candidatos_ao_redor(raio: float) -> Array:
+	var espaco := get_world_3d().direct_space_state
+	if espaco == null:
+		return []
+	var consulta := PhysicsShapeQueryParameters3D.new()
+	var esfera := SphereShape3D.new()
+	esfera.radius = maxf(0.5, raio)
+	consulta.shape = esfera
+	consulta.transform = Transform3D(Basis.IDENTITY, origem_do_golpe())
+	consulta.collide_with_areas = true
+	consulta.collide_with_bodies = false
+	consulta.exclude = [get_rid()]
+	consulta.collision_mask = 0xFFFFFFFF
+
+	var saida : Array = []
+	var vistos : Array = []
+	for achado in espaco.intersect_shape(consulta, 32):
+		var area = achado.get("collider")
+		if area == null:
+			continue
+		var quem = area.get_parent()
+		if quem == self or quem == null or quem in vistos:
+			continue
+		if not quem.has_method("stats_de_defesa"):
+			continue
+		if quem.has_method("esta_derrotado") and quem.esta_derrotado():
+			continue
+		vistos.append(quem)
+		var raio_do_corpo : float = 0.0
+		if "altura" in quem:
+			raio_do_corpo = float(CombatProfile.corpo(float(quem.altura))["raio"])
+		saida.append({"quem": quem, "posicao": quem.global_position, "raio": raio_do_corpo})
+	return saida
+
+## Quem está no arco à frente, mais perto primeiro.
+##
+## Procura HURTBOX (Area3D), não corpo: a §22 mantém as duas separadas, e é a
+## hurtbox — um pouco maior que o corpo — que define o que é acertável. Consultar
+## o corpo faria o golpe passar raspando e não conectar, que é a reclamação
+## clássica de combate 3D.
+func _alvo_na_frente() -> Node:
+	var espaco := get_world_3d().direct_space_state
+	if espaco == null:
+		return null
+
+	var alcance := alcance_basico()
+	var consulta := PhysicsShapeQueryParameters3D.new()
+	var esfera := SphereShape3D.new()
+	# A esfera cobre o alcance a partir do PEITO, não dos pés: um golpe que sai
+	# da altura do corpo não deveria acertar algo atrás de um degrau.
+	esfera.radius = alcance
+	consulta.shape = esfera
+	consulta.transform = Transform3D(Basis.IDENTITY, origem_do_golpe())
+	consulta.collide_with_areas = true
+	consulta.collide_with_bodies = false
+	consulta.exclude = [get_rid()]
+	consulta.collision_mask = 0xFFFFFFFF
+
+	var olhar : Vector3 = camera.direcao_de_mira() if camera != null else -global_transform.basis.z
+
+	var melhor : Node = null
+	var menor : float = INF
+	for achado in espaco.intersect_shape(consulta, 16):
+		var area = achado.get("collider")
+		if area == null:
+			continue
+		var quem = area.get_parent()
+		# Só Pokémon, e nunca a si mesmo. `has_method` em vez de comparar classe:
+		# o alvo pode ser um dublê de teste, e exigir a classe exata tornaria o
+		# combate impossível de testar sem subir o mundo inteiro.
+		if quem == self or quem == null or not quem.has_method("stats_de_defesa"):
+			continue
+		if quem.has_method("esta_derrotado") and quem.esta_derrotado():
+			continue
+
+		var raio : float = 0.0
+		if "altura" in quem:
+			raio = float(CombatProfile.corpo(float(quem.altura))["raio"])
+		if not AtaqueBasico.acertou(olhar, origem_do_golpe(), quem.global_position, alcance, raio):
+			continue
+
+		var d : float = origem_do_golpe().distance_to(quem.global_position)
+		if d < menor:
+			menor = d
+			melhor = quem
+	return melhor

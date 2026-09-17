@@ -67,6 +67,22 @@ signal damage_dealt(target: Node, amount: int, is_critical: bool, attacker: Node
 ## valendo e com a mesma assinatura: este vem AO LADO, não no lugar.
 signal golpe_resolvido(relatorio: Dictionary)
 
+## O ANÚNCIO de um golpe com aviso (`cast_time > 0`), na Fase 10 da V3. Sai
+## quando o golpe começa, não quando resolve — é o que permite a tela desenhar o
+## telegrafe e o adversário sair de cima.
+##
+## 84 dos 192 golpes têm aviso. Sem este sinal, o aviso existiria só como número
+## no dado e o jogador nunca veria a janela pra desviar.
+##
+## O conteúdo está em `UsoDeSkill.anuncio()`: forma, alcance, raio, largura,
+## direção travada e quando resolve. A tela não calcula nada disso.
+signal skill_anunciada(anuncio: Dictionary)
+
+## O anúncio que NÃO virou golpe — o dono foi derrotado, ou trocou de modo, no
+## meio do aviso. A tela precisa apagar o telegrafe que já desenhou; sem isto
+## ficaria uma marca no chão pra sempre.
+signal skill_cancelada(golpe: String)
+
 ## O mesmo, para status aplicado. Ficar paralisado sem saber por quê é a mesma
 ## frustração do dano sem origem, em outra forma.
 signal status_aplicado(relatorio: Dictionary)
