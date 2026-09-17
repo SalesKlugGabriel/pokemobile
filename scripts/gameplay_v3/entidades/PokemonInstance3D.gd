@@ -54,7 +54,43 @@ var _derrotado : bool = false
 # Montagem
 # ──────────────────────────────────────────────────────────────────────────────
 
+## 🔴 A PORTA DE ENTRADA. Use isto, não `new()` + `add_child()` + posicionar.
+##
+## ── O que isto existe pra impedir ───────────────────────────────────────────
+##
+## Um `CharacterBody3D` passa **um quadro de física** com o colisor na posição
+## em que nasceu, antes de o servidor de física acompanhar uma atribuição de
+## `global_position` feita depois do `add_child`. Nesse quadro, quem estiver em
+## cima daquele ponto **pousa no bicho novo** — e quando o colisor salta pro
+## lugar certo, o Godot **carrega** quem está em pé nele, porque é assim que
+## plataforma móvel funciona.
+##
+## Medido em 17/09, determinístico em três execuções:
+##
+## ```
+## posição definida ANTES  do add_child   deslocamento 0,000 m
+## posição definida DEPOIS do add_child   deslocamento 1,265 m
+## ```
+##
+## O Charizard terminava **em cima da cabeça** de um Rattata que estava a 1,2 m.
+## Passei um bom tempo achando que era bug de colisor porque as cápsulas não se
+## sobrepõem (0,476 + 0,180 = 0,656 < 1,2) — e não era: era ordem de nascimento.
+##
+## A Fase 11 vai criar selvagem a cada encontro. Um spawner que erre a ordem
+## catapulta o jogador, e o sintoma (personagem voando) não parece nada com a
+## causa (ordem de duas linhas).
+static func nascer(pai: Node, id_especie: int, nv: int, posicao: Vector3,
+		arquetipo_pedido: String = "") -> PokemonInstance3D:
+	var e := PokemonInstance3D.new()
+	# A ordem é o ponto: posição ANTES de entrar na árvore.
+	e.position = posicao
+	pai.add_child(e)
+	e.montar(id_especie, nv, arquetipo_pedido)
+	return e
+
 func montar(id_especie: int, nv: int, arquetipo_pedido: String = "") -> void:
+	# Onde o nó estava quando foi montado — a referência do detector de ordem.
+	_pos_ao_nascer = position
 	species_id = id_especie
 	nivel = maxi(1, nv)
 
@@ -214,7 +250,34 @@ var le_teclado : bool = true
 func velocidade_maxima() -> float:
 	return MovementProfile.velocidade(arquetipo, int(stats.get("spe", 50)))
 
+## Onde o nó nasceu, e quantos quadros de física ele já viu. Só pro detector
+## abaixo — ver `_conferir_ordem_de_nascimento`.
+var _pos_ao_nascer : Vector3 = Vector3.ZERO
+var _viu_fisica : bool = false
+
+## 🔴 Pega o erro de ordem de nascimento no único quadro em que ele é perigoso.
+##
+## Reposicionar DEPOIS do `add_child` e ANTES do primeiro quadro de física é a
+## janela exata em que o colisor fica pra trás. Um `warp` legítimo dez quadros
+## depois não cai aqui, porque aí `_viu_fisica` já é verdadeiro.
+##
+## Avisa em vez de corrigir: mover o nó por conta própria esconderia o erro do
+## chamador, e a próxima vez ele seria cometido em outro lugar. Falta de coisa —
+## e erro de uso — tem de ser visível.
+func _conferir_ordem_de_nascimento() -> void:
+	if _viu_fisica:
+		return
+	_viu_fisica = true
+	if position.distance_to(_pos_ao_nascer) <= 0.01:
+		return
+	var recado := "%s foi reposicionado DEPOIS de entrar na árvore (%s -> %s). Use PokemonInstance3D.nascer(), senão quem estiver em pé no ponto de nascimento é carregado junto." % [
+		nome_exibido, str(_pos_ao_nascer), str(position)]
+	push_warning(recado)
+	if Engine.has_singleton("PonteDeFeedback") or PonteDeFeedback != null:
+		PonteDeFeedback.anotar(recado)
+
 func _physics_process(delta: float) -> void:
+	_conferir_ordem_de_nascimento()
 	# O aviso de skill corre ANTES da guarda de derrotado, de propósito: quem cai
 	# no meio do próprio aviso precisa cancelá-lo, senão o telegrafe fica
 	# desenhado no chão pra sempre e o golpe resolve de um morto.

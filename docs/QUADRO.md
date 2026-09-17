@@ -9,7 +9,7 @@
 
 **Estado em:** 17/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **115 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **116 arquivos, 0 com falha**
 
 ---
 
@@ -34,7 +34,7 @@ verdade.
 | 0–8 | Auditoria, RFCs, cena 3D, treinador, terreno, Pokémon 3D, companheiro, transferência, 1ª pessoa | ✅ 14/09 |
 | 9 | **Ataque básico** | ✅ 17/09 · 50 conferências |
 | 10 | **4 skills** (single/circle/cone/line, aviso, drenagem) | ✅ 17/09 · 61 conferências |
-| 11 | Wild Pokémon | 🔵 **próxima** — ver o bloqueio abaixo |
+| 11 | Wild Pokémon | 🔵 **próxima** — destravada em 17/09 |
 | 12 | Combate 1v1 | ⬜ |
 | 13 | Combate → Mundo | ⬜ |
 | 14–15 | Surf · Fly | ⬜ |
@@ -47,50 +47,40 @@ pé — e porque pular é como se constrói seis sistemas pela metade.
 
 ---
 
-## 🔴 O bloqueio da Fase 11 — dois Pokémon parados se deslocam sozinhos
+## ✅ O bloqueio da Fase 11 caiu — contrato de nascimento
 
-**Reproduzível e determinístico.** Mundo limpo, só dois `PokemonInstance3D`:
-Charizard na origem, Rattata a **1,2 m** à frente, os dois com velocidade zero.
-Em **um quadro** o Charizard vai pra cima do Rattata:
+O sintoma era dois Pokémon parados a 1,2 m se deslocando sozinhos (1,264 m em um
+quadro, velocidade zero, determinístico). **A causa não era colisor.**
+
+Instrumentando `move_and_slide`, a colisão saiu com normal `(0,1,0)`: o Charizard
+**pousava** no Rattata. Um `CharacterBody3D` passa um quadro de física com o
+colisor onde nasceu, antes de o servidor acompanhar um `global_position`
+atribuído depois do `add_child` — e quando o colisor salta pro lugar certo, o
+Godot **carrega** quem está em pé nele.
 
 ```
-posição inicial      (0, 0, 0)
-um quadro depois     (0, 0.397, -1.2)   ← em cima da cabeça do Rattata
-deslocamento         1,264 m — idêntico em três execuções
-a 10 m de distância  deslocamento zero
+posição ANTES  do add_child   0,000 m
+posição DEPOIS do add_child   1,265 m
 ```
 
-**Descartado, medido:**
+E o corpo de ordem errada nasce na **origem do mundo**, não perto do destino:
+catapulta quem estiver na origem, a qualquer distância.
 
-| Hipótese | Medição |
-|---|---|
-| As cápsulas se sobrepõem | **não** — 0,476 + 0,180 = 0,656 m < 1,2 m |
-| O `.glb` traz nó de colisão | **não** — Charizard: 0 nós de colisão |
-| Alguém segue alguém | `acompanha` é `null` nos dois |
-| O código da entidade move alguém | não há **nenhuma** atribuição de `global_position` em `PokemonInstance3D` |
-| Deriva acumulada de física | acontece em UM quadro, com `velocity` zero |
+**Conserto:** `PokemonInstance3D.nascer(pai, especie, nivel, posicao, arquetipo)`
+— uma porta só, posição antes da árvore — mais um detector que avisa (não
+corrige) quando alguém erra a ordem. Travado por `teste_nascimento_v3.gd`, que
+confere os dois sentidos.
 
-**A causa não foi identificada, e não foi inventada nenhuma.** É por isso que as
-Fases 3 a 10 não tropeçaram: nenhuma põe dois Pokémon perto e parados.
-
-⚠️ **Tem de cair antes da Fase 11**, que vai criar essa situação a cada spawn de
-selvagem. Um bicho escalando outro sozinho é coisa que o jogador vê em dois
-minutos.
-
-Repro isolado: dois `PokemonInstance3D` num `Node3D` com um chão `StaticBody3D`,
-`montar(6, 50, "ground_biped")` e `montar(19, 20)`, posições `(0,0,0)` e
-`(0,0,-1.2)`, e ler `global_position` depois de 3 quadros.
-
----
+⚠️ **Todo spawn da Fase 11 em diante usa `nascer()`.** `new()` + `add_child()` +
+posicionar é o caminho que catapulta o jogador.
 
 ## 🔵 Pendente — Claude (gameplay, regras, IA, save, dados, testes lógicos)
 
 | # | O quê | Bloqueado? |
 |---|---|---|
-| 1 | **O bug de contato acima** | não — é o próximo |
-| 2 | Fase 11 — Wild Pokémon (reusa `ComportamentoSelvagem` da V2) | **sim**, pelo item 1 |
-| 3 | Fases 12 a 18, na ordem | sim, em cadeia |
-| 4 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
+| 1 | Fase 11 — Wild Pokémon (reusa `ComportamentoSelvagem` da V2) | não — **é a próxima** |
+| 2 | Fases 12 a 18, na ordem | sim, em cadeia |
+| 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
 
 ---
 
@@ -168,6 +158,7 @@ apareceu neste projeto:
 | Status | `effect` lido como nome de status, quando é um DSL (`burn_10`) |
 | Gráfico do Simulador | faltava **um argumento** na chamada — nenhum marcador de evento, nenhum erro |
 | Dano da skill (17/09) | `detalhe.get("dano", 0)` quando o contrato é `final` — relatório completo, dano zero |
+| Ordem de nascimento (17/09) | posicionar depois do `add_child` catapultava quem estava na origem, sem erro nenhum |
 
 **As duas regras que saem disso:**
 

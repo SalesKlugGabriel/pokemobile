@@ -25,7 +25,6 @@ var _anuncios : Array = []
 var _golpes : Array = []
 var _t_anuncio : float = 0.0
 var _fase : int = 0
-var _pos_atacante := Vector3.ZERO
 
 var EventBus : Node
 var GameData : Node
@@ -169,43 +168,23 @@ func _montar() -> void:
 	mundo.add_child(chao)
 
 	var P = load("res://scripts/gameplay_v3/entidades/PokemonInstance3D.gd")
-	_atacante = P.new()
-	mundo.add_child(_atacante)
-	_atacante.montar(6, 50, "ground_biped")
-	_atacante.global_position = Vector3.ZERO
-	_pos_atacante = Vector3.ZERO
+	# `nascer()` em vez de new+add_child+posicionar — ver o porquê em
+	# PokemonInstance3D.nascer(). Era a causa do deslocamento que eu tinha
+	# registrado como achado sem explicação na primeira versão deste teste.
+	_atacante = P.nascer(mundo, 6, 50, Vector3.ZERO, "ground_biped")
 	_atacante.assumir_controle(0.0)
 	# Uma de cada tipo de forma: melee, projétil/single de longe, área e drenagem.
 	_atacante.kit = ["pound", "gust", "surf", "mega_drain"]
 
 	# Três alvos em fila, à frente.
 	for i in 3:
-		var alvo = P.new()
-		mundo.add_child(alvo)
-		alvo.montar(19, 20)   # Rattata: pequeno, morre rápido
-		alvo.global_position = Vector3(0, 0, -1.2 - float(i) * 1.2)
-		_alvos.append(alvo)
+		# Rattata: pequeno, morre rápido.
+		_alvos.append(P.nascer(mundo, 19, 20, Vector3(0, 0, -1.2 - float(i) * 1.2)))
 
 ## 🔴 As posições são REAFIRMADAS a cada quadro, e isso não é preguiça.
 ##
-## Achado ao escrever este teste: dois Pokémon parados a 1,2 m um do outro se
-## deslocam sozinhos — o de cima sobe no de baixo, 1,264 m em um quadro, com
-## velocidade zero, de forma determinística. Não consegui explicar (as cápsulas
-## não se sobrepõem: 0,476 + 0,180 = 0,656 < 1,2) e **não vou inventar causa**.
-## Está registrado em `docs/GAMEPLAY_V3.md` como achado aberto, porque a Fase 11
-## (Pokémon selvagem) vai bater nele a cada spawn.
-##
-## Aqui o teste pina as posições pra medir a SKILL, não a física de contato. Sem
-## isso ele mediria o deslocamento e chamaria de bug de combate.
-func _pinar() -> void:
-	if _atacante != null:
-		_atacante.global_position = _pos_atacante
-	for i in _alvos.size():
-		_alvos[i].global_position = Vector3(0, 0, -1.2 - float(i) * 1.2)
-
 func _process(_delta: float) -> bool:
 	_quadros += 1
-	_pinar()
 	match _quadros:
 		1:
 			EventBus = root.get_node("EventBus")

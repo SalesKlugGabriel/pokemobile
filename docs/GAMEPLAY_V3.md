@@ -293,38 +293,51 @@ caçando.
 **não prova sensação de controle** — velocidade, sensibilidade do mouse,
 aceleração, distância da câmera. Isso só o playtest diz.
 
-## 🔴 ACHADO ABERTO (17/09) — dois Pokémon parados se deslocam sozinhos
+## ✅ RESOLVIDO (17/09) — o contrato de nascimento
 
-**Reproduzível e determinístico.** Dois `PokemonInstance3D` num mundo limpo, um
-Charizard na origem e um Rattata a **1,2 m** à frente, os dois com velocidade
-zero. Em **um quadro** o Charizard vai pra cima do Rattata:
+Era o bloqueio da Fase 11, e a causa não era a que eu supunha.
+
+**O sintoma:** dois Pokémon parados a 1,2 m, velocidade zero, e o Charizard vai
+pra cima do Rattata — 1,264 m em um quadro, determinístico.
+
+**O que eu perdi tempo descartando:** as cápsulas não se sobrepõem (0,476 +
+0,180 = 0,656 < 1,2), o `.glb` não traz colisor, ninguém segue ninguém, e não
+existe atribuição de `global_position` na entidade. Tudo isso estava certo — e
+nada disso era a causa.
+
+**A causa, achada instrumentando `move_and_slide`:** a colisão acontecia com
+normal `(0, 1, 0)` — o Charizard **pousava** no Rattata. Um `CharacterBody3D`
+passa **um quadro de física** com o colisor onde nasceu, antes de o servidor
+acompanhar um `global_position` atribuído depois do `add_child`. Nesse quadro o
+Charizard pousa nele; quando o colisor salta pro lugar certo, o Godot **carrega**
+quem está em pé — é o comportamento de plataforma móvel.
 
 ```
-posição inicial      (0, 0, 0)
-um quadro depois     (0, 0.397, -1.2)     ← em cima da cabeça do Rattata
-deslocamento         1,264 m
-três execuções       1,264 m nas três
+posição definida ANTES  do add_child   deslocamento 0,000 m
+posição definida DEPOIS do add_child   deslocamento 1,265 m
 ```
 
-**Não sei a causa, e não vou inventar uma.** O que já foi descartado, medido:
+**E é pior do que parecia:** o corpo de ordem errada nasce na **origem do
+mundo** (a posição do pai), não perto do destino. Então ele catapulta quem
+estiver na origem — a quantos metros for o destino. No experimento, um Rattata
+destinado a 300 m carregou um Charizard que estava na origem.
 
-| Hipótese | Medição |
-|---|---|
-| As cápsulas se sobrepõem | **Não.** 0,476 + 0,180 = 0,656 m < 1,2 m |
-| O modelo .glb traz nó de colisão | **Não.** Charizard: 0 nós de colisão |
-| Alguém está seguindo alguém | `acompanha` é `null` nos dois |
-| O código da entidade move alguém | Não há nenhuma atribuição de `global_position` em `PokemonInstance3D` |
-| É deriva de física acumulada | Acontece em UM quadro, com `velocity` zero |
+### O conserto
 
-**Com 10 m de distância, o deslocamento é zero.** É por isso que as Fases 3 a 10
-não tropeçaram nisto: nenhuma delas põe dois Pokémon perto e parados.
+`PokemonInstance3D.nascer(pai, especie, nivel, posicao, arquetipo)` — posição
+**antes** de entrar na árvore, numa porta só. E um detector que dispara no único
+quadro em que o erro é perigoso: reposicionar depois do `add_child` e antes do
+primeiro quadro de física. Ele **avisa** em vez de corrigir — mover o nó por
+conta própria esconderia o erro de quem chamou, e a próxima vez seria em outro
+lugar.
 
-⚠️ **Precisa ser resolvido ANTES da Fase 11.** Um mundo com Pokémon selvagem vai
-criar essa situação a cada spawn, e um bicho que escala outro sozinho é o tipo de
-coisa que o jogador vê em dois minutos de jogo.
+Travado por `scripts/tests/teste_nascimento_v3.gd`, que confere os dois sentidos:
+pelo `nascer()` ninguém se desloca, **e o jeito errado ainda catapulta** — se ele
+parar de catapultar, o primeiro teste passa a provar nada e ninguém saberia.
 
-O teste da Fase 10 (`teste_gameplay_v3_fase10.gd`) **pina as posições a cada
-quadro** pra medir a skill em vez do contato — está comentado lá por quê.
+⚠️ **A Fase 11 usa `nascer()` pra todo spawn de selvagem.** Um spawner que erre a
+ordem catapulta o jogador, e o sintoma (personagem voando) não parece nada com a
+causa (ordem de duas linhas).
 
 ## 🎮 Primeiro playtest do 3D (Gabriel, 14/09)
 
