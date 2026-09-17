@@ -1,5 +1,9 @@
 # GAMEPLAY V3 — 3D · direção atual e autoritativa
 
+> ⚠️ **O estado atual vive em [`QUADRO.md`](QUADRO.md)**, não aqui. Este arquivo é
+> o painel detalhado da migração — fase por fase, com as medições de cada uma.
+> Em caso de divergência, o quadro ganha.
+
 > **Leia este arquivo primeiro ao retomar a V3.** Ele é o painel de controle da
 > migração e o único lugar onde o estado de cada fase é atualizado.
 >

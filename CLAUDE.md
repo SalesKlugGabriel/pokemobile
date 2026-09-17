@@ -1,3 +1,6 @@
+> **Estado do projeto: `docs/QUADRO.md`.** O que está feito, o que falta e de
+> quem é cada coisa. Comece por ele; o resto da pasta `docs/` é desenho e histórico.
+
 # Claude Code — PokéMobile
 
 Leia primeiro @AGENTS.md, @ARCHITECTURE.md e @docs/agent-handoff.md.
