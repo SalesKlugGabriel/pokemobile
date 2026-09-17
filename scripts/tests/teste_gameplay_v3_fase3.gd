@@ -434,10 +434,21 @@ func _conferir_pokemon() -> void:
 	# O Charizard (#6) JÁ tem modelo desde 14/09 — esta asserção dizia o
 	# contrário e envelheceu no dia em que o Codex entregou. O que continua
 	# valendo, e é o que importa, é o caminho do que NÃO tem.
+	#
+	# 🔴 Ajustado em 17/09, e pelo mesmo motivo de novo: em 16/09 o Codex
+	# entregou os TRÊS (Charizard #6, Gyarados #130, Pidgeot #18). A asserção
+	# dizia que o Gyarados não tinha modelo — virou falsa no dia da entrega.
+	#
+	# Número de espécie cravado num teste envelhece a cada modelo que chega.
+	# Então a régua passou a ser: quem TEM carrega o modelo, quem NÃO TEM cai no
+	# primitivo — e o "não tem" usa o Onix (#95), montado mais acima, que é uma
+	# das 148 espécies ainda sem arquivo.
 	_conf(terrestre.tem_modelo,
 		"espécie COM modelo carrega o modelo (Charizard, #6)")
-	_conf(not aquatico.tem_modelo,
-		"espécie SEM modelo cai no primitivo (Gyarados, #130)")
+	_conf(aquatico.tem_modelo,
+		"o aquático também já tem modelo (Gyarados, #130)")
+	_conf(not onix.tem_modelo,
+		"espécie SEM modelo cai no primitivo (Onix, #95)")
 	var avisou := false
 	for e in PonteDeFeedback.linha_do_tempo():
 		if str(e["o_que"]).contains("sem modelo 3D"):
@@ -481,11 +492,20 @@ func _conferir_modelo_entregue() -> void:
 	# 🔴 O achado: o modelo veio DEITADO — eixo de altura no −Z em vez do +Y,
 	# Blender Z-up sem conversão. Medido no Godot, não estimado na mão: girando
 	# 90° em X a altura bate 1,700 m exato e os pés caem em zero.
-	_conf(not is_zero_approx(suporte.rotation_degrees.x),
-		"o validador detectou o eixo trocado e girou como remendo",
-		"girou %+.0f°" % suporte.rotation_degrees.x)
+	#
+	# 🔴 Ajustado em 17/09. Esta asserção exigia que o validador ESTIVESSE
+	# remendando o eixo — ela nasceu do primeiro Charizard, que veio deitado
+	# (Blender Z-up sem conversão). O Codex reexportou em 16/09 e o modelo agora
+	# chega em pé.
+	#
+	# Exigir o remendo era exigir que o asset continuasse errado. A régua certa é
+	# a inversa: modelo aprovado entra SEM remendo nenhum. O caminho do remendo
+	# continua coberto — por `correcao_x` no cubo falso, logo abaixo.
+	_conf(is_zero_approx(suporte.rotation_degrees.x),
+		"modelo aprovado entra sem remendo de eixo",
+		"girou %+.0f° — o asset voltou a vir deitado?" % suporte.rotation_degrees.x)
 
-	# Depois do remendo, ele tem que bater o contrato.
+	# E ele bate o contrato sem precisar de remendo.
 	var r : Dictionary = ValidadorDeModelo.conferir(suporte, 6)
 	_conf(bool(r["ok"]),
 		"com a correção, o modelo passa no contrato",
@@ -524,12 +544,33 @@ func _conferir_modelo_entregue() -> void:
 
 	# A linha do tempo registrou — se o Gabriel reportar "o bicho está deitado",
 	# o recado dele já vai dizer que o modelo estava fora do contrato.
+	#
+	# 🔴 Ajustado em 17/09: este trecho dependia de que o modelo REAL do Charizard
+	# estivesse errado, e ele foi consertado em 16/09. O aviso parou de aparecer
+	# porque não há mais o que avisar — o teste virou refém de um asset quebrado.
+	#
+	# Agora o caminho é exercitado de propósito, montando o cubo falso numa
+	# entidade de verdade: é o mesmo `_validar_modelo` que roda quando um modelo
+	# mal exportado chega, e é ele que precisa anotar.
+	var cobaia = Pokemon3D.new()
+	_lab.add_child(cobaia)
+	cobaia.montar(6, 30, "ground_biped")
+	var enganoso := Node3D.new()
+	var mi := MeshInstance3D.new()
+	var cubo := BoxMesh.new()
+	cubo.size = Vector3(1, 1, 1)
+	mi.mesh = cubo
+	mi.position.y = 0.5
+	enganoso.add_child(mi)
+	cobaia.add_child(enganoso)
+	cobaia._validar_modelo(enganoso)
+
 	var avisou := false
 	for e in PonteDeFeedback.linha_do_tempo():
 		if str(e["o_que"]).contains("fora do contrato"):
 			avisou = true
 			break
-	_conf(avisou, "o problema do modelo entra na linha do tempo do feedback")
+	_conf(avisou, "modelo fora do contrato entra na linha do tempo do feedback")
 
 	falso.queue_free()
 	charizard.queue_free()

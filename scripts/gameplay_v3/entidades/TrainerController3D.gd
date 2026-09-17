@@ -41,6 +41,20 @@ func _ready() -> void:
 	_montar_corpo()
 	camera = CameraTerceiraPessoa.new()
 	add_child(camera)
+	# 🔴 `top_level` corrigido em 17/09, e é o bug de arquitetura dos dois.
+	#
+	# Sendo filha do corpo, o yaw da câmera era RELATIVO a ele — e o corpo gira
+	# pra direção do movimento. O laço que o Gabriel sentiu:
+	#
+	#     aperta W → corpo anda pra −Z → o corpo vira → a câmera vira junto →
+	#     "frente da câmera" virou outra direção → W passa a andar pro outro lado
+	#
+	# Com `top_level`, a câmera deixa de herdar a transformação do pai: ela segue
+	# só a POSIÇÃO do treinador (em `_physics_process`) e o ângulo é sempre do
+	# mouse, de mais ninguém. É o que a §11 pede — *"o mouse é o indicador de
+	# caminho"* — e é o que faz o W andar pra onde se está olhando.
+	camera.top_level = true
+	camera.seguir(global_position)
 
 ## Corpo mínimo. Malha e animação são do Codex (§48) — o que está aqui é o
 ## necessário pra colidir e pra dar pra ver onde o personagem está.
@@ -117,6 +131,13 @@ func _physics_process(delta: float) -> void:
 	# Vira pra onde anda, não pra onde a câmera olha — é o que deixa andar de
 	# lado e de costas parecer natural em 3ª pessoa.
 	rotation.y = Locomocao3D.girar_para(rotation.y, velocity, delta)
+
+	# A câmera é `top_level`: não herda mais nada do corpo, então a posição dela
+	# tem de ser acompanhada à mão. É de propósito — herdar a posição traria a
+	# rotação junto, que é exatamente o bug que isto conserta.
+	if camera != null:
+		camera.seguir(global_position)
+
 	_conferir_parada()
 
 func _tick_stamina(delta: float) -> void:

@@ -34,6 +34,21 @@ var _pitch : float = deg_to_rad(-12.0)
 var _yaw   : float = 0.0
 var camera : Camera3D = null
 
+## Coloca a câmera na altura do ombro do dono, na posição dele.
+##
+## Existe porque a câmera é `top_level` (ver TrainerController3D._ready): ela
+## não herda mais a transformação do corpo, e por isso também não herda a
+## posição. Quem sabe qual é a altura do ombro é a câmera, não o corpo — então
+## o offset fica aqui, e o dono só informa onde os pés estão.
+##
+## ⚠️ Sem isto, a correção do `top_level` consertaria a rotação e enfiaria a
+## câmera no chão: `position.y = ALTURA_DO_OMBRO` no `_ready` passa a ser uma
+## altura ABSOLUTA de 1,5 m no mundo, e o treinador andando numa encosta de 40 m
+## sairia de quadro. Um conserto que quebra outra coisa em silêncio é o padrão
+## que esta sessão passou o dia caçando.
+func seguir(pes_do_dono: Vector3) -> void:
+	global_position = pes_do_dono + Vector3.UP * ALTURA_DO_OMBRO
+
 func _ready() -> void:
 	spring_length = DISTANCIA_PADRAO
 	position.y = ALTURA_DO_OMBRO

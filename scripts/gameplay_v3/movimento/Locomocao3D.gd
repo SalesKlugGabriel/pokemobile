@@ -68,7 +68,18 @@ static func velocidade_alvo(intencao: Vector2, correndo: bool,
 	direita = direita.normalized() if direita.length_squared() > 0.0 else Vector3.RIGHT
 
 	var v : float = VELOCIDADE_CORRIDA if correndo else VELOCIDADE_CAMINHADA
-	return (direita * i.x + frente * i.y) * v * maxf(0.0, fator_de_exaustao)
+	# 🔴 O sinal do `i.y` era o TERCEIRO bug do relato do Gabriel, e o único que
+	# sobrou depois de consertar o giro e a câmera. Estava `frente * i.y`.
+	#
+	# `intencao.y` segue a convenção de tela, a mesma da V2 e a mesma que
+	# `Input.get_axis("move_up", "move_down")` produz: **−1 é pra frente**. Então
+	# `frente * i.y` com o W apertado dava `frente * (−1)` — andar pra trás.
+	#
+	# Medido, com a câmera já independente: a Camera3D olhava pra
+	# (−0,874 · 0 · +0,438) e o personagem andava pra (+0,894 · 0 · −0,448). O
+	# oposto exato. É a frase dele, literal: *"aperto W e ele vem em direção da
+	# câmera"*.
+	return (direita * i.x + frente * -i.y) * v * maxf(0.0, fator_de_exaustao)
 
 ## A velocidade horizontal deste quadro. Preserva o Y de quem chamou — quem
 ## manda na vertical é a gravidade, não a intenção.
@@ -113,5 +124,19 @@ static func girar_para(atual: float, velocidade: Vector3, delta: float,
 		graus_por_segundo: float = 720.0) -> float:
 	if esta_parado(velocidade):
 		return atual
-	var alvo := atan2(velocidade.x, velocidade.z)
+	# 🔴 Corrigido em 17/09. Estava `atan2(velocidade.x, velocidade.z)`, e isso
+	# devolve o ângulo 180° errado: em Godot um nó com `rotation.y = 0` olha pra
+	# **−Z**, então pra olhar na direção `d` o ângulo é `atan2(-d.x, -d.z)`.
+	#
+	# Medido antes de mexer, isolando a conta:
+	#
+	#     indo pra −Z (frente)  devolvia −3,14   correto  0,00
+	#     indo pra +Z           devolvia  0,00   correto −3,14
+	#     indo pra +X           devolvia  1,57   correto −1,57
+	#
+	# Sozinho este erro só deixaria o personagem de costas. O que o Gabriel
+	# sentiu — *"aperto W e ele vem em direção da câmera"* — vinha da soma com o
+	# segundo bug, a câmera que era filha do corpo e girava junto (ver
+	# TrainerController3D._ready).
+	var alvo := atan2(-velocidade.x, -velocidade.z)
 	return rotate_toward(atual, alvo, deg_to_rad(graus_por_segundo) * delta)

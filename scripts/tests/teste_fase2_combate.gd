@@ -154,12 +154,22 @@ func _p0_status_chance() -> void:
 func _p0_precisao() -> void:
 	# 🔴 Achado da auditoria: os 192 golpes têm `accuracy` e ninguém lia.
 	# Blizzard (70) nunca errava.
+	#
+	# 🔴 Amostra aumentada em 17/09: era `AMOSTRA` (500) com banda de ±6%, o que
+	# dá ~2,9 desvios-padrão — reprova sozinho de vez em quando, sem nada estar
+	# errado. Foi o que aconteceu numa rodada da suíte inteira (mediu 77%), e
+	# passou nas três rodadas isoladas seguintes (69%, 67%, 69%).
+	#
+	# Teste que reprova por sorteio é pior que teste que não existe: ele ensina a
+	# ignorar vermelho. Com 4.000 sorteios o desvio-padrão cai pra 0,7%, e a
+	# mesma banda de ±3% do teste de status logo acima passa a ser ~4σ.
+	const SORTEIOS_DE_PRECISAO : int = 4000
 	var acertos : int = 0
-	for i in AMOSTRA:
+	for i in SORTEIOS_DE_PRECISAO:
 		if StatusEffectController.acertou({"accuracy": 70}):
 			acertos += 1
-	var taxa : float = float(acertos) / float(AMOSTRA)
-	_assert(absf(taxa - 0.70) < 0.06, "golpe de 70 de precisão acerta ~70%% (medido %.0f%%)" % (taxa * 100.0))
+	var taxa : float = float(acertos) / float(SORTEIOS_DE_PRECISAO)
+	_assert(absf(taxa - 0.70) < 0.03, "golpe de 70 de precisão acerta ~70%% (medido %.1f%%)" % (taxa * 100.0))
 	_assert(StatusEffectController.acertou({"accuracy": 100}), "precisão 100 nunca erra")
 	_assert(StatusEffectController.acertou({"accuracy": 0}),
 		"precisão 0 significa 'não se erra' (é como os golpes de efeito puro estão cadastrados), não 0%")

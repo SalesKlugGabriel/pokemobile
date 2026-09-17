@@ -221,13 +221,16 @@ tilesets ficam no repositório mesmo depreciados, até a V3 substituir de verdad
 
 ---
 
-## 🔴 BUG DE CONTROLE DIAGNOSTICADO, NÃO CORRIGIDO (16/09)
+## ✅ BUG DE CONTROLE CORRIGIDO (17/09) — eram TRÊS, não dois
 
-**Retomar por aqui.** O Gabriel relatou: *"se aperto W ele vem em direção da
-câmera e não na direção do mouse"*. Diagnosticado, **a correção não foi
-aplicada** — a sessão mudou de prioridade antes.
+O Gabriel relatou: *"se aperto W ele vem em direção da câmera e não na direção
+do mouse"*. Diagnosticado em 16/09, **corrigido em 17/09** — e ao medir apareceu
+um **terceiro** bug que o diagnóstico de leitura não tinha visto.
 
-São **dois bugs somados**, e o segundo é de arquitetura:
+Travado por `scripts/tests/teste_controles_v3.gd` (11 conferências). Suíte
+inteira: **113 arquivos, 0 com falha.**
+
+São **três bugs somados**:
 
 ### 1. `Locomocao3D.girar_para()` está 180° errado
 
@@ -251,16 +254,40 @@ O laço: aperta W → corpo anda pra −Z → `girar_para` vira o corpo 180° (b
 a câmera, sendo filha, vira junto → agora "frente da câmera" é +Z → W passa a
 andar pro outro lado. **É exatamente o "ele vem em direção da câmera".**
 
-### A correção (a aplicar)
+### 3. `velocidade_alvo` usava o sinal errado do `intencao.y` ← ACHADO AO MEDIR
 
-1. Consertar o sinal em `girar_para`.
-2. **A câmera não pode herdar a rotação do corpo.** `top_level = true` no
-   `SpringArm3D`, seguindo só a POSIÇÃO do treinador a cada quadro.
-3. O Gabriel pediu que *"o mouse seja o indicador de caminho"* — com a câmera
-   independente, W passa a andar pra onde se olha, que é o que ele quer.
+O que o diagnóstico de leitura **não** viu. Depois de consertar os dois de cima,
+medi a cena rodando:
 
-⚠️ Testar os quatro sentidos (W, S, A, D) em navegador real depois: o teste
-headless não pega sensação de controle.
+```
+Camera3D olhava pra          (−0,874 · 0 · +0,438)
+o personagem andava pra      (+0,894 · 0 · −0,448)     ← o oposto exato
+```
+
+`intencao.y` segue a convenção de tela — **−1 é pra frente**, o que
+`Input.get_axis("move_up","move_down")` produz e o que a V2 já usava. E a linha
+era `frente * i.y`, ou seja `frente * (−1)` com o W apertado.
+
+**É esta a frase do Gabriel, literal.** Os dois primeiros bugs deixavam o
+personagem de costas e a câmera girando junto; este é o que fazia o W andar em
+direção à câmera.
+
+### A correção, aplicada
+
+1. `girar_para` → `atan2(-d.x, -d.z)`.
+2. `camera.top_level = true` + a câmera segue só a POSIÇÃO do treinador.
+3. `velocidade_alvo` → `frente * -i.y`.
+
+**Um efeito colateral que o conserto 2 criava, e foi tratado:** com `top_level`,
+`position.y = ALTURA_DO_OMBRO` deixa de ser relativo e vira altura ABSOLUTA de
+1,5 m no mundo — o treinador numa encosta de 40 m sairia de quadro. A câmera
+ganhou `seguir(pes_do_dono)`, que aplica o próprio offset. Conserto que quebra
+outra coisa em silêncio é exatamente o padrão que esta sessão passou o dia
+caçando.
+
+⚠️ **Falta o Gabriel sentir.** O teste prova direção e independência da câmera;
+**não prova sensação de controle** — velocidade, sensibilidade do mouse,
+aceleração, distância da câmera. Isso só o playtest diz.
 
 ## 🎮 Primeiro playtest do 3D (Gabriel, 14/09)
 

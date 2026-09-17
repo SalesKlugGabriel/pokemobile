@@ -1,0 +1,165 @@
+## teste_controles_v3.gd — Os dois bugs de controle do playtest, travados.
+##
+## O Gabriel relatou em 16/09: *"se aperto W ele vem em direção da câmera e não
+## na direção do mouse"*. Eram **dois** bugs somados, e este teste existe pra
+## nenhum dos dois voltar:
+##
+##   1. `girar_para` devolvia o ângulo 180° errado (`atan2(d.x, d.z)` em vez de
+##      `atan2(-d.x, -d.z)`);
+##   2. a câmera era filha do corpo que gira, então o yaw dela era relativo a
+##      ele — realimentação: o corpo virava, a câmera virava junto, e a "frente"
+##      do W mudava de lugar.
+##
+## ── Por que o segundo precisa de cena de verdade ────────────────────────────
+##
+## O primeiro é aritmética e dá pra conferir isolado. O segundo é uma relação
+## entre nós: só aparece com o corpo rodando física de verdade e a câmera
+## pendurada nele. Conferir isso lendo o código foi o que me fez diagnosticar
+## certo e **não perceber** que consertar o `top_level` enfiaria a câmera no
+## chão — a altura do ombro deixa de ser relativa quando o nó vira top_level.
+extends SceneTree
+
+var ok : int = 0
+var fail : int = 0
+var _quadros : int = 0
+var _treinador : CharacterBody3D = null
+var _y_inicial_da_camera : float = 0.0
+
+func _checar(nome: String, condicao: bool, detalhe: String = "") -> void:
+	if condicao:
+		ok += 1
+		print("  OK   ", nome)
+	else:
+		fail += 1
+		print("  FALHOU ", nome, "  ", detalhe)
+
+func _initialize() -> void:
+	print("=== Controles da V3: girar_para e a câmera independente ===")
+	_aritmetica_do_giro()
+	# ⚠️ A cena NÃO pode ser montada aqui. Em `_initialize` a janela raiz ainda
+	# não está pronta, e `root.add_child` não põe o nó na árvore de verdade —
+	# `is_inside_tree()` volta false e `global_position` erra em silêncio. Foi o
+	# que aconteceu na primeira versão deste teste, e é a convenção que
+	# `teste_gameplay_v3_fase3.gd` já seguia: montar no primeiro `_process`.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Bug 1 — aritmética, conferida isolada
+# ──────────────────────────────────────────────────────────────────────────────
+
+func _aritmetica_do_giro() -> void:
+	var Loco = load("res://scripts/gameplay_v3/movimento/Locomocao3D.gd")
+	# Em Godot, rotation.y = 0 olha pra −Z. Cada linha é uma direção de
+	# movimento e o ângulo que o corpo precisa ter pra ESTAR olhando pra ela.
+	var casos : Array = [
+		[Vector3(0, 0, -1), 0.0],           # frente
+		[Vector3(0, 0, 1), PI],             # trás
+		[Vector3(1, 0, 0), -PI / 2.0],      # direita
+		[Vector3(-1, 0, 0), PI / 2.0],      # esquerda
+	]
+	for caso in casos:
+		var d : Vector3 = caso[0]
+		var esperado : float = caso[1]
+		# delta enorme pra chegar no alvo num passo só — aqui a conferência é do
+		# ALVO, não da suavização.
+		var achado : float = Loco.girar_para(0.0, d * 5.0, 10.0)
+		var erro : float = absf(angle_difference(achado, esperado))
+		_checar("girar_para %s → %.2f rad" % [str(d), esperado], erro < 0.001,
+			"veio %.4f, esperado %.4f" % [achado, esperado])
+
+	# Parado não gira: sem isto o personagem volta pra frente sozinho ao soltar
+	# o teclado, e some a direção que o jogador tinha escolhido.
+	_checar("parado não muda o ângulo",
+		is_equal_approx(Loco.girar_para(1.23, Vector3.ZERO, 1.0), 1.23))
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Bug 2 — a relação entre câmera e corpo, com física rodando
+# ──────────────────────────────────────────────────────────────────────────────
+
+func _montar_cena() -> void:
+	var mundo := Node3D.new()
+	root.add_child(mundo)
+
+	# Chão, pra o corpo não cair pra sempre.
+	var chao := StaticBody3D.new()
+	var forma := CollisionShape3D.new()
+	var caixa := BoxShape3D.new()
+	caixa.size = Vector3(200, 1, 200)
+	forma.shape = caixa
+	chao.add_child(forma)
+	chao.position.y = -0.5
+	mundo.add_child(chao)
+
+	var Trainer = load("res://scripts/gameplay_v3/entidades/TrainerController3D.gd")
+	_treinador = Trainer.new()
+	mundo.add_child(_treinador)
+	_treinador.global_position = Vector3(10, 2, 10)
+
+	_checar("a câmera existe", _treinador.camera != null)
+	if _treinador.camera == null:
+		_terminar()
+		return
+
+	_checar("a câmera é top_level — não herda a rotação do corpo",
+		_treinador.camera.top_level == true)
+
+	# A altura do ombro NÃO é conferida aqui de propósito: o `_ready` roda no
+	# `add_child`, quando o corpo ainda está na origem, e o teleporte vem na linha
+	# seguinte. A câmera alcança no primeiro passo de física — conferido no fim,
+	# em `_conferir_depois_de_andar`. Conferir antes disso mediria um estado
+	# intermediário que o jogo nunca mostra.
+
+func _process(delta: float) -> bool:
+	_quadros += 1
+	if _quadros == 1:
+		_montar_cena()
+		return false
+	if _treinador == null:
+		return true
+
+	# Gira a câmera 90° com o "mouse" e manda andar pra frente. Com a câmera
+	# independente, W anda pra onde a câmera OLHA — o pedido da §11.
+	if _quadros == 6:
+		_treinador.camera.girar(Vector2(-deg_to_rad(90.0) / _treinador.camera.sensibilidade, 0.0))
+		_treinador.mover(Vector2(0, -1))   # frente
+
+	if _quadros == 61:
+		_conferir_depois_de_andar()
+		_terminar()
+		return true
+	return false
+
+func _conferir_depois_de_andar() -> void:
+	var cam = _treinador.camera
+
+	# A conferência que pega a realimentação: o corpo girou (ele vira pra onde
+	# anda), e o yaw da câmera tem de continuar o que o mouse pediu.
+	var yaw_da_camera : float = cam.yaw()
+	var yaw_global_da_camera : float = cam.global_rotation.y
+	_checar("o yaw da câmera é o do mouse, não o do corpo",
+		absf(angle_difference(yaw_da_camera, yaw_global_da_camera)) < 0.01,
+		"pedido %.3f, no mundo %.3f — a câmera está herdando rotação de alguém" % [yaw_da_camera, yaw_global_da_camera])
+
+	# E o corpo REALMENTE girou, senão a conferência de cima passaria por acaso.
+	_checar("o corpo girou pra direção do movimento",
+		absf(_treinador.rotation.y) > 0.01,
+		"corpo em %.3f — se não girou, o teste acima não provou nada" % _treinador.rotation.y)
+
+	# Andou pra frente da câmera, não pra dentro dela.
+	var andou := _treinador.global_position - Vector3(10, _treinador.global_position.y, 10)
+	var frente_da_camera : Vector3 = -cam.global_transform.basis.z
+	frente_da_camera.y = 0.0
+	var alinhamento : float = andou.normalized().dot(frente_da_camera.normalized())
+	_checar("W andou PRA ONDE a câmera olha",
+		alinhamento > 0.9,
+		"alinhamento %.3f (1 = exatamente pra frente, −1 = em direção à câmera)" % alinhamento)
+
+	# E o conserto do top_level não deixou a câmera no chão.
+	_checar("a câmera continua na altura do ombro depois de andar",
+		cam.global_position.y > _treinador.global_position.y + 1.0,
+		"câmera y=%.2f, treinador y=%.2f" % [cam.global_position.y, _treinador.global_position.y])
+
+func _terminar() -> void:
+	# `tools/rodar_testes.sh` exige ESTA linha, além do código de saída: um teste
+	# que morre antes de rodar também sai com 0, e silêncio não é aprovação.
+	print("\n=== Resultado: %d ok, %d falhas ===" % [ok, fail])
+	quit(1 if fail > 0 else 0)
