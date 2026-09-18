@@ -60,3 +60,16 @@ assets/characters/player_v1/
 O passe atual substitui a leitura de torso tubular por **duas frentes espessas de jaqueta**, com bolsos externos e lapelas que preservam a camiseta branca como camada interna. O tênis recebeu painéis laterais branco/vermelho de volume real; não é mais apenas uma sola e um bloco preto. A mandíbula também foi encurtada e alargada para reduzir a leitura adulta/pontuda. Os previews Workbench foram regenerados em frente, 3/4, lado, 3/4 de costas e costas; o validador técnico passou (altura 1,6000 m, pés em 0, frente em −Y Blender, 3.802 triângulos).
 
 O gate visual da Fase 3 **continua falhando**: rosto, mãos, calça cargo e o volume orgânico do calçado ainda são simplificados demais em relação à folha. O manifesto `player_v1.json` mantém `BLOCKOUT_NOT_READY`. Não exportar GLB, rigar, animar ou substituir o jogador oficial antes de refinar e aprovar a silhueta nos cinco ângulos. Nenhuma cena ou código de gameplay foi alterado.
+
+## Fases 4–7 — entrega técnica V1
+
+O passe final concluiu a versão técnica do asset sem alterar `TrainerController3D`:
+
+- Rig humano de 25 ossos (`root`, cadeia de tronco, membros, boné e mochila), com pesos explícitos em vez de Automatic Weights sem revisão;
+- três Actions persistidas e in-place: `PLAYER_V1_IDLE` (72 frames), `PLAYER_V1_WALK` (24) e `PLAYER_V1_RUN` (18); o osso `root` não recebe deslocamento;
+- inspeção Workbench de poses de idle/walk/run, que encontrou e corrigiu pesos de bolsos antes do export;
+- GLB de **355.896 bytes**, importado no Godot com 25 ossos, os três clips, 1,600 m de altura e pés em Y=0;
+- a fonte continua modular para edição (112 malhas); o export une cópias temporárias por material e entrega **9 malhas de runtime**;
+- `scenes/tests/player_v1_test.tscn` usa o terreno atual, árvore, grama, rocha e Pokémon pequeno/médio/grande, sem tocar no Laboratório oficial.
+
+O teste `scripts/tests/teste_player_v1_glb.gd` encerrou com **14 ok, 0 falhas**. O estado correto agora é `GAME_READY_V1_PENDING_OFFICIAL_INTEGRATION`: o asset está pronto como pacote técnico, mas trocar a cápsula de `TrainerController3D` exige RFC/revisão cruzada por afetar a cena e a escala de gameplay.

@@ -225,8 +225,8 @@ def head_and_hat(collection, materials):
             (eye_x - .002, -.104, 1.480), (eye_x - .010, -.104, 1.480),
         ], [(0, 1, 2, 3) if sign > 0 else (3, 2, 1, 0)], materials["LIGHT"], collection)
         mesh(f"PLAYER_V1_BROW_{sign}", [
-            (eye_x - .025, -.101, 1.500), (eye_x + .025, -.101, 1.500),
-            (eye_x + .021, -.102, 1.506), (eye_x - .022, -.102, 1.506),
+            (eye_x - .025, -.108, 1.503), (eye_x + .025, -.108, 1.499),
+            (eye_x + .022, -.109, 1.507), (eye_x - .022, -.109, 1.511),
         ], [(0, 1, 2, 3) if sign > 0 else (3, 2, 1, 0)], materials["HAIR"], collection)
     # A tiny faceted wedge, flush with the face; the earlier prism read as a
     # floating cube in profile.
@@ -237,13 +237,15 @@ def head_and_hat(collection, materials):
     ], [(0, 1, 2, 3), (0, 4, 1), (1, 4, 2), (2, 4, 3), (3, 4, 0)], materials["SKIN"], collection)
     chamfer_box("PLAYER_V1_MOUTH", 0, -.093,
                 [(1.370, .019, .004), (1.373, .018, .004)], materials["HAIR"], collection)
-    # Three broad fringe wedges are a silhouette, not individual hairs.
-    for idx, x in enumerate((-.070, .002, .067)):
+    # Five broad fringe wedges are a silhouette, not individual hairs.  The
+    # central locks intentionally overlap the cap edge so the face does not
+    # read as a bare geometric cone from the gameplay camera.
+    for idx, x in enumerate((-.084, -.043, .000, .043, .084)):
         mesh(f"PLAYER_V1_FRINGE_{idx}", [
-            (x - .035, -.078, 1.532), (x + .028, -.077, 1.526),
-            (x - .002, -.112, 1.485 - idx * .004),
-            (x - .035, -.067, 1.533), (x + .028, -.066, 1.527),
-            (x - .002, -.099, 1.485 - idx * .004),
+            (x - .030, -.090, 1.546), (x + .029, -.089, 1.542),
+            (x - .002, -.125, 1.476 - abs(idx - 2) * .012),
+            (x - .030, -.075, 1.547), (x + .029, -.074, 1.543),
+            (x - .002, -.109, 1.479 - abs(idx - 2) * .012),
         ], [(0, 1, 2), (3, 5, 4), (0, 3, 4, 1),
             (1, 4, 5, 2), (2, 5, 3, 0)], materials["HAIR"], collection)
     # Five broad nape locks prevent a helmet-like hairline in rear gameplay view.
@@ -256,18 +258,18 @@ def head_and_hat(collection, materials):
         ], [(0, 1, 2), (3, 5, 4), (0, 3, 4, 1),
             (1, 4, 5, 2), (2, 5, 3, 0)], materials["HAIR"], collection)
     ellipse("PLAYER_V1_CAP_CROWN", [
-        (0, .005, 1.514, .119, .105), (0, .006, 1.551, .142, .123),
-        (0, .015, 1.591, .125, .105), (0, .020, 1.600, .073, .064),
+        (0, .005, 1.514, .123, .110), (0, .006, 1.551, .148, .127),
+        (0, .015, 1.591, .132, .112), (0, .020, 1.600, .078, .069),
     ], materials["RED"], collection, sides=12)
     # Cream front panel and an original compass mark (not a Poké Ball logo).
-    chamfer_box("PLAYER_V1_CAP_PANEL", 0, -.116,
-                [(1.539, .067, .011), (1.581, .078, .013)], materials["LIGHT"], collection)
+    chamfer_box("PLAYER_V1_CAP_PANEL", 0, -.122,
+                [(1.536, .074, .012), (1.582, .084, .014)], materials["LIGHT"], collection)
     polygon_prism("PLAYER_V1_CAP_BRIM", [
-        (-.137, -.078), (.137, -.078), (.157, -.165),
-        (.111, -.223), (-.111, -.223), (-.157, -.165),
-    ], 1.527, 1.544, materials["RED"], collection)
-    chamfer_box("PLAYER_V1_CAP_COMPASS", 0, -.134,
-                [(1.552, .010, .005), (1.576, .010, .005)], materials["BLACK"], collection)
+        (-.145, -.084), (.145, -.084), (.166, -.175),
+        (.116, -.239), (-.116, -.239), (-.166, -.175),
+    ], 1.525, 1.544, materials["RED"], collection)
+    chamfer_box("PLAYER_V1_CAP_COMPASS", 0, -.142,
+                [(1.552, .012, .006), (1.576, .012, .006)], materials["BLACK"], collection)
 
 
 def arms_and_hands(collection, materials):
@@ -412,6 +414,23 @@ def backpack(collection, materials):
     chamfer_box("PLAYER_V1_BACKPACK_POCKET", 0, .274,
                 [(.927, .098, .034), (.978, .108, .041),
                  (1.093, .105, .038)], materials["TRIM"], collection)
+    # Compact side pouches and a curved upper load make the backpack read as
+    # equipment, not a fused rectangular block.  All components remain
+    # separated for a later backpack bone/weight group.
+    for sign in (-1, 1):
+        chamfer_box(f"PLAYER_V1_BACKPACK_SIDE_POUCH_{sign}", sign * .158, .188,
+                    [(.947, .032, .045), (1.055, .040, .052), (1.132, .032, .043)],
+                    materials["BLACK"], collection)
+        chamfer_box(f"PLAYER_V1_BACKPACK_SIDE_TAB_{sign}", sign * .166, .219,
+                    [(1.031, .034, .018), (1.058, .032, .017)],
+                    materials["RED"], collection)
+        chamfer_box(f"PLAYER_V1_BACKPACK_RED_RAIL_{sign}", sign * .122, .278,
+                    [(.967, .012, .014), (1.205, .013, .015)],
+                    materials["RED"], collection)
+    ellipse("PLAYER_V1_BACKPACK_TOP", [
+        (0, .181, 1.239, .103, .066), (0, .190, 1.267, .101, .068),
+        (0, .194, 1.283, .075, .052),
+    ], materials["DARK"], collection, sides=12)
     for sign in (-1, 1):
         chamfer_box(f"PLAYER_V1_BAG_RED_STRIP_{sign}", sign * .119, .260,
                     [(.963, .012, .015), (1.177, .013, .015)], materials["RED"], collection)

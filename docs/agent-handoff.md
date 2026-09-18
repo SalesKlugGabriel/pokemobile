@@ -19,8 +19,9 @@
   gerador não toca `Terreno3D`, spawn ou cenas e o validador prova seed,
   costura de vértice, chunks negativos e colisão. Próximo gate: integrar só o
   terreno no WORLD_LAB e testar antes de qualquer vegetação.
-- A folha do Gabriel **agora está no repositório**: `docs/referencias/player_v1/folha-player-v1.png`. `docs/PLAYER_V1_AUDIT.md` fecha a Fase 1. Fase 2 produziu apenas `assets/characters/player_v1/player_v1.blend` e cinco previews Workbench, por scripts em `tools/blender/player/`; **sem GLB, rig, animação ou substituição da cápsula oficial**.
-- O turnaround foi inspecionado e **reprovado no gate visual**. O passe atual criou duas frentes espessas de jaqueta com lapelas e bolsos, mais painéis laterais reais nos tênis; a escala técnica continua 1,600 m, pés em 0, com 3.802 triângulos. Rosto, mãos, calça cargo e o volume orgânico do calçado continuam blockout. `player_v1.json` mantém `BLOCKOUT_NOT_READY`; seguirei refinando a malha antes de rigar. Não tratar os previews como asset aprovado.
+- A folha do Gabriel está em `docs/referencias/player_v1/folha-player-v1.png`. O Player V1 foi concluído como asset técnico isolado: `assets/characters/player_v1/player_v1.blend` (fonte), `player_v1.glb` (runtime), 1,600 m, pés em 0, frente −Z no Godot, 4.086 triângulos e 9 materiais. O export reduz 112 malhas-fonte a 9 malhas por material (355.896 bytes).
+- O asset possui rig humano de 25 ossos e Actions in-place `PLAYER_V1_IDLE`, `PLAYER_V1_WALK` e `PLAYER_V1_RUN`; os scripts modulares e o relatório estão em `tools/blender/player/` e `docs/PLAYER_V1_REPORT.md`. O teste Godot isolado `scripts/tests/teste_player_v1_glb.gd` passou **14 ok, 0 falhas**, inclusive cena com terreno/vegetação/rocha/Pokémon em `scenes/tests/player_v1_test.tscn`.
+- `player_v1.json` registra `GAME_READY_V1_PENDING_OFFICIAL_INTEGRATION`. Não substituí a cápsula do `TrainerController3D`: ajustar esse controlador de 1,75 m e a câmera é mudança de cena/contrato misto, portanto requer RFC/revisão de Claude.
 - Integração visual do player a 1,60 m precisa de revisão cruzada: `TrainerController3D` usa cápsula 1,75 m e `CameraTerceiraPessoa` ombro 1,5 m. Não alterei nenhum deles.
 
 ## Atualização Codex — 18/09: HUD de combate V3 isolada
