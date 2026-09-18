@@ -147,9 +147,9 @@ rodando** — não quando o código existe.
 | 11 | Wild Pokémon | ✅ | 17/09 · `RegraDeSpawn` + `IASelvagem3D` + `SpawnerSelvagem3D` · 63 conferências |
 | 12 | Combate 1v1 | ✅ | 18/09 · `RegraDeCombate` + `Combate1v1` · 34 conferências |
 | 13 | Combate → Mundo | ✅ | 18/09 · `RegraDeRetorno` + `RetornoAoMundo` · 50 conferências |
-| 14 | Surf | 🔵 próxima | |
-| 15 | Fly | ⬜ | |
-| 16 | TM/HM | ⬜ | `TrocaDeKit` já existe |
+| 14 | Surf | ✅ | 18/09 · `RegraDeTravessia` |
+| 15 | Fly | ✅ | 18/09 · zonas de voo e teto relativo |
+| 16 | TM/HM | 🔵 próxima | `TrocaDeKit` já existe |
 | 17 | Move Pool | ⬜ | `KitDeCombate` já existe |
 | 18 | Alpha | ⬜ | regras já existem |
 | 19 | Polimento | ⬜ | **Codex entra aqui** |

@@ -340,6 +340,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y = move_toward(velocity.y, 0.0, delta * 4.0)
 
 	move_and_slide()
+	_tick_travessia(delta)
 	rotation.y = Locomocao3D.girar_para(
 		rotation.y, velocity, delta, float(MovementProfile.obter(arquetipo)["giro"]))
 
@@ -421,6 +422,7 @@ func _obedecer(delta: float) -> void:
 		velocity.y = move_toward(velocity.y, 0.0, delta * 4.0)
 
 	move_and_slide()
+	_tick_travessia(delta)
 	# Em 1ª pessoa o CORPO segue a câmera, e não o movimento: quem olha pra
 	# esquerda está virado pra esquerda, mesmo andando de lado. É o contrário
 	# da 3ª pessoa, e é o que faz a mira bater com o que se vê (§22).
@@ -520,7 +522,117 @@ func _agir_como_selvagem(delta: float) -> void:
 		velocity.y = move_toward(velocity.y, 0.0, delta * 4.0)
 
 	move_and_slide()
+	_tick_travessia(delta)
 	rotation.y = Locomocao3D.girar_para(rotation.y, velocity, delta)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fases 14 e 15 — travessia: água e ar
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Fôlego, quando submerso. Cheio fora d'água.
+var oxigenio : float = Mergulho.OXIGENIO_MAXIMO
+
+## Está com a cabeça debaixo d'água? Quem decide é o jogador (afundar), mas o
+## consumo e o afogamento são consequência.
+var mergulhando : bool = false
+
+## A zona em que ele está — é dela que sai a regra de voo (§29). Vazia = voo
+## livre, que é o padrão mais permissivo e o menos surpreendente.
+var zona : Dictionary = {}
+
+signal oxigenio_mudou(atual: float, maximo: float)
+signal afogou()
+
+## A superfície embaixo dele, agora. Vem do terreno, que é a fonte única da
+## geografia — não de uma segunda tabela pra alguém manter em sincronia.
+func superficie_atual() -> String:
+	return Terreno3D.superficie_em(global_position.x, global_position.z)
+
+func profundidade_atual() -> String:
+	return RegraDeTravessia.profundidade_em(
+		Terreno3D.altura_em(global_position.x, global_position.z))
+
+func pode_mergulhar_aqui() -> bool:
+	return RegraDeTravessia.pode_mergulhar(
+		arquetipo, Terreno3D.altura_em(global_position.x, global_position.z))
+
+## Um quadro de travessia: água que barra quem não nada, oxigênio de quem está
+## submerso, e teto pra quem voa.
+##
+## ⚠️ **Roda DEPOIS do `move_and_slide`**, de propósito: é uma correção do que
+## aconteceu, não uma previsão. Prever daria dois lugares decidindo pra onde o
+## corpo vai — e dois lugares decidindo é como eles passam a discordar.
+func _tick_travessia(delta: float) -> void:
+	var sup := superficie_atual()
+
+	# Fase 14: água profunda barra quem não nada. Empurra de volta em vez de
+	# travar, porque parede invisível na beira d'água é pior que ser devolvido.
+	#
+	# 🔴 `_tem_lugar_seco` não é zelo: sem ele, quem **nasce** na água era
+	# devolvido pro valor inicial de `_ultima_posicao_seca`, que era
+	# `Vector3.ZERO` — ou seja, **teleportado pra origem do mundo**. O
+	# `teste_nascimento_v3.gd` pegou na primeira rodada da suíte: um corpo criado
+	# a 300 m apareceu em (0, 13.5, 0).
+	#
+	# É a mesma família do zero silencioso: um valor padrão que parece inofensivo
+	# e vira comportamento. Agora o recuo só acontece se houver pra onde recuar.
+	if not RegraDeTravessia.pode_estar_em(arquetipo, sup):
+		if _tem_lugar_seco:
+			var recuo := Vector3(global_position.x - _ultima_posicao_seca.x, 0.0,
+								global_position.z - _ultima_posicao_seca.z)
+			if recuo.length() > 0.01:
+				global_position.x = _ultima_posicao_seca.x
+				global_position.z = _ultima_posicao_seca.z
+				velocity.x = 0.0
+				velocity.z = 0.0
+	elif not RegraDeTravessia.e_agua(sup):
+		_ultima_posicao_seca = global_position
+		_tem_lugar_seco = true
+
+	# Oxigênio. Só conta submerso — boiar não cansa.
+	var antes := oxigenio
+	if mergulhando:
+		var prof := profundidade_atual()
+		if prof == "":
+			mergulhando = false
+		else:
+			oxigenio = Mergulho.consumir(oxigenio, delta, prof, _tem_roupa_de_mergulho)
+			if Mergulho.afogou(oxigenio):
+				mergulhando = false
+				sofrer(int(round(float(vida_maxima) * Mergulho.DANO_AO_AFOGAR)), null)
+				afogou.emit()
+	else:
+		oxigenio = Mergulho.recuperar(oxigenio, delta)
+	if not is_equal_approx(antes, oxigenio):
+		oxigenio_mudou.emit(oxigenio, Mergulho.OXIGENIO_MAXIMO)
+
+	# Fase 15: teto de voo, relativo ao terreno logo abaixo.
+	if MovementProfile.voa(arquetipo):
+		var chao := Terreno3D.altura_em(global_position.x, global_position.z)
+		var teto := RegraDeTravessia.altitude_maxima(chao, zona)
+		if global_position.y > teto:
+			global_position.y = teto
+			velocity.y = minf(velocity.y, 0.0)
+
+## O último lugar onde ele estava fora da água profunda — o ponto de devolução.
+## Só vale depois de ele ter estado em algum lugar seco de verdade.
+var _ultima_posicao_seca : Vector3 = Vector3.ZERO
+var _tem_lugar_seco : bool = false
+var _tem_roupa_de_mergulho : bool = false
+
+## Afunda ou emerge. Devolve `{"pode", "motivo"}` — motivo em português.
+func alternar_mergulho() -> Dictionary:
+	if mergulhando:
+		mergulhando = false
+		return {"pode": true, "motivo": ""}
+	if not pode_mergulhar_aqui():
+		if not RegraDeTravessia.e_agua(superficie_atual()):
+			return {"pode": false, "motivo": "Você não está na água."}
+		if not MovementProfile.nada(arquetipo):
+			return {"pode": false, "motivo": "Este Pokémon não nada."}
+		return {"pode": false, "motivo": "A água aqui é rasa demais pra mergulhar."}
+	mergulhando = true
+	return {"pode": true, "motivo": ""}
 
 ## §6: acompanhar o treinador. A DECISÃO é da `RegraDeAcompanhar`; aqui só se
 ## executa — é o que permite provar o comportamento sem subir física.
@@ -570,6 +682,7 @@ func _seguir(delta: float) -> void:
 		velocity.y = (altura_de_voo - global_position.y) * 2.0
 
 	move_and_slide()
+	_tick_travessia(delta)
 	rotation.y = Locomocao3D.girar_para(
 		rotation.y, velocity, delta, float(MovementProfile.obter(arquetipo)["giro"]))
 

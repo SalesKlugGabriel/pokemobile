@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **120 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **121 arquivos, 0 com falha**
 
 ---
 
@@ -37,8 +37,8 @@ verdade.
 | 11 | **Wild Pokémon** | ✅ 17/09 · `RegraDeSpawn` + `IASelvagem3D` + `SpawnerSelvagem3D` · 63 conferências |
 | 12 | **Combate 1v1** | ✅ 18/09 · `RegraDeCombate` + `Combate1v1` · 34 conferências |
 | 13 | **Combate → Mundo** | ✅ 18/09 · `RegraDeRetorno` + `RetornoAoMundo` · 50 conferências · **o laço da fantasia está fechado** |
-| 14–15 | Surf · Fly | 🔵 **próximas** |
-| 16–18 | TM/HM · Move Pool · Alpha | ⬜ · as regras já existem na V2 |
+| 14–15 | **Surf · Fly** | ✅ 18/09 · `RegraDeTravessia` · 44 conferências |
+| 16–18 | TM/HM · Move Pool · Alpha | 🔵 **próximas** · as regras já existem na V2 |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** |
 | 20 | Performance | ⬜ |
 
@@ -78,8 +78,8 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Bloqueado? |
 |---|---|---|
-| 1 | Fases 14 e 15 — Surf e Fly | não — **são as próximas** |
-| 2 | Fases 16 a 18 (TM/HM, Move Pool, Alpha) | as regras já existem na V2 |
+| 1 | Fases 16 a 18 — TM/HM, Move Pool, Alpha | não — **são as próximas**; as regras já existem na V2 |
+| 2 | Fases 19 e 20 — polimento (Codex) e performance | depois |
 | 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
 
 ---
@@ -199,6 +199,9 @@ o plano atual para não atrasar o projeto"*. Ficam aqui pra não virarem folclor
 | **Os dois caindo no mesmo quadro é DERROTA** | Vitória com o próprio Pokémon desmaiado não existe. Perder empatado é perder |
 | **Só a DERROTA devolve o controle** (18/09) | Vencer e a briga se desfazer não devolvem nada — no mundo aberto o jogador continua sendo o Pokémon até decidir o contrário. Forçar a volta a cada vitória viraria uma sequência de telas de transição |
 | **Com hostil por perto, não dá pra voltar ao treinador** | Senão o corpo do treinador vira **saída de emergência**: cinco mobs em cima, aperta T, o perigo evapora. Isso esvaziaria o pilar do "mundo perigoso" — e o Gabriel acabou de reforçar que 1v5 e 1v10 acontecem |
+| **Surfar é ASSUMIR um Pokémon que nada** (18/09) | Não existe "o treinador em cima de um bicho": existe o jogador *sendo* o bicho, com o `MovementProfile` dele. Mesma transferência da Fase 7. Voar é idêntico, com outro arquétipo |
+| **Terrestre anda em água RASA, e é barrado na profunda** | Barrar a rasa criaria parede invisível justo na borda da praia, onde o jogador mais anda. E é a profunda que dá sentido ao Surf |
+| **Teto de voo é RELATIVO ao terreno** | Absoluto faria esbarrar num limite invisível ao subir a montanha, e voar mais alto no vale do que no pico |
 | **Classe pura nunca cita autoload — e nó também não deveria** | `PonteDeFeedback` citado direto no `ControlModeManager` derrubou a carga da classe inteira num teste `--script`: `new()` passou a responder "função inexistente". Mesma lição do `RNGManager` na Fase 11, em outro autoload |
 | **Toda briga tem prazo** (20 s sem ninguém apanhar = desfaz) | Dois lutadores presos em lados opostos de uma pedra ficariam "em combate" pra sempre, e o jogador nunca recuperaria o treinador |
 | **Modelo ausente cai no primitivo E AVISA** | Asset faltando que aparece como cápsula silenciosa é zero silencioso |
