@@ -193,16 +193,25 @@ def head_and_hat(collection, materials):
         # The sheet has large dark, vertical eyes with one compact highlight —
         # not white square sclerae.  Keeping the eye as a separate shallow mesh
         # leaves room for later facial states without making the head realistic.
-        ellipse(f"PLAYER_V1_EYE_{sign}", [
-            (sign * .045, -.100, 1.432, .015, .006),
-            (sign * .045, -.102, 1.449, .027, .008),
-            (sign * .045, -.102, 1.478, .028, .009),
-            (sign * .045, -.100, 1.492, .018, .006),
-        ], materials["BLACK"], collection, sides=10)
-        chamfer_box(f"PLAYER_V1_EYE_HIGHLIGHT_{sign}", sign * .039, -.109,
-                    [(1.466, .007, .003), (1.478, .007, .003)], materials["LIGHT"], collection)
-        chamfer_box(f"PLAYER_V1_BROW_{sign}", sign * .046, -.096,
-                    [(1.499, .026, .005), (1.503, .027, .005)], materials["HAIR"], collection)
+        eye_x = sign * .045
+        # Eye decals are intentionally flat against the face: a stylized dark
+        # almond reads at distance and does not turn into a pair of goggles in
+        # profile. Later expressions can replace these named meshes.
+        eye_vertices = [
+            (eye_x - .023, -.101, 1.485), (eye_x + .023, -.101, 1.485),
+            (eye_x + .028, -.102, 1.455), (eye_x + .010, -.103, 1.430),
+            (eye_x - .018, -.102, 1.438), (eye_x - .028, -.102, 1.462),
+        ]
+        eye_face = (0, 1, 2, 3, 4, 5) if sign > 0 else (5, 4, 3, 2, 1, 0)
+        mesh(f"PLAYER_V1_EYE_{sign}", eye_vertices, [eye_face], materials["BLACK"], collection)
+        mesh(f"PLAYER_V1_EYE_HIGHLIGHT_{sign}", [
+            (eye_x - .010, -.104, 1.472), (eye_x - .002, -.104, 1.472),
+            (eye_x - .002, -.104, 1.480), (eye_x - .010, -.104, 1.480),
+        ], [(0, 1, 2, 3) if sign > 0 else (3, 2, 1, 0)], materials["LIGHT"], collection)
+        mesh(f"PLAYER_V1_BROW_{sign}", [
+            (eye_x - .025, -.101, 1.500), (eye_x + .025, -.101, 1.500),
+            (eye_x + .021, -.102, 1.506), (eye_x - .022, -.102, 1.506),
+        ], [(0, 1, 2, 3) if sign > 0 else (3, 2, 1, 0)], materials["HAIR"], collection)
     polygon_prism("PLAYER_V1_NOSE", [(-.013, -.100), (.013, -.100),
                                         (.004, -.133), (-.004, -.133)],
                   1.418, 1.441, materials["SKIN"], collection)
@@ -234,38 +243,40 @@ def head_and_hat(collection, materials):
 
 def arms_and_hands(collection, materials):
     for sign in (-1, 1):
-        shoulder = sign * .225
+        # A narrow adolescent shoulder line; the forearm falls with a modest
+        # outward angle rather than the parallel, action-figure silhouette.
+        shoulder = sign * .205
         tube(f"PLAYER_V1_SLEEVE_{sign}", [
-            ((shoulder, .003, 1.183), .077, .082),
-            ((sign * .273, .005, 1.116), .079, .078),
-            ((sign * .310, -.005, .956), .069, .067),
-            ((sign * .317, -.017, .836), .058, .055),
-            ((sign * .333, -.020, .728), .049, .048),
+            ((shoulder, .003, 1.183), .071, .078),
+            ((sign * .246, .005, 1.116), .074, .075),
+            ((sign * .277, -.005, .956), .066, .064),
+            ((sign * .289, -.017, .836), .055, .053),
+            ((sign * .303, -.020, .728), .047, .046),
         ], materials["BLUE"], collection, sides=12)
         tube(f"PLAYER_V1_CUFF_{sign}", [
-            ((sign * .332, -.020, .743), .055, .052),
-            ((sign * .338, -.022, .700), .054, .049),
+            ((sign * .302, -.020, .743), .052, .050),
+            ((sign * .307, -.022, .700), .051, .047),
         ], materials["LIGHT"], collection, sides=10)
         tube(f"PLAYER_V1_WRIST_{sign}", [
-            ((sign * .338, -.022, .707), .039, .038),
-            ((sign * .342, -.026, .661), .041, .038),
+            ((sign * .307, -.022, .707), .038, .037),
+            ((sign * .311, -.026, .661), .039, .037),
         ], materials["SKIN"], collection, sides=10)
         tube(f"PLAYER_V1_GLOVE_{sign}", [
-            ((sign * .342, -.025, .677), .051, .044),
-            ((sign * .348, -.030, .625), .054, .042),
-            ((sign * .354, -.029, .591), .048, .036),
+            ((sign * .311, -.025, .677), .048, .042),
+            ((sign * .317, -.030, .625), .051, .040),
+            ((sign * .322, -.029, .591), .045, .034),
         ], materials["DARK"], collection, sides=10)
         tube(f"PLAYER_V1_GLOVE_RED_{sign}", [
-            ((sign * .342, -.024, .679), .053, .046),
-            ((sign * .343, -.025, .670), .054, .046),
+            ((sign * .311, -.024, .679), .050, .044),
+            ((sign * .312, -.025, .670), .051, .044),
         ], materials["RED"], collection, sides=10)
         # Broad palm plus four exposed knuckles: visible from the game camera,
         # while still small enough to rig as one hand in V1.
-        chamfer_box(f"PLAYER_V1_PALM_{sign}", sign * .354, -.030,
-                    [(.574, .050, .035), (.611, .056, .040), (.632, .047, .034)],
+        chamfer_box(f"PLAYER_V1_PALM_{sign}", sign * .322, -.030,
+                    [(.574, .047, .034), (.611, .052, .038), (.632, .044, .032)],
                     materials["DARK"], collection)
         for finger in range(4):
-            x = sign * (.316 + finger * .024)
+            x = sign * (.288 + finger * .023)
             tube(f"PLAYER_V1_FINGER_{sign}_{finger}", [
                 ((x, -.052, .586), .012, .012),
                 ((x, -.057, .553), .010, .011),
@@ -298,6 +309,14 @@ def shoe(sign, collection, materials):
     polygon_prism(f"PLAYER_V1_SHOE_TOE_{sign}", toe, .095, .121, materials["RED"], collection)
     chamfer_box(f"PLAYER_V1_SHOE_HEEL_{sign}", x, .080,
                 [(.098, .050, .034), (.164, .044, .031)], materials["RED"], collection)
+    # A high-top tongue and collar create the red/white running-shoe read at
+    # gameplay distance, instead of a generic black boot.
+    chamfer_box(f"PLAYER_V1_SHOE_TONGUE_{sign}", x, -.045,
+                [(.136, .034, .040), (.194, .030, .036)], materials["RED"], collection)
+    tube(f"PLAYER_V1_SHOE_COLLAR_{sign}", [
+        ((x, .043, .143), .049, .043),
+        ((x, .043, .171), .045, .040),
+    ], materials["RED"], collection, sides=10)
     # Pale laces on the front slope: three intentionally bold strokes.
     for idx in range(3):
         y = -.080 + idx * .041
@@ -309,7 +328,7 @@ def shoe(sign, collection, materials):
 
 def legs_and_shoes(collection, materials):
     for sign in (-1, 1):
-        x = sign * .116
+        x = sign * .108
         ellipse(f"PLAYER_V1_CARGO_LEG_{sign}", [
             # The lower leg narrows into a visible ankle instead of a single
             # vertical black block.  The shifted knee gives the cargo trouser a
@@ -322,7 +341,7 @@ def legs_and_shoes(collection, materials):
             (x * .88, .008, .815, .118, .118),
         ], materials["PANTS"], collection, sides=14)
         # Tapered cargo pocket is outside the thigh, not painted on it.
-        pocket_x = sign * .222
+        pocket_x = sign * .205
         chamfer_box(f"PLAYER_V1_CARGO_POCKET_{sign}", pocket_x, -.003,
                     [(.536, .024, .047), (.588, .029, .052), (.637, .026, .049)],
                     materials["DARK"], collection)

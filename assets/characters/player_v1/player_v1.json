@@ -6,8 +6,8 @@
   "feet_z_m": 0.0,
   "bounds_m": {
     "x": [
-      -0.41,
-      0.41
+      -0.374,
+      0.374
     ],
     "y": [
       -0.273,
@@ -20,9 +20,9 @@
   },
   "front_in_blender": "-Y",
   "front_target_in_godot": "-Z",
-  "mesh_objects": 86,
-  "triangle_count": 3760,
-  "vertex_count": 2052,
+  "mesh_objects": 90,
+  "triangle_count": 3640,
+  "vertex_count": 2008,
   "materials": [
     "PLAYER_V1_MAT_BLACK",
     "PLAYER_V1_MAT_BLUE",
