@@ -153,7 +153,7 @@ rodando** — não quando o código existe.
 | 17 | Move Pool | ✅ | 18/09 · `RegraDeMovePool` · conhecidos / equipados / ativos · 59 conferências · 🔴 **o kit da V3 estava vazio no jogo inteiro** |
 | 18 | Alpha | ✅ | 18/09 · `RegraDeAlpha` · sorteio próprio + curadoria por espécie · 58 conferências · 🔴 **nunca tinha nascido um** · raridade 2%/0,5%/+0,1% por elite (Gabriel, 18/09) |
 | 19 | Polimento | ⬜ | **Codex entra aqui** |
-| 20 | Performance | ⬜ | |
+| 20 | Performance | 🟡 | 18/09 · `RegraDeRitmo` — LOD de **lógica** · 62,5% menos IA no cenário de mundo aberto · 33 conferências · o FPS em navegador continua pendente, e é medição do Gabriel |
 
 **Não pular fase.** A ordem existe porque cada uma depende da anterior estar de
 pé — e porque pular é como se constrói seis sistemas pela metade.

@@ -378,7 +378,16 @@ func _physics_process(delta: float) -> void:
 		return
 
 	if selvagem:
-		_agir_como_selvagem(delta)
+		# Fase 20 — LOD de lógica. Quem está em jogo pensa todo quadro; quem
+		# está ocioso e longe pensa de vez em quando. Ver `RegraDeRitmo`.
+		_quadro_de_ritmo += 1
+		if not RegraDeRitmo.deve_pensar(_quadro_de_ritmo, _distancia_do_jogador(),
+				_protegido_do_ritmo(), int(get_instance_id())):
+			_pulados += 1
+			return
+		var pulados : int = _pulados
+		_pulados = 0
+		_agir_como_selvagem(RegraDeRitmo.delta_acumulado(delta, pulados), pulados)
 		return
 
 	var base := Basis(Vector3.UP, rotation.y)
@@ -538,7 +547,49 @@ func virar_selvagem(hostil: Node3D = null) -> void:
 ## A decisão inteira está em `IASelvagem3D.decidir`, que é pura — então o
 ## comportamento das sete personalidades se prova sem subir mundo, e o que
 ## sobra aqui é só mover o corpo.
-func _agir_como_selvagem(delta: float) -> void:
+## Fase 20 — o ritmo. Contados por corpo, não globais: dois bichos em distâncias
+## diferentes pulam quadros diferentes.
+var _quadro_de_ritmo : int = 0
+var _pulados : int = 0
+
+## A velocidade de fato entregue ao `move_and_slide` no último passo — já com a
+## compensação de quadros pulados.
+##
+## Existe pra ser **medível**: `move_and_slide()` chamado fora do passo de
+## física real (que é o caso de um teste `--script`) não desloca o corpo, então
+## deslocamento não serve de prova em headless. Isto serve, e é exatamente o
+## número que a compensação decide.
+var ultimo_avanco : Vector3 = Vector3.ZERO
+
+## A que distância está o jogador. `alvo_hostil` é quem o spawner apontou como
+## hostil no nascimento — é o jogador, e continua sendo mesmo quando o bicho
+## ainda não o notou. Sem referência, devolve 0: **na dúvida, pensa todo
+## quadro.** Falhar pro lado caro é o único lado seguro aqui; falhar pro lado
+## barato seria um bicho congelado sem ninguém entender por quê.
+func _distancia_do_jogador() -> float:
+	if alvo_hostil == null or not is_instance_valid(alvo_hostil):
+		return 0.0
+	var d := alvo_hostil.global_position - global_position
+	return Vector2(d.x, d.z).length()
+
+## Quem nunca desacelera, por mais longe que esteja.
+##
+## O critério é **envolve o jogador**, não "está se mexendo". A diferença
+## importa, e eu errei nela primeiro: protegendo todo estado ≠ PARADO, a
+## economia só alcançaria quem já estava parado — e `VOLTAR`, que é um bicho
+## andando pra casa longe da vista, ficaria protegido à toa.
+##
+## Protegidos: perseguir, atacar, fugir (os três são o jogador), mais provocado
+## e quem está no meio de um aviso de golpe. `VOLTAR` e `PARADO` não entram:
+## são serviço interno, e é neles que a economia vive.
+func _protegido_do_ritmo() -> bool:
+	if provocado or esta_anunciando():
+		return true
+	return estado_selvagem == IASelvagem3D.PERSEGUIR \
+		or estado_selvagem == IASelvagem3D.ATACAR \
+		or estado_selvagem == IASelvagem3D.FUGIR
+
+func _agir_como_selvagem(delta: float, quadros_pulados: int = 0) -> void:
 	# 🔴 REMOVIDO em 18/09, e vale registrar por quê.
 	#
 	# Aqui existia uma trava que fazia o terceiro selvagem LARGAR o alvo quando
@@ -590,7 +641,21 @@ func _agir_como_selvagem(delta: float) -> void:
 	else:
 		velocity.y = move_toward(velocity.y, 0.0, delta * 4.0)
 
-	move_and_slide()
+	# Fase 20 — quem pulou quadros precisa andar o que deixou de andar.
+	# `move_and_slide` usa o passo de física do MOTOR, não o nosso delta, então
+	# a compensação vai na velocidade e é desfeita logo depois: deixá-la
+	# multiplicada faria o próximo quadro herdar uma velocidade inflada, e o
+	# bicho sairia disparado ao se aproximar do jogador.
+	var fator : float = RegraDeRitmo.fator_de_avanco(quadros_pulados)
+	if fator > 1.0:
+		var guardada := velocity
+		velocity *= fator
+		ultimo_avanco = velocity
+		move_and_slide()
+		velocity = guardada
+	else:
+		ultimo_avanco = velocity
+		move_and_slide()
 	_tick_travessia(delta)
 	rotation.y = Locomocao3D.girar_para(rotation.y, velocity, delta)
 

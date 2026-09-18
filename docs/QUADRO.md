@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **124 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **125 arquivos, 0 com falha**
 
 ---
 
@@ -42,10 +42,11 @@ verdade.
 | 17 | **Move Pool** | ✅ 18/09 · `RegraDeMovePool` · **conhecidos / equipados / ativos** · 59 conferências · 🔴 achou o kit vazio |
 | 18 | **Alpha** | ✅ 18/09 · `RegraDeAlpha` · 58 conferências · 🔴 **nunca tinha nascido um** · raridade fixada pelo Gabriel |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** |
-| 20 | Performance | ⬜ |
+| 20 | **Performance** | 🟡 18/09 · `RegraDeRitmo` · **LOD de lógica**, 62,5% menos IA · 33 conferências · **falta medir FPS em navegador — é do Gabriel** |
 
-**As 18 primeiras fases estão fechadas** — a migração de regras acabou. Sobram a
-19 (polimento, do Codex) e a 20 (performance).
+**As 18 primeiras fases estão fechadas** — a migração de regras acabou. A 20 tem
+a metade que é minha feita (custo de lógica); a outra metade é desenho, e depende
+da 19 (Codex) existir pra ter o que medir.
 
 **Não pular fase.** A ordem existe porque cada uma depende da anterior estar de
 pé — e porque pular é como se constrói seis sistemas pela metade.
@@ -83,7 +84,7 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Bloqueado? |
 |---|---|---|
-| 1 | Fase 20 — performance | não — **é a próxima minha**, e a última da migração |
+| 1 | Fase 20 — a metade de DESENHO (vegetação, modelos, sombra) | **sim** — depende da Fase 19 do Codex existir pra ter o que medir |
 | 1b | Ligar `permissoes_do_jogador()` na mochila de verdade quando a V3 tiver save | sim — depende do save da V3 |
 | 1c | Ligar `capturavel` na pokébola da V3 (hoje ninguém captura em 3D) | sim — a captura em 3D ainda não existe |
 | 1d | Fazer a contagem de elites derrotados **sobreviver a salvar/carregar** (hoje vive só no spawner) | sim — depende do save da V3 |

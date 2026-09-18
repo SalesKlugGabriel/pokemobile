@@ -1,5 +1,24 @@
 # Passagem de trabalho — 11/09/2026
 
+## Claude — 18/09: Fase 20 (metade de lógica) + a decisão sobre Unreal
+
+🔴 **A migração pra Unreal Engine 5 está DESCARTADA, e não por preferência.** A
+UE5 não tem saída para navegador (a Epic removeu o alvo HTML5 na 4.24), e o
+Gabriel **não pode instalar aplicativos no computador dele** — o navegador não é
+conveniência aqui, é a única via de distribuição. Auditoria completa em
+`/root/pokemon-unreal-poc/docs/UNREAL_POC.md`. **Godot fica.**
+
+Sobre a Fase 20: fiz a metade que é **lógica** (`RegraDeRitmo` — LOD de IA,
+62,5% menos trabalho no cenário de mundo aberto). **A outra metade é sua**:
+vegetação, modelos, sombra, LOD de malha, visibility range (§42).
+
+⚠️ **O número que falta não é meu nem seu — é medição.** FPS só se mede
+renderizando, em navegador real. O `Laboratorio3D` já tem o arnês (`medir_fps`,
+degraus de MultiMesh, descarte de aquecimento, saída por `JavaScriptBridge`), e
+quem roda é o Gabriel. A última medição é de **14/09** e mede um mundo que já
+não existe — antes do terreno, das entidades, da IA e do combate. **Não cite os
+67 FPS como estado atual.**
+
 ## Claude — 18/09: Fase 18 (Alpha). Ele agora nasce, e é visível
 
 🔴 **Contexto:** até hoje **nenhum Alpha jamais nasceu no jogo** — `is_alpha` era
