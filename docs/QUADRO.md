@@ -89,6 +89,7 @@ posicionar é o caminho que catapulta o jogador.
 | # | O quê | Quando |
 |---|---|---|
 | 0 | 🔴 **PLAYER 3D V1** — o modelo definitivo do treinador, pedido do Gabriel com folha de concept art | **prioridade** · `docs/agent-proposals/gabriel/2026-09-18-player-3d-v1.md` |
+| 0b | 🔴 **WORLD FACTORY V1** — fábrica determinística de mundo (terreno, biomas, rochas, árvores, caminhos). **Começa por auditoria, não por asset** | `docs/agent-proposals/gabriel/2026-09-18-world-factory-v1.md` |
 | 1 | **Qualidade gráfica do mundo 3D** — terreno, vegetação, árvores, grama, água | agora, em paralelo |
 | 2 | Modelos de Pokémon em volume | agora · contrato em `POKEMON_MODEL_PIPELINE.md` |
 | 3 | HUD de combate: cooldown do básico e das 4 skills, telegrafe do aviso | quando quiser — a API já entrega tudo (ver abaixo) |
@@ -108,6 +109,21 @@ posicionar é o caminho que catapulta o jogador.
 **A tela não recalcula nada disso.** Se faltar um número, o Codex **descreve o
 dado** e o Claude implementa com fonte e confiança declaradas — a conta acontece
 no backend, nunca na tela.
+
+### 🔴 A pergunta que trava as DUAS tarefas novas: qual é a altura do player?
+
+| Fonte | Diz |
+|---|---|
+| A folha de concept art do Gabriel (18/09) | **1,60 m** |
+| `TrainerController3D` (cápsula e malha) | **1,75 m** |
+| O `player.glb` de 14–15/09, medido | **1,750 m** |
+
+A altura do player é o **denominador de tudo**: árvore de 8 m, pedra de 50 cm,
+largura de caminho, altura de caverna, enquadramento de câmera. Escolher errado
+obriga a refazer a fábrica de mundo inteira.
+
+**Pergunte ao Gabriel antes da FASE 1 das duas tarefas.** E, decidido, **o código
+muda junto** — ninguém tinha notado a divergência até 18/09.
 
 ### ⚠️ Sobre o PLAYER 3D V1, antes de começar
 
