@@ -37,3 +37,46 @@ E a regra que ele grifou: **low-poly não é baixa qualidade.**
 
 Atualize `docs/QUADRO.md` na mesma sessão — regra dele de 17/09. Você já está
 listado lá como dono do item 0 (prioridade).
+
+---
+
+# 🔴 SEGUNDA TAREFA — WORLD / TERRAIN / BIOME FACTORY V1
+
+Leia: `docs/agent-proposals/gabriel/2026-09-18-world-factory-v1.md`
+(branch `agent/claude-v3`).
+
+O pedido original do Gabriel tinha 54 seções. O Claude **filtrou e anotou** a
+pedido dele, trocando os "investigue" pelos números já medidos nesta VPS e
+apontando as contradições em vez de repassá-las.
+
+## O que mudou em relação ao texto original
+
+**Cortado do V1:** cavernas inteiras (é uma segunda fábrica — a entrada vira
+placeholder), a CLI completa, LOD implementado, e a hierarquia de Kanto (é o
+passo DEPOIS da fábrica existir).
+
+**Acrescentado, porque o texto não sabia:**
+
+- `Terreno3D.altura_em(x,z)` é a **única fonte de verdade da geografia**, e
+  **quatro sistemas já dependem dela** — inclusive todo nascimento de selvagem
+  da Fase 11. A fábrica pode trocar a implementação; a função tem de continuar
+  respondendo, ou bicho passa a nascer dentro da montanha **sem dar erro**.
+- Os números medidos: `gl_compatibility`, **piso de 67 FPS com 20.000 instâncias
+  em MultiMesh** (desktop, navegador real, 14/09), `.pck` já em **55,5 MB**.
+- **A seed do mundo não pode usar o `RNGManager`** — ele existe pra uma partida
+  ser reproduzível, e gerar terreno consumindo sorteios dele empurraria de lado
+  captura, status e loot. É o mesmo bug que você achou em 14/09.
+- O trabalho manual que o gerador **não pode apagar**: 61 quests com
+  `location_tile`, ~30 NPCs posicionados, `zones.json`, e as 2.923 linhas do
+  `MapLayouts.gd`.
+
+## 🔴 Antes da FASE 1 das DUAS tarefas
+
+**Pergunte ao Gabriel qual é a altura do player.** A folha nova diz **1,60 m**; o
+código e o seu `player.glb` dizem **1,75 m**. É o denominador de toda a escala do
+mundo — árvore, pedra, caminho, caverna, câmera.
+
+## A primeira entrega NÃO é um asset
+
+É `docs/WORLD_PIPELINE_AUDIT.md`, com 9 perguntas específicas listadas no
+documento. **Pare ali e espere o Gabriel aprovar** antes de gerar geometria.
