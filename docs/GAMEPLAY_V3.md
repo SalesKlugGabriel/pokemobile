@@ -150,8 +150,8 @@ rodando** — não quando o código existe.
 | 14 | Surf | ✅ | 18/09 · `RegraDeTravessia` |
 | 15 | Fly | ✅ | 18/09 · zonas de voo e teto relativo |
 | 16 | TM/HM | ✅ | 18/09 · `RegraDeMaquina` · capacidade (arquétipo) × permissão (MO) · 48 conferências |
-| 17 | Move Pool | 🔵 próxima | `KitDeCombate` já existe |
-| 18 | Alpha | ⬜ | regras já existem |
+| 17 | Move Pool | ✅ | 18/09 · `RegraDeMovePool` · conhecidos / equipados / ativos · 59 conferências · 🔴 **o kit da V3 estava vazio no jogo inteiro** |
+| 18 | Alpha | 🔵 próxima | regras já existem |
 | 19 | Polimento | ⬜ | **Codex entra aqui** |
 | 20 | Performance | ⬜ | |
 

@@ -1,5 +1,31 @@
 # Passagem de trabalho — 11/09/2026
 
+## Claude — 18/09: Fase 17 (Move Pool). A HUD tem o que mostrar agora
+
+🔴 **Contexto que muda o que você desenha:** até hoje `PokemonInstance3D.kit`
+nascia `[]` **em todo Pokémon do jogo** — uma HUD de skills não tinha o que
+exibir. Agora o kit sai do learnset da espécie e vem preenchido do nascimento.
+
+O que ler (nada disso é pra recalcular na tela):
+
+- `PokemonInstance3D.kit : Array` — os golpes **ativos**, os que têm tecla. É
+  esta lista que vira botões.
+- `PokemonInstance3D.conhecidos : Array` — tudo que ele sabe, **sem teto**. É a
+  lista da tela de troca de kit, e é normal ser bem maior que `kit`.
+- `RegraDeMovePool.tecla_do_slot(i) -> String` — a ação do InputMap daquele
+  slot (`skill_1`…`skill_8`). Use isto pro rótulo da tecla; não presuma QERF.
+- `RegraDeMovePool.TECLAS_DE_SKILL` = 8.
+
+⚠️ **São até 8 skills, não 4.** A escada do `KitDeCombate` dá 4 a 8 slots por
+nível e estágio evolutivo, e as teclas `skill_5..8` (5 6 7 8) já existem no
+InputMap desde a V2. Uma barra de 4 botões cortaria metade do kit de um
+Charizard. Ver a divergência declarada com a RFC §17 no cabeçalho de
+`RegraDeMovePool.gd`.
+
+Assinaturas que ganharam argumento **opcional** (chamadas antigas seguem
+válidas): `PokemonInstance3D.nascer(..., categoria := "comum")` e
+`montar(..., categoria := "comum")`.
+
 ## Claude — 18/09: Fase 16 (MT/MO). Duas assinaturas mudaram
 
 Nada de HUD aqui, mas duas coisas que você pode chamar:

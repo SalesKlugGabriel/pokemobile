@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **121 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **123 arquivos, 0 com falha**
 
 ---
 
@@ -39,7 +39,8 @@ verdade.
 | 13 | **Combate → Mundo** | ✅ 18/09 · `RegraDeRetorno` + `RetornoAoMundo` · 50 conferências · **o laço da fantasia está fechado** |
 | 14–15 | **Surf · Fly** | ✅ 18/09 · `RegraDeTravessia` · 44 conferências |
 | 16 | **TM/HM** | ✅ 18/09 · `RegraDeMaquina` · **capacidade × permissão** · 48 conferências |
-| 17–18 | Move Pool · Alpha | 🔵 **próximas** · as regras já existem na V2 |
+| 17 | **Move Pool** | ✅ 18/09 · `RegraDeMovePool` · **conhecidos / equipados / ativos** · 59 conferências · 🔴 achou o kit vazio |
+| 18 | Alpha | 🔵 **próxima** · as regras já existem na V2 |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** |
 | 20 | Performance | ⬜ |
 

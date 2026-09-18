@@ -101,7 +101,12 @@ func tentar_nascer() -> Node3D:
 	if not RegraDeSpawn.distancia_segura(jogador.global_position, ponto):
 		return null
 
-	var bicho := PokemonInstance3D.nascer(self, id, nivel, ponto)
+	# Fase 17: a categoria decide quantos golpes ele carrega. Um elite ainda
+	# nasce como `comum` de propósito — "elite" e "alpha" são conceitos
+	# diferentes, e quem define o Alpha é a Fase 18. Ligar os dois aqui seria
+	# inventar a regra da fase seguinte no meio desta.
+	var bicho := PokemonInstance3D.nascer(self, id, nivel, ponto, "",
+		RegraDeMovePool.CATEGORIA_PADRAO)
 	bicho.virar_selvagem(jogador)
 	_vivos.append(bicho)
 	nasceu.emit(bicho, entrada, elite)

@@ -80,15 +80,17 @@ var _derrotado : bool = false
 ## catapulta o jogador, e o sintoma (personagem voando) não parece nada com a
 ## causa (ordem de duas linhas).
 static func nascer(pai: Node, id_especie: int, nv: int, posicao: Vector3,
-		arquetipo_pedido: String = "") -> PokemonInstance3D:
+		arquetipo_pedido: String = "",
+		categoria_de_encontro: String = RegraDeMovePool.CATEGORIA_PADRAO) -> PokemonInstance3D:
 	var e := PokemonInstance3D.new()
 	# A ordem é o ponto: posição ANTES de entrar na árvore.
 	e.position = posicao
 	pai.add_child(e)
-	e.montar(id_especie, nv, arquetipo_pedido)
+	e.montar(id_especie, nv, arquetipo_pedido, categoria_de_encontro)
 	return e
 
-func montar(id_especie: int, nv: int, arquetipo_pedido: String = "") -> void:
+func montar(id_especie: int, nv: int, arquetipo_pedido: String = "",
+		categoria_de_encontro: String = RegraDeMovePool.CATEGORIA_PADRAO) -> void:
 	# Onde o nó estava quando foi montado — a referência do detector de ordem.
 	_pos_ao_nascer = position
 	species_id = id_especie
@@ -111,10 +113,46 @@ func montar(id_especie: int, nv: int, arquetipo_pedido: String = "") -> void:
 	arquetipo = arquetipo_pedido if arquetipo_pedido != "" \
 		else str(esp.get("arquetipo", MovementProfile.GROUND_BIPED))
 
+	categoria = categoria_de_encontro
+	_montar_kit()
+
 	_montar_corpo()
 	_montar_visual()
 	add_to_group("pokemon_v3")
 	vida_mudou.emit(vida, vida_maxima)
+
+## Fase 17 — o kit sai do learnset da espécie, não de uma lista escrita à mão.
+##
+## Antes desta fase, `kit` nascia `[]` **em todo Pokémon do jogo** e ninguém
+## preenchia: as quatro teclas não faziam nada, sem erro. Ver o cabeçalho de
+## `RegraDeMovePool` pro achado inteiro.
+func _montar_kit() -> void:
+	if GameData == null:
+		return
+	var esp : Dictionary = GameData.get_species(species_id)
+	var pool : Dictionary = RegraDeMovePool.montar_pool(
+		species_id, nivel, GameData.get_learnable_moves(species_id, nivel),
+		GameData.moves, tipos, GameData.species, categoria, ensinados)
+	conhecidos = pool["conhecidos"]
+	kit = pool["ativos"]
+	if kit.is_empty():
+		push_warning("%s nasceu sem golpe nenhum — learnset vazio?" \
+			% str(esp.get("name", "#%d" % species_id)))
+
+## §31: usar uma máquina **ensina e não equipa**. Este é o ponto onde a Fase 16
+## e a Fase 17 se encontram — a MT deposita no pool, e o kit ativo só muda
+## quando alguém decidir trocar (`TrocaDeKit`, que cobra os 25 níveis quando é
+## MO). Devolve `{"golpe": id, "novo": bool}`; `golpe` vazio = a máquina não
+## ensina nada.
+func aprender_de_maquina(item: Dictionary) -> Dictionary:
+	var golpe := str(RegraDeMaquina.efeitos(item).get("golpe", ""))
+	if golpe.is_empty():
+		return {"golpe": "", "novo": false}
+	var r : Dictionary = RegraDeMovePool.aprender(conhecidos, golpe)
+	conhecidos = r["conhecidos"]
+	if bool(r["novo"]) and not (golpe in ensinados):
+		ensinados.append(golpe)
+	return {"golpe": golpe, "novo": bool(r["novo"])}
 
 ## Colisor e hurtbox saem do `CombatProfile`, **nunca do modelo** — ver o
 ## cabeçalho de lá pro motivo.
@@ -400,10 +438,17 @@ func _unhandled_input(evento: InputEvent) -> void:
 	if evento.is_action_pressed("ataque_basico"):
 		atacar()
 		return
-	# §18: Q E R F são as 4 skills — e `skill_1..4` no InputMap já mapeiam essas
-	# teclas (mais 1-4), desde a V2. Nada cravado aqui.
-	for i in 4:
-		if evento.is_action_pressed("skill_%d" % (i + 1)):
+	# §18: Q E R F são as 4 primeiras skills — e `skill_1..8` no InputMap já
+	# mapeiam essas teclas (mais 1-4), depois 5 6 7 8, desde a V2.
+	#
+	# 🔴 Fase 17: aqui era `for i in 4`, cravado. Um Charizard equipa 8 golpes
+	# pela escada do `KitDeCombate` e alcançaria 4 — metade do repertório
+	# inalcançável, sem aviso. O laço agora anda o kit que ele de fato tem.
+	for i in kit.size():
+		var tecla := RegraDeMovePool.tecla_do_slot(i)
+		if tecla.is_empty():
+			break            # kit maior que o teclado: não há tecla, e tudo bem
+		if evento.is_action_pressed(tecla):
 			usar_skill(i)
 			return
 
@@ -859,9 +904,20 @@ func atacar() -> Dictionary:
 # Fase 10 — as 4 skills
 # ──────────────────────────────────────────────────────────────────────────────
 
-## Os golpes nos slots, por id de `moves.json`. Quem monta o kit de verdade é
-## `KitDeCombate` (Fase 17); aqui é só a lista que a entidade usa.
+## Os golpes nos slots, por id de `moves.json` — a camada **ativa**, a que tem
+## tecla. Quem monta é `RegraDeMovePool` (Fase 17), a partir do learnset.
 var kit : Array = []
+
+## Tudo que ele sabe, sem teto — a camada **conhecida**. É daqui que a tela de
+## troca de kit escolhe, e é aqui que uma MT deposita o que ensinou.
+var conhecidos : Array = []
+
+## Golpes vindos de MT/MO. Entram no pool e **não equipam sozinhos** (§31).
+var ensinados : Array = []
+
+## Que tipo de encontro este bicho é: muda quantos slots ele carrega.
+## `jogador` usa a escada de capacidade; o resto usa a régua de selvagem.
+var categoria : String = RegraDeMovePool.CATEGORIA_PADRAO
 
 ## Último uso POR GOLPE, não por slot: trocar a ordem das skills não pode zerar
 ## cooldown. Ver `UsoDeSkill`.

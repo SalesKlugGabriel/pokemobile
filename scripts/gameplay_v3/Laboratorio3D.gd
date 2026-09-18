@@ -90,7 +90,10 @@ func _montar_pokemon() -> void:
 	for molde in TRIO_DE_TESTE:
 		var p := PokemonInstance3D.new()
 		add_child(p)
-		p.montar(int(molde["id"]), int(molde["nivel"]), str(molde["arquetipo"]))
+		# Fase 17: o trio do laboratório é do JOGADOR — carrega a escada de
+		# capacidade inteira (4 a 8 golpes), não a régua enxuta do selvagem.
+		p.montar(int(molde["id"]), int(molde["nivel"]), str(molde["arquetipo"]),
+			RegraDeMovePool.CATEGORIA_JOGADOR)
 		p.name = "Pokemon_%s" % p.nome_exibido
 		var onde : Vector2 = molde["onde"]
 		# Nasce SOBRE o terreno. Voador nasce no ar, que é onde ele vive.
