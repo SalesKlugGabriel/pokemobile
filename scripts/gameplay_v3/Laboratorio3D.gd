@@ -382,6 +382,29 @@ func _encerrar() -> void:
 
 ## Assumir o Pokémon. Devolve {"ok", "motivo"} — motivo em português, porque é
 ## ele que aparece na tela.
+## Fase 16: o que o jogador tem permissão de atravessar aqui.
+##
+## O laboratório é bancada de teste, então ele **concede as duas** — mas concede
+## por escrito, num lugar visível, em vez de deixar a permissão valer por
+## omissão. No mundo de verdade esta função lê a mochila:
+##
+##     RegraDeMaquina.permissoes_de(SaveManager.save_data["items"], GameData.items)
+##
+## Enquanto a V3 não tem mochila, a MOCHILA DE TESTE abaixo é a fonte — e o
+## caminho de leitura é o mesmo, então trocar uma pela outra não muda regra
+## nenhuma, só de onde vem a lista.
+const MOCHILA_DE_TESTE : Array[String] = ["hm02", "hm04"]
+
+func permissoes_do_jogador() -> Array:
+	var catalogo : Dictionary = {}
+	var dados := get_node_or_null("/root/GameData")
+	if dados != null:
+		catalogo = dados.items
+	if catalogo.is_empty():
+		# Sem catálogo carregado (teste headless), a bancada ainda precisa andar.
+		return [RegraDeMaquina.TRAVESSIA_AGUA, RegraDeMaquina.TRAVESSIA_AR]
+	return RegraDeMaquina.permissoes_de(MOCHILA_DE_TESTE, catalogo)
+
 func assumir_pokemon() -> Dictionary:
 	var pode : Dictionary = Transferencia.pode_assumir(companheiro, controle.modo)
 	if not bool(pode["pode"]):
@@ -395,7 +418,7 @@ func assumir_pokemon() -> Dictionary:
 	# A ORDEM importa: o Pokémon precisa estar registrado ANTES de virar o modo,
 	# senão existe um quadro sem dono nenhum do input.
 	controle.registrar(ControlModeManager.COMBAT, companheiro)
-	companheiro.assumir_controle(float(estado["yaw_herdado"]))
+	companheiro.assumir_controle(float(estado["yaw_herdado"]), permissoes_do_jogador())
 	controle.trocar_para(ControlModeManager.COMBAT)
 
 	if bool(estado["zerar_intencao_do_treinador"]):

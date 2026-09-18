@@ -149,8 +149,8 @@ rodando** — não quando o código existe.
 | 13 | Combate → Mundo | ✅ | 18/09 · `RegraDeRetorno` + `RetornoAoMundo` · 50 conferências |
 | 14 | Surf | ✅ | 18/09 · `RegraDeTravessia` |
 | 15 | Fly | ✅ | 18/09 · zonas de voo e teto relativo |
-| 16 | TM/HM | 🔵 próxima | `TrocaDeKit` já existe |
-| 17 | Move Pool | ⬜ | `KitDeCombate` já existe |
+| 16 | TM/HM | ✅ | 18/09 · `RegraDeMaquina` · capacidade (arquétipo) × permissão (MO) · 48 conferências |
+| 17 | Move Pool | 🔵 próxima | `KitDeCombate` já existe |
 | 18 | Alpha | ⬜ | regras já existem |
 | 19 | Polimento | ⬜ | **Codex entra aqui** |
 | 20 | Performance | ⬜ | |

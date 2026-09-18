@@ -350,7 +350,11 @@ func _physics_process(delta: float) -> void:
 
 ## Monta a câmera de 1ª pessoa com o perfil DESTA espécie (§19). Um Onix e um
 ## Rattata não podem ver o mundo da mesma altura.
-func assumir_controle(yaw_herdado: float) -> void:
+##
+## Fase 16: as permissões de travessia viajam JUNTO com o controle, e não ficam
+## penduradas numa chamada separada que dá pra esquecer. Elas são do jogador —
+## então entram quando o jogador entra e saem quando ele sai.
+func assumir_controle(yaw_herdado: float, permissoes_do_jogador: Array = []) -> void:
 	if camera == null:
 		camera = CameraPrimeiraPessoa.new()
 		camera.name = "CameraPrimeiraPessoa"
@@ -359,6 +363,7 @@ func assumir_controle(yaw_herdado: float) -> void:
 	camera.definir_yaw(yaw_herdado)
 	camera.camera.current = true
 	controlado_pelo_jogador = true
+	permissoes = permissoes_do_jogador.duplicate()
 	# Para de seguir: ele não pode acompanhar o treinador e obedecer o jogador
 	# ao mesmo tempo.
 	acompanha = null
@@ -367,6 +372,8 @@ func assumir_controle(yaw_herdado: float) -> void:
 
 func devolver_controle(volta_a_acompanhar: Node3D = null) -> void:
 	controlado_pelo_jogador = false
+	# A permissão é do jogador, e ele acabou de sair deste corpo.
+	permissoes = []
 	intencao = Vector2.ZERO
 	quer_correr = false
 	if camera != null and camera.camera != null:
@@ -576,7 +583,11 @@ func _tick_travessia(delta: float) -> void:
 	#
 	# É a mesma família do zero silencioso: um valor padrão que parece inofensivo
 	# e vira comportamento. Agora o recuo só acontece se houver pra onde recuar.
-	if not RegraDeTravessia.pode_estar_em(arquetipo, sup):
+	# Fase 16: e, se for o JOGADOR, também a permissão da MO (§30). Capacidade e
+	# permissão são perguntas diferentes — quem nada, nada; quem atravessa o mar
+	# precisa da MO. O selvagem nunca é consultado: exigir carteira de um bicho
+	# transformaria o mundo num cartório.
+	if not _pode_estar_aqui(sup):
 		if _tem_lugar_seco:
 			var recuo := Vector3(global_position.x - _ultima_posicao_seca.x, 0.0,
 								global_position.z - _ultima_posicao_seca.z)
@@ -613,6 +624,31 @@ func _tick_travessia(delta: float) -> void:
 		if global_position.y > teto:
 			global_position.y = teto
 			velocity.y = minf(velocity.y, 0.0)
+
+## As travessias que o JOGADOR liberou (Fase 16) — vem da mochila, via
+## `RegraDeMaquina.permissoes_de`. Vazio é o padrão e é restritivo de propósito:
+## permissão concedida por omissão não é permissão.
+##
+## Mora no corpo porque é o corpo que se move, mas pertence ao jogador: um
+## selvagem carrega a lista vazia e **nunca é perguntado** por ela.
+##
+## ⚠️ `Array` e não `Array[String]`: array tipado recusa `= []` vindo de fora com
+## *"Invalid set index"* em tempo de execução, e essa recusa não reprova teste —
+## ela aborta a função e o arquivo ainda sai com sucesso. Foi o que aconteceu ao
+## escrever esta fase. Tipo forte num campo que o mundo inteiro atribui troca um
+## erro impossível por um erro silencioso.
+var permissoes : Array = []
+
+## A pergunta completa da travessia. Selvagem responde só pela capacidade; o
+## jogador responde pelas duas.
+func _pode_estar_aqui(superficie: String) -> bool:
+	if not controlado_pelo_jogador:
+		return RegraDeTravessia.pode_estar_em(arquetipo, superficie)
+	return bool(RegraDeMaquina.pode_atravessar(arquetipo, superficie, permissoes)["pode"])
+
+## Por que não dá pra ir pra lá — em português, pra tela mostrar.
+func por_que_nao_atravessa(superficie: String) -> String:
+	return str(RegraDeMaquina.pode_atravessar(arquetipo, superficie, permissoes)["motivo"])
 
 ## O último lugar onde ele estava fora da água profunda — o ponto de devolução.
 ## Só vale depois de ele ter estado em algum lugar seco de verdade.

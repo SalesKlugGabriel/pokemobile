@@ -613,6 +613,7 @@
     "name": "MO01 Cortar",
     "category": "tm_hm",
     "teaches": "cut",
+    "unlocks": "",
     "price": 0,
     "single_use": false,
     "description": "Ensina Cortar. Não pode ser apagado."
@@ -622,18 +623,30 @@
     "name": "MO02 Voar",
     "category": "tm_hm",
     "teaches": "fly",
+    "unlocks": "ar",
     "price": 0,
     "single_use": false,
-    "description": "Ensina Voar. Não pode ser apagado."
+    "description": "Ensina Voar, e permite voar pelo mundo com um Pokémon que voe."
   },
   "hm03": {
     "id": "hm03",
     "name": "MO03 Força",
     "category": "tm_hm",
     "teaches": "strength",
+    "unlocks": "",
     "price": 0,
     "single_use": false,
     "description": "Ensina Força. Não pode ser apagado."
+  },
+  "hm04": {
+    "id": "hm04",
+    "name": "MO04 Surfar",
+    "category": "tm_hm",
+    "teaches": "surf",
+    "unlocks": "agua",
+    "price": 0,
+    "single_use": false,
+    "description": "Ensina Surfar, e permite atravessar água funda com um Pokémon que nade."
   },
   "tm13": {
     "id": "tm13",

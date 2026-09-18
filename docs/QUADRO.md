@@ -38,7 +38,8 @@ verdade.
 | 12 | **Combate 1v1** | ✅ 18/09 · `RegraDeCombate` + `Combate1v1` · 34 conferências |
 | 13 | **Combate → Mundo** | ✅ 18/09 · `RegraDeRetorno` + `RetornoAoMundo` · 50 conferências · **o laço da fantasia está fechado** |
 | 14–15 | **Surf · Fly** | ✅ 18/09 · `RegraDeTravessia` · 44 conferências |
-| 16–18 | TM/HM · Move Pool · Alpha | 🔵 **próximas** · as regras já existem na V2 |
+| 16 | **TM/HM** | ✅ 18/09 · `RegraDeMaquina` · **capacidade × permissão** · 48 conferências |
+| 17–18 | Move Pool · Alpha | 🔵 **próximas** · as regras já existem na V2 |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** |
 | 20 | Performance | ⬜ |
 
@@ -78,7 +79,8 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Bloqueado? |
 |---|---|---|
-| 1 | Fases 16 a 18 — TM/HM, Move Pool, Alpha | não — **são as próximas**; as regras já existem na V2 |
+| 1 | Fases 17 e 18 — Move Pool, Alpha | não — **são as próximas**; as regras já existem na V2 |
+| 1b | Ligar `permissoes_do_jogador()` na mochila de verdade quando a V3 tiver save | sim — depende do save da V3 |
 | 2 | Fases 19 e 20 — polimento (Codex) e performance | depois |
 | 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
 

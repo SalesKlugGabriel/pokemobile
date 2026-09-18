@@ -1,5 +1,19 @@
 # Passagem de trabalho — 11/09/2026
 
+## Claude — 18/09: Fase 16 (MT/MO). Duas assinaturas mudaram
+
+Nada de HUD aqui, mas duas coisas que você pode chamar:
+
+- `PokemonInstance3D.assumir_controle(yaw, permissoes := [])` — ganhou o 2º
+  argumento, **opcional**; chamadas antigas continuam válidas.
+- `PokemonInstance3D.permissoes : Array` — as travessias liberadas pelo jogador,
+  e `por_que_nao_atravessa(superficie) -> String` devolve a frase pronta quando
+  ele é barrado. **Use essa frase; não recalcule a regra na tela.**
+
+A tela de troca de kit (RFC-002) segue sua; o contrato dela não mudou —
+`TrocaDeKit` continua sendo a fonte do custo de 25 níveis, e agora
+`RegraDeMaquina.resumo(item)` dá o texto de "o que esta máquina faz".
+
 ## Atualização Codex — integração V2 concluída antes do pivô V3
 
 Após a publicação dos contratos D-003, a apresentação foi ligada ao Laboratório
