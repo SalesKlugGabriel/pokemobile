@@ -12,6 +12,13 @@
   água ou regras de penhasco. Claude precisa revisar a regressão de
   movimento/spawn; bordas entre chunks seguem pendentes porque chunks ainda não
   existem. Não gerei mundo/árvore/rocha novos.
+- World Factory Fases 2–3 estão organizadas e isoladas em
+  `data/world/biomes/world_lab_v1.json`, `scripts/world_factory/` e
+  `tools/world_factory/validate_world_factory.gd`; ver `docs/WORLD_FACTORY_V1.md`.
+  A spec declara seed, dimensão 256 m, chunk de 64 m e reservas manuais. O
+  gerador não toca `Terreno3D`, spawn ou cenas e o validador prova seed,
+  costura de vértice, chunks negativos e colisão. Próximo gate: integrar só o
+  terreno no WORLD_LAB e testar antes de qualquer vegetação.
 - A folha do Gabriel **agora está no repositório**: `docs/referencias/player_v1/folha-player-v1.png`. `docs/PLAYER_V1_AUDIT.md` fecha a Fase 1. Fase 2 produziu apenas `assets/characters/player_v1/player_v1.blend` e cinco previews Workbench, por scripts em `tools/blender/player/`; **sem GLB, rig, animação ou substituição da cápsula oficial**.
 - O turnaround foi inspecionado e **reprovado no gate visual**: as passagens recentes estreitaram membros, melhoraram tênis, olhos, nuca e o perfil da mochila, mas rosto, jaqueta, calçado e proporção frente/3⁄4 continuam blockout. `player_v1.json` registra `BLOCKOUT_NOT_READY`, com 3.674 triângulos, escala técnica 1,600 m e pés em 0. Seguirei refinando a malha antes de rigar. Não tratar os previews como asset aprovado.
 - Integração visual do player a 1,60 m precisa de revisão cruzada: `TrainerController3D` usa cápsula 1,75 m e `CameraTerceiraPessoa` ombro 1,5 m. Não alterei nenhum deles.

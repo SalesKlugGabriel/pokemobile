@@ -1,0 +1,43 @@
+{
+  "id": "world_lab_v1",
+  "version": 1,
+  "world_seed": 20260918,
+  "bounds_m": { "min_x": -128, "min_z": -128, "width": 256, "depth": 256 },
+  "terrain": {
+    "sample_step_m": 2,
+    "chunk_size_m": 64,
+    "sea_level_m": 0.0,
+    "max_walk_slope_deg": 46.0
+  },
+  "manual_reservations": [
+    {
+      "id": "player_spawn",
+      "kind": "spawn",
+      "center_m": [0, 30],
+      "radius_m": 10,
+      "rule": "keep_walkable"
+    },
+    {
+      "id": "forest_clearing",
+      "kind": "clearing",
+      "center_m": [-28, 12],
+      "radius_m": 15,
+      "rule": "exclude_scatter"
+    },
+    {
+      "id": "coastal_path",
+      "kind": "path",
+      "from_m": [-92, 8],
+      "to_m": [82, 30],
+      "half_width_m": 3,
+      "rule": "keep_walkable"
+    },
+    {
+      "id": "cave_placeholder",
+      "kind": "cave_entry",
+      "center_m": [72, -52],
+      "radius_m": 9,
+      "rule": "reserve_for_landmark"
+    }
+  ]
+}

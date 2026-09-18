@@ -83,7 +83,8 @@ As diferenças entre 32/64/128 m são pequenas nesta amostra. **64 m é candidat
 
 ## Próximo gate
 
-Antes de Fase 2, Claude revisa a regressão da RFC-006 e fecha o contrato de
-reservas manuais. A partir daí: spec e seed → terreno **sem vegetação** → teste
-do treinador no terreno → somente então rochas/árvores/grama. A auditoria não
-autoriza mudar banco ou build publicado.
+As Fases 2–3 foram iniciadas em implementação isolada: `world_lab_v1.json`,
+`WorldSpec`, `WorldTerrainFactory` e o validador reproduzível estão descritos em
+`docs/WORLD_FACTORY_V1.md`. A próxima entrega é a Fase 4: WORLD_LAB com o
+terreno, sem vegetação, para testar treinador, praia, relevo e colisão antes de
+rochas/árvores/grama. A auditoria não autoriza mudar banco ou build publicado.
