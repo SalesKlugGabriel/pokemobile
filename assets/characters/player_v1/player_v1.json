@@ -11,7 +11,7 @@
     ],
     "y": [
       -0.273,
-      0.385
+      0.315
     ],
     "z": [
       0.0,
@@ -20,9 +20,9 @@
   },
   "front_in_blender": "-Y",
   "front_target_in_godot": "-Z",
-  "mesh_objects": 90,
-  "triangle_count": 3640,
-  "vertex_count": 2008,
+  "mesh_objects": 95,
+  "triangle_count": 3674,
+  "vertex_count": 2035,
   "materials": [
     "PLAYER_V1_MAT_BLACK",
     "PLAYER_V1_MAT_BLUE",

@@ -212,9 +212,13 @@ def head_and_hat(collection, materials):
             (eye_x - .025, -.101, 1.500), (eye_x + .025, -.101, 1.500),
             (eye_x + .021, -.102, 1.506), (eye_x - .022, -.102, 1.506),
         ], [(0, 1, 2, 3) if sign > 0 else (3, 2, 1, 0)], materials["HAIR"], collection)
-    polygon_prism("PLAYER_V1_NOSE", [(-.013, -.100), (.013, -.100),
-                                        (.004, -.133), (-.004, -.133)],
-                  1.418, 1.441, materials["SKIN"], collection)
+    # A tiny faceted wedge, flush with the face; the earlier prism read as a
+    # floating cube in profile.
+    mesh("PLAYER_V1_NOSE", [
+        (-.011, -.101, 1.440), (.011, -.101, 1.440),
+        (.004, -.128, 1.424), (-.004, -.128, 1.424),
+        (0.0, -.098, 1.418),
+    ], [(0, 1, 2, 3), (0, 4, 1), (1, 4, 2), (2, 4, 3), (3, 4, 0)], materials["SKIN"], collection)
     chamfer_box("PLAYER_V1_MOUTH", 0, -.093,
                 [(1.370, .019, .004), (1.373, .018, .004)], materials["HAIR"], collection)
     # Three broad fringe wedges are a silhouette, not individual hairs.
@@ -224,6 +228,15 @@ def head_and_hat(collection, materials):
             (x - .002, -.112, 1.485 - idx * .004),
             (x - .035, -.067, 1.533), (x + .028, -.066, 1.527),
             (x - .002, -.099, 1.485 - idx * .004),
+        ], [(0, 1, 2), (3, 5, 4), (0, 3, 4, 1),
+            (1, 4, 5, 2), (2, 5, 3, 0)], materials["HAIR"], collection)
+    # Five broad nape locks prevent a helmet-like hairline in rear gameplay view.
+    for idx, x in enumerate((-.086, -.043, .000, .043, .086)):
+        mesh(f"PLAYER_V1_NAPE_LOCK_{idx}", [
+            (x - .028, .052, 1.522), (x + .028, .052, 1.522),
+            (x, .072, 1.438 - (abs(x) * .18)),
+            (x - .026, .083, 1.517), (x + .026, .083, 1.517),
+            (x, .104, 1.442 - (abs(x) * .18)),
         ], [(0, 1, 2), (3, 5, 4), (0, 3, 4, 1),
             (1, 4, 5, 2), (2, 5, 3, 0)], materials["HAIR"], collection)
     ellipse("PLAYER_V1_CAP_CROWN", [
@@ -363,30 +376,30 @@ def legs_and_shoes(collection, materials):
 
 def backpack(collection, materials):
     # Offset from torso; no shared vertices with the body.
-    chamfer_box("PLAYER_V1_BACKPACK_BODY", 0, .208,
-                [(.850, .118, .071), (.904, .153, .101),
-                 (1.185, .160, .107), (1.273, .143, .092),
-                 (1.305, .104, .073)], materials["DARK"], collection)
-    chamfer_box("PLAYER_V1_BACKPACK_POCKET", 0, .328,
-                [(.888, .102, .045), (.959, .116, .057),
-                 (1.100, .112, .052)], materials["TRIM"], collection)
+    chamfer_box("PLAYER_V1_BACKPACK_BODY", 0, .182,
+                [(.895, .110, .058), (.936, .145, .078),
+                 (1.161, .150, .083), (1.238, .132, .072),
+                 (1.265, .096, .056)], materials["DARK"], collection)
+    chamfer_box("PLAYER_V1_BACKPACK_POCKET", 0, .274,
+                [(.927, .098, .034), (.978, .108, .041),
+                 (1.093, .105, .038)], materials["TRIM"], collection)
     for sign in (-1, 1):
-        chamfer_box(f"PLAYER_V1_BAG_RED_STRIP_{sign}", sign * .126, .309,
-                    [(.938, .013, .018), (1.195, .014, .018)], materials["RED"], collection)
+        chamfer_box(f"PLAYER_V1_BAG_RED_STRIP_{sign}", sign * .119, .260,
+                    [(.963, .012, .015), (1.177, .013, .015)], materials["RED"], collection)
         tube(f"PLAYER_V1_SHOULDER_STRAP_{sign}", [
             ((sign * .120, .231, 1.256), .022, .013),
             ((sign * .147, .100, 1.235), .022, .013),
             ((sign * .168, -.073, 1.160), .022, .012),
             ((sign * .159, -.116, .946), .023, .012),
         ], materials["BLACK"], collection, sides=6)
-    chamfer_box("PLAYER_V1_BAG_FLAP", 0, .323,
-                [(1.174, .136, .026), (1.274, .143, .030)], materials["DARK"], collection)
-    chamfer_box("PLAYER_V1_BAG_RED_FLAP", 0, .353,
-                [(1.227, .118, .014), (1.256, .130, .014)], materials["RED"], collection)
+    chamfer_box("PLAYER_V1_BAG_FLAP", 0, .270,
+                [(1.151, .126, .020), (1.249, .132, .024)], materials["DARK"], collection)
+    chamfer_box("PLAYER_V1_BAG_RED_FLAP", 0, .296,
+                [(1.195, .110, .012), (1.222, .121, .012)], materials["RED"], collection)
     # Roll mat on top — a useful readable silhouette from behind.
     tube("PLAYER_V1_ROLL_MAT", [
-        ((-.119, .218, 1.314), .033, .042),
-        (( .119, .218, 1.314), .033, .042),
+        ((-.109, .190, 1.275), .031, .038),
+        (( .109, .190, 1.275), .031, .038),
     ], materials["TRIM"], collection, sides=10)
 
 
