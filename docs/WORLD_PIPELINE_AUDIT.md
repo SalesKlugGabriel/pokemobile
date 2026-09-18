@@ -5,14 +5,25 @@ Escopo: auditar a fábrica 3D proposta, **sem gerar ou substituir assets e sem a
 
 ## Veredito
 
-A arquitetura “Blender fabrica peças, Godot instancia por seed e máscaras” cabe no projeto, mas **não está pronta para implementação** enquanto o contrato de altura e o ownership das coordenadas legadas não forem fechados com o gameplay. O laboratório atual tem 160 × 160 m e malha de 2 m; a fábrica pede 256 × 256 m com chunks. A mudança não é apenas visual.
+A arquitetura “Blender fabrica peças, Godot instancia por seed e máscaras” cabe no projeto, mas **não está pronta para implementação** enquanto o ownership das coordenadas legadas não for fechado com o gameplay. O contrato de altura do laboratório foi corrigido pela RFC-006; o laboratório atual tem 160 × 160 m e malha de 2 m, enquanto a fábrica pede 256 × 256 m com chunks. A mudança não é apenas visual.
 
-O achado mais importante é mensurável: `Terreno3D.altura_em(x,z)` é contínua, mas a colisão usa triângulos amostrados a cada 2 m. Nos centros de 6.400 células do terreno atual, a diferença máxima entre a altura consultada e a altura da malha foi **1,7922 m** em `(31,-55)`; 222 centros diferem mais de 10 cm, e 167 mais de 25 cm. Portanto, o comentário “visual e colisão nunca discordam” ainda não vale entre vértices. Spawn, seguidor e chão precisam consultar uma altura coerente com a malha antes de receberem terreno novo. Medição reproduzível: `tools/world_factory/benchmark_chunks.gd`.
+O achado mais importante foi resolvido de forma mensurável: antes da RFC-006,
+`Terreno3D.altura_em(x,z)` devolvia a curva contínua e podia divergir da
+colisão triangulada de 2 m em até **1,7922 m**. Agora a fonte contínua só cria
+vértices e a API pública interpola os mesmos triângulos A-B-C/A-C-D do colisor.
+O benchmark mede as duas metades das 6.400 células: **12.800 amostras**, máximo
+**0,000000 m**, nenhuma acima de 10 cm. Spawn, seguidor e chão continuam na
+mesma API, sem raycast. Medição reproduzível:
+`tools/world_factory/benchmark_chunks.gd`.
 
 ## 1. Contrato de altura, colisão e navegação
 
 - `Terreno3D.altura_em(x,z)`, `ponto_em`, `superficie_em`, `caminhavel` e `inclinacao_em` são a API usada pelo laboratório, seguidor e spawn. A assinatura `altura_em(x,z)` deve sobreviver; substituir a malha por um GLB sem consulta de altura quebraria nascimento e acompanhamento. Fonte: `scripts/gameplay_v3/mundo/Terreno3D.gd`.
-- Hoje `Terreno3D` constrói `ArrayMesh` e `StaticBody3D`/`create_trimesh_shape()` da mesma grade. Isso garante concordância **nos vértices**, não nos pontos intermediários. Uma solução candidata é separar a função analítica de geração e fazer a API pública interpolar exatamente os mesmos triângulos da colisão. Outra é consultar a física; ambas mudam comportamento de gameplay e exigem RFC/decisão do Claude antes de código.
+- `Terreno3D` constrói `ArrayMesh` e `StaticBody3D`/`create_trimesh_shape()` da
+  mesma grade. A RFC-006 separou a fonte analítica de geração da API pública:
+  pontos intermediários agora interpolam exatamente os mesmos triângulos da
+  colisão. Para a fábrica, cada chunk deve manter a mesma regra e provar borda
+  compartilhada; a solução atual não valida chunks porque eles ainda não existem.
 - Não há `NavigationRegion3D`, `NavigationAgent3D` nem navmesh na V3 atual. Locomoção usa `CharacterBody3D` e regras próprias. A fábrica não deve anunciar “navegação resolvida” só porque tem terreno e colisão. Falésias, água e obstáculos precisam de máscaras de spawn e teste de alcance; o spawner atual consulta altura, mas não verifica `caminhavel` nem inclinação do ponto.
 - Água atual é um `PlaneMesh` transparente **sem colisão**. A transição terra–praia–mar depende da altura e deve continuar sem degrau. Colisão de árvore deve ser tronco; grama e copa não devem criar milhares de corpos.
 
@@ -64,13 +75,15 @@ As diferenças entre 32/64/128 m são pequenas nesta amostra. **64 m é candidat
 
 ## 6. Riscos em ordem
 
-1. **Alto — altura consultada ≠ colisão entre vértices.** Já medido em 1,79 m; pode enterrar ou suspender entidade na falésia. Resolver antes do WORLD_LAB.
-2. **Alto — ownership/identidade espacial.** Zonas sobrepostas e anchors legados tornam perigoso regenerar ou deslocar o mundo. Definir prioridade explícita e invariantes com Claude.
-3. **Alto — custo mobile desconhecido.** Headless mede CPU, não GPU; benchmark desktop anterior não autoriza 20 mil instâncias no celular.
-4. **Médio — borda e normais de chunk.** Altura global pode casar e ainda haver linha de iluminação, pois normais geradas por chunk não incluem o vizinho. Testar altura **e normal** na borda.
-5. **Médio — bioma e navegação desacoplados.** `SpawnerSelvagem3D` não recusa água/penhasco; visual novo pode tornar bug antigo mais frequente. Requer contrato cruzado.
-6. **Médio — qualidade artística.** Os GLBs atuais são candidatos, não golden assets aprovados por esta auditoria; primeiro ver três variantes no enquadramento real.
+1. **Alto — ownership/identidade espacial.** Zonas sobrepostas e anchors legados tornam perigoso regenerar ou deslocar o mundo. Definir prioridade explícita e invariantes com Claude.
+2. **Alto — custo mobile desconhecido.** Headless mede CPU, não GPU; benchmark desktop anterior não autoriza 20 mil instâncias no celular.
+3. **Médio — borda e normais de chunk.** Altura global pode casar e ainda haver linha de iluminação, pois normais geradas por chunk não incluem o vizinho. Testar altura **e normal** na borda.
+4. **Médio — bioma e navegação desacoplados.** `SpawnerSelvagem3D` não recusa água/penhasco; visual novo pode tornar bug antigo mais frequente. Requer contrato cruzado.
+5. **Médio — qualidade artística.** Os GLBs atuais são candidatos, não golden assets aprovados por esta auditoria; primeiro ver três variantes no enquadramento real.
 
 ## Próximo gate
 
-Antes de Fase 2, Gabriel aprova o escopo do WORLD_LAB e Claude decide, via RFC, o contrato de altura/colisão e de reservas manuais. A partir daí: spec e seed → terreno **sem vegetação** → teste do treinador no terreno → somente então rochas/árvores/grama. Esta auditoria não altera `Terreno3D`, cenas, gameplay, banco ou build publicado.
+Antes de Fase 2, Claude revisa a regressão da RFC-006 e fecha o contrato de
+reservas manuais. A partir daí: spec e seed → terreno **sem vegetação** → teste
+do treinador no terreno → somente então rochas/árvores/grama. A auditoria não
+autoriza mudar banco ou build publicado.

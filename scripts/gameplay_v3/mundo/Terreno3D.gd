@@ -17,10 +17,10 @@
 ##
 ## ── Por que a altura é uma FUNÇÃO, e não um mapa de pixels ──────────────────
 ##
-## `altura_em(x, z)` é matemática pura e determinística. Isso dá três coisas de
-## graça: o mesmo terreno em qualquer máquina, colisão que concorda com o visual
-## por construção (os dois leem a mesma função), e a possibilidade de perguntar
-## a altura de um ponto sem raycast — que é o que o spawn vai precisar.
+## A fonte analítica é pura e determinística, mas a superfície física é formada
+## por triângulos. Por isso a API pública interpola os MESMOS triângulos da
+## colisão; devolver a curva contínua entre os vértices faria um spawn pairar ou
+## nascer enterrado quando a curva atravessasse uma célula de 2 m.
 class_name Terreno3D
 extends Node3D
 
@@ -31,6 +31,8 @@ const PROFUNDIDADE : float = 160.0
 ## Resolução da malha. 2 m por quadrado é grosseiro e suficiente pra provar
 ## controle e travessia; refinar antes de saber se presta é otimizar no escuro.
 const PASSO : float = 2.0
+const ORIGEM_X : float = -LARGURA * 0.5
+const ORIGEM_Z : float = -PROFUNDIDADE * 0.5
 
 ## §26: os níveis que definem a costa.
 const NIVEL_DO_MAR : float = 0.0
@@ -53,11 +55,10 @@ func _ready() -> void:
 # A altura
 # ──────────────────────────────────────────────────────────────────────────────
 
-## A altura do terreno num ponto. **A única fonte de verdade da geografia.**
-##
-## Visual e colisão leem esta mesma função, então nunca podem discordar — é o
-## tipo de divergência que produz o jogador andando no ar ou afundando no chão.
-static func altura_em(x: float, z: float) -> float:
+## Fonte contínua usada SOMENTE para amostrar os vértices da malha. Não expor
+## para spawn, follower ou movimento: ela pode curvar entre os vértices e não é
+## a superfície na qual o `TrimeshShape3D` realmente colide.
+static func _altura_analitica_em(x: float, z: float) -> float:
 	# Uma inclinação geral do norte pro sul: é ela que cria a costa. Sem um
 	# sentido dominante, a "praia" viraria poças espalhadas.
 	var base : float = (z / PROFUNDIDADE) * 14.0 - 3.0
@@ -110,6 +111,34 @@ static func altura_em(x: float, z: float) -> float:
 		base = lerpf(base, NIVEL_DO_MAR - 0.35, 0.55 * peso)
 	return base
 
+## Altura pública do terreno. Dentro da área física, interpola os dois mesmos
+## triângulos A-B-C e A-C-D que `_gerar()` entrega à malha e ao colisor. Em uma
+## borda de célula escolhe a mesma altura de qualquer lado; em x/z fora do
+## laboratório não existe colisão e a fonte analítica é mantida para os poucos
+## consumidores que consultam geografia antes de uma cena estar montada.
+static func altura_em(x: float, z: float) -> float:
+	if x < ORIGEM_X or x > ORIGEM_X + LARGURA or z < ORIGEM_Z or z > ORIGEM_Z + PROFUNDIDADE:
+		return _altura_analitica_em(x, z)
+
+	var coluna_maxima: int = int(LARGURA / PASSO) - 1
+	var linha_maxima: int = int(PROFUNDIDADE / PASSO) - 1
+	var coluna: int = clampi(int(floor((x - ORIGEM_X) / PASSO)), 0, coluna_maxima)
+	var linha: int = clampi(int(floor((z - ORIGEM_Z) / PASSO)), 0, linha_maxima)
+	var xa: float = ORIGEM_X + coluna * PASSO
+	var za: float = ORIGEM_Z + linha * PASSO
+	var u: float = clampf((x - xa) / PASSO, 0.0, 1.0)
+	var v: float = clampf((z - za) / PASSO, 0.0, 1.0)
+
+	var a: float = _altura_analitica_em(xa, za)
+	var b: float = _altura_analitica_em(xa + PASSO, za)
+	var c: float = _altura_analitica_em(xa + PASSO, za + PASSO)
+	var d: float = _altura_analitica_em(xa, za + PASSO)
+	if v <= u:
+		# Triângulo A-B-C: baricêntricas (1-u, u-v, v).
+		return a * (1.0 - u) + b * (u - v) + c * v
+	# Triângulo A-C-D: baricêntricas (1-v, u, v-u).
+	return a * (1.0 - v) + c * u + d * (v - u)
+
 ## Tipo de superfície num ponto. Usado pra cor, pra som de passo e — mais pra
 ## frente — pra decidir se o Pokémon aquático pode entrar (§27).
 static func superficie_em(x: float, z: float) -> String:
@@ -134,8 +163,8 @@ func _gerar() -> void:
 
 	var colunas : int = int(LARGURA / PASSO)
 	var linhas : int = int(PROFUNDIDADE / PASSO)
-	var x0 : float = -LARGURA * 0.5
-	var z0 : float = -PROFUNDIDADE * 0.5
+	var x0 : float = ORIGEM_X
+	var z0 : float = ORIGEM_Z
 
 	for i in colunas:
 		for j in linhas:
@@ -143,10 +172,10 @@ func _gerar() -> void:
 			var xb : float = xa + PASSO
 			var za : float = z0 + j * PASSO
 			var zb : float = za + PASSO
-			var a := Vector3(xa, altura_em(xa, za), za)
-			var b := Vector3(xb, altura_em(xb, za), za)
-			var c := Vector3(xb, altura_em(xb, zb), zb)
-			var d := Vector3(xa, altura_em(xa, zb), zb)
+			var a := Vector3(xa, _altura_analitica_em(xa, za), za)
+			var b := Vector3(xb, _altura_analitica_em(xb, za), za)
+			var c := Vector3(xb, _altura_analitica_em(xb, zb), zb)
+			var d := Vector3(xa, _altura_analitica_em(xa, zb), zb)
 			# Dois triângulos por quadrado, com a cor por vértice — assim a
 			# transição areia/terra é um degradê e não uma linha reta.
 			_triangulo(ferramenta, a, b, c)

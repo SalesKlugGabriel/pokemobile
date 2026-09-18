@@ -9,7 +9,7 @@ const TAMANHOS: Array[int] = [32, 64, 128, 256]
 const REPETICOES: int = 3
 
 func _initialize() -> void:
-	_medir_diferenca_altura_analitica_vs_malha()
+	_medir_consistencia_altura_e_malha()
 	for tamanho in TAMANHOS:
 		var gerar_ms: Array[float] = []
 		var colisao_ms: Array[float] = []
@@ -37,9 +37,9 @@ func _initialize() -> void:
 		])
 	quit()
 
-func _medir_diferenca_altura_analitica_vs_malha() -> void:
-	# O spawn consulta a função contínua; a colisão interpola os vértices de 2 m.
-	# Centro da célula está na diagonal a-c dos triângulos do Terreno3D atual.
+func _medir_consistencia_altura_e_malha() -> void:
+	# A API pública deve descrever o mesmo plano dos triângulos de colisão. Duas
+	# amostras por célula exercem ambos os lados da diagonal A-C, não só o centro.
 	var maximo: float = 0.0
 	var acima_10cm: int = 0
 	var acima_25cm: int = 0
@@ -48,17 +48,27 @@ func _medir_diferenca_altura_analitica_vs_malha() -> void:
 		for iz in 80:
 			var xa: float = -80.0 + ix * 2.0
 			var za: float = -80.0 + iz * 2.0
-			var analitico: float = Terreno.altura_em(xa + 1.0, za + 1.0)
-			var triangulado: float = (Terreno.altura_em(xa, za) + Terreno.altura_em(xa + 2.0, za + 2.0)) * 0.5
-			var delta: float = absf(analitico - triangulado)
-			if delta > maximo:
-				maximo = delta
-				onde = Vector2(xa + 1.0, za + 1.0)
-			if delta > 0.10:
-				acima_10cm += 1
-			if delta > 0.25:
-				acima_25cm += 1
-	print("HEIGHT_GAP centros=6400 max_m=%.4f onde=%s acima_10cm=%d acima_25cm=%d" % [maximo, onde, acima_10cm, acima_25cm])
+			for uv in [Vector2(0.72, 0.21), Vector2(0.27, 0.74)]:
+				var publico: float = Terreno.altura_em(xa + uv.x * PASSO_M, za + uv.y * PASSO_M)
+				var triangulado: float = _altura_do_triangulo(xa, za, uv.x, uv.y)
+				var delta: float = absf(publico - triangulado)
+				if delta > maximo:
+					maximo = delta
+					onde = Vector2(xa + uv.x * PASSO_M, za + uv.y * PASSO_M)
+				if delta > 0.10:
+					acima_10cm += 1
+				if delta > 0.25:
+					acima_25cm += 1
+	print("HEIGHT_CONSISTENCY amostras=12800 max_m=%.6f onde=%s acima_10cm=%d acima_25cm=%d" % [maximo, onde, acima_10cm, acima_25cm])
+
+func _altura_do_triangulo(xa: float, za: float, u: float, v: float) -> float:
+	var a: float = Terreno.altura_em(xa, za)
+	var b: float = Terreno.altura_em(xa + PASSO_M, za)
+	var c: float = Terreno.altura_em(xa + PASSO_M, za + PASSO_M)
+	var d: float = Terreno.altura_em(xa, za + PASSO_M)
+	if v <= u:
+		return a * (1.0 - u) + b * (u - v) + c * v
+	return a * (1.0 - v) + c * u + d * (v - u)
 
 func _malha(cx: int, cz: int, tamanho: int) -> ArrayMesh:
 	var ferramenta := SurfaceTool.new()
