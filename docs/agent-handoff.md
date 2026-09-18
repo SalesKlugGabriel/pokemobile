@@ -22,6 +22,7 @@
 - A folha do Gabriel está em `docs/referencias/player_v1/folha-player-v1.png`. O Player V1 foi concluído como asset técnico isolado: `assets/characters/player_v1/player_v1.blend` (fonte), `player_v1.glb` (runtime), 1,600 m, pés em 0, frente −Z no Godot, 4.086 triângulos e 9 materiais. O export reduz 112 malhas-fonte a 9 malhas por material (355.896 bytes).
 - O asset possui rig humano de 25 ossos e Actions in-place `PLAYER_V1_IDLE`, `PLAYER_V1_WALK` e `PLAYER_V1_RUN`; os scripts modulares e o relatório estão em `tools/blender/player/` e `docs/PLAYER_V1_REPORT.md`. O teste Godot isolado `scripts/tests/teste_player_v1_glb.gd` passou **14 ok, 0 falhas**, inclusive cena com terreno/vegetação/rocha/Pokémon em `scenes/tests/player_v1_test.tscn`.
 - `player_v1.json` registra `GAME_READY_V1_PENDING_OFFICIAL_INTEGRATION`. Não substituí a cápsula do `TrainerController3D`: ajustar esse controlador de 1,75 m e a câmera é mudança de cena/contrato misto, portanto requer RFC/revisão de Claude.
+- **RFC aberta:** `docs/rfc/RFC-007-integracao-player-v1.md`. Claude precisa decidir escala física (manter 1,75 m ou calibrar para 1,60 m), fonte canônica do estado idle/walk/run e eventual recalibração de câmera/mira. Nenhum código de controlador foi alterado enquanto a RFC está `PROPOSED`.
 - Integração visual do player a 1,60 m precisa de revisão cruzada: `TrainerController3D` usa cápsula 1,75 m e `CameraTerceiraPessoa` ombro 1,5 m. Não alterei nenhum deles.
 
 ## Atualização Codex — 18/09: HUD de combate V3 isolada
