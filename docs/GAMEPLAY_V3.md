@@ -145,8 +145,8 @@ rodando** — não quando o código existe.
 | 9 | Ataque básico | ✅ | 17/09 · `AtaqueBasico` + `RelatorioDeGolpe.montar_3d` · 50 conferências |
 | 10 | 4 skills | ✅ | 17/09 · `FormaDeArea3D` + `UsoDeSkill` · single/circle/cone/line, aviso e drenagem · 61 conferências |
 | 11 | Wild Pokémon | ✅ | 17/09 · `RegraDeSpawn` + `IASelvagem3D` + `SpawnerSelvagem3D` · 63 conferências |
-| 12 | Combate 1v1 | 🔵 próxima | |
-| 13 | Combate → Mundo | ⬜ | fecha o laço da fantasia |
+| 12 | Combate 1v1 | ✅ | 18/09 · `RegraDeCombate` + `Combate1v1` · 34 conferências |
+| 13 | Combate → Mundo | 🔵 próxima | fecha o laço da fantasia |
 | 14 | Surf | ⬜ | |
 | 15 | Fly | ⬜ | |
 | 16 | TM/HM | ⬜ | `TrocaDeKit` já existe |

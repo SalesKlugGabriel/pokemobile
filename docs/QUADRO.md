@@ -7,9 +7,9 @@
 > Regra em `/root/memoria/padrao-agentes.md`, seção 4. Quem fecha uma sprint
 > atualiza este arquivo **na mesma sessão**, antes de commitar.
 
-**Estado em:** 17/09/2026
+**Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **117 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **119 arquivos, 0 com falha**
 
 ---
 
@@ -35,8 +35,8 @@ verdade.
 | 9 | **Ataque básico** | ✅ 17/09 · 50 conferências |
 | 10 | **4 skills** (single/circle/cone/line, aviso, drenagem) | ✅ 17/09 · 61 conferências |
 | 11 | **Wild Pokémon** | ✅ 17/09 · `RegraDeSpawn` + `IASelvagem3D` + `SpawnerSelvagem3D` · 63 conferências |
-| 12 | Combate 1v1 | 🔵 **próxima** |
-| 13 | Combate → Mundo | ⬜ |
+| 12 | **Combate 1v1** | ✅ 18/09 · `RegraDeCombate` + `Combate1v1` · 34 conferências |
+| 13 | Combate → Mundo | 🔵 **próxima** — fecha o laço da fantasia |
 | 14–15 | Surf · Fly | ⬜ |
 | 16–18 | TM/HM · Move Pool · Alpha | ⬜ · as regras já existem na V2 |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** |
@@ -78,8 +78,8 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Bloqueado? |
 |---|---|---|
-| 1 | Fase 12 — Combate 1v1 | não — **é a próxima** |
-| 2 | Fases 13 a 18, na ordem | sim, em cadeia |
+| 1 | Fase 13 — Combate → Mundo (voltar a ser o treinador) | não — **é a próxima** |
+| 2 | Fases 14 a 18, na ordem | sim, em cadeia |
 | 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
 
 ---
@@ -184,6 +184,9 @@ painel, separando o que está desenhado do que é interpretação.
 | **O ataque básico é Normal**, não do tipo do atacante | Daria STAB de graça e tornaria as 4 skills decorativas |
 | **Cooldown por golpe, não por slot** | Por slot, trocar a ordem das skills zeraria os cooldowns — exploit de graça |
 | **A direção do aviso é travada no início** | Relida na resolução, o aviso não custaria nada e ninguém desviaria de nada |
+| **1v1 é literal: o terceiro não entra — mas também não congela** (18/09) | Sem arena, nada impediria ele de entrar andando. Mas bicho parado a dois metros da luta é tão estranho quanto um que entra nela: ele perde os dois combatentes como alvo e segue com a IA dele |
+| **Os dois caindo no mesmo quadro é DERROTA** | Vitória com o próprio Pokémon desmaiado não existe. Perder empatado é perder |
+| **Toda briga tem prazo** (20 s sem ninguém apanhar = desfaz) | Dois lutadores presos em lados opostos de uma pedra ficariam "em combate" pra sempre, e o jogador nunca recuperaria o treinador |
 | **Modelo ausente cai no primitivo E AVISA** | Asset faltando que aparece como cápsula silenciosa é zero silencioso |
 | **O corpo do treinador encara a MIRA do mouse**, não a direção do movimento (18/09) | Pedido do Gabriel: *"o mouse precisa ser a mira para todas as ações"*. Com o corpo virando pro movimento e a câmera atrás, **nunca se vê a frente do personagem** — ele parecia andar de costas |
 | **Selvagem nasce num ANEL** (12 a 28 m), nunca perto | Fora do raio de aggro de um agressivo (5 m): o bicho tem de aparecer e se aproximar, não materializar na cara. E protege do contrato de nascimento |
