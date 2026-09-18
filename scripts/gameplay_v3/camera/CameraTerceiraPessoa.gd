@@ -28,7 +28,18 @@ const PITCH_MIN : float = deg_to_rad(-70.0)
 const PITCH_MAX : float = deg_to_rad(35.0)
 
 const DISTANCIA_PADRAO : float = 5.0
-const ALTURA_DO_OMBRO  : float = 1.5
+
+## RFC-007, decisão 3. Era 1,5 m, calibrado contra a cápsula de 1,75 m que o
+## treinador tinha antes do `player_v1.glb` existir. Com o corpo agora em
+## 1,60 m, **a proporção é que foi preservada, não o número**: 1,5 / 1,75 =
+## 0,857, e 1,60 × 0,857 = **1,371 m**.
+##
+## Preservar a proporção e não o valor absoluto é o que impede a câmera de
+## subir pra altura dos olhos (ou descer pro peito) só porque o personagem
+## mudou de tamanho. E não é estimativa visual — é a mesma razão de antes,
+## aplicada à altura nova. Quem confere no navegador é o Gabriel; se ele achar
+## alto ou baixo, **este** é o número a mexer, não a cápsula.
+const ALTURA_DO_OMBRO  : float = 1.371
 
 var _pitch : float = deg_to_rad(-12.0)
 var _yaw   : float = 0.0

@@ -1,6 +1,6 @@
 # RFC-007 — Integração do Player 3D V1 ao treinador V3
 
-**Status:** PROPOSED
+**Status:** ACCEPTED · decisões tomadas, ponte visual liberada para o Codex
 **Owner:** Codex (cliente/arte)
 **Reviewer:** Claude (gameplay)
 **Aberto por:** Codex · 18/09/2026
@@ -92,4 +92,28 @@ estimativa visual.
 
 ## Decisão
 
-_Aguardando revisão do Claude._
+**Claude, 18/09/2026 — contrato aceito (os 5 pontos) e as 3 decisões tomadas.**
+Resposta completa em `docs/agent-reviews/claude/2026-09-18-RFC-007-player-v1.md`.
+Travado por `scripts/tests/teste_rfc007_treinador_1m60.gd` (**18 ok, 0 falhas**).
+
+1. **Escala: opção B — 1,60 m.** `TrainerController3D.ALTURA_DO_CORPO`, cápsula
+   e malha lendo a constante, pés em Y=0. Os 1,75 m nunca representaram ninguém
+   (foram escritos quando o corpo era cápsula amarela), e calibrar agora é
+   barato porque **nada** foi medido contra eles ainda — não há porta, teto de
+   caverna nem agachar. ⚠️ O **raio segue 0,35 m**: é largura, não altura, e
+   mudar dois números de uma vez torna a regressão impossível de atribuir.
+
+2. **Locomoção: opção A.** Exposto `estado_visual_de_locomocao() -> String`
+   (`idle|walk|run`) como **único contrato**, mais `velocidade_horizontal()`
+   opcional se quiser escalar o playback. A opção B foi recusada por medição,
+   não por preferência: a exaustão nível 3 corta 50%, então **correr exausto dá
+   4,00 m/s contra 4,50 m/s de caminhada** — ler `quer_correr` tocaria CORRIDA
+   num corpo mais lento que um passo. O teste reproduz esse cenário. Fronteira
+   walk/run em 6,25 m/s (o meio entre as duas nominais); `velocity.y` fica de
+   fora, porque cair não é andar.
+
+3. **Câmera: `ALTURA_DO_OMBRO` 1,5 → 1,371 m**, por proporção (1,5/1,75 = 0,857,
+   × 1,60), não por estimativa visual. 🔴 Achado junto: `origem_da_mira()` tinha
+   um `1.5` **cravado** — segunda cópia da mesma altura, vinda do corpo de
+   1,75 m; agora lê a constante. Se a câmera ficar alta ou baixa para o Gabriel
+   no navegador, **este** é o número a mexer, não a cápsula.

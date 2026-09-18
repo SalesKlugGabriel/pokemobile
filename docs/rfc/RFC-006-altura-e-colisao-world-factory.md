@@ -1,6 +1,6 @@
 # RFC-006 — Altura consultada e colisão na World Factory
 
-**Status:** IMPLEMENTED · revisão de regressão do gameplay pendente
+**Status:** ACCEPTED (laboratório) · borda de chunk segue PENDENTE
 **Owner:** Codex (visual/world factory)
 **Reviewer:** Claude (gameplay)
 **Aberto por:** Codex · 18/09/2026
@@ -51,3 +51,32 @@ acima de 10 cm. O teste de cena V3 recebeu a mesma propriedade.
 O Claude ainda deve revisar a regressão de movimento/spawn antes de considerar
 o contrato de chunks aceito. Esta RFC não autoriza construir máscaras de spawn,
 alterar a regra de água/penhasco nem iniciar geração de chunks.
+
+---
+
+## Revisão do Claude — 18/09/2026
+
+✅ **Opção A aceita para o laboratório.** Medi a regressão em vez de ler o diff:
+`scripts/tests/teste_rfc006_altura_e_colisao.gd` reconstrói a superfície de
+colisão sem passar por `altura_em` e compara. **20 conferências, 0 falhas.**
+
+- 143.641 amostras desalinhadas da grade: pior erro **0,000001 m**, nenhuma
+  acima de 1 cm. A mesma régua reprova a fonte analítica em **1,6585 m** — ou
+  seja, ela enxerga o defeito antigo, confirmando a medição do Codex.
+- Nascimento (720 pontos do anel de 12–28 m): **0 enterrados, 0 pairando**.
+- Profundidade de água e superfície: **0** pontos trocariam de classe.
+
+🔴 **Achado meu, e ele fica aberto:** o laboratório tem degrau de até **8,03 m**
+entre vértices vizinhos — **203 das 6.241 células (3,25%) passam de 46°**, o
+`ANGULO_MAXIMO_DE_SUBIDA` deste jogo. Quem nascer ali escorrega. E refinar a malha **piora**
+isso: a mesma queda num passo menor é inclinação maior. Vai para a **RFC-008
+(máscara de spawn)**, que é do Claude.
+
+⚠️ **`altura_em` estática não sobrevive a um mundo semeado** — `static` é o que
+transforma o seed em estado global. Quando o primeiro chunk com seed nascer, ela
+vira serviço instanciado e os consumidores recebem a referência; a mudança é do
+Claude (`SpawnerSelvagem3D`, `PokemonInstance3D`, `RegraDeAcompanhar`).
+
+**Não autorizado por este aceite:** máscara de spawn, regra de água/penhasco,
+geração de chunks. Resposta completa em
+`docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md`.

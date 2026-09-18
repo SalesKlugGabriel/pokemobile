@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **125 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **130 arquivos, 0 com falha**
 
 ---
 
@@ -88,6 +88,8 @@ posicionar é o caminho que catapulta o jogador.
 | 1b | Ligar `permissoes_do_jogador()` na mochila de verdade quando a V3 tiver save | sim — depende do save da V3 |
 | 1c | Ligar `capturavel` na pokébola da V3 (hoje ninguém captura em 3D) | sim — a captura em 3D ainda não existe |
 | 1d | Fazer a contagem de elites derrotados **sobreviver a salvar/carregar** (hoje vive só no spawner) | sim — depende do save da V3 |
+| 1e | **RFC-008 — máscara de spawn.** Recusar ponto íngreme/submerso antes de `nascer()`. Medido: **3,25% do laboratório passa de 46°** (o limite de chão deste jogo) — quem nasce ali escorrega no 1º quadro de vida | não — só espera o Gabriel aprovar a RFC |
+| 1f | **`altura_em` deixa de ser `static`** quando o 1º chunk semeado nascer. `static` é o que transforma o seed em estado global; vira serviço instanciado e `SpawnerSelvagem3D`/`PokemonInstance3D`/`RegraDeAcompanhar` passam a receber a referência | sim — não existe chunk no runtime ainda |
 | 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
 
 ---
@@ -96,8 +98,8 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Quando |
 |---|---|---|
-| 0 | 🔴 **PLAYER 3D V1** — o modelo definitivo do treinador, pedido do Gabriel com folha de concept art | **prioridade** · `docs/agent-proposals/gabriel/2026-09-18-player-3d-v1.md` |
-| 0b | 🔴 **WORLD FACTORY V1** — fábrica determinística de mundo (terreno, biomas, rochas, árvores, caminhos). **Começa por auditoria, não por asset** | `docs/agent-proposals/gabriel/2026-09-18-world-factory-v1.md` |
+| 0 | 🔴 **PLAYER 3D V1 — a ponte visual.** O GLB está pronto e validado; **destravado**: a RFC-007 foi aceita e as 3 decisões estão tomadas | **prioridade** · `docs/agent-reviews/claude/2026-09-18-RFC-007-player-v1.md` |
+| 0b | 🔴 **WORLD FACTORY V1** — **contrato de altura aceito** (RFC-006, opção A, medido por mim a 0,000001 m). ⚠️ O aceite é só do laboratório: **borda entre chunks continua sem contrato**, porque chunk ainda não existe pra medir | `docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md` |
 | 1 | **Qualidade gráfica do mundo 3D** — terreno, vegetação, árvores, grama, água | agora, em paralelo |
 | 2 | Modelos de Pokémon em volume | agora · contrato em `POKEMON_MODEL_PIPELINE.md` |
 | 3 | HUD de combate: cooldown do básico e das 4 skills, telegrafe do aviso | quando quiser — a API já entrega tudo (ver abaixo) |
@@ -118,7 +120,7 @@ posicionar é o caminho que catapulta o jogador.
 dado** e o Claude implementa com fonte e confiança declaradas — a conta acontece
 no backend, nunca na tela.
 
-### 🔴 A altura do player — resolvido pela evidência: **1,60 m**
+### ✅ A altura do player — RESOLVIDA E APLICADA em 18/09: **1,60 m**
 
 | Fonte | Diz |
 |---|---|
@@ -135,9 +137,16 @@ O outlier é o **código**: 1,75 m é altura de **adulto** (a própria folha põ
 NPC adulto em 1,75), quase certamente um placeholder que nunca foi calibrado
 contra referência nenhuma.
 
-➡️ **Trabalhe com 1,60 m.** Quando entrar, `TrainerController3D` muda junto —
-cápsula e malha, hoje em 1,75. Vale uma confirmação do Gabriel, mas a evidência
-tem lado.
+➡️ **Feito.** `TrainerController3D.ALTURA_DO_CORPO = 1.60` (cápsula e malha lendo
+a constante, pés em Y=0), e `CameraTerceiraPessoa.ALTURA_DO_OMBRO` recalibrada
+**por proporção** — 1,5/1,75 = 0,857, × 1,60 = **1,371 m**. O raio segue 0,35 m
+de propósito: é largura, não altura.
+
+🔴 Achado ao aplicar: `origem_da_mira()` tinha um `1.5` **cravado**, segunda
+cópia da altura do ombro vinda do corpo de 1,75 m. Agora lê a constante.
+
+⚠️ **Se a câmera ficar alta ou baixa pro Gabriel no navegador, o número a mexer
+é `ALTURA_DO_OMBRO`** — não a cápsula, que agora tem razão medida pra ser 1,60.
 
 ### 📄 A folha de referência não está no disco — a transcrição está
 
@@ -183,6 +192,50 @@ o plano atual para não atrasar o projeto"*. Ficam aqui pra não virarem folclor
 | **4 skills pode ser pouco** | *"considerando esse 'battle royale solo' acho que 4 skills apenas pode ser pouco para uma luta massiva"*. `KitDeCombate` já prevê **até 8 slots** (4 base + 2 aos níveis 50 e 100), então o dado não precisa mudar — é decisão de balanceamento |
 | **1v1 vira PvP** | A mecânica de duelo existe e está testada; PvP está fora do escopo declarado da V3 |
 
+## 🤝 As duas RFCs do Codex, respondidas em 18/09
+
+O Codex abriu duas e ficou parado esperando decisão minha. **As duas estão
+respondidas; ele está destravado nas duas.**
+
+| RFC | Veredito | O que isso libera |
+|---|---|---|
+| **006** — altura x colisão | ✅ **opção A aceita** (só o laboratório) | World Factory volta a andar no terreno |
+| **007** — Player V1 | ✅ **aceita**, 3 decisões tomadas | a ponte visual do treinador |
+
+**RFC-006 — o que eu medi, em vez de ler o diff.** `teste_rfc006_altura_e_colisao.gd`
+reconstrói a superfície de colisão **sem passar por `altura_em`** (plano do
+triângulo, não as baricêntricas do código sob teste) e compara:
+
+```
+143.641 amostras fora da grade      pior erro 0,000001 m
+a mesma régua na fonte analítica    erraria  1,6585 m   ← ela enxerga o defeito
+720 pontos do anel de spawn         0 enterrados, 0 pairando
+11.449 pontos de profundidade       0 trocariam de classe
+```
+
+A segunda linha é a que dá valor às outras: sem ela, "erro zero" poderia ser um
+teste que não mede nada.
+
+🔴 **Achado meu, que nenhum dos dois tinha:** refinar a malha **não** conserta
+falésia — **piora**. A mesma queda de 8,03 m num passo menor é inclinação maior;
+resolução revela o gradiente, nunca o suaviza. Então a opção C da RFC não é
+"insuficiente sozinha", ela anda na direção contrária. O que falta não é
+resolução, é a **RFC-008**.
+
+**RFC-007 — a decisão que foi medida, não escolhida.** Recusei a opção B (o
+visual ler `quer_correr`) porque a exaustão nível 3 corta 50% da velocidade:
+
+| | |
+|---|---|
+| correr **exausto** | **4,00 m/s** |
+| caminhar pleno | **4,50 m/s** |
+
+Correndo exausto o treinador anda mais devagar que um passo, com a tecla de
+correr apertada — a opção B teria tocado CORRIDA ali. O contrato novo é
+`estado_visual_de_locomocao()`, derivado do que o corpo **faz**.
+
+---
+
 ## 🟡 Pendente — Gabriel
 
 | # | O quê | Por quê |
@@ -191,6 +244,8 @@ o plano atual para não atrasar o projeto"*. Ficam aqui pra não virarem folclor
 | 2 | Jogar a V3 depois do conserto de direção (17/09) e dizer se o W agora anda pra onde se olha | o teste prova direção e independência da câmera; **não prova sensação** |
 | 3 | ✅ **Respondido (18/09):** elite **2%**, Alpha **0,5%**, **+0,1%** por elite derrotado nas últimas **3 h**. Implementado e travado por teste | — |
 | 4 | ✅ **Respondido (18/09):** o **teto de 5%** e a leitura de **2% como teto** (`× perigo da zona`, Pallet em 0%) ficam como propostos — *"mantenha como você propôs"* | — |
+| 5 | **Aprovar a RFC-008 (máscara de spawn)** | 3,25% do laboratório é mais íngreme que o limite de chão: quem nasce ali escorrega. A correção é minha e está escrita, mas é **mudança de regra de gameplay** — não faço sem você dizer |
+| 6 | **Conferir a câmera no navegador** depois que o Codex ligar o Player V1 | o treinador encolheu de 1,75 m pra 1,60 m e o ombro da câmera desceu junto, por proporção. Se ficar alto ou baixo, o número a mexer é `ALTURA_DO_OMBRO` — e só você consegue julgar isso, porque é sensação |
 
 ---
 

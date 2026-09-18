@@ -19,6 +19,25 @@
 extends CharacterBody3D
 class_name TrainerController3D
 
+## RFC-007, decisão 1 (opção B): **a altura do treinador é 1,60 m.**
+##
+## Era 1,75 m — um número que nunca representou ninguém: foi escrito quando o
+## corpo era uma cápsula amarela e não havia personagem. O asset do Codex
+## (`player_v1.glb`) mede **1,600 m**, pés em Y=0. Manter 1,75 deixaria 15 cm de
+## colisor invisível acima da cabeça — dois números descrevendo a mesma pessoa e
+## discordando, que é exatamente a classe de defeito que este projeto não aceita.
+##
+## Calibrado agora porque agora é barato: **nada** foi medido contra 1,75 ainda
+## (não há porta, teto de caverna, agachar nem altura de passagem no jogo). O dia
+## em que houver, mexer aqui passa a quebrar coisas.
+const ALTURA_DO_CORPO : float = 1.60
+
+## ⚠️ O raio **não** foi reduzido junto, de propósito. Ele é a largura do corpo,
+## não a altura, e 0,35 m já é uma folga razoável pra qualquer adulto. Mexer nos
+## dois de uma vez tornaria qualquer regressão de colisão impossível de atribuir
+## a um deles.
+const RAIO_DO_CORPO : float = 0.35
+
 signal stamina_mudou(atual: float, maximo: float, estado: String)
 signal comecou_a_andar()
 signal parou()
@@ -61,18 +80,18 @@ func _ready() -> void:
 func _montar_corpo() -> void:
 	var forma := CollisionShape3D.new()
 	var capsula := CapsuleShape3D.new()
-	capsula.radius = 0.35
-	capsula.height = 1.75
+	capsula.radius = RAIO_DO_CORPO
+	capsula.height = ALTURA_DO_CORPO
 	forma.shape = capsula
-	forma.position.y = 0.875
+	forma.position.y = ALTURA_DO_CORPO * 0.5
 	add_child(forma)
 
 	var vis := MeshInstance3D.new()
 	var malha := CapsuleMesh.new()
-	malha.radius = 0.35
-	malha.height = 1.75
+	malha.radius = RAIO_DO_CORPO
+	malha.height = ALTURA_DO_CORPO
 	vis.mesh = malha
-	vis.position.y = 0.875
+	vis.position.y = ALTURA_DO_CORPO * 0.5
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = Color(0.95, 0.82, 0.35)
 	vis.material_override = mat
@@ -189,10 +208,47 @@ func direcao_de_mira() -> Vector3:
 func origem_da_mira() -> Vector3:
 	if camera != null:
 		return camera.global_position
-	return global_position + Vector3.UP * 1.5
+	# RFC-007: o 1,5 cravado aqui era uma SEGUNDA cópia da altura do ombro, e
+	# copiada de um corpo de 1,75 m. Ler a constante da câmera faz o fallback
+	# acompanhar a recalibração sozinho — duas cópias do mesmo número é como o
+	# fallback passaria a mirar de outra altura que o caminho normal.
+	return global_position + Vector3.UP * CameraTerceiraPessoa.ALTURA_DO_OMBRO
 
 func esta_parado() -> bool:
 	return Locomocao3D.esta_parado(velocity)
+
+## A velocidade **horizontal de fato**, em m/s. O `y` fica de fora de propósito:
+## cair não é andar, e uma queda faria a animação correr no ar.
+func velocidade_horizontal() -> float:
+	return Vector2(velocity.x, velocity.z).length()
+
+## RFC-007, decisão 2 (opção A): **o único contrato do visual de locomoção.**
+##
+## Devolve `idle`, `walk` ou `run`, derivado do que o corpo **faz** — nunca do
+## que ele quer. A diferença não é filosófica, é medida:
+##
+##   - `quer_correr` é intenção. A velocidade real passa por
+##     `Stamina.fator_de_velocidade()`, que no nível 3 de exaustão vale **0,50**.
+##     Correr exausto dá 8,0 × 0,5 = **4,0 m/s** — *abaixo* dos 4,5 m/s de
+##     caminhada. Uma animação que lesse `quer_correr` tocaria CORRIDA num corpo
+##     andando mais devagar que um passo normal.
+##   - E as duas portas de entrada discordam: o teclado exige
+##     `stamina.atual > 0.0` pra ligar `quer_correr`, mas `mover()` — a porta do
+##     toque, que é a do celular — aceita `correndo` sem conferir nada.
+##
+## Por isso a fachada `esta_parado()` + `quer_correr` (opção B da RFC) foi
+## recusada: ela obrigaria o visual a reimplementar a conta da stamina pra não
+## errar, e reimplementar é como os dois lados passam a discordar.
+func estado_visual_de_locomocao() -> String:
+	if esta_parado():
+		return "idle"
+	# O meio do caminho entre andar e correr. Não é um número escolhido por
+	# gosto: é o único ponto que fica igualmente longe das duas velocidades
+	# nominais, então nem a caminhada plena nem a corrida plena ficam perto da
+	# fronteira — que é onde a animação piscaria entre dois clipes.
+	var meio : float = (Locomocao3D.VELOCIDADE_CAMINHADA
+		+ Locomocao3D.VELOCIDADE_CORRIDA) * 0.5
+	return "run" if velocidade_horizontal() >= meio else "walk"
 
 func _conferir_parada() -> void:
 	var agora := esta_parado()
