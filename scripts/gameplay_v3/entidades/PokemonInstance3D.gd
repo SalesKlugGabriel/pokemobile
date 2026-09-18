@@ -468,6 +468,16 @@ func virar_selvagem(hostil: Node3D = null) -> void:
 ## comportamento das sete personalidades se prova sem subir mundo, e o que
 ## sobra aqui é só mover o corpo.
 func _agir_como_selvagem(delta: float) -> void:
+	# §12 da Fase 12: 1v1 sem arena. Quem já está numa briga deixa de ser alvo
+	# válido pros outros — mas o terceiro **não congela**: ele segue com a IA
+	# dele, só perde este alvo. Um bicho parado a dois metros da luta é tão
+	# estranho quanto um que entra nela.
+	if alvo_hostil != null and is_instance_valid(alvo_hostil) \
+			and bool(alvo_hostil.get_meta("em_combate", false)) \
+			and not bool(get_meta("em_combate", false)):
+		alvo_hostil = null
+		provocado = false
+
 	var alvo_valido : bool = alvo_hostil != null and is_instance_valid(alvo_hostil)
 	var pos_do_alvo : Vector3 = alvo_hostil.global_position if alvo_valido else global_position
 	var dist_ao_alvo : float = INF

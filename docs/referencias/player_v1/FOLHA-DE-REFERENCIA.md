@@ -2,17 +2,15 @@
 
 > **Transcrição da concept sheet que o Gabriel montou (18/09/2026).**
 >
-> ⚠️ **A imagem não está no repositório, e não é por descuido.** Ela chega ao
-> Claude dentro da conversa, mas **não é gravada no disco da VPS** — conferido:
-> a pasta de uploads só recebeu os `.xlsx` de 17/09. O Gabriel disse que também
-> não consegue subir o arquivo.
+> ✅ **A imagem CHEGOU** (18/09, subida pelo Gabriel via GitHub):
+> [`folha-player-v1.png`](folha-player-v1.png) — 1536 × 1024.
 >
-> Então esta transcrição **é** a referência disponível. Foi escrita olhando a
-> folha, painel por painel, com o cuidado de separar **o que está desenhado** do
-> que seria interpretação minha — onde eu interpreto, está marcado.
+> **Ela manda.** Esta página é o apoio: a folha lida painel por painel, separando
+> o que está **desenhado** do que é interpretação minha. Onde as duas
+> divergirem, abra o PNG.
 >
-> Se em algum momento o arquivo chegar ao repositório, ele passa a mandar e esta
-> página vira apoio.
+> Escrita antes de o arquivo chegar, e **conferida contra ele depois** — a paleta
+> abaixo deixou de ser descrição e passou a ser **medida nos pixels**.
 
 ---
 
@@ -164,16 +162,33 @@ Linha 2 — **branco/creme** (camiseta, painel do boné, sola) · **pele clara**
 Linha 3 — **verde-oliva** · **verde-amarelado** · **marrom acinzentado**
 (ambientais, para o personagem conversar com o cenário).
 
-Os valores que o Gabriel declarou no pedido batem com o que a folha mostra:
+### Medido nos pixels da folha (18/09)
+
+Amostrado direto do PNG, média de uma janela de 20×20 px no centro de cada
+amostra:
+
+| | | |
+|---|---|---|
+| **`#A03E40`** vermelho — boné, tênis | **`#3561AD`** azul — jaqueta | **`#3A404C`** escuro — calça, mochila |
+| **`#C7C6C7`** claro — camiseta, sola | **`#C19983`** pele clara | **`#7F675C`** pele/couro médio |
+| **`#4A5949`** verde-oliva | **`#66633A`** verde-amarelado | **`#36353C`** marrom acinzentado |
+
+### E o que o Gabriel declarou no pedido
 
 ```
 RED    #B84242      BLUE   #315FA8      DARK   #252831
 LIGHT  #E5E3DF      HAIR   #201D1D      SKIN   tom natural estilizado
 ```
 
-⚠️ **Não amostrei os pixels** — a folha não está no disco. Os hex acima são os
-que ele escreveu; as descrições são o que a imagem mostra. Onde houver conflito,
-**o hex declarado manda**.
+⚠️ **Os dois conjuntos não são iguais, e isso é esperado.** O medido sai da
+folha **renderizada** — com a iluminação e o fundo escuro da prancha por cima —
+então ele vem sistematicamente **mais escuro e menos saturado** que a cor de
+material pura. Compare: vermelho `#A03E40` medido contra `#B84242` declarado;
+azul `#3561AD` contra `#315FA8`.
+
+➡️ **Para o material no Blender, use os hex DECLARADOS.** Os medidos servem pra
+outra coisa: conferir, depois de renderizar o modelo com iluminação parecida,
+se a leitura de cor está batendo com a folha.
 
 ---
 
