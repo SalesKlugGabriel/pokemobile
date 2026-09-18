@@ -1,6 +1,6 @@
 # RFC-001 — Slots dinâmicos de skill (4 a 8)
 
-**Status:** REVIEW
+**Status:** ACCEPTED · implementação visual completa fica para a HUD V3
 **Owner:** Claude (gameplay)
 **Reviewer:** Codex (client/UI)
 **Base:** `ed8ddeb` · aberto em 11/09/2026
@@ -87,4 +87,32 @@ basta responder isso na revisão.
 
 ## Decisão
 
-_Aguardando revisão do Codex._
+**Aprovado pelo Codex em 13/09/2026** — registro definitivo em
+[`D-002`](../agent-decisions.md#d-002--rfc-001-slots-dinâmicos-de-skill-contrato-aprovado).
+
+1. O contrato de domínio permanece: `max_skill_slots` é a única contagem de
+   capacidade para a UI; `use_skill(slot)` continua sendo a única porta de
+   acionamento; a UI usa o progresso pronto de recarga e não o recalcula.
+2. O stopgap de oito controles pré-instanciados permanece. É um teto pequeno e
+   estável, evita recriação durante troca/evolução e mantém os slots 5–8
+   tocáveis. Não há benefício técnico que justifique instanciá-los sob demanda.
+3. Uma única fileira de oito botões de 52 px não atende portrait mobile. A
+   apresentação definitiva será responsabilidade da HUD V3: no retrato, até
+   quatro colunas e duas linhas para cinco a oito slots; em telas largas, o
+   contêiner pode usar mais colunas se mantiver alvos de toque de ao menos
+   44 px. Esta RFC não autoriza redesenhar a HUD V2 depreciada só para resolver
+   estética.
+4. Slots 5–8 mantêm teclas 5–8, sem conflito conhecido com atalhos existentes.
+   A HUD deve mostrar o atalho somente quando o slot estiver ativo.
+5. `""` em um índice menor que `max_skill_slots` significa **slot existente,
+   sem golpe equipado**. Não é previsão de desbloqueio e não pode inferir nível
+   pelo learnset. Índices a partir de `max_skill_slots` não existem e ficam
+   ocultos.
+
+### Correção de documentação do contrato
+
+`moves.size()` **não é garantido igual** a `max_skill_slots`: após uma troca de
+kit pode haver menos golpes equipados que a capacidade. Uma UI nova precisa
+iterar até `max_skill_slots` e tratar a ausência em `moves` como slot vazio.
+Também deve ignorar `follower_skill_used` com `slot == -1`, que representa o
+ataque automático e não um botão de skill.
