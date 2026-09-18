@@ -101,12 +101,14 @@ func tentar_nascer() -> Node3D:
 	if not RegraDeSpawn.distancia_segura(jogador.global_position, ponto):
 		return null
 
-	# Fase 17: a categoria decide quantos golpes ele carrega. Um elite ainda
-	# nasce como `comum` de propósito — "elite" e "alpha" são conceitos
-	# diferentes, e quem define o Alpha é a Fase 18. Ligar os dois aqui seria
-	# inventar a regra da fase seguinte no meio desta.
+	# Fase 18: o fio que a Fase 17 deixou solto. Elite e Alpha eram conceitos
+	# que se pareciam e não são o mesmo — Alpha é **subconjunto** de elite, e
+	# ainda depende da curadoria por espécie (`is_alpha_eligible`), que até
+	# hoje nenhuma linha do jogo lia.
+	var alpha : bool = RegraDeAlpha.sortear(
+		GameData.get_species(id), elite, sortear.call())
 	var bicho := PokemonInstance3D.nascer(self, id, nivel, ponto, "",
-		RegraDeMovePool.CATEGORIA_PADRAO)
+		RegraDeMovePool.CATEGORIA_PADRAO, alpha)
 	bicho.virar_selvagem(jogador)
 	_vivos.append(bicho)
 	nasceu.emit(bicho, entrada, elite)

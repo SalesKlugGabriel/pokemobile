@@ -81,16 +81,19 @@ var _derrotado : bool = false
 ## causa (ordem de duas linhas).
 static func nascer(pai: Node, id_especie: int, nv: int, posicao: Vector3,
 		arquetipo_pedido: String = "",
-		categoria_de_encontro: String = RegraDeMovePool.CATEGORIA_PADRAO) -> PokemonInstance3D:
+		categoria_de_encontro: String = RegraDeMovePool.CATEGORIA_PADRAO,
+		e_alpha: bool = false) -> PokemonInstance3D:
 	var e := PokemonInstance3D.new()
 	# A ordem é o ponto: posição ANTES de entrar na árvore.
 	e.position = posicao
 	pai.add_child(e)
-	e.montar(id_especie, nv, arquetipo_pedido, categoria_de_encontro)
+	e.montar(id_especie, nv, arquetipo_pedido, categoria_de_encontro, e_alpha)
 	return e
 
 func montar(id_especie: int, nv: int, arquetipo_pedido: String = "",
-		categoria_de_encontro: String = RegraDeMovePool.CATEGORIA_PADRAO) -> void:
+		categoria_de_encontro: String = RegraDeMovePool.CATEGORIA_PADRAO,
+		e_alpha: bool = false) -> void:
+	alpha = e_alpha
 	# Onde o nó estava quando foi montado — a referência do detector de ordem.
 	_pos_ao_nascer = position
 	species_id = id_especie
@@ -102,18 +105,32 @@ func montar(id_especie: int, nv: int, arquetipo_pedido: String = "",
 
 	# As stats vêm da V2, sem adaptação nenhuma.
 	stats = StatsDePokemon.conjunto(esp.get("base_stats", {}), nivel)
+
+	# Fase 18 — o Alpha entra AQUI, antes da vida ser derivada do HP: aplicar
+	# o multiplicador depois deixaria a barra discordando do stat que a gerou.
+	if alpha:
+		if not RegraDeAlpha.elegivel(esp):
+			push_warning("%s foi marcado como Alpha e a espécie não é elegível (§30)" \
+				% nome_exibido)
+		stats = RegraDeAlpha.stats(stats)
 	vida_maxima = BalanceV2.vida(int(stats.get("hp", 1)))
 	vida = vida_maxima
 
 	# A altura real já existia em `heights.json` desde 03/09 — 151 espécies,
 	# de 0,2 m (Diglett) a 8,8 m (Onix). Não precisou de dado novo.
-	altura_real = PokemonScale.get_height_m(species_id)
+	altura_real = PokemonScale.get_height_m(species_id) \
+		* (RegraDeAlpha.escala_visual() if alpha else 1.0)
 	altura = MovementProfile.altura_jogavel(altura_real)
 
 	arquetipo = arquetipo_pedido if arquetipo_pedido != "" \
 		else str(esp.get("arquetipo", MovementProfile.GROUND_BIPED))
 
-	categoria = categoria_de_encontro
+	# Alpha manda na categoria: a faixa de golpes dele (5 a 6) já existe no
+	# `KitDeCombate` desde a Fase 3 e é o que o faz brigar como miniboss, não
+	# só ter números maiores.
+	var perfil : Dictionary = RegraDeAlpha.perfil(alpha)
+	categoria = str(perfil["categoria"]) if alpha else categoria_de_encontro
+	capturavel = bool(perfil["capturavel"])
 	_montar_kit()
 
 	_montar_corpo()
@@ -918,6 +935,14 @@ var ensinados : Array = []
 ## Que tipo de encontro este bicho é: muda quantos slots ele carrega.
 ## `jogador` usa a escada de capacidade; o resto usa a régua de selvagem.
 var categoria : String = RegraDeMovePool.CATEGORIA_PADRAO
+
+## Fase 18 — este é um Alpha. Quem decide é `RegraDeAlpha`, no NASCIMENTO:
+## virar Alpha depois de nascido mudaria stats e tamanho no meio da luta.
+var alpha : bool = false
+
+## §30: Alpha não se captura. Fica exposto aqui pra quem construir a pokébola
+## na V3 ler o estado em vez de reimplementar a regra.
+var capturavel : bool = true
 
 ## Último uso POR GOLPE, não por slot: trocar a ordem das skills não pode zerar
 ## cooldown. Ver `UsoDeSkill`.

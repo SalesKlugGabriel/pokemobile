@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **123 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **124 arquivos, 0 com falha**
 
 ---
 
@@ -40,9 +40,12 @@ verdade.
 | 14–15 | **Surf · Fly** | ✅ 18/09 · `RegraDeTravessia` · 44 conferências |
 | 16 | **TM/HM** | ✅ 18/09 · `RegraDeMaquina` · **capacidade × permissão** · 48 conferências |
 | 17 | **Move Pool** | ✅ 18/09 · `RegraDeMovePool` · **conhecidos / equipados / ativos** · 59 conferências · 🔴 achou o kit vazio |
-| 18 | Alpha | 🔵 **próxima** · as regras já existem na V2 |
+| 18 | **Alpha** | ✅ 18/09 · `RegraDeAlpha` · 39 conferências · 🔴 **o Alpha nunca tinha nascido no jogo** |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** |
 | 20 | Performance | ⬜ |
+
+**As 18 primeiras fases estão fechadas** — a migração de regras acabou. Sobram a
+19 (polimento, do Codex) e a 20 (performance).
 
 **Não pular fase.** A ordem existe porque cada uma depende da anterior estar de
 pé — e porque pular é como se constrói seis sistemas pela metade.
@@ -80,9 +83,9 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Bloqueado? |
 |---|---|---|
-| 1 | Fases 17 e 18 — Move Pool, Alpha | não — **são as próximas**; as regras já existem na V2 |
+| 1 | Fase 20 — performance | não — **é a próxima minha**, e a última da migração |
 | 1b | Ligar `permissoes_do_jogador()` na mochila de verdade quando a V3 tiver save | sim — depende do save da V3 |
-| 2 | Fases 19 e 20 — polimento (Codex) e performance | depois |
+| 1c | Ligar `capturavel` na pokébola da V3 (hoje ninguém captura em 3D) | sim — a captura em 3D ainda não existe |
 | 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
 
 ---
@@ -184,6 +187,7 @@ o plano atual para não atrasar o projeto"*. Ficam aqui pra não virarem folclor
 |---|---|---|
 | 1 | **Qual aspecto dos controles incomoda** | "melhorar os controles" são **seis** ajustes diferentes: velocidade, sensibilidade do mouse, aceleração, atrito, virada do personagem, distância da câmera. Mexer nos seis de uma vez faz ninguém saber qual melhorou |
 | 2 | Jogar a V3 depois do conserto de direção (17/09) e dizer se o W agora anda pra onde se olha | o teste prova direção e independência da câmera; **não prova sensação** |
+| 3 | **Quão raro deve ser um Alpha?** Hoje: 1 a cada ~14 encontros numa zona no perigo máximo (`RegraDeAlpha.CHANCE_ENTRE_ELITES = 0,20`) | ⚠️ **PROXY declarado**, não medido — não há fonte pra este número em lugar nenhum (nem `zones.json`, nem a V2, onde o Alpha nunca nasceu). Trocar é mudar uma linha |
 
 ---
 

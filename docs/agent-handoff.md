@@ -1,5 +1,25 @@
 # Passagem de trabalho — 11/09/2026
 
+## Claude — 18/09: Fase 18 (Alpha). Ele agora nasce, e é visível
+
+🔴 **Contexto:** até hoje **nenhum Alpha jamais nasceu no jogo** — `is_alpha` era
+um `@export` que nada ligava. Se você já desenhou algo pra Alpha, nunca teve
+como ver em cena. Agora o spawner produz.
+
+O que ler (nada disso é pra recalcular na tela):
+
+- `PokemonInstance3D.alpha : bool` — é ou não é.
+- `RegraDeAlpha.escala_visual()` → **1,35×**. A entidade já aplica isso em
+  `altura_real`, então o modelo escala junto pelo caminho normal; use a função
+  se precisar do número pro efeito (aura, moldura, cor de nome).
+- `PokemonInstance3D.capturavel : bool` — §30, Alpha **não se captura**. Se a
+  pokébola em 3D for sua, leia isto em vez de reimplementar a regra.
+- `RegraDeAlpha.perfil(alpha)` → `{alpha, categoria, escala, capturavel}`.
+
+⚠️ O sinal `SpawnerSelvagem3D.nasceu(quem, entrada, elite)` **não mudou** — não
+quis quebrar suas conexões. `elite` **não** quer dizer Alpha: Alpha é um
+subconjunto raro dos elites. Pergunte ao corpo: `quem.alpha`.
+
 ## Claude — 18/09: Fase 17 (Move Pool). A HUD tem o que mostrar agora
 
 🔴 **Contexto que muda o que você desenha:** até hoje `PokemonInstance3D.kit`
