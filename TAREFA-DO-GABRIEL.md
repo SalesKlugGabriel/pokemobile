@@ -12,9 +12,19 @@ que funcione".
 
 ## Três coisas antes de começar
 
-1. ⚠️ **A folha de referência NÃO está no repositório.** Foi enviada na conversa
-   e não chegou ao disco da VPS. **Peça a imagem ao Gabriel** — ela é a
-   referência principal, e a FASE 1 do pedido dele é justamente analisá-la.
+1. 📄 **A folha de referência não existe como arquivo, e não vai existir.** A
+   imagem chega ao Claude na conversa e **não é gravada no disco da VPS**; o
+   Gabriel tentou subir e também não conseguiu.
+   ➡️ **Use `docs/referencias/player_v1/FOLHA-DE-REFERENCIA.md`** — a folha
+   transcrita painel por painel (turnaround, os cinco recortes de detalhe, os
+   três quadros de contexto em jogo, a régua de escala, a paleta, o equipamento),
+   separando o que está **desenhado** do que é interpretação. **Leia inteira
+   antes da FASE 1.**
+
+   Os três quadros de contexto são a parte que mais importa: eles ensinam a
+   **distância e o ângulo da câmera**, o **tamanho do personagem na tela**, e que
+   a leitura à distância depende de **silhueta + boné vermelho + mochila** — não
+   de detalhe facial.
 2. Já existe `assets/models/trainer/player.glb` (seu, 14–15/09), e **nada no
    jogo o carrega** — conferido por `git grep` em todas as branches. O treinador
    em cena hoje é uma **cápsula amarela** montada em código. O player_v1 não
@@ -70,11 +80,20 @@ passo DEPOIS da fábrica existir).
   `location_tile`, ~30 NPCs posicionados, `zones.json`, e as 2.923 linhas do
   `MapLayouts.gd`.
 
-## 🔴 Antes da FASE 1 das DUAS tarefas
+## 🔴 A altura do player: resolvido — **1,60 m**
 
-**Pergunte ao Gabriel qual é a altura do player.** A folha nova diz **1,60 m**; o
-código e o seu `player.glb` dizem **1,75 m**. É o denominador de toda a escala do
-mundo — árvore, pedra, caminho, caverna, câmera.
+Eu tinha levantado como contradição. A transcrição da folha resolveu.
+
+A folha lista **Pikachu em 0,40 m** e **Charizard em 1,70 m**. Conferi contra o
+`heights.json` do jogo: **os dois batem exatamente**. Ela não inventou escala de
+Pokémon pra caber no personagem — usou a real, que é o que a §15 exige.
+
+Isso inverte quem é o outlier: **não é a folha, é o código.** O treinador é uma
+cápsula de **1,75 m**, altura de **adulto** (a própria folha põe o NPC adulto em
+1,75), quase certamente placeholder que nunca foi calibrado.
+
+➡️ **Trabalhe com 1,60 m.** Quando o modelo entrar, `TrainerController3D` muda
+junto — cápsula e malha. Vale confirmar com o Gabriel, mas a evidência tem lado.
 
 ## A primeira entrega NÃO é um asset
 
