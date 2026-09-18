@@ -1,0 +1,54 @@
+{
+  "asset": "PLAYER_V1",
+  "version": 1,
+  "status": "BLOCKOUT_NOT_READY",
+  "height_m": 1.6,
+  "feet_z_m": 0.0,
+  "bounds_m": {
+    "x": [
+      -0.4015,
+      0.4015
+    ],
+    "y": [
+      -0.273,
+      0.385
+    ],
+    "z": [
+      0.0,
+      1.6
+    ]
+  },
+  "front_in_blender": "-Y",
+  "front_target_in_godot": "-Z",
+  "mesh_objects": 80,
+  "triangle_count": 3360,
+  "vertex_count": 1840,
+  "materials": [
+    "PLAYER_V1_MAT_BLACK",
+    "PLAYER_V1_MAT_BLUE",
+    "PLAYER_V1_MAT_DARK",
+    "PLAYER_V1_MAT_HAIR",
+    "PLAYER_V1_MAT_LIGHT",
+    "PLAYER_V1_MAT_RED",
+    "PLAYER_V1_MAT_SKIN",
+    "PLAYER_V1_MAT_TRIM"
+  ],
+  "textures": [],
+  "skeleton": [],
+  "animations": [],
+  "checks": {
+    "height_1_60_m": true,
+    "feet_at_origin": true,
+    "named_parts": true,
+    "budget_under_15000_triangles": true,
+    "front_is_negative_blender_y": true
+  },
+  "visual_gate": "FAIL_PENDING_REFINEMENT",
+  "rig_gate": "NOT_STARTED",
+  "godot_gate": "NOT_STARTED",
+  "known_issues": [
+    "Turnaround ainda abaixo da concept art: rosto, calçado, jaqueta e proporções precisam de refinamento",
+    "Malhas separadas não estão otimizadas para draw calls",
+    "Sem rig, skinning, animações ou export GLB V1"
+  ]
+}

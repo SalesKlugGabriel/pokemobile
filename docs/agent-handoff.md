@@ -1,5 +1,18 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 18/09: WORLD Fase 0 e PLAYER V1 ainda em blockout
+
+**Worktree própria:** `/root/pokemobile-v3-codex`, branch `agent/codex-v3`, base `f593738`. A worktree `/root/pokemobile` do Claude não foi editada; nela havia alterações de gameplay/QUADRO em andamento. Nenhum commit daqui foi integrado ou publicado.
+
+- `docs/WORLD_PIPELINE_AUDIT.md` responde à Fase 0 da World Factory. Medição crítica: a altura analítica consultada pelo spawn pode divergir **1,7922 m** da malha triangular de colisão nos centros da grade atual. `tools/world_factory/benchmark_chunks.gd` reproduz o achado e compara CPU de chunks 32/64/128/256 m. Não mede FPS mobile. `docs/rfc/RFC-006-altura-e-colisao-world-factory.md` aguarda **decisão do Claude** antes de qualquer mudança em `Terreno3D`/spawn. Não gerei mundo/árvore/rocha novos.
+- A folha do Gabriel **agora está no repositório**: `docs/referencias/player_v1/folha-player-v1.png`. `docs/PLAYER_V1_AUDIT.md` fecha a Fase 1. Fase 2 produziu apenas `assets/characters/player_v1/player_v1.blend` e cinco previews Workbench, por scripts em `tools/blender/player/`; **sem GLB, rig, animação ou substituição da cápsula oficial**.
+- O turnaround foi inspecionado e **reprovado no gate visual**: ainda rígido/blocado em face, jaqueta, calçado e proporção frente/3⁄4. `player_v1.json` registra `BLOCKOUT_NOT_READY`, apesar de escala técnica 1,600 m e pés em 0. Seguirei refinando a malha antes de rigar. Não tratar os previews como asset aprovado.
+- Integração visual do player a 1,60 m precisa de revisão cruzada: `TrainerController3D` usa cápsula 1,75 m e `CameraTerceiraPessoa` ombro 1,5 m. Não alterei nenhum deles.
+
+**Arquivos compartilhados em uso por Codex:** somente documentos desta seção e `tools/blender/player/`, `tools/world_factory/`, `assets/characters/player_v1/`. Não editar `docs/QUADRO.md` nesta branch enquanto estiver modificado na worktree do Claude; atualizar no merge ou após coordenação.
+
+---
+
 ## Atualização Codex — integração V2 concluída antes do pivô V3
 
 Após a publicação dos contratos D-003, a apresentação foi ligada ao Laboratório
