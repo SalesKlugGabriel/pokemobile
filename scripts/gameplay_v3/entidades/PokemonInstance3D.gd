@@ -468,15 +468,25 @@ func virar_selvagem(hostil: Node3D = null) -> void:
 ## comportamento das sete personalidades se prova sem subir mundo, e o que
 ## sobra aqui é só mover o corpo.
 func _agir_como_selvagem(delta: float) -> void:
-	# §12 da Fase 12: 1v1 sem arena. Quem já está numa briga deixa de ser alvo
-	# válido pros outros — mas o terceiro **não congela**: ele segue com a IA
-	# dele, só perde este alvo. Um bicho parado a dois metros da luta é tão
-	# estranho quanto um que entra nela.
-	if alvo_hostil != null and is_instance_valid(alvo_hostil) \
-			and bool(alvo_hostil.get_meta("em_combate", false)) \
-			and not bool(get_meta("em_combate", false)):
-		alvo_hostil = null
-		provocado = false
+	# 🔴 REMOVIDO em 18/09, e vale registrar por quê.
+	#
+	# Aqui existia uma trava que fazia o terceiro selvagem LARGAR o alvo quando
+	# ele já estava numa briga — pra sustentar um "1v1 sem arena".
+	#
+	# **O Gabriel corrigiu a premissa:** *"estamos fazendo um game de mundo
+	# aberto, a batalha entre diversos mobs é possível, o aggro de vários mobs
+	# também (...) é possível acontecer um 1v5 ou 1v10 dependendo da área do mapa
+	# que o player está"*. O 1v1 é a mecânica de **duelo** (PvP), não a regra do
+	# mundo.
+	#
+	# A trava não era só desnecessária: era um bug. Com ela, lutar contra um
+	# Rattata fazia **todos os outros que já vinham atrás do jogador esquecerem
+	# dele** — o oposto de "entrar despreparado numa região pode terminar muito
+	# mal", que é o terceiro pilar do projeto.
+	#
+	# Quem controla exclusividade agora é quem QUER exclusividade: o
+	# `Combate1v1`, via `RegraDeCombate.pode_engajar`, e só quando um duelo
+	# estiver acontecendo de propósito.
 
 	var alvo_valido : bool = alvo_hostil != null and is_instance_valid(alvo_hostil)
 	var pos_do_alvo : Vector3 = alvo_hostil.global_position if alvo_valido else global_position

@@ -164,6 +164,17 @@ painel, separando o que está desenhado do que é interpretação.
 
 ---
 
+## 🧭 Anotado para o futuro, sem prazo (decisões do Gabriel, 18/09)
+
+Coisas que ele levantou e escolheu **não** atacar agora — *"vamos continuar com
+o plano atual para não atrasar o projeto"*. Ficam aqui pra não virarem folclore:
+
+| O quê | O que ele disse |
+|---|---|
+| **Luta massiva: 1v5, 1v10** | É consequência do mundo aberto com aggro de vários mobs. A Fase 12 já **não impede** — o que falta é o resto (câmera, alvo, leitura de tela) ser pensado pra isso |
+| **4 skills pode ser pouco** | *"considerando esse 'battle royale solo' acho que 4 skills apenas pode ser pouco para uma luta massiva"*. `KitDeCombate` já prevê **até 8 slots** (4 base + 2 aos níveis 50 e 100), então o dado não precisa mudar — é decisão de balanceamento |
+| **1v1 vira PvP** | A mecânica de duelo existe e está testada; PvP está fora do escopo declarado da V3 |
+
 ## 🟡 Pendente — Gabriel
 
 | # | O quê | Por quê |
@@ -184,7 +195,7 @@ painel, separando o que está desenhado do que é interpretação.
 | **O ataque básico é Normal**, não do tipo do atacante | Daria STAB de graça e tornaria as 4 skills decorativas |
 | **Cooldown por golpe, não por slot** | Por slot, trocar a ordem das skills zeraria os cooldowns — exploit de graça |
 | **A direção do aviso é travada no início** | Relida na resolução, o aviso não custaria nada e ninguém desviaria de nada |
-| **1v1 é literal: o terceiro não entra — mas também não congela** (18/09) | Sem arena, nada impediria ele de entrar andando. Mas bicho parado a dois metros da luta é tão estranho quanto um que entra nela: ele perde os dois combatentes como alvo e segue com a IA dele |
+| 🔴 **O 1v1 é a mecânica de DUELO (PvP), não a regra do mundo** (Gabriel, 18/09) | *"é possível acontecer um 1v5 ou 1v10 dependendo da área do mapa"*. Vários mobs podem agredir ao mesmo tempo. Minha primeira versão fazia o terceiro largar o alvo — não era conservadorismo, era **bug**: lutar com um bicho fazia todos os outros esquecerem o jogador |
 | **Os dois caindo no mesmo quadro é DERROTA** | Vitória com o próprio Pokémon desmaiado não existe. Perder empatado é perder |
 | **Toda briga tem prazo** (20 s sem ninguém apanhar = desfaz) | Dois lutadores presos em lados opostos de uma pedra ficariam "em combate" pra sempre, e o jogador nunca recuperaria o treinador |
 | **Modelo ausente cai no primitivo E AVISA** | Asset faltando que aparece como cápsula silenciosa é zero silencioso |
