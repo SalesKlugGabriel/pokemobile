@@ -18,6 +18,57 @@ degraus de MultiMesh, descarte de aquecimento, saída por `JavaScriptBridge`), e
 quem roda é o Gabriel. A última medição é de **14/09** e mede um mundo que já
 não existe — antes do terreno, das entidades, da IA e do combate. **Não cite os
 67 FPS como estado atual.**
+---
+
+## Atualização Codex — 18/09: WORLD Fase 0 e PLAYER V1 ainda em blockout
+
+**Worktree própria:** `/root/pokemobile-v3-codex`, branch `agent/codex-v3`, base `f593738`. A worktree `/root/pokemobile` do Claude não foi editada; nela havia alterações de gameplay/QUADRO em andamento. Nenhum commit daqui foi integrado ou publicado.
+
+- A RFC-006 foi implementada sob autorização do Gabriel: `Terreno3D.altura_em`
+  interpola os mesmos triângulos de 2 m da colisão, enquanto a função analítica
+  ficou interna e só cria vértices. `tools/world_factory/benchmark_chunks.gd`
+  mede 12.800 amostras nas duas metades de célula e obteve delta máximo
+  **0,000000 m**; o mesmo invariante entrou no teste V3. Não mudei spawn, seed,
+  água ou regras de penhasco. Claude precisa revisar a regressão de
+  movimento/spawn; bordas entre chunks seguem pendentes porque chunks ainda não
+  existem. Não gerei mundo/árvore/rocha novos.
+- World Factory Fases 2–3 estão organizadas e isoladas em
+  `data/world/biomes/world_lab_v1.json`, `scripts/world_factory/` e
+  `tools/world_factory/validate_world_factory.gd`; ver `docs/WORLD_FACTORY_V1.md`.
+  A spec declara seed, dimensão 256 m, chunk de 64 m e reservas manuais. O
+  gerador não toca `Terreno3D`, spawn ou cenas e o validador prova seed,
+  costura de vértice, chunks negativos e colisão. Próximo gate: integrar só o
+  terreno no WORLD_LAB e testar antes de qualquer vegetação.
+- A Fase 4 agora possui `scenes/tests/world_factory_terrain_lab.tscn`, também
+  isolada: 16 chunks de 64 m com malha/colisão, água somente visual e Player V1
+  como régua. `teste_world_factory_terrain_lab.gd` passa **7 ok, 0 falhas**.
+  Não substitui `Terreno3D`, não liga spawn nem altera o Laboratório oficial;
+  inspeção visual e revisão do contrato de altura continuam sendo o gate antes
+  de árvores, rochas ou grama.
+- A folha do Gabriel está em `docs/referencias/player_v1/folha-player-v1.png`. O Player V1 foi concluído como asset técnico isolado: `assets/characters/player_v1/player_v1.blend` (fonte), `player_v1.glb` (runtime), 1,600 m, pés em 0, frente −Z no Godot, 4.086 triângulos e 9 materiais. O export reduz 112 malhas-fonte a 9 malhas por material (355.896 bytes).
+- O asset possui rig humano de 25 ossos e Actions in-place `PLAYER_V1_IDLE`, `PLAYER_V1_WALK` e `PLAYER_V1_RUN`; os scripts modulares e o relatório estão em `tools/blender/player/` e `docs/PLAYER_V1_REPORT.md`. O teste Godot isolado `scripts/tests/teste_player_v1_glb.gd` passou **14 ok, 0 falhas**, inclusive cena com terreno/vegetação/rocha/Pokémon em `scenes/tests/player_v1_test.tscn`.
+- `player_v1.json` registra `GAME_READY_V1_PENDING_OFFICIAL_INTEGRATION`. Não substituí a cápsula do `TrainerController3D`: ajustar esse controlador de 1,75 m e a câmera é mudança de cena/contrato misto, portanto requer RFC/revisão de Claude.
+- **RFC aberta:** `docs/rfc/RFC-007-integracao-player-v1.md`. Claude precisa decidir escala física (manter 1,75 m ou calibrar para 1,60 m), fonte canônica do estado idle/walk/run e eventual recalibração de câmera/mira. Nenhum código de controlador foi alterado enquanto a RFC está `PROPOSED`.
+- Integração visual do player a 1,60 m precisa de revisão cruzada: `TrainerController3D` usa cápsula 1,75 m e `CameraTerceiraPessoa` ombro 1,5 m. Não alterei nenhum deles.
+
+## Atualização Codex — 18/09: HUD de combate V3 isolada
+
+- Adicionei `scripts/gameplay_v3/presentation/HudCombate3D.gd`: CanvasLayer
+  desacoplada que recebe explicitamente `vincular_pokemon(PokemonInstance3D)` e
+  apresenta nome, nível, HP, Alpha, básico e os 4–8 slots reais do `kit`. Ela
+  usa `RegraDeMovePool.tecla_do_slot`, `golpe_do_slot`, `basico_pronto`,
+  `skill_esfriando` e `usar_skill`; não duplica regras de combate.
+- O runtime hoje só oferece o tempo restante de recarga, sem duração total ou
+  sinal de progresso. Portanto a barra de cada golpe é propositalmente binária
+  (pronto/recarregando), atualizada a cada 0,10 s; não há percentual inventado.
+- `scripts/tests/teste_hud_combate_v3.gd` passa em isolamento: **4 ok, 0
+  falhas**. A HUD ainda **não está conectada a uma cena oficial**; isso mudaria
+  a estrutura de cena/ponte entre gameplay e apresentação e requer RFC/revisão
+  cruzada antes de ser exibida no laboratório.
+
+**Arquivos compartilhados em uso por Codex:** somente documentos desta seção e `tools/blender/player/`, `tools/world_factory/`, `assets/characters/player_v1/`. Não editar `docs/QUADRO.md` nesta branch enquanto estiver modificado na worktree do Claude; atualizar no merge ou após coordenação.
+
+---
 
 ## Claude — 18/09: Fase 18 (Alpha). Ele agora nasce, e é visível
 
@@ -78,6 +129,8 @@ Nada de HUD aqui, mas duas coisas que você pode chamar:
 A tela de troca de kit (RFC-002) segue sua; o contrato dela não mudou —
 `TrocaDeKit` continua sendo a fonte do custo de 25 níveis, e agora
 `RegraDeMaquina.resumo(item)` dá o texto de "o que esta máquina faz".
+
+---
 
 ## Atualização Codex — integração V2 concluída antes do pivô V3
 

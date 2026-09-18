@@ -242,6 +242,24 @@ func _conferir_terreno() -> void:
 	var a2 : float = Terreno3D.altura_em(12.0, -8.0)
 	_conf(is_equal_approx(a1, a2), "a altura é determinística")
 
+	# RFC-006: `altura_em` não pode devolver a curva analítica entre vértices.
+	# Spawn e follower precisam do mesmo plano A-B-C/A-C-D do TrimeshShape3D,
+	# inclusive nas duas metades de cada uma das 6.400 células do laboratório.
+	var maior_delta_de_colisao : float = 0.0
+	for ix in 80:
+		for iz in 80:
+			var xa : float = Terreno3D.ORIGEM_X + ix * Terreno3D.PASSO
+			var za : float = Terreno3D.ORIGEM_Z + iz * Terreno3D.PASSO
+			for uv in [Vector2(0.72, 0.21), Vector2(0.27, 0.74)]:
+				var x : float = xa + uv.x * Terreno3D.PASSO
+				var z : float = za + uv.y * Terreno3D.PASSO
+				var esperado := _altura_do_triangulo_de_colisao(xa, za, uv.x, uv.y)
+				maior_delta_de_colisao = maxf(maior_delta_de_colisao,
+					absf(Terreno3D.altura_em(x, z) - esperado))
+	_conf(maior_delta_de_colisao < 0.0001,
+		"altura pública coincide com os triângulos da colisão (RFC-006)",
+		"maior delta %.8f m" % maior_delta_de_colisao)
+
 	# §23: o terreno tem relevo de verdade, não é um plano disfarçado.
 	var menor : float = 9999.0
 	var maior : float = -9999.0
@@ -324,6 +342,17 @@ func _conferir_terreno() -> void:
 	_conf(tem_subivel, "há encosta que o treinador sobe")
 	_conf(tem_ingreme, "e encosta íngreme demais — o par que prova a regra",
 		"(se faltar, o terreno é plano demais pra testar inclinação)")
+
+func _altura_do_triangulo_de_colisao(xa: float, za: float, u: float, v: float) -> float:
+	# Mesma diagonal e mesmas baricêntricas de `Terreno3D._gerar()`.
+	var passo : float = Terreno3D.PASSO
+	var a : float = Terreno3D.altura_em(xa, za)
+	var b : float = Terreno3D.altura_em(xa + passo, za)
+	var c : float = Terreno3D.altura_em(xa + passo, za + passo)
+	var d : float = Terreno3D.altura_em(xa, za + passo)
+	if v <= u:
+		return a * (1.0 - u) + b * (u - v) + c * v
+	return a * (1.0 - v) + c * u + d * (v - u)
 
 
 # ──────────────────────────────────────────────────────────────────────────────

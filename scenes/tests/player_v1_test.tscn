@@ -1,0 +1,61 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/tests/PlayerV1Test.gd" id="1_scene"]
+[ext_resource type="Script" path="res://scripts/gameplay_v3/mundo/Terreno3D.gd" id="2_terrain"]
+[ext_resource type="PackedScene" path="res://assets/characters/player_v1/player_v1.glb" id="3_player"]
+[ext_resource type="PackedScene" path="res://assets/models/pokemon/6.glb" id="4_charizard"]
+[ext_resource type="PackedScene" path="res://assets/models/pokemon/18.glb" id="5_pidgeot"]
+[ext_resource type="PackedScene" path="res://assets/models/pokemon/130.glb" id="6_gyarados"]
+[ext_resource type="PackedScene" path="res://assets/models/environment/trees/tree_c.glb" id="7_tree"]
+[ext_resource type="PackedScene" path="res://assets/models/environment/rocks/rock_round.glb" id="8_rock"]
+[ext_resource type="PackedScene" path="res://assets/models/environment/grass/grass_mid.glb" id="9_grass"]
+
+[sub_resource type="Environment" id="Environment_player"]
+background_mode = 1
+background_color = Color(0.28, 0.49, 0.72, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.72, 0.82, 1, 1)
+ambient_light_energy = 0.65
+tonemap_mode = 2
+
+[node name="PlayerV1Test" type="Node3D"]
+script = ExtResource("1_scene")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_player")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-52, -28, 0)
+light_energy = 1.1
+shadow_enabled = true
+
+[node name="TerrenoAtual" type="Node3D" parent="."]
+script = ExtResource("2_terrain")
+
+[node name="PlayerV1" parent="." instance=ExtResource("3_player")]
+position = Vector3(0, 0.12, 0)
+
+[node name="Charizard" parent="." instance=ExtResource("4_charizard")]
+position = Vector3(2.2, 0.08, -1.6)
+
+[node name="Pidgeot" parent="." instance=ExtResource("5_pidgeot")]
+position = Vector3(-2.4, 0.1, -1.2)
+
+[node name="Gyarados" parent="." instance=ExtResource("6_gyarados")]
+position = Vector3(4.5, 0.0, 3.5)
+
+[node name="Tree" parent="." instance=ExtResource("7_tree")]
+position = Vector3(-4.5, 0.0, 2.5)
+
+[node name="Rock" parent="." instance=ExtResource("8_rock")]
+position = Vector3(-1.8, 0.02, 1.9)
+
+[node name="GrassA" parent="." instance=ExtResource("9_grass")]
+position = Vector3(1.1, 0.02, 1.45)
+
+[node name="GrassB" parent="." instance=ExtResource("9_grass")]
+position = Vector3(-.9, 0.02, -1.7)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(6.4, 3.8, 7.2)
+current = true

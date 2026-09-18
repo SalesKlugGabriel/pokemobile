@@ -1,0 +1,66 @@
+{
+  "asset": "PLAYER_V1",
+  "version": 1,
+  "status": "GAME_READY_V1_PENDING_OFFICIAL_INTEGRATION",
+  "height_m": 1.6,
+  "feet_z_m": -0.0,
+  "bounds_m": {
+    "x": [
+      -0.335,
+      0.335
+    ],
+    "y": [
+      -0.273,
+      0.315
+    ],
+    "z": [
+      -0.0,
+      1.6
+    ]
+  },
+  "front_in_blender": "-Y",
+  "front_target_in_godot": "-Z",
+  "mesh_objects": 112,
+  "triangle_count": 4086,
+  "vertex_count": 2275,
+  "materials": [
+    "PLAYER_V1_MAT_BLACK",
+    "PLAYER_V1_MAT_BLUE",
+    "PLAYER_V1_MAT_DARK",
+    "PLAYER_V1_MAT_HAIR",
+    "PLAYER_V1_MAT_LIGHT",
+    "PLAYER_V1_MAT_PANTS",
+    "PLAYER_V1_MAT_RED",
+    "PLAYER_V1_MAT_SKIN",
+    "PLAYER_V1_MAT_TRIM"
+  ],
+  "textures": [],
+  "skeleton": [
+    "PLAYER_V1_ARMATURE"
+  ],
+  "animations": [
+    "PLAYER_V1_IDLE",
+    "PLAYER_V1_RUN",
+    "PLAYER_V1_WALK"
+  ],
+  "runtime_glb_bytes": 355896,
+  "checks": {
+    "height_1_60_m": true,
+    "feet_at_origin": true,
+    "named_parts": true,
+    "budget_under_15000_triangles": true,
+    "front_is_negative_blender_y": true,
+    "required_rig_bones": true,
+    "mvp_actions_present": true,
+    "glb_exported": true
+  },
+  "visual_gate": "PASS_V1_STYLIZED_TECHNICAL_REVIEW",
+  "rig_gate": "PASS_25_BONES_AND_EXPLICIT_WEIGHTS",
+  "animation_gate": "PASS_IDLE_WALK_RUN_IN_PLACE",
+  "godot_gate": "PASS_ISOLATED_GLTF_TEST",
+  "known_issues": [
+    "Integração no TrainerController3D requer RFC/revisão cruzada; a cápsula oficial não foi alterada",
+    "Aprovação estética humana em hardware com renderização continua recomendada antes de substituir o placeholder",
+    "Fonte Blender é modular (112 malhas); exportação mescla por material em 9 malhas de runtime"
+  ]
+}
