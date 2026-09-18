@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **119 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **120 arquivos, 0 com falha**
 
 ---
 
@@ -36,8 +36,8 @@ verdade.
 | 10 | **4 skills** (single/circle/cone/line, aviso, drenagem) | ✅ 17/09 · 61 conferências |
 | 11 | **Wild Pokémon** | ✅ 17/09 · `RegraDeSpawn` + `IASelvagem3D` + `SpawnerSelvagem3D` · 63 conferências |
 | 12 | **Combate 1v1** | ✅ 18/09 · `RegraDeCombate` + `Combate1v1` · 34 conferências |
-| 13 | Combate → Mundo | 🔵 **próxima** — fecha o laço da fantasia |
-| 14–15 | Surf · Fly | ⬜ |
+| 13 | **Combate → Mundo** | ✅ 18/09 · `RegraDeRetorno` + `RetornoAoMundo` · 50 conferências · **o laço da fantasia está fechado** |
+| 14–15 | Surf · Fly | 🔵 **próximas** |
 | 16–18 | TM/HM · Move Pool · Alpha | ⬜ · as regras já existem na V2 |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** |
 | 20 | Performance | ⬜ |
@@ -78,8 +78,8 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Bloqueado? |
 |---|---|---|
-| 1 | Fase 13 — Combate → Mundo (voltar a ser o treinador) | não — **é a próxima** |
-| 2 | Fases 14 a 18, na ordem | sim, em cadeia |
+| 1 | Fases 14 e 15 — Surf e Fly | não — **são as próximas** |
+| 2 | Fases 16 a 18 (TM/HM, Move Pool, Alpha) | as regras já existem na V2 |
 | 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
 
 ---
@@ -197,6 +197,9 @@ o plano atual para não atrasar o projeto"*. Ficam aqui pra não virarem folclor
 | **A direção do aviso é travada no início** | Relida na resolução, o aviso não custaria nada e ninguém desviaria de nada |
 | 🔴 **O 1v1 é a mecânica de DUELO (PvP), não a regra do mundo** (Gabriel, 18/09) | *"é possível acontecer um 1v5 ou 1v10 dependendo da área do mapa"*. Vários mobs podem agredir ao mesmo tempo. Minha primeira versão fazia o terceiro largar o alvo — não era conservadorismo, era **bug**: lutar com um bicho fazia todos os outros esquecerem o jogador |
 | **Os dois caindo no mesmo quadro é DERROTA** | Vitória com o próprio Pokémon desmaiado não existe. Perder empatado é perder |
+| **Só a DERROTA devolve o controle** (18/09) | Vencer e a briga se desfazer não devolvem nada — no mundo aberto o jogador continua sendo o Pokémon até decidir o contrário. Forçar a volta a cada vitória viraria uma sequência de telas de transição |
+| **Com hostil por perto, não dá pra voltar ao treinador** | Senão o corpo do treinador vira **saída de emergência**: cinco mobs em cima, aperta T, o perigo evapora. Isso esvaziaria o pilar do "mundo perigoso" — e o Gabriel acabou de reforçar que 1v5 e 1v10 acontecem |
+| **Classe pura nunca cita autoload — e nó também não deveria** | `PonteDeFeedback` citado direto no `ControlModeManager` derrubou a carga da classe inteira num teste `--script`: `new()` passou a responder "função inexistente". Mesma lição do `RNGManager` na Fase 11, em outro autoload |
 | **Toda briga tem prazo** (20 s sem ninguém apanhar = desfaz) | Dois lutadores presos em lados opostos de uma pedra ficariam "em combate" pra sempre, e o jogador nunca recuperaria o treinador |
 | **Modelo ausente cai no primitivo E AVISA** | Asset faltando que aparece como cápsula silenciosa é zero silencioso |
 | **O corpo do treinador encara a MIRA do mouse**, não a direção do movimento (18/09) | Pedido do Gabriel: *"o mouse precisa ser a mira para todas as ações"*. Com o corpo virando pro movimento e a câmera atrás, **nunca se vê a frente do personagem** — ele parecia andar de costas |

@@ -105,14 +105,16 @@ func iniciar(quem_defende: Node3D, quem_ataca: Node3D) -> bool:
 		selvagem.alvo_hostil = defensor
 		selvagem.provocado = true
 
-	# 1v1 sem arena: ninguém entra. O spawner para de criar, e os dois
-	# combatentes deixam de ser alvo válido pros outros selvagens.
+	# O spawner para de CRIAR enquanto a briga corre — não pra proteger o duelo,
+	# mas pra não empilhar bicho novo em cima de quem já está lutando. Os que já
+	# existem continuam livres pra entrar: mundo aberto, 1v5 acontece (correção
+	# do Gabriel, 18/09).
 	if spawner != null and is_instance_valid(spawner):
 		spawner.ativo = false
 	_marcar_em_combate(true)
 
-	EventBus.battle_started.emit()
-	PonteDeFeedback.anotar("batalha começou: %s x %s" % [
+	_sinal("battle_started")
+	_anotar("batalha começou: %s x %s" % [
 		str(defensor.nome_exibido), str(selvagem.nome_exibido)])
 	comecou.emit(defensor, selvagem)
 	return true
@@ -166,15 +168,17 @@ func _encerrar(r: String) -> void:
 		quem_atacou.provocado = false
 		quem_atacou.alvo_hostil = null
 
-	EventBus.battle_ended.emit({"resultado": r})
-	PonteDeFeedback.anotar("batalha terminou: %s" % RegraDeCombate.frase(r))
+	_sinal("battle_ended", {"resultado": r})
+	_anotar("batalha terminou: %s" % RegraDeCombate.frase(r))
 	terminou.emit(r, quem_defendeu, quem_atacou)
 
 # ──────────────────────────────────────────────────────────────────────────────
 
-## Marca os dois como "em combate", pra `RegraDeCombate.pode_engajar` manter os
-## outros fora. Não congela ninguém: o terceiro continua com a IA dele, só deixa
-## de ter estes dois como alvo.
+## Marca os dois como "em combate". É **informação**, não parede: quem quiser
+## exclusividade consulta via `RegraDeCombate.pode_engajar(..., exclusivo=true)`,
+## e isso é decisão de modo (PvP, chefe), não regra do mundo.
+##
+## No mundo aberto ninguém é barrado por esta marca — 1v5 e 1v10 acontecem.
 func _marcar_em_combate(valor: bool) -> void:
 	for quem in [defensor, selvagem]:
 		if quem != null and is_instance_valid(quem):
@@ -182,3 +186,29 @@ func _marcar_em_combate(valor: bool) -> void:
 
 func _vigiar_padrao() -> Array:
 	return get_tree().get_nodes_in_group("selvagem_v3")
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Autoloads, resolvidos em tempo de CHAMADA
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# 🔴 Citar `EventBus` ou `PonteDeFeedback` direto compila HOJE e quebra amanhã:
+# num teste `--script` autoload não é identificador, e o erro de compilação
+# derruba a classe inteira — quem tentar `.new()` recebe "função inexistente".
+#
+# Foi exatamente assim que a Fase 13 quebrou ao carregar o `ControlModeManager`,
+# e é a mesma lição do `RNGManager` na Fase 11. Resolver por caminho custa uma
+# linha e fecha a armadilha.
+
+func _anotar(texto: String) -> void:
+	var ponte := get_node_or_null("/root/PonteDeFeedback")
+	if ponte != null:
+		ponte.anotar(texto)
+
+func _sinal(nome: String, carga = null) -> void:
+	var barramento := get_node_or_null("/root/EventBus")
+	if barramento == null:
+		return
+	if carga == null:
+		barramento.emit_signal(nome)
+	else:
+		barramento.emit_signal(nome, carga)
