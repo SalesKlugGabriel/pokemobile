@@ -161,13 +161,29 @@ def jacket_shell(collection, materials):
             ((sign * .092, -.129, 1.07), .014, .009),
             ((sign * .133, -.126, .89), .013, .008),
         ], materials["BLUE"], collection, sides=6)
+        # The concept has two clearly separate jacket fronts.  These padded
+        # panels give the opening a cloth edge and break the old tube-like
+        # torso silhouette without painting detail onto the shirt.
+        mesh(f"PLAYER_V1_JACKET_FRONT_{sign}", [
+            (sign * .050, -.113, 1.209), (sign * .143, -.103, 1.187),
+            (sign * .160, -.107, .876), (sign * .071, -.124, .842),
+            (sign * .054, -.086, 1.211), (sign * .146, -.078, 1.187),
+            (sign * .162, -.080, .878), (sign * .074, -.097, .846),
+        ], [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1),
+            (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)],
+            materials["BLUE"], collection)
+        chamfer_box(f"PLAYER_V1_JACKET_POCKET_{sign}", sign * .144, -.120,
+                    [(.906, .040, .008), (.959, .044, .010)],
+                    materials["TRIM"], collection)
 
 
 def head_and_hat(collection, materials):
     ellipse("PLAYER_V1_FACE", [
-        (0, -.018, 1.295, .034, .042), (0, -.014, 1.327, .068, .061),
-        (0, -.005, 1.377, .092, .081), (0, 0, 1.438, .111, .094),
-        (0, .002, 1.500, .108, .093), (0, .01, 1.535, .083, .069),
+        # A short, broad jaw and cheek plane read as a teenager; the earlier
+        # pointed cone made the face read as a generic low-poly pawn.
+        (0, -.018, 1.295, .047, .048), (0, -.014, 1.326, .076, .066),
+        (0, -.005, 1.370, .101, .083), (0, 0, 1.430, .116, .096),
+        (0, .002, 1.492, .112, .095), (0, .010, 1.535, .087, .071),
     ], materials["SKIN"], collection, sides=14)
     # Dark crown at the back, angular pointed locks around cheeks/nape.
     ellipse("PLAYER_V1_HAIR_CROWN", [
@@ -193,14 +209,14 @@ def head_and_hat(collection, materials):
         # The sheet has large dark, vertical eyes with one compact highlight —
         # not white square sclerae.  Keeping the eye as a separate shallow mesh
         # leaves room for later facial states without making the head realistic.
-        eye_x = sign * .045
+        eye_x = sign * .047
         # Eye decals are intentionally flat against the face: a stylized dark
         # almond reads at distance and does not turn into a pair of goggles in
         # profile. Later expressions can replace these named meshes.
         eye_vertices = [
-            (eye_x - .018, -.101, 1.479), (eye_x + .018, -.101, 1.479),
-            (eye_x + .022, -.102, 1.456), (eye_x + .008, -.103, 1.438),
-            (eye_x - .014, -.102, 1.443), (eye_x - .022, -.102, 1.462),
+            (eye_x - .017, -.105, 1.483), (eye_x + .017, -.105, 1.483),
+            (eye_x + .021, -.106, 1.458), (eye_x + .007, -.107, 1.438),
+            (eye_x - .013, -.106, 1.443), (eye_x - .021, -.106, 1.463),
         ]
         eye_face = (0, 1, 2, 3, 4, 5) if sign > 0 else (5, 4, 3, 2, 1, 0)
         mesh(f"PLAYER_V1_EYE_{sign}", eye_vertices, [eye_face], materials["BLACK"], collection)
@@ -337,6 +353,19 @@ def shoe(sign, collection, materials):
             (x - .034, y - .006), (x + .034, y - .006),
             (x + .034, y + .006), (x - .034, y + .006),
         ], .146, .151, materials["LIGHT"], collection)
+    # Large side panels are deliberately legible at gameplay distance.  They
+    # turn the silhouette from a work boot into the red/white trail sneaker in
+    # the reference without requiring texture-only details.
+    for side in (-1, 1):
+        panel_x = x + side * .073
+        mesh(f"PLAYER_V1_SHOE_SIDE_PANEL_{sign}_{side}", [
+            (panel_x, -.195, .066), (panel_x, .052, .075),
+            (panel_x, .073, .126), (panel_x, -.112, .134),
+            (panel_x + side * .004, -.195, .066), (panel_x + side * .004, .052, .075),
+            (panel_x + side * .004, .073, .126), (panel_x + side * .004, -.112, .134),
+        ], [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1),
+            (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)],
+            materials["LIGHT" if side > 0 else "RED"], collection)
 
 
 def legs_and_shoes(collection, materials):
@@ -347,11 +376,11 @@ def legs_and_shoes(collection, materials):
             # vertical black block.  The shifted knee gives the cargo trouser a
             # relaxed standing pose while retaining symmetric rig axes.
             (x, .000, .178, .062, .070), (x * 1.01, .007, .267, .070, .078),
-            (x * 1.06, .011, .390, .078, .087),
-            (x * 1.07, .012, .458, .095, .101),
-            (x * 1.01, .006, .544, .104, .109),
-            (x * .97, .003, .693, .112, .113),
-            (x * .88, .008, .815, .118, .118),
+            (x * 1.06, .011, .390, .074, .083),
+            (x * 1.07, .012, .458, .088, .096),
+            (x * 1.01, .006, .544, .099, .105),
+            (x * .97, .003, .693, .106, .109),
+            (x * .88, .008, .815, .112, .113),
         ], materials["PANTS"], collection, sides=14)
         # Tapered cargo pocket is outside the thigh, not painted on it.
         pocket_x = sign * .205

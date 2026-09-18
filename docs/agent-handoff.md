@@ -20,7 +20,7 @@
   costura de vértice, chunks negativos e colisão. Próximo gate: integrar só o
   terreno no WORLD_LAB e testar antes de qualquer vegetação.
 - A folha do Gabriel **agora está no repositório**: `docs/referencias/player_v1/folha-player-v1.png`. `docs/PLAYER_V1_AUDIT.md` fecha a Fase 1. Fase 2 produziu apenas `assets/characters/player_v1/player_v1.blend` e cinco previews Workbench, por scripts em `tools/blender/player/`; **sem GLB, rig, animação ou substituição da cápsula oficial**.
-- O turnaround foi inspecionado e **reprovado no gate visual**: as passagens recentes estreitaram membros, melhoraram tênis, olhos, nuca e o perfil da mochila, mas rosto, jaqueta, calçado e proporção frente/3⁄4 continuam blockout. `player_v1.json` registra `BLOCKOUT_NOT_READY`, com 3.674 triângulos, escala técnica 1,600 m e pés em 0. Seguirei refinando a malha antes de rigar. Não tratar os previews como asset aprovado.
+- O turnaround foi inspecionado e **reprovado no gate visual**. O passe atual criou duas frentes espessas de jaqueta com lapelas e bolsos, mais painéis laterais reais nos tênis; a escala técnica continua 1,600 m, pés em 0, com 3.802 triângulos. Rosto, mãos, calça cargo e o volume orgânico do calçado continuam blockout. `player_v1.json` mantém `BLOCKOUT_NOT_READY`; seguirei refinando a malha antes de rigar. Não tratar os previews como asset aprovado.
 - Integração visual do player a 1,60 m precisa de revisão cruzada: `TrainerController3D` usa cápsula 1,75 m e `CameraTerceiraPessoa` ombro 1,5 m. Não alterei nenhum deles.
 
 ## Atualização Codex — 18/09: HUD de combate V3 isolada
