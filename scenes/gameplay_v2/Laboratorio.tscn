@@ -1,6 +1,27 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/gameplay_v2/Laboratorio.gd" id="1_lab"]
+[ext_resource type="Script" path="res://scripts/gameplay_v2/camera/CameraDeCombate.gd" id="2_camera"]
+[ext_resource type="Script" path="res://scripts/gameplay_v2/presentation/TelegraphV2.gd" id="3_telegraph"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay_v2/ui/HudV2.tscn" id="4_hud"]
+[ext_resource type="Script" path="res://scripts/gameplay_v2/presentation/IntegracaoVisualV2.gd" id="5_integracao"]
 
 [node name="Laboratorio" type="Node2D"]
 script = ExtResource("1_lab")
+
+[node name="TelegraphV2" type="Node2D" parent="."]
+script = ExtResource("3_telegraph")
+
+[node name="CameraDeCombate" type="Camera2D" parent="."]
+position = Vector2(640, 640)
+zoom = Vector2(0.5, 0.5)
+limit_left = 0
+limit_top = 0
+limit_right = 5120
+limit_bottom = 3840
+script = ExtResource("2_camera")
+
+[node name="HudV2" parent="." instance=ExtResource("4_hud")]
+
+[node name="IntegracaoVisualV2" type="Node" parent="."]
+script = ExtResource("5_integracao")

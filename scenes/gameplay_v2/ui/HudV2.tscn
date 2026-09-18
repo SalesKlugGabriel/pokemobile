@@ -1,0 +1,251 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay_v2/ui/HudV2.gd" id="1_hud"]
+
+[sub_resource type="StyleBoxFlat" id="Style_panel"]
+bg_color = Color(0.035, 0.055, 0.08, 0.93)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.31, 0.48, 0.58, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 5
+content_margin_left = 12.0
+content_margin_top = 9.0
+content_margin_right = 12.0
+content_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxFlat" id="Style_order"]
+bg_color = Color(0.04, 0.12, 0.16, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.83, 0.9, 0.9)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[node name="HudV2" type="CanvasLayer"]
+layer = 20
+script = ExtResource("1_hud")
+
+[node name="Interface" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MargemSuperior" type="MarginContainer" parent="Interface"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 150.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="PainelStatus" type="PanelContainer" parent="Interface/MargemSuperior"]
+custom_minimum_size = Vector2(430, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Status" type="VBoxContainer" parent="Interface/MargemSuperior/PainelStatus"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="VidaTreinador" type="HBoxContainer" parent="Interface/MargemSuperior/PainelStatus/Status"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Nome" type="Label" parent="Interface/MargemSuperior/PainelStatus/Status/VidaTreinador"]
+custom_minimum_size = Vector2(106, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "TREINADOR"
+
+[node name="HP" type="ProgressBar" parent="Interface/MargemSuperior/PainelStatus/Status/VidaTreinador"]
+custom_minimum_size = Vector2(220, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="Folego" type="HBoxContainer" parent="Interface/MargemSuperior/PainelStatus/Status"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Titulo" type="Label" parent="Interface/MargemSuperior/PainelStatus/Status/Folego"]
+custom_minimum_size = Vector2(106, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.9, 0.78, 1)
+theme_override_font_sizes/font_size = 12
+text = "STAMINA"
+
+[node name="Barra" type="ProgressBar" parent="Interface/MargemSuperior/PainelStatus/Status/Folego"]
+custom_minimum_size = Vector2(140, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 72.0
+show_percentage = false
+
+[node name="Estado" type="Label" parent="Interface/MargemSuperior/PainelStatus/Status/Folego"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 11
+text = "PRONTO"
+horizontal_alignment = 2
+
+[node name="Separador" type="HSeparator" parent="Interface/MargemSuperior/PainelStatus/Status"]
+layout_mode = 2
+
+[node name="VidaPokemon" type="HBoxContainer" parent="Interface/MargemSuperior/PainelStatus/Status"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Nome" type="Label" parent="Interface/MargemSuperior/PainelStatus/Status/VidaPokemon"]
+custom_minimum_size = Vector2(106, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.87, 0.42, 1)
+theme_override_font_sizes/font_size = 12
+text = "PIKACHU"
+
+[node name="HP" type="ProgressBar" parent="Interface/MargemSuperior/PainelStatus/Status/VidaPokemon"]
+custom_minimum_size = Vector2(160, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 82.0
+show_percentage = false
+
+[node name="Status" type="Label" parent="Interface/MargemSuperior/PainelStatus/Status/VidaPokemon"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.72, 0.25, 1)
+theme_override_font_sizes/font_size = 11
+text = "BURN"
+horizontal_alignment = 2
+
+[node name="MargemAlvo" type="MarginContainer" parent="Interface"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -312.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 126.0
+grow_horizontal = 0
+
+[node name="PainelAlvo" type="PanelContainer" parent="Interface/MargemAlvo"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Alvo" type="VBoxContainer" parent="Interface/MargemAlvo/PainelAlvo"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Nome" type="Label" parent="Interface/MargemAlvo/PainelAlvo/Alvo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.62, 0.38, 1)
+theme_override_font_sizes/font_size = 14
+text = "ALPHA ONIX"
+
+[node name="HP" type="ProgressBar" parent="Interface/MargemAlvo/PainelAlvo/Alvo"]
+custom_minimum_size = Vector2(250, 16)
+layout_mode = 2
+max_value = 100.0
+value = 64.0
+show_percentage = false
+
+[node name="Detalhe" type="Label" parent="Interface/MargemAlvo/PainelAlvo/Alvo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.82, 0.86, 1)
+theme_override_font_sizes/font_size = 11
+text = "ALPHA  •  NV.18"
+
+[node name="Ordem" type="Label" parent="Interface"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 480.0
+offset_top = 18.0
+offset_right = -480.0
+offset_bottom = 52.0
+grow_horizontal = 2
+theme_override_styles/normal = SubResource("Style_order")
+theme_override_font_sizes/font_size = 12
+text = "ATACAR  ·  ALPHA ONIX"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MargemSkills" type="MarginContainer" parent="Interface"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = -164.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="PainelSkills" type="PanelContainer" parent="Interface/MargemSkills"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Skills" type="VBoxContainer" parent="Interface/MargemSkills/PainelSkills"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Titulo" type="Label" parent="Interface/MargemSkills/PainelSkills/Skills"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "COMANDOS DO POKÉMON"
+horizontal_alignment = 1
+
+[node name="Grade" type="GridContainer" parent="Interface/MargemSkills/PainelSkills/Skills"]
+layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 4
+
+[node name="Ajuda" type="Label" parent="Interface"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -360.0
+offset_top = -38.0
+offset_right = -18.0
+offset_bottom = -16.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.72, 0.8, 0.84, 1)
+theme_override_font_sizes/font_size = 11
+text = "1–4 SKILLS  •  SHIFT CORRER  •  RMB MOVER"
+horizontal_alignment = 2

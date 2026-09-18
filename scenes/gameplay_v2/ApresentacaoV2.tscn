@@ -1,0 +1,79 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay_v2/presentation/ApresentacaoV2.gd" id="1_demo"]
+[ext_resource type="Script" path="res://scripts/gameplay_v2/camera/CameraDeCombate.gd" id="2_camera"]
+[ext_resource type="Script" path="res://scripts/gameplay_v2/presentation/TelegraphV2.gd" id="3_tele"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay_v2/ui/HudV2.tscn" id="4_hud"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/player.png" id="5_player"]
+[ext_resource type="Texture2D" path="res://assets/sprites/pokemon/mon_025.png" id="6_pika"]
+[ext_resource type="Texture2D" path="res://assets/sprites/pokemon/mon_095.png" id="7_onix"]
+
+[node name="ApresentacaoV2" type="Node2D"]
+script = ExtResource("1_demo")
+
+[node name="TelegraphV2" type="Node2D" parent="."]
+script = ExtResource("3_tele")
+
+[node name="Treinador" type="Node2D" parent="."]
+position = Vector2(920, 820)
+z_index = 2
+
+[node name="Sombra" type="Polygon2D" parent="Treinador"]
+position = Vector2(0, 45)
+polygon = PackedVector2Array(-36, 0, -24, -10, 24, -10, 36, 0, 24, 10, -24, 10)
+color = Color(0.02, 0.03, 0.04, 0.45)
+
+[node name="Sprite" type="Sprite2D" parent="Treinador"]
+texture = ExtResource("5_player")
+region_enabled = true
+region_rect = Rect2(0, 0, 128, 128)
+
+[node name="Pokemon" type="Node2D" parent="."]
+position = Vector2(1110, 900)
+z_index = 2
+
+[node name="Sombra" type="Polygon2D" parent="Pokemon"]
+position = Vector2(0, 42)
+polygon = PackedVector2Array(-40, 0, -28, -10, 28, -10, 40, 0, 28, 10, -28, 10)
+color = Color(0.02, 0.03, 0.04, 0.45)
+
+[node name="Sprite" type="Sprite2D" parent="Pokemon"]
+texture = ExtResource("6_pika")
+region_enabled = true
+region_rect = Rect2(0, 0, 128, 128)
+
+[node name="Alpha" type="Node2D" parent="."]
+position = Vector2(1560, 770)
+scale = Vector2(1.35, 1.35)
+z_index = 2
+
+[node name="Sombra" type="Polygon2D" parent="Alpha"]
+position = Vector2(0, 48)
+polygon = PackedVector2Array(-48, 0, -34, -12, 34, -12, 48, 0, 34, 12, -34, 12)
+color = Color(0.02, 0.03, 0.04, 0.5)
+
+[node name="Sprite" type="Sprite2D" parent="Alpha"]
+texture = ExtResource("7_onix")
+region_enabled = true
+region_rect = Rect2(0, 0, 128, 128)
+
+[node name="MarcaAlpha" type="Label" parent="Alpha"]
+offset_left = -48.0
+offset_top = -92.0
+offset_right = 48.0
+offset_bottom = -66.0
+theme_override_colors/font_color = Color(1, 0.45, 0.22, 1)
+theme_override_font_sizes/font_size = 14
+text = "ALPHA"
+horizontal_alignment = 1
+
+[node name="CameraDeCombate" type="Camera2D" parent="."]
+position = Vector2(1180, 800)
+zoom = Vector2(0.5, 0.5)
+limit_left = 0
+limit_top = 0
+limit_right = 2400
+limit_bottom = 1600
+script = ExtResource("2_camera")
+
+[node name="HudV2" parent="." instance=ExtResource("4_hud")]

@@ -1,5 +1,67 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — integração V2 concluída antes do pivô V3
+
+Após a publicação dos contratos D-003, a apresentação foi ligada ao Laboratório
+real em vez de permanecer apenas como fixture: `HudV2` consome o retrato
+`Laboratorio.estado()`, `CameraDeCombate` recebe `contexto_de_camera`,
+`TelegraphV2` recebe `golpe_telegrafado`/`telegrafia_encerrada`, e a troca de
+Pokémon reconecta HUD, câmera e sinais ao novo nó. A câmera provisória só fica
+como fallback para cenas mínimas; o Laboratório integrado tem uma única câmera.
+
+O contrato visual também passou a respeitar `fracao_vazia` dos anéis e não exibe
+telegraph falso para golpes com duração zero. A integração registra fontes
+`ui_v2` e `camera_v2` na PonteDeFeedback e encaminha skills pela fachada pública.
+
+Validação deste checkpoint: apresentação isolada **25 verificações, 0 falhas**;
+`teste_laboratorio_v2.gd` **56 verificações, 0 falhas**; `teste_tudo_compila.gd`
+**120 scripts, 0 quebrados**.
+
+Este é o último trabalho V2 desta branch. O pivô para V3/3D está em
+`agent/claude-v3`; conforme `FILA-DO-CODEX-V3.md`, o Codex não deve criar código,
+asset, shader ou cena 3D até o vertical slice fechar transferência, controle em
+primeira pessoa, ataque, quatro skills, retorno, surf e voo.
+
+---
+
+## Atualização Codex — 14/09, apresentação isolada da Gameplay V2
+
+**Workspace:** `/root/pokemobile-v2-codex`
+
+**Branch:** `agent/codex-gameplay-v2`
+
+**Base revisada:** `9837cee`
+
+Pronto nesta branch, sem alterar a entrada nem os sistemas da V1:
+
+- `CameraDeCombate.gd`: câmera local com prioridades de contexto, transição de
+  zoom, enquadramento limitado entre treinador/Pokémon, limites do mapa e tremor;
+- `HudV2.gd` + cena: HP do treinador, stamina com texto de exaustão, HP/status do
+  Pokémon, alvo, ordem e 4–8 skills, com uma ou duas linhas conforme a largura;
+- `TelegraphV2.gd`: desenho cancelável por `cast_id` para círculo, anel, cone,
+  linha/retângulo/feixe e alvo, consumindo geometria pronta em pixels do mundo;
+- `ApresentacaoV2.tscn`: cena demonstrativa separada. Os dados são fixtures
+  visuais; ela não é o `Laboratorio.tscn` jogável e não substitui a integração;
+- `teste_apresentacao_gameplay_v2.gd`: 11 verificações, 0 falhas.
+
+Validação em 14/09: importação Godot e execução isolada concluídas; 108 arquivos
+da suíte rodados em quatro blocos seriais, **0 falhas**. A execução monolítica é
+encerrada pelo limite externo antes do resumo e produziu três falsos “não chegou
+a rodar”; os três passaram quando executados individualmente e também nos blocos.
+`git diff --cached --check` passou. `assets/gerado` não existe nesta branch, então
+a auditoria adicional dessa pasta não se aplica.
+
+Limitação medida: esta VPS não tem template Web do Godot, Xvfb nem outro display
+virtual. A cena roda em headless, mas a inspeção visual desktop/portrait/landscape
+continua pendente em ambiente com renderização. Não houve publicação.
+
+**Integração ainda bloqueada pelo gameplay:** o commit `9837cee` não oferece
+`EstadoV2.instantaneo()`, `Laboratorio.tscn` nem os sinais de stamina, ordem,
+contexto de câmera e cast aceitos na D-001. Os componentes se conectam de forma
+defensiva quando as APIs existirem; não foi criado contrato paralelo no EventBus.
+
+---
+
 ## Workspaces e coordenação
 
 - Gameplay em andamento: `/root/pokemobile`, branch `main`, base observada `ed8ddeb`.
@@ -355,4 +417,3 @@ chars novos você quiser agora.
 **A barra de oxigênio e o botão de mergulhar são seus.** O sinal
 `EventBus.oxigenio_mudou(atual, maximo)` já existe e só emite quando muda; a
 tecla é J (M já era do mapa — a suíte pegou o conflito).
-
