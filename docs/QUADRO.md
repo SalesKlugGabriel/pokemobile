@@ -88,6 +88,7 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Quando |
 |---|---|---|
+| 0 | 🔴 **PLAYER 3D V1** — o modelo definitivo do treinador, pedido do Gabriel com folha de concept art | **prioridade** · `docs/agent-proposals/gabriel/2026-09-18-player-3d-v1.md` |
 | 1 | **Qualidade gráfica do mundo 3D** — terreno, vegetação, árvores, grama, água | agora, em paralelo |
 | 2 | Modelos de Pokémon em volume | agora · contrato em `POKEMON_MODEL_PIPELINE.md` |
 | 3 | HUD de combate: cooldown do básico e das 4 skills, telegrafe do aviso | quando quiser — a API já entrega tudo (ver abaixo) |
@@ -107,6 +108,20 @@ posicionar é o caminho que catapulta o jogador.
 **A tela não recalcula nada disso.** Se faltar um número, o Codex **descreve o
 dado** e o Claude implementa com fonte e confiança declaradas — a conta acontece
 no backend, nunca na tela.
+
+### ⚠️ Sobre o PLAYER 3D V1, antes de começar
+
+- **A folha de referência não está no repositório** — foi enviada na conversa e não
+  chegou ao disco da VPS. **Peça ao Gabriel** antes da FASE 1.
+- Já existe `assets/models/trainer/player.glb` (seu, 14–15/09), e **nada no jogo o
+  carrega** — conferido por `git grep` em todas as branches. O treinador em cena é
+  uma **cápsula amarela** montada em código. O player_v1 não substitui nada: ele é
+  o primeiro a entrar de verdade.
+- 🔴 **Frente no −Z.** Desde 18/09 o corpo do treinador **encara a mira do mouse**.
+  Um modelo apontando pra +Z aparece andando de costas o tempo todo — que é
+  exatamente a queixa que acabou de ser resolvida.
+- Origem **nos pés**, 1 unidade = 1 metro. O primeiro Charizard veio deitado por
+  Z-up não convertido; o `ValidadorDeModelo` pegou, e a régua continua valendo.
 
 ### Modelos: o contrato mudou por causa da entrega dele, e ele estava certo
 
@@ -141,6 +156,7 @@ no backend, nunca na tela.
 | **Cooldown por golpe, não por slot** | Por slot, trocar a ordem das skills zeraria os cooldowns — exploit de graça |
 | **A direção do aviso é travada no início** | Relida na resolução, o aviso não custaria nada e ninguém desviaria de nada |
 | **Modelo ausente cai no primitivo E AVISA** | Asset faltando que aparece como cápsula silenciosa é zero silencioso |
+| **O corpo do treinador encara a MIRA do mouse**, não a direção do movimento (18/09) | Pedido do Gabriel: *"o mouse precisa ser a mira para todas as ações"*. Com o corpo virando pro movimento e a câmera atrás, **nunca se vê a frente do personagem** — ele parecia andar de costas |
 | **Selvagem nasce num ANEL** (12 a 28 m), nunca perto | Fora do raio de aggro de um agressivo (5 m): o bicho tem de aparecer e se aproximar, não materializar na cara. E protege do contrato de nascimento |
 | **Lugar perigoso: menos encontro, e mais raro** | Pedido do Gabriel. Esticar só o intervalo não bastaria — a população acumularia até igualar a zona segura. Por isso o teto de população cai junto |
 | **Classe pura nunca cita autoload** | Autoload não é identificador em teste `--script`. Vai por `Sorteio`, que resolve em tempo de chamada e preserva a sequência do jogo |

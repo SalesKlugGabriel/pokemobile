@@ -8,6 +8,7 @@ extends Control
 func _ready() -> void:
 	AudioManager.play_bgm("title")
 	_vestir_a_tela()
+	_porta_da_v3()
 	var has_save := SaveManager.has_save()
 	btn_continue.visible = has_save
 	if has_save:
@@ -192,3 +193,25 @@ func _pintar_botao(botao: Button) -> void:
 		caixa.shadow_size = 6
 		caixa.shadow_offset = Vector2(0, 4)
 		botao.add_theme_stylebox_override(str(estado[0]), caixa)
+
+## 🔴 Porta de entrada da Gameplay V3 (3D) — provisória, 18/09.
+##
+## Achado ao investigar por que o Gabriel continuava vendo os controles antigos:
+## **nada no jogo levava à cena 3D.** `Laboratorio3D.tscn` só era citado por um
+## teste, então o build da web nunca chegava lá — ele estava jogando a V2, ou
+## abrindo a cena pelo editor.
+##
+## Isto é botão de DESENVOLVIMENTO, não de produto: sem ele, nenhum conserto da
+## V3 é jogável fora do editor, e "está no ar" viraria uma frase sem efeito.
+## O desenho de verdade (menu, transição, nome) é do Codex, na Fase 19.
+func _porta_da_v3() -> void:
+	var caixa := $VBox
+	if caixa == null:
+		return
+	var b := Button.new()
+	b.name = "BtnV3"
+	b.text = "Gameplay V3 (3D) — teste"
+	b.pressed.connect(func():
+		get_tree().change_scene_to_file("res://scenes/gameplay_v3/Laboratorio3D.tscn"))
+	caixa.add_child(b)
+	_pintar_botao(b)

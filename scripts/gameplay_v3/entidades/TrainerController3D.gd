@@ -128,9 +128,29 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-	# Vira pra onde anda, não pra onde a câmera olha — é o que deixa andar de
-	# lado e de costas parecer natural em 3ª pessoa.
-	rotation.y = Locomocao3D.girar_para(rotation.y, velocity, delta)
+	# 🔴 MUDANÇA DE DESIGN — Gabriel, 18/09: *"o mouse precisa ser a mira para
+	# todas as ações, inclusive em combate, para arremessar pokébolas, para usar
+	# ataques"*.
+	#
+	# Antes o corpo virava pra onde ANDAVA (`girar_para`). Era o modelo clássico
+	# de 3ª pessoa, e tem uma consequência que ele sentiu na pele: **você nunca
+	# vê a frente do personagem**, porque ele se vira pro lado do movimento e a
+	# câmera está atrás. Quando ele anda na sua direção, você vê as costas
+	# andando pra trás.
+	#
+	# Agora o corpo segue a MIRA — a mesma regra que o Pokémon em 1ª pessoa já
+	# usava. Com isso:
+	#   · o personagem encara sempre pra onde o mouse aponta;
+	#   · W anda pra frente da mira, S anda de costas de verdade, A e D andam
+	#     de lado — e isso é legível, porque a frente dele está visível;
+	#   · e qualquer ação (pokébola, ataque) sai na direção que o jogador vê.
+	#
+	# `girar_para` continua existindo e testado: quem vira pra direção do
+	# movimento é o **selvagem** (Fase 11), que não tem mouse.
+	if camera != null:
+		rotation.y = camera.yaw()
+	else:
+		rotation.y = Locomocao3D.girar_para(rotation.y, velocity, delta)
 
 	# A câmera é `top_level`: não herda mais nada do corpo, então a posição dela
 	# tem de ser acompanhada à mão. É de propósito — herdar a posição traria a
@@ -148,6 +168,28 @@ func _tick_stamina(delta: float) -> void:
 		acoes.append("correr")
 	if stamina.passo(delta, acoes, esta_parado()):
 		stamina_mudou.emit(stamina.atual, stamina.maximo(), stamina.estado())
+
+## 🎯 A MIRA — uma fonte só, pra toda ação do treinador.
+##
+## Pedido do Gabriel (18/09): o mouse é a mira de tudo. Pokébola, ataque, o que
+## vier. Por isso isto é **função**, e não cada lugar calculando a sua direção:
+## duas contas pro mesmo "pra onde" é como um jogo passa a mirar num lugar e
+## acertar em outro.
+##
+## Vem COM o pitch — quem mira pra cima arremessa pra cima. A direção de ANDAR é
+## outra coisa (`camera.base_do_movimento()`, achatada), e a diferença é de
+## propósito: andar pro chão quando se olha pra baixo seria bug.
+func direcao_de_mira() -> Vector3:
+	if camera != null and camera.camera != null:
+		return -camera.camera.global_transform.basis.z
+	return -global_transform.basis.z
+
+## De onde a ação sai: a altura do ombro, não os pés. Uma pokébola que nasce no
+## chão atravessa o próprio corpo no primeiro passo.
+func origem_da_mira() -> Vector3:
+	if camera != null:
+		return camera.global_position
+	return global_position + Vector3.UP * 1.5
 
 func esta_parado() -> bool:
 	return Locomocao3D.esta_parado(velocity)

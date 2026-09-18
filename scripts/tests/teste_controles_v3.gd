@@ -139,10 +139,31 @@ func _conferir_depois_de_andar() -> void:
 		absf(angle_difference(yaw_da_camera, yaw_global_da_camera)) < 0.01,
 		"pedido %.3f, no mundo %.3f — a câmera está herdando rotação de alguém" % [yaw_da_camera, yaw_global_da_camera])
 
-	# E o corpo REALMENTE girou, senão a conferência de cima passaria por acaso.
-	_checar("o corpo girou pra direção do movimento",
-		absf(_treinador.rotation.y) > 0.01,
-		"corpo em %.3f — se não girou, o teste acima não provou nada" % _treinador.rotation.y)
+	# 🔴 18/09 — a régua mudou junto com o design. Antes o corpo virava pra onde
+	# ANDAVA; agora ele **encara a mira**, a pedido do Gabriel: *"o mouse precisa
+	# ser a mira para todas as ações"*.
+	#
+	# O sintoma que isso resolve: com o corpo virando pro movimento e a câmera
+	# atrás, **nunca se vê a frente do personagem** — quando ele anda na direção
+	# da câmera, o que aparece são as costas andando pra trás.
+	_checar("o corpo encara a MIRA, não a direção do movimento",
+		absf(angle_difference(_treinador.rotation.y, cam.yaw())) < 0.01,
+		"corpo em %.3f, mira em %.3f" % [_treinador.rotation.y, cam.yaw()])
+
+	# E o corpo REALMENTE girou — senão a conferência acima passaria por acaso,
+	# com os dois em zero.
+	_checar("e o corpo realmente girou (não está tudo em zero)",
+		absf(_treinador.rotation.y) > 0.01, "corpo em %.3f" % _treinador.rotation.y)
+
+	# A mira é uma fonte só, pra pokébola e ataque saírem pra onde se olha.
+	var mira : Vector3 = _treinador.direcao_de_mira()
+	var olhar_da_camera : Vector3 = -cam.camera.global_transform.basis.z
+	_checar("a mira do treinador é a da câmera (uma conta só, não duas)",
+		mira.normalized().dot(olhar_da_camera.normalized()) > 0.999,
+		"%s vs %s" % [str(mira), str(olhar_da_camera)])
+	_checar("a ação sai da altura do ombro, não dos pés",
+		_treinador.origem_da_mira().y > _treinador.global_position.y + 1.0,
+		"y = %.2f" % _treinador.origem_da_mira().y)
 
 	# Andou pra frente da câmera, não pra dentro dela.
 	var andou := _treinador.global_position - Vector3(10, _treinador.global_position.y, 10)
