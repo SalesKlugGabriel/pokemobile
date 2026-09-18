@@ -17,9 +17,10 @@
 ##      importa: o spawner produz Alpha, e ele nasce diferente de verdade.
 ##   2. **Caterpie Alpha.** A curadoria por espécie tem de valer, e falhar
 ##      FECHADA — espécie sem a chave não é elegível.
-##   3. **Elite virar Alpha.** São dois conceitos que se parecem. Elite chega a
-##      35% numa zona perigosa; miniboss incapturável em 35% dos encontros não
-##      é raridade, é rotina.
+##   3. **A raridade escorregar.** O Gabriel fixou os três números em 18/09:
+##      elite 2%, Alpha 0,5%, +0,1% por elite derrotado nas últimas 3 horas.
+##      Cada um deles é conferido aqui como número, e a janela é conferida
+##      expirando — um bônus que não expira é outra regra.
 ##   4. **Dois multiplicadores pro mesmo Alpha.** A §30 pede UM número pros seis
 ##      stats; `CombatBalance` tem a tabela medida da V1 e `BalanceV2` tem a
 ##      especificação. A especificação ganha, e num lugar só.
@@ -84,37 +85,72 @@ func _curadoria() -> void:
 	_conf("dicionário vazio não quebra", not R.elegivel({"name": "Fantasma"}))
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 2. Alpha é subconjunto de elite
+# 2. A raridade — a régua que o Gabriel fixou em 18/09
 # ──────────────────────────────────────────────────────────────────────────────
 
 func _sorteio() -> void:
-	print("\n-- elite e Alpha não são a mesma coisa --")
+	print("\n-- a régua do Gabriel: 2% elite, 0,5% Alpha, +0,1% por elite caído --")
 	var R = load("res://scripts/gameplay_v3/pokemon/RegraDeAlpha.gd")
 	var charizard : Dictionary = _especies.get("6", {})
 	var caterpie : Dictionary = _especies.get("10", {})
 
-	_conf("sem ser elite, nunca é Alpha — nem com o sorteio perfeito",
-		not R.sortear(charizard, false, 0.0))
-	_conf("elite + elegível + sorteio bom = Alpha",
-		R.sortear(charizard, true, 0.0))
-	_conf("elite + elegível + sorteio ruim = só elite",
-		not R.sortear(charizard, true, 0.99),
-		"todo elite virar Alpha é o erro que esta fase existe pra não cometer")
-	_conf("elite + NÃO elegível = nunca Alpha",
-		not R.sortear(caterpie, true, 0.0),
+	# Os três números que ele fixou, conferidos como números.
+	_conf("elite é 2%", PerigoDaZona.CHANCE_DE_ELITE_MAX == 0.02,
+		"%.3f" % PerigoDaZona.CHANCE_DE_ELITE_MAX)
+	_conf("Alpha começa em 0,5%", R.CHANCE_BASE == 0.005)
+	_conf("e sobe 0,1% por elite", R.BONUS_POR_ELITE == 0.001)
+	_conf("a janela é de 3 horas", R.JANELA_SEGUNDOS == 3.0 * 3600.0)
+
+	# A curadoria ganha do sorteio, sempre.
+	_conf("elegível + sorteio bom = Alpha", R.sortear(charizard, 0.0))
+	_conf("NÃO elegível = nunca Alpha, nem com o sorteio perfeito",
+		not R.sortear(caterpie, 0.0),
 		"a curadoria tem de ganhar do sorteio, não o contrário")
+	_conf("elegível + sorteio ruim = não é Alpha", not R.sortear(charizard, 0.99))
 
-	_conf("a chance está declarada como número, num lugar só",
-		R.CHANCE_ENTRE_ELITES > 0.0 and R.CHANCE_ENTRE_ELITES < 1.0,
-		"%.2f" % R.CHANCE_ENTRE_ELITES)
-	_conf("e é bem menor que a chance de elite (35%)",
-		R.CHANCE_ENTRE_ELITES < PerigoDaZona.CHANCE_DE_ELITE_MAX,
-		"se fosse maior, Alpha seria mais comum que elite, o que não faz sentido")
-
-	# A fronteira exata do sorteio, pra ninguém trocar < por <= sem perceber.
+	# A fronteira exata, pra ninguém trocar < por <= sem perceber.
 	_conf("o limite é exclusivo",
-		R.sortear(charizard, true, R.CHANCE_ENTRE_ELITES - 0.001)
-		and not R.sortear(charizard, true, R.CHANCE_ENTRE_ELITES))
+		R.sortear(charizard, R.CHANCE_BASE - 0.0001)
+		and not R.sortear(charizard, R.CHANCE_BASE))
+
+	# ── A janela de 3 horas ──
+	var agora : float = 1_000_000.0
+	var hora : float = 3600.0
+	_conf("sem nenhum elite derrotado, a chance é a base",
+		is_equal_approx(R.chance([], agora), R.CHANCE_BASE))
+	_conf("três elites recentes dão exatamente +0,3%",
+		is_equal_approx(R.chance([agora - 60.0, agora - 120.0, agora - 180.0], agora),
+			R.CHANCE_BASE + 3.0 * R.BONUS_POR_ELITE),
+		"%.4f" % R.chance([agora - 60.0, agora - 120.0, agora - 180.0], agora))
+	_conf("elite de 4 horas atrás não conta mais",
+		is_equal_approx(R.chance([agora - 4.0 * hora], agora), R.CHANCE_BASE),
+		"a janela é o ponto: o bônus tem de expirar sozinho")
+	_conf("elite de 2h59 ainda conta",
+		R.chance([agora - (3.0 * hora - 60.0)], agora) > R.CHANCE_BASE)
+	_conf("a fronteira da janela é exclusiva",
+		is_equal_approx(R.chance([agora - 3.0 * hora], agora), R.CHANCE_BASE))
+	_conf("relógio que anda pra trás não vira bônus eterno",
+		is_equal_approx(R.chance([agora + hora], agora), R.CHANCE_BASE),
+		"derrota no futuro contaria pra sempre, porque nunca sai da janela")
+
+	# ── O teto (o único número que não é do Gabriel) ──
+	var muitas : Array = []
+	for i in 500:
+		muitas.append(agora - float(i))
+	_conf("o bônus tem teto", R.chance(muitas, agora) <= R.CHANCE_MAXIMA,
+		"sem teto, 500 elites levariam a chance a 50,5%% e a raridade sumiria")
+	_conf("e o teto é bem maior que a base", R.CHANCE_MAXIMA > R.CHANCE_BASE * 2.0)
+
+	# ── O perigo da zona escala os dois pela mesma régua ──
+	_conf("em zona sem perigo nenhum, Alpha não nasce",
+		R.chance([], agora, 0.0) == 0.0,
+		"se não escalasse, um Alpha apareceria em Pallet Town, onde elite é 0%")
+	_conf("o perigo escala proporcionalmente",
+		is_equal_approx(R.chance([], agora, 0.5), R.CHANCE_BASE * 0.5))
+	_conf("perigo acima de 1 não estoura a conta",
+		is_equal_approx(R.chance([], agora, 9.0), R.CHANCE_BASE))
+	_conf("o teto é da raridade, não do produto",
+		R.chance(muitas, agora, 1.0) > R.chance(muitas, agora, 0.5))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 3. O que muda quando é
@@ -259,8 +295,59 @@ func _no_mundo() -> void:
 		caterpie != null and caterpie.alpha,
 		"a regra avisa; quem decide o spawn é o spawner, e ele consulta a curadoria")
 
+	_contagem_de_elites(mundo)
+
+## O laço que faz o bônus existir de verdade: elite cai → contagem sobe →
+## chance sobe → a janela esquece sozinha. Cada elo separado, porque é assim
+## que se descobre QUAL deles quebrou.
+func _contagem_de_elites(mundo: Node3D) -> void:
+	print("\n-- o bônus, ponta a ponta --")
+	var R = load("res://scripts/gameplay_v3/pokemon/RegraDeAlpha.gd")
+	var S = load("res://scripts/gameplay_v3/mundo/SpawnerSelvagem3D.gd")
+	var spawner = S.new()
+	mundo.add_child(spawner)
+
+	# Relógio injetado: três horas de espera não cabem num teste.
+	var relogio := {"t": 1_000_000.0}
+	spawner.agora = func(): return float(relogio["t"])
+
+	_conf("o spawner começa sem elite nenhum na conta",
+		spawner.derrotas_de_elite.is_empty())
+
+	spawner.registrar_elite_derrotado()
+	spawner.registrar_elite_derrotado()
+	_conf("dois elites caídos entram na conta",
+		spawner.derrotas_de_elite.size() == 2)
+	_conf("e a chance sobe exatamente +0,2%",
+		is_equal_approx(R.chance(spawner.derrotas_de_elite, float(relogio["t"])),
+			R.CHANCE_BASE + 2.0 * R.BONUS_POR_ELITE))
+
+	# Passam 4 horas. O bônus tem de sumir sozinho, sem ninguém limpar.
+	relogio["t"] += 4.0 * 3600.0
+	_conf("depois de 4 horas a chance volta à base",
+		is_equal_approx(R.chance(spawner.derrotas_de_elite, float(relogio["t"])),
+			R.CHANCE_BASE))
+
+	# E a lista não fica crescendo pra sempre por trás.
+	spawner.registrar_elite_derrotado()
+	_conf("a lista esquece o que saiu da janela",
+		spawner.derrotas_de_elite.size() == 1,
+		"guardar derrota velha é memória vazando devagar: %d"
+			% spawner.derrotas_de_elite.size())
+
+	# 🔴 A lista é compartilhável POR REFERÊNCIA — é o que permite dois
+	# spawners contarem juntos. Se a limpeza reatribuísse em vez de limpar no
+	# lugar, eles se separariam em silêncio na primeira limpeza.
+	var compartilhada : Array = spawner.derrotas_de_elite
+	relogio["t"] += 4.0 * 3600.0
+	spawner.registrar_elite_derrotado()
+	_conf("a limpeza não troca a lista por outra",
+		compartilhada.size() == spawner.derrotas_de_elite.size()
+		and compartilhada == spawner.derrotas_de_elite,
+		"dois spawners que compartilhavam a contagem deixariam de compartilhar")
+
 ## A guarda da Fase 16: teste que aborta calado é teste que passa mentindo.
-const CONFERENCIAS_ESPERADAS : int = 39
+const CONFERENCIAS_ESPERADAS : int = 58
 
 func _terminar() -> void:
 	var total : int = ok + fail

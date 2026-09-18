@@ -135,8 +135,14 @@ func _mais_raro_e_mais_forte() -> void:
 
 	_conf(Perigo.chance_de_elite(segura) <= 0.001,
 		"zona segura não gera elite")
-	_conf(Perigo.chance_de_elite(perigosa) > 0.05,
-		"zona perigosa gera elite", "%.0f%%" % (Perigo.chance_de_elite(perigosa) * 100.0))
+	# 🔴 18/09: a régua era `> 5%`, escrita quando o teto era 35%. O Gabriel
+	# fixou o elite em **2%**, então a pergunta certa passou a ser "existe e é
+	# raro", não "é grande". A trava vira o próprio teto: a zona mais perigosa
+	# tem de chegar perto dele, e nenhuma pode passar.
+	_conf(Perigo.chance_de_elite(perigosa) > 0.0
+		and Perigo.chance_de_elite(perigosa) <= Perigo.CHANCE_DE_ELITE_MAX,
+		"zona perigosa gera elite, dentro do teto de 2%",
+		"%.2f%%" % (Perigo.chance_de_elite(perigosa) * 100.0))
 
 	# O raro sobe, mas o comum continua sendo o mais provável — a correção
 	# comprime a diferença, não inverte a tabela.

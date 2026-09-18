@@ -151,7 +151,7 @@ rodando** — não quando o código existe.
 | 15 | Fly | ✅ | 18/09 · zonas de voo e teto relativo |
 | 16 | TM/HM | ✅ | 18/09 · `RegraDeMaquina` · capacidade (arquétipo) × permissão (MO) · 48 conferências |
 | 17 | Move Pool | ✅ | 18/09 · `RegraDeMovePool` · conhecidos / equipados / ativos · 59 conferências · 🔴 **o kit da V3 estava vazio no jogo inteiro** |
-| 18 | Alpha | ✅ | 18/09 · `RegraDeAlpha` · elite ⊃ Alpha + curadoria por espécie · 39 conferências · 🔴 **nunca tinha nascido um** |
+| 18 | Alpha | ✅ | 18/09 · `RegraDeAlpha` · sorteio próprio + curadoria por espécie · 58 conferências · 🔴 **nunca tinha nascido um** · raridade 2%/0,5%/+0,1% por elite (Gabriel, 18/09) |
 | 19 | Polimento | ⬜ | **Codex entra aqui** |
 | 20 | Performance | ⬜ | |
 

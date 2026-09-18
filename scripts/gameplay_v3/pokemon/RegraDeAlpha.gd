@@ -34,17 +34,35 @@ extends RefCounted
 ## tem a faixa dele (5 a 6 golpes) desde a Fase 3.
 const CATEGORIA := "alpha"
 
-## ⚠️ **PROXY — palpite declarado, não medido.** (regra 7 do `CLAUDE.md`)
+## ── A régua, fixada pelo Gabriel em 18/09 ──────────────────────────────────
 ##
-## Quantos dos encontros ELITE viram Alpha. A Fase 11 já sorteia "elite" com
-## `PerigoDaZona.chance_de_elite()`, que vai até **35%** numa zona perigosa — e
-## 35% de encontros com um miniboss incapturável não é raridade, é rotina.
+## *"taxa de aparecimento de um elite: 2%; a taxa de aparecimento de um alpha é
+## de 0,5% e aumenta 0,1% a cada elite derrotado nas últimas 3 hrs"*
 ##
-## Não existe fonte pra este número: nem `zones.json`, nem a V2 (onde o Alpha
-## nunca nasceu), nem medição. Então ele está declarado aqui como palpite, num
-## lugar só, e **a pergunta vai pro Gabriel**. Com 0,20 e a curadoria de
-## espécie, uma zona no perigo máximo entrega um Alpha a cada ~14 encontros.
-const CHANCE_ENTRE_ELITES : float = 0.20
+## Isso **desfez** o desenho que eu tinha entregue horas antes, e o desfez pra
+## melhor. Eu tinha feito Alpha um subconjunto do elite porque a chance de elite
+## era 35% e um miniboss em 35% dos encontros seria rotina. Com o elite em 2%, a
+## premissa cai: os dois passam a ser **sorteios independentes**, e é bom que
+## sejam — o bônus por elites derrotados faz a chance de Alpha **crescer**, e
+## uma chance filha nunca poderia passar da mãe.
+const CHANCE_BASE : float = 0.005
+
+## Quanto a chance sobe por elite derrotado dentro da janela.
+const BONUS_POR_ELITE : float = 0.001
+
+## O tamanho da janela: 3 horas de relógio.
+const JANELA_SEGUNDOS : float = 3.0 * 60.0 * 60.0
+
+## ⚠️ **PROXY — o único número desta regra que NÃO é do Gabriel.**
+##
+## O teto da chance. Sem teto, "sobe 0,1% por elite" é ilimitado: 200 elites em
+## 3 horas levariam o Alpha a 20,5%, e a raridade que ele acabou de fixar em
+## 0,5% deixaria de existir justamente pra quem mais joga. Um teto é obrigatório
+## pra regra ser coerente; **qual** teto é decisão dele.
+##
+## 5% é 10× a base, e exige 45 elites derrotados em 3 horas pra ser atingido —
+## o que, a 2% de chance de elite por encontro, é bastante jogo.
+const CHANCE_MAXIMA : float = 0.05
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Quem pode ser
@@ -59,23 +77,51 @@ const CHANCE_ENTRE_ELITES : float = 0.20
 static func elegivel(especie: Dictionary) -> bool:
 	return bool(especie.get("is_alpha_eligible", false))
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Quão provável é
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Quantos elites foram derrotados dentro da janela de 3 horas.
+##
+## `derrotas` são instantes em segundos (o mesmo relógio de `agora`). Filtrar
+## aqui, e não em quem guarda a lista, é o que garante que a janela signifique a
+## mesma coisa em todo lugar que perguntar.
+static func elites_na_janela(derrotas: Array, agora: float) -> int:
+	var n : int = 0
+	for quando in derrotas:
+		var t := float(quando)
+		# O futuro não conta: relógio que anda pra trás (fuso, save antigo) não
+		# pode virar bônus eterno.
+		if t <= agora and (agora - t) < JANELA_SEGUNDOS:
+			n += 1
+	return n
+
+## A chance de Alpha agora, já com o bônus, o teto e o perigo da zona.
+##
+## `perigo` é o 0→1 de `PerigoDaZona.perigo(zona)`, o **mesmo** fator que escala
+## o elite. Os dois têm de escalar pela mesma régua, senão um Alpha nasceria em
+## Pallet Town — onde a chance de elite é exatamente zero.
+##
+## O teto é aplicado ANTES do perigo: 5% é o teto da raridade, não do produto.
+static func chance(derrotas: Array = [], agora: float = 0.0,
+		perigo: float = 1.0) -> float:
+	var bonus : float = BONUS_POR_ELITE * float(elites_na_janela(derrotas, agora))
+	return minf(CHANCE_BASE + bonus, CHANCE_MAXIMA) * clampf(perigo, 0.0, 1.0)
+
 ## Este encontro é Alpha?
 ##
-## Três perguntas, e todas têm de passar:
-##   1. o encontro já é **elite** (quem sorteia isso é a Fase 11, não esta);
-##   2. a **espécie** é elegível;
-##   3. o sorteio raro passa.
+## Duas perguntas, e as duas têm de passar:
+##   1. a **espécie** é elegível (curadoria, e ela ganha do sorteio);
+##   2. o sorteio passa na chance de agora.
 ##
-## Alpha é subconjunto de elite de propósito: são dois conceitos que se
-## pareciam e não são o mesmo. Elite é "mais forte e mais alto de nível" e pode
-## acontecer com qualquer bicho da tabela; Alpha é um miniboss com regra própria
-## de captura e de drop.
-static func sortear(especie: Dictionary, elite: bool, sorteio: float) -> bool:
-	if not elite:
-		return false
+## ⚠️ Repare no que NÃO está aqui: `elite`. Até 18/09 estava, e a régua nova do
+## Gabriel tirou — ver o cabeçalho. Elite e Alpha são dois sorteios
+## independentes; podem coincidir, e coincidir não tem significado próprio.
+static func sortear(especie: Dictionary, sorteio: float,
+		derrotas: Array = [], agora: float = 0.0, perigo: float = 1.0) -> bool:
 	if not elegivel(especie):
 		return false
-	return sorteio < CHANCE_ENTRE_ELITES
+	return sorteio < chance(derrotas, agora, perigo)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # O que muda quando é

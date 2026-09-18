@@ -944,6 +944,12 @@ var alpha : bool = false
 ## na V3 ler o estado em vez de reimplementar a regra.
 var capturavel : bool = true
 
+## Este encontro é **elite** (mais raro, nível acima do topo da faixa da zona).
+## Independente de `alpha`: os dois são sorteios separados e podem coincidir.
+## Fica no corpo porque a chance de Alpha cresce por **elite derrotado**, e
+## depois da briga não haveria como saber se o que caiu era elite.
+var elite : bool = false
+
 ## Último uso POR GOLPE, não por slot: trocar a ordem das skills não pode zerar
 ## cooldown. Ver `UsoDeSkill`.
 var _cooldowns : Dictionary = {}

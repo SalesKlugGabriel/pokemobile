@@ -40,7 +40,7 @@ verdade.
 | 14–15 | **Surf · Fly** | ✅ 18/09 · `RegraDeTravessia` · 44 conferências |
 | 16 | **TM/HM** | ✅ 18/09 · `RegraDeMaquina` · **capacidade × permissão** · 48 conferências |
 | 17 | **Move Pool** | ✅ 18/09 · `RegraDeMovePool` · **conhecidos / equipados / ativos** · 59 conferências · 🔴 achou o kit vazio |
-| 18 | **Alpha** | ✅ 18/09 · `RegraDeAlpha` · 39 conferências · 🔴 **o Alpha nunca tinha nascido no jogo** |
+| 18 | **Alpha** | ✅ 18/09 · `RegraDeAlpha` · 58 conferências · 🔴 **nunca tinha nascido um** · raridade fixada pelo Gabriel |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** |
 | 20 | Performance | ⬜ |
 
@@ -86,6 +86,7 @@ posicionar é o caminho que catapulta o jogador.
 | 1 | Fase 20 — performance | não — **é a próxima minha**, e a última da migração |
 | 1b | Ligar `permissoes_do_jogador()` na mochila de verdade quando a V3 tiver save | sim — depende do save da V3 |
 | 1c | Ligar `capturavel` na pokébola da V3 (hoje ninguém captura em 3D) | sim — a captura em 3D ainda não existe |
+| 1d | Fazer a contagem de elites derrotados **sobreviver a salvar/carregar** (hoje vive só no spawner) | sim — depende do save da V3 |
 | 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
 
 ---
@@ -187,7 +188,9 @@ o plano atual para não atrasar o projeto"*. Ficam aqui pra não virarem folclor
 |---|---|---|
 | 1 | **Qual aspecto dos controles incomoda** | "melhorar os controles" são **seis** ajustes diferentes: velocidade, sensibilidade do mouse, aceleração, atrito, virada do personagem, distância da câmera. Mexer nos seis de uma vez faz ninguém saber qual melhorou |
 | 2 | Jogar a V3 depois do conserto de direção (17/09) e dizer se o W agora anda pra onde se olha | o teste prova direção e independência da câmera; **não prova sensação** |
-| 3 | **Quão raro deve ser um Alpha?** Hoje: 1 a cada ~14 encontros numa zona no perigo máximo (`RegraDeAlpha.CHANCE_ENTRE_ELITES = 0,20`) | ⚠️ **PROXY declarado**, não medido — não há fonte pra este número em lugar nenhum (nem `zones.json`, nem a V2, onde o Alpha nunca nasceu). Trocar é mudar uma linha |
+| 3 | ✅ **Respondido (18/09):** elite **2%**, Alpha **0,5%**, **+0,1%** por elite derrotado nas últimas **3 h**. Implementado e travado por teste | — |
+| 4 | **Teto da chance de Alpha.** Sem teto, "+0,1% por elite" é ilimitado. Está em **5%** (10× a base, ~45 elites em 3 h) | ⚠️ **PROXY** — o único número desta regra que não é dele. O teto é obrigatório pra regra ser coerente; **qual** teto é decisão dele |
+| 5 | **2% é teto ou taxa fixa?** Li como **teto**: a conta segue `2% × perigo da zona`, então Pallet fica em 0% e a zona mais perigosa chega a 2% | ler como taxa fixa apagaria o gradiente de perigo por zona, que ele não pediu pra apagar |
 
 ---
 
