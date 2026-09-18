@@ -70,7 +70,7 @@ func trocar_para(novo: String) -> bool:
 	var c : Node = _controladores.get(novo)
 	if c != null:
 		_ligar(c)
-	PonteDeFeedback.anotar("modo de controle: %s → %s" % [anterior, novo])
+	_anotar("modo de controle: %s → %s" % [anterior, novo])
 	modo_mudou.emit(anterior, novo)
 	return true
 
@@ -103,3 +103,14 @@ func quantos_ativos() -> int:
 		if c != null and is_instance_valid(c) and c.is_processing_input():
 			n += 1
 	return n
+
+## Recado pra linha do tempo do feedback, resolvido em tempo de CHAMADA.
+##
+## 🔴 Citar `PonteDeFeedback` direto quebra a carga deste script num teste
+## `--script`: autoload não é identificador ali, e o erro de compilação derruba
+## a classe inteira — `ControlModeManager.new()` passa a responder "função
+## inexistente". Mesma lição do `RNGManager` na Fase 11, em outro autoload.
+func _anotar(texto: String) -> void:
+	var ponte := get_node_or_null("/root/PonteDeFeedback")
+	if ponte != null:
+		ponte.anotar(texto)

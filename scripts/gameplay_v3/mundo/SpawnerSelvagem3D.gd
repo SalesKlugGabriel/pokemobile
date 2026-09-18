@@ -54,8 +54,30 @@ func _sorteio_padrao() -> float:
 	var rng := get_node_or_null("/root/RNGManager")
 	return rng.randf() if rng != null else randf()
 
+## Quando cada elite caiu, em segundos. A régua do Gabriel (18/09): a chance de
+## Alpha sobe 0,1% **por elite derrotado nas últimas 3 horas**.
+##
+## ⚠️ É uma `Array`, e Array em GDScript é referência: dois spawners que
+## recebam a MESMA lista contam juntos. Hoje só existe um spawner por cena,
+## então nada a fazer; quando houver vários, quem os cria passa uma lista só —
+## senão cada zona contaria a sua e o bônus sairia menor que o especificado.
+##
+## 🔵 Pendente declarado: isto ainda **não sobrevive a salvar e carregar** —
+## a V3 não tem save. Ver `docs/QUADRO.md`.
+var derrotas_de_elite : Array = []
+
 var _vivos : Array = []
 var _desde_o_ultimo : float = 0.0
+
+## O relógio da janela de 3 horas. Separado pra o teste poder empurrar o tempo
+## sem esperar três horas de verdade.
+var agora : Callable = _agora_padrao
+
+func _agora_padrao() -> float:
+	return float(Time.get_unix_time_from_system())
+
+func _agora() -> float:
+	return float(agora.call())
 
 func _ready() -> void:
 	add_to_group("spawner_selvagem_v3")
@@ -101,7 +123,18 @@ func tentar_nascer() -> Node3D:
 	if not RegraDeSpawn.distancia_segura(jogador.global_position, ponto):
 		return null
 
-	var bicho := PokemonInstance3D.nascer(self, id, nivel, ponto)
+	# Fase 18, régua do Gabriel (18/09): elite e Alpha são **sorteios
+	# independentes**. A chance de Alpha cresce com os elites derrotados nas
+	# últimas 3 horas, e a curadoria por espécie ainda manda.
+	#
+	# O perigo da zona multiplica os DOIS pela mesma régua — senão um Alpha
+	# nasceria em Pallet Town, onde a chance de elite é zero.
+	var alpha : bool = RegraDeAlpha.sortear(
+		GameData.get_species(id), sortear.call(),
+		derrotas_de_elite, _agora(), PerigoDaZona.perigo(zona))
+	var bicho := PokemonInstance3D.nascer(self, id, nivel, ponto, "",
+		RegraDeMovePool.CATEGORIA_PADRAO, alpha)
+	bicho.elite = elite
 	bicho.virar_selvagem(jogador)
 	_vivos.append(bicho)
 	nasceu.emit(bicho, entrada, elite)
@@ -115,7 +148,34 @@ func _limpar_mortos() -> void:
 	for b in _vivos:
 		if is_instance_valid(b) and not b.esta_derrotado():
 			sobrando.append(b)
+			continue
+		# Elite que CAIU alimenta a chance de Alpha. Só aqui — quem some por
+		# distância (`_despejar_distantes`) sai da lista sem passar por este
+		# ramo, e tem de ser assim: andar pra longe de um elite não é derrotá-lo.
+		if is_instance_valid(b) and b.elite:
+			registrar_elite_derrotado()
 	_vivos = sobrando
+
+## Um elite caiu. Público porque o combate (Fase 12) também pode saber disso
+## antes do spawner varrer a lista.
+func registrar_elite_derrotado(quando: float = -1.0) -> void:
+	derrotas_de_elite.append(_agora() if quando < 0.0 else quando)
+	_esquecer_velhas()
+
+## A lista não cresce pra sempre: o que saiu da janela não influencia mais nada
+## e guardar é só memória vazando devagar.
+##
+## ⚠️ Limpa **no lugar**. Trocar por `derrotas_de_elite = vivas` faria este
+## spawner passar a apontar pra outra lista, e dois spawners que compartilhavam
+## a contagem se separariam em silêncio na primeira limpeza.
+func _esquecer_velhas() -> void:
+	var t : float = _agora()
+	var vivas : Array = []
+	for quando in derrotas_de_elite:
+		if t - float(quando) < RegraDeAlpha.JANELA_SEGUNDOS:
+			vivas.append(quando)
+	derrotas_de_elite.clear()
+	derrotas_de_elite.append_array(vivas)
 
 ## Quem ficou longe desaparece. **Nunca quem está provocado**: um bicho que te
 ## persegue sumindo no meio da perseguição é pior que um bicho a mais no mundo —

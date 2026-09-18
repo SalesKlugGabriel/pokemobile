@@ -45,6 +45,27 @@ A regra dos 25 níveis (§33) é preservada e **configurável**: vale para alter
 de kit ligada a HM, **não** para qualquer troca de skill. `TrocaDeKit.gd` já
 implementa exatamente assim — `CUSTO_EM_NIVEIS` é constante e editável.
 
+### Como ficou (Fase 16, 18/09) — `RegraDeMaquina.gd`
+
+As Fases 14 e 15 resolveram travessia por arquétipo, o que deixou a pergunta:
+**se a espécie já decide, o que sobra pra MO fazer?** São duas perguntas:
+
+| pergunta | quem responde |
+|---|---|
+| **capacidade** — o corpo consegue? | arquétipo (`RegraDeTravessia`) |
+| **permissão** — o jogador pode? | a MO (`RegraDeMaquina`) |
+
+Atravessar exige as duas. O selvagem responde só a primeira: exigir carteira de
+um bicho transformaria o mundo num cartório.
+
+O que cada máquina abre vem do campo **`unlocks`** em `items.json`, nunca
+presumido — é a §30 escrita no dado. Hoje: `hm02` Voar → `"ar"`, `hm04` Surfar →
+`"agua"`, e `hm01` Cortar / `hm03` Força → `""`, porque não existe árvore pra
+cortar nem pedra pra empurrar na V3. Declarar o vazio é o ponto.
+
+Permissão é **derivada da mochila**, não guardada: ter a MO é ter a permissão,
+então não há segundo estado pra salvar, migrar e divergir do primeiro.
+
 ## Arquétipos de movimento (§15)
 
 `GROUND_BIPED` · `GROUND_QUADRUPED` · `GROUND_HEAVY` · `SERPENTINE` · `FLYING` ·

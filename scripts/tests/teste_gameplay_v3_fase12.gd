@@ -8,9 +8,12 @@
 ##      trava o jogo — só o prende.
 ##   2. **Vitória com o próprio Pokémon desmaiado.** Se os dois caírem no mesmo
 ##      quadro, perder empatado é perder.
-##   3. **1v1 que vira 1v3.** Sem arena, nada impede o terceiro de entrar
-##      andando. E o remédio errado — congelar todo mundo — é tão ruim quanto o
-##      problema.
+##   3. **O mundo parando porque uma briga começou.** Este era o erro da minha
+##      primeira versão: eu fiz o terceiro LARGAR o alvo pra sustentar um "1v1
+##      sem arena". O Gabriel corrigiu — mundo aberto, aggro de vários mobs,
+##      **1v5 e 1v10 acontecem**; o 1v1 é a mecânica de duelo, pra PvP. A trava
+##      não era conservadora, era bug: lutar com um bicho fazia todos os outros
+##      que já perseguiam o jogador esquecerem dele.
 ##   4. **Fim sem evento.** Já dava pra bater num selvagem e vê-lo cair antes
 ##      desta fase. O que não existia era alguém poder dizer *que uma batalha
 ##      começou, terminou, e como*.
@@ -94,8 +97,16 @@ func _regras() -> void:
 	for r in [R.VITORIA, R.DERROTA, R.FUGA]:
 		_conf("o resultado '%s' tem frase em português" % r, R.frase(r).length() > 10)
 
-	_conf("terceiro NÃO engaja quem já está em combate", not R.pode_engajar(true))
-	_conf("mas engaja quem está livre", R.pode_engajar(false))
+	# 🔴 Corrigido em 18/09 pelo Gabriel: mundo aberto, vários mobs podem agredir
+	# ao mesmo tempo — 1v5 e 1v10 são cenários reais. O 1v1 é a mecânica de DUELO
+	# (PvP), não a regra do mundo.
+	_conf("no mundo aberto, o terceiro PODE engajar quem já luta (1v5 existe)",
+		R.pode_engajar(true),
+		"a versão anterior devolvia false e fazia todo mundo esquecer o jogador")
+	_conf("e num duelo declarado, não",
+		not R.pode_engajar(true, true), "exclusivo = a briga tem dono")
+	_conf("quem está livre é engajável nos dois casos",
+		R.pode_engajar(false) and R.pode_engajar(false, true))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 2. Com mundo
@@ -175,13 +186,18 @@ func _comecou_sozinho() -> void:
 		not _combate.iniciar(_meu, _terceiro))
 
 func _o_terceiro_fica_de_fora() -> void:
-	print("\n-- o terceiro não entra, e também não congela --")
+	print("\n-- o terceiro continua na sua (mundo aberto) --")
+	# 🔴 Esta conferência foi INVERTIDA em 18/09.
+	#
+	# Ela exigia que o terceiro LARGASSE o alvo, pra sustentar um "1v1 sem
+	# arena". O Gabriel corrigiu a premissa: mundo aberto, aggro de vários mobs,
+	# 1v5 e 1v10 acontecem. A trava não era conservadora — era bug: lutar com um
+	# bicho fazia todos os outros que já perseguiam o jogador esquecerem dele.
 	_terceiro._agir_como_selvagem(0.016)
-	_conf("o terceiro largou o alvo que está em combate",
-		_terceiro.alvo_hostil == null,
-		"se continuasse mirando, viraria 1v2")
-	# ⚠️ E o remédio não pode ser pior que a doença.
-	_conf("mas ele NÃO está congelado — a IA dele continua rodando",
+	_conf("o terceiro NÃO esquece o alvo só porque ele está lutando",
+		_terceiro.alvo_hostil == _meu,
+		"é isto que permite 1v5 — e é o oposto do que o teste exigia antes")
+	_conf("e a IA dele continua rodando normalmente",
 		_terceiro.estado_selvagem in [IASelvagem3D.PARADO, IASelvagem3D.PERSEGUIR,
 			IASelvagem3D.VOLTAR, IASelvagem3D.FUGIR, IASelvagem3D.ATACAR],
 		"estado: %s" % str(_terceiro.estado_selvagem))
@@ -201,8 +217,21 @@ func _fuga() -> void:
 	_terceiro.provocado = true
 	_terceiro.alvo_hostil = _meu
 	_terceiro.global_position = _meu.global_position + Vector3(0, 0, -2.0)
-	_conf("uma briga nova pode começar depois da anterior acabar",
-		_combate.iniciar(_meu, _terceiro))
+
+	# 🔴 Esta conferência também mudou em 18/09, e a mudança é boa notícia.
+	#
+	# Ela chamava `iniciar()` à mão. Agora o terceiro **não esquece mais o
+	# jogador**, então ele frequentemente já abriu a briga sozinho, por
+	# proximidade — e `iniciar()` recusa, corretamente, porque já há duelo em
+	# curso. Exigir o início manual seria exigir que o mundo tivesse parado.
+	#
+	# O que importa provar é que **a vida continua depois de uma briga acabar**:
+	# um novo adversário engaja, de um jeito ou de outro.
+	if not _combate.em_combate():
+		_combate.iniciar(_meu, _terceiro)
+	_conf("depois da briga anterior acabar, uma nova começa",
+		_combate.em_combate() and _combate.selvagem == _terceiro,
+		"o mundo não para porque um combate terminou")
 
 	# Agora o jogador vai embora.
 	_meu.global_position += Vector3(0, 0, 200.0)

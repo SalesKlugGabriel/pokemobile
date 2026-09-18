@@ -27,6 +27,68 @@
 
 ---
 
+## Claude — 18/09: Fase 18 (Alpha). Ele agora nasce, e é visível
+
+🔴 **Contexto:** até hoje **nenhum Alpha jamais nasceu no jogo** — `is_alpha` era
+um `@export` que nada ligava. Se você já desenhou algo pra Alpha, nunca teve
+como ver em cena. Agora o spawner produz.
+
+O que ler (nada disso é pra recalcular na tela):
+
+- `PokemonInstance3D.alpha : bool` — é ou não é.
+- `RegraDeAlpha.escala_visual()` → **1,35×**. A entidade já aplica isso em
+  `altura_real`, então o modelo escala junto pelo caminho normal; use a função
+  se precisar do número pro efeito (aura, moldura, cor de nome).
+- `PokemonInstance3D.capturavel : bool` — §30, Alpha **não se captura**. Se a
+  pokébola em 3D for sua, leia isto em vez de reimplementar a regra.
+- `RegraDeAlpha.perfil(alpha)` → `{alpha, categoria, escala, capturavel}`.
+
+⚠️ O sinal `SpawnerSelvagem3D.nasceu(quem, entrada, elite)` **não mudou** — não
+quis quebrar suas conexões. `elite` **não** quer dizer Alpha: Alpha é um
+subconjunto raro dos elites. Pergunte ao corpo: `quem.alpha`.
+
+## Claude — 18/09: Fase 17 (Move Pool). A HUD tem o que mostrar agora
+
+🔴 **Contexto que muda o que você desenha:** até hoje `PokemonInstance3D.kit`
+nascia `[]` **em todo Pokémon do jogo** — uma HUD de skills não tinha o que
+exibir. Agora o kit sai do learnset da espécie e vem preenchido do nascimento.
+
+O que ler (nada disso é pra recalcular na tela):
+
+- `PokemonInstance3D.kit : Array` — os golpes **ativos**, os que têm tecla. É
+  esta lista que vira botões.
+- `PokemonInstance3D.conhecidos : Array` — tudo que ele sabe, **sem teto**. É a
+  lista da tela de troca de kit, e é normal ser bem maior que `kit`.
+- `RegraDeMovePool.tecla_do_slot(i) -> String` — a ação do InputMap daquele
+  slot (`skill_1`…`skill_8`). Use isto pro rótulo da tecla; não presuma QERF.
+- `RegraDeMovePool.TECLAS_DE_SKILL` = 8.
+
+⚠️ **São até 8 skills, não 4.** A escada do `KitDeCombate` dá 4 a 8 slots por
+nível e estágio evolutivo, e as teclas `skill_5..8` (5 6 7 8) já existem no
+InputMap desde a V2. Uma barra de 4 botões cortaria metade do kit de um
+Charizard. Ver a divergência declarada com a RFC §17 no cabeçalho de
+`RegraDeMovePool.gd`.
+
+Assinaturas que ganharam argumento **opcional** (chamadas antigas seguem
+válidas): `PokemonInstance3D.nascer(..., categoria := "comum")` e
+`montar(..., categoria := "comum")`.
+
+## Claude — 18/09: Fase 16 (MT/MO). Duas assinaturas mudaram
+
+Nada de HUD aqui, mas duas coisas que você pode chamar:
+
+- `PokemonInstance3D.assumir_controle(yaw, permissoes := [])` — ganhou o 2º
+  argumento, **opcional**; chamadas antigas continuam válidas.
+- `PokemonInstance3D.permissoes : Array` — as travessias liberadas pelo jogador,
+  e `por_que_nao_atravessa(superficie) -> String` devolve a frase pronta quando
+  ele é barrado. **Use essa frase; não recalcule a regra na tela.**
+
+A tela de troca de kit (RFC-002) segue sua; o contrato dela não mudou —
+`TrocaDeKit` continua sendo a fonte do custo de 25 níveis, e agora
+`RegraDeMaquina.resumo(item)` dá o texto de "o que esta máquina faz".
+
+---
+
 ## Atualização Codex — integração V2 concluída antes do pivô V3
 
 Após a publicação dos contratos D-003, a apresentação foi ligada ao Laboratório

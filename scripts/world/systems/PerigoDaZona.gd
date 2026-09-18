@@ -37,7 +37,17 @@ const ESTICA_ATE : float = 2.2
 
 ## Chance de um encontro ser **elite** (o mais raro da tabela, no topo da faixa
 ## de nível) no lugar mais perigoso. Em lugar seguro é zero.
-const CHANCE_DE_ELITE_MAX : float = 0.35
+##
+## 🔴 18/09: era **0,35**. O Gabriel fixou a régua em **2%**: *"taxa de
+## aparecimento de um elite: 2%"*. Um em cada três encontros nunca foi raridade
+## — era o tipo de número que eu tinha escolhido sem fonte e ninguém tinha
+## conferido.
+##
+## É **teto**, não taxa fixa: a conta continua sendo `MAX × perigo(zona)`, então
+## Pallet segue em 0% e Cerulean Cave chega aos 2%. Proposto assim pra não
+## apagar o gradiente de perigo por zona, e **CONFIRMADO pelo Gabriel** no mesmo
+## dia — *"mantenha como você propôs"*.
+const CHANCE_DE_ELITE_MAX : float = 0.02
 
 ## Quantos níveis a mais um elite ganha por cima do topo da faixa da zona.
 const NIVEIS_EXTRA_DO_ELITE : int = 3

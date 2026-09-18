@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **119 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **124 arquivos, 0 com falha**
 
 ---
 
@@ -36,11 +36,16 @@ verdade.
 | 10 | **4 skills** (single/circle/cone/line, aviso, drenagem) | ✅ 17/09 · 61 conferências |
 | 11 | **Wild Pokémon** | ✅ 17/09 · `RegraDeSpawn` + `IASelvagem3D` + `SpawnerSelvagem3D` · 63 conferências |
 | 12 | **Combate 1v1** | ✅ 18/09 · `RegraDeCombate` + `Combate1v1` · 34 conferências |
-| 13 | Combate → Mundo | 🔵 **próxima** — fecha o laço da fantasia |
-| 14–15 | Surf · Fly | ⬜ |
-| 16–18 | TM/HM · Move Pool · Alpha | ⬜ · as regras já existem na V2 |
+| 13 | **Combate → Mundo** | ✅ 18/09 · `RegraDeRetorno` + `RetornoAoMundo` · 50 conferências · **o laço da fantasia está fechado** |
+| 14–15 | **Surf · Fly** | ✅ 18/09 · `RegraDeTravessia` · 44 conferências |
+| 16 | **TM/HM** | ✅ 18/09 · `RegraDeMaquina` · **capacidade × permissão** · 48 conferências |
+| 17 | **Move Pool** | ✅ 18/09 · `RegraDeMovePool` · **conhecidos / equipados / ativos** · 59 conferências · 🔴 achou o kit vazio |
+| 18 | **Alpha** | ✅ 18/09 · `RegraDeAlpha` · 58 conferências · 🔴 **nunca tinha nascido um** · raridade fixada pelo Gabriel |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** |
 | 20 | Performance | ⬜ |
+
+**As 18 primeiras fases estão fechadas** — a migração de regras acabou. Sobram a
+19 (polimento, do Codex) e a 20 (performance).
 
 **Não pular fase.** A ordem existe porque cada uma depende da anterior estar de
 pé — e porque pular é como se constrói seis sistemas pela metade.
@@ -78,8 +83,10 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Bloqueado? |
 |---|---|---|
-| 1 | Fase 13 — Combate → Mundo (voltar a ser o treinador) | não — **é a próxima** |
-| 2 | Fases 14 a 18, na ordem | sim, em cadeia |
+| 1 | Fase 20 — performance | não — **é a próxima minha**, e a última da migração |
+| 1b | Ligar `permissoes_do_jogador()` na mochila de verdade quando a V3 tiver save | sim — depende do save da V3 |
+| 1c | Ligar `capturavel` na pokébola da V3 (hoje ninguém captura em 3D) | sim — a captura em 3D ainda não existe |
+| 1d | Fazer a contagem de elites derrotados **sobreviver a salvar/carregar** (hoje vive só no spawner) | sim — depende do save da V3 |
 | 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
 
 ---
@@ -164,12 +171,25 @@ painel, separando o que está desenhado do que é interpretação.
 
 ---
 
+## 🧭 Anotado para o futuro, sem prazo (decisões do Gabriel, 18/09)
+
+Coisas que ele levantou e escolheu **não** atacar agora — *"vamos continuar com
+o plano atual para não atrasar o projeto"*. Ficam aqui pra não virarem folclore:
+
+| O quê | O que ele disse |
+|---|---|
+| **Luta massiva: 1v5, 1v10** | É consequência do mundo aberto com aggro de vários mobs. A Fase 12 já **não impede** — o que falta é o resto (câmera, alvo, leitura de tela) ser pensado pra isso |
+| **4 skills pode ser pouco** | *"considerando esse 'battle royale solo' acho que 4 skills apenas pode ser pouco para uma luta massiva"*. `KitDeCombate` já prevê **até 8 slots** (4 base + 2 aos níveis 50 e 100), então o dado não precisa mudar — é decisão de balanceamento |
+| **1v1 vira PvP** | A mecânica de duelo existe e está testada; PvP está fora do escopo declarado da V3 |
+
 ## 🟡 Pendente — Gabriel
 
 | # | O quê | Por quê |
 |---|---|---|
 | 1 | **Qual aspecto dos controles incomoda** | "melhorar os controles" são **seis** ajustes diferentes: velocidade, sensibilidade do mouse, aceleração, atrito, virada do personagem, distância da câmera. Mexer nos seis de uma vez faz ninguém saber qual melhorou |
 | 2 | Jogar a V3 depois do conserto de direção (17/09) e dizer se o W agora anda pra onde se olha | o teste prova direção e independência da câmera; **não prova sensação** |
+| 3 | ✅ **Respondido (18/09):** elite **2%**, Alpha **0,5%**, **+0,1%** por elite derrotado nas últimas **3 h**. Implementado e travado por teste | — |
+| 4 | ✅ **Respondido (18/09):** o **teto de 5%** e a leitura de **2% como teto** (`× perigo da zona`, Pallet em 0%) ficam como propostos — *"mantenha como você propôs"* | — |
 
 ---
 
@@ -184,8 +204,14 @@ painel, separando o que está desenhado do que é interpretação.
 | **O ataque básico é Normal**, não do tipo do atacante | Daria STAB de graça e tornaria as 4 skills decorativas |
 | **Cooldown por golpe, não por slot** | Por slot, trocar a ordem das skills zeraria os cooldowns — exploit de graça |
 | **A direção do aviso é travada no início** | Relida na resolução, o aviso não custaria nada e ninguém desviaria de nada |
-| **1v1 é literal: o terceiro não entra — mas também não congela** (18/09) | Sem arena, nada impediria ele de entrar andando. Mas bicho parado a dois metros da luta é tão estranho quanto um que entra nela: ele perde os dois combatentes como alvo e segue com a IA dele |
+| 🔴 **O 1v1 é a mecânica de DUELO (PvP), não a regra do mundo** (Gabriel, 18/09) | *"é possível acontecer um 1v5 ou 1v10 dependendo da área do mapa"*. Vários mobs podem agredir ao mesmo tempo. Minha primeira versão fazia o terceiro largar o alvo — não era conservadorismo, era **bug**: lutar com um bicho fazia todos os outros esquecerem o jogador |
 | **Os dois caindo no mesmo quadro é DERROTA** | Vitória com o próprio Pokémon desmaiado não existe. Perder empatado é perder |
+| **Só a DERROTA devolve o controle** (18/09) | Vencer e a briga se desfazer não devolvem nada — no mundo aberto o jogador continua sendo o Pokémon até decidir o contrário. Forçar a volta a cada vitória viraria uma sequência de telas de transição |
+| **Com hostil por perto, não dá pra voltar ao treinador** | Senão o corpo do treinador vira **saída de emergência**: cinco mobs em cima, aperta T, o perigo evapora. Isso esvaziaria o pilar do "mundo perigoso" — e o Gabriel acabou de reforçar que 1v5 e 1v10 acontecem |
+| **Surfar é ASSUMIR um Pokémon que nada** (18/09) | Não existe "o treinador em cima de um bicho": existe o jogador *sendo* o bicho, com o `MovementProfile` dele. Mesma transferência da Fase 7. Voar é idêntico, com outro arquétipo |
+| **Terrestre anda em água RASA, e é barrado na profunda** | Barrar a rasa criaria parede invisível justo na borda da praia, onde o jogador mais anda. E é a profunda que dá sentido ao Surf |
+| **Teto de voo é RELATIVO ao terreno** | Absoluto faria esbarrar num limite invisível ao subir a montanha, e voar mais alto no vale do que no pico |
+| **Classe pura nunca cita autoload — e nó também não deveria** | `PonteDeFeedback` citado direto no `ControlModeManager` derrubou a carga da classe inteira num teste `--script`: `new()` passou a responder "função inexistente". Mesma lição do `RNGManager` na Fase 11, em outro autoload |
 | **Toda briga tem prazo** (20 s sem ninguém apanhar = desfaz) | Dois lutadores presos em lados opostos de uma pedra ficariam "em combate" pra sempre, e o jogador nunca recuperaria o treinador |
 | **Modelo ausente cai no primitivo E AVISA** | Asset faltando que aparece como cápsula silenciosa é zero silencioso |
 | **O corpo do treinador encara a MIRA do mouse**, não a direção do movimento (18/09) | Pedido do Gabriel: *"o mouse precisa ser a mira para todas as ações"*. Com o corpo virando pro movimento e a câmera atrás, **nunca se vê a frente do personagem** — ele parecia andar de costas |

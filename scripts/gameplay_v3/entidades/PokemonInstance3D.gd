@@ -80,15 +80,20 @@ var _derrotado : bool = false
 ## catapulta o jogador, e o sintoma (personagem voando) não parece nada com a
 ## causa (ordem de duas linhas).
 static func nascer(pai: Node, id_especie: int, nv: int, posicao: Vector3,
-		arquetipo_pedido: String = "") -> PokemonInstance3D:
+		arquetipo_pedido: String = "",
+		categoria_de_encontro: String = RegraDeMovePool.CATEGORIA_PADRAO,
+		e_alpha: bool = false) -> PokemonInstance3D:
 	var e := PokemonInstance3D.new()
 	# A ordem é o ponto: posição ANTES de entrar na árvore.
 	e.position = posicao
 	pai.add_child(e)
-	e.montar(id_especie, nv, arquetipo_pedido)
+	e.montar(id_especie, nv, arquetipo_pedido, categoria_de_encontro, e_alpha)
 	return e
 
-func montar(id_especie: int, nv: int, arquetipo_pedido: String = "") -> void:
+func montar(id_especie: int, nv: int, arquetipo_pedido: String = "",
+		categoria_de_encontro: String = RegraDeMovePool.CATEGORIA_PADRAO,
+		e_alpha: bool = false) -> void:
+	alpha = e_alpha
 	# Onde o nó estava quando foi montado — a referência do detector de ordem.
 	_pos_ao_nascer = position
 	species_id = id_especie
@@ -100,21 +105,71 @@ func montar(id_especie: int, nv: int, arquetipo_pedido: String = "") -> void:
 
 	# As stats vêm da V2, sem adaptação nenhuma.
 	stats = StatsDePokemon.conjunto(esp.get("base_stats", {}), nivel)
+
+	# Fase 18 — o Alpha entra AQUI, antes da vida ser derivada do HP: aplicar
+	# o multiplicador depois deixaria a barra discordando do stat que a gerou.
+	if alpha:
+		if not RegraDeAlpha.elegivel(esp):
+			push_warning("%s foi marcado como Alpha e a espécie não é elegível (§30)" \
+				% nome_exibido)
+		stats = RegraDeAlpha.stats(stats)
 	vida_maxima = BalanceV2.vida(int(stats.get("hp", 1)))
 	vida = vida_maxima
 
 	# A altura real já existia em `heights.json` desde 03/09 — 151 espécies,
 	# de 0,2 m (Diglett) a 8,8 m (Onix). Não precisou de dado novo.
-	altura_real = PokemonScale.get_height_m(species_id)
+	altura_real = PokemonScale.get_height_m(species_id) \
+		* (RegraDeAlpha.escala_visual() if alpha else 1.0)
 	altura = MovementProfile.altura_jogavel(altura_real)
 
 	arquetipo = arquetipo_pedido if arquetipo_pedido != "" \
 		else str(esp.get("arquetipo", MovementProfile.GROUND_BIPED))
 
+	# Alpha manda na categoria: a faixa de golpes dele (5 a 6) já existe no
+	# `KitDeCombate` desde a Fase 3 e é o que o faz brigar como miniboss, não
+	# só ter números maiores.
+	var perfil : Dictionary = RegraDeAlpha.perfil(alpha)
+	categoria = str(perfil["categoria"]) if alpha else categoria_de_encontro
+	capturavel = bool(perfil["capturavel"])
+	_montar_kit()
+
 	_montar_corpo()
 	_montar_visual()
 	add_to_group("pokemon_v3")
 	vida_mudou.emit(vida, vida_maxima)
+
+## Fase 17 — o kit sai do learnset da espécie, não de uma lista escrita à mão.
+##
+## Antes desta fase, `kit` nascia `[]` **em todo Pokémon do jogo** e ninguém
+## preenchia: as quatro teclas não faziam nada, sem erro. Ver o cabeçalho de
+## `RegraDeMovePool` pro achado inteiro.
+func _montar_kit() -> void:
+	if GameData == null:
+		return
+	var esp : Dictionary = GameData.get_species(species_id)
+	var pool : Dictionary = RegraDeMovePool.montar_pool(
+		species_id, nivel, GameData.get_learnable_moves(species_id, nivel),
+		GameData.moves, tipos, GameData.species, categoria, ensinados)
+	conhecidos = pool["conhecidos"]
+	kit = pool["ativos"]
+	if kit.is_empty():
+		push_warning("%s nasceu sem golpe nenhum — learnset vazio?" \
+			% str(esp.get("name", "#%d" % species_id)))
+
+## §31: usar uma máquina **ensina e não equipa**. Este é o ponto onde a Fase 16
+## e a Fase 17 se encontram — a MT deposita no pool, e o kit ativo só muda
+## quando alguém decidir trocar (`TrocaDeKit`, que cobra os 25 níveis quando é
+## MO). Devolve `{"golpe": id, "novo": bool}`; `golpe` vazio = a máquina não
+## ensina nada.
+func aprender_de_maquina(item: Dictionary) -> Dictionary:
+	var golpe := str(RegraDeMaquina.efeitos(item).get("golpe", ""))
+	if golpe.is_empty():
+		return {"golpe": "", "novo": false}
+	var r : Dictionary = RegraDeMovePool.aprender(conhecidos, golpe)
+	conhecidos = r["conhecidos"]
+	if bool(r["novo"]) and not (golpe in ensinados):
+		ensinados.append(golpe)
+	return {"golpe": golpe, "novo": bool(r["novo"])}
 
 ## Colisor e hurtbox saem do `CombatProfile`, **nunca do modelo** — ver o
 ## cabeçalho de lá pro motivo.
@@ -340,6 +395,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y = move_toward(velocity.y, 0.0, delta * 4.0)
 
 	move_and_slide()
+	_tick_travessia(delta)
 	rotation.y = Locomocao3D.girar_para(
 		rotation.y, velocity, delta, float(MovementProfile.obter(arquetipo)["giro"]))
 
@@ -349,7 +405,11 @@ func _physics_process(delta: float) -> void:
 
 ## Monta a câmera de 1ª pessoa com o perfil DESTA espécie (§19). Um Onix e um
 ## Rattata não podem ver o mundo da mesma altura.
-func assumir_controle(yaw_herdado: float) -> void:
+##
+## Fase 16: as permissões de travessia viajam JUNTO com o controle, e não ficam
+## penduradas numa chamada separada que dá pra esquecer. Elas são do jogador —
+## então entram quando o jogador entra e saem quando ele sai.
+func assumir_controle(yaw_herdado: float, permissoes_do_jogador: Array = []) -> void:
 	if camera == null:
 		camera = CameraPrimeiraPessoa.new()
 		camera.name = "CameraPrimeiraPessoa"
@@ -358,6 +418,7 @@ func assumir_controle(yaw_herdado: float) -> void:
 	camera.definir_yaw(yaw_herdado)
 	camera.camera.current = true
 	controlado_pelo_jogador = true
+	permissoes = permissoes_do_jogador.duplicate()
 	# Para de seguir: ele não pode acompanhar o treinador e obedecer o jogador
 	# ao mesmo tempo.
 	acompanha = null
@@ -366,6 +427,8 @@ func assumir_controle(yaw_herdado: float) -> void:
 
 func devolver_controle(volta_a_acompanhar: Node3D = null) -> void:
 	controlado_pelo_jogador = false
+	# A permissão é do jogador, e ele acabou de sair deste corpo.
+	permissoes = []
 	intencao = Vector2.ZERO
 	quer_correr = false
 	if camera != null and camera.camera != null:
@@ -392,10 +455,17 @@ func _unhandled_input(evento: InputEvent) -> void:
 	if evento.is_action_pressed("ataque_basico"):
 		atacar()
 		return
-	# §18: Q E R F são as 4 skills — e `skill_1..4` no InputMap já mapeiam essas
-	# teclas (mais 1-4), desde a V2. Nada cravado aqui.
-	for i in 4:
-		if evento.is_action_pressed("skill_%d" % (i + 1)):
+	# §18: Q E R F são as 4 primeiras skills — e `skill_1..8` no InputMap já
+	# mapeiam essas teclas (mais 1-4), depois 5 6 7 8, desde a V2.
+	#
+	# 🔴 Fase 17: aqui era `for i in 4`, cravado. Um Charizard equipa 8 golpes
+	# pela escada do `KitDeCombate` e alcançaria 4 — metade do repertório
+	# inalcançável, sem aviso. O laço agora anda o kit que ele de fato tem.
+	for i in kit.size():
+		var tecla := RegraDeMovePool.tecla_do_slot(i)
+		if tecla.is_empty():
+			break            # kit maior que o teclado: não há tecla, e tudo bem
+		if evento.is_action_pressed(tecla):
 			usar_skill(i)
 			return
 
@@ -421,6 +491,7 @@ func _obedecer(delta: float) -> void:
 		velocity.y = move_toward(velocity.y, 0.0, delta * 4.0)
 
 	move_and_slide()
+	_tick_travessia(delta)
 	# Em 1ª pessoa o CORPO segue a câmera, e não o movimento: quem olha pra
 	# esquerda está virado pra esquerda, mesmo andando de lado. É o contrário
 	# da 3ª pessoa, e é o que faz a mira bater com o que se vê (§22).
@@ -468,15 +539,25 @@ func virar_selvagem(hostil: Node3D = null) -> void:
 ## comportamento das sete personalidades se prova sem subir mundo, e o que
 ## sobra aqui é só mover o corpo.
 func _agir_como_selvagem(delta: float) -> void:
-	# §12 da Fase 12: 1v1 sem arena. Quem já está numa briga deixa de ser alvo
-	# válido pros outros — mas o terceiro **não congela**: ele segue com a IA
-	# dele, só perde este alvo. Um bicho parado a dois metros da luta é tão
-	# estranho quanto um que entra nela.
-	if alvo_hostil != null and is_instance_valid(alvo_hostil) \
-			and bool(alvo_hostil.get_meta("em_combate", false)) \
-			and not bool(get_meta("em_combate", false)):
-		alvo_hostil = null
-		provocado = false
+	# 🔴 REMOVIDO em 18/09, e vale registrar por quê.
+	#
+	# Aqui existia uma trava que fazia o terceiro selvagem LARGAR o alvo quando
+	# ele já estava numa briga — pra sustentar um "1v1 sem arena".
+	#
+	# **O Gabriel corrigiu a premissa:** *"estamos fazendo um game de mundo
+	# aberto, a batalha entre diversos mobs é possível, o aggro de vários mobs
+	# também (...) é possível acontecer um 1v5 ou 1v10 dependendo da área do mapa
+	# que o player está"*. O 1v1 é a mecânica de **duelo** (PvP), não a regra do
+	# mundo.
+	#
+	# A trava não era só desnecessária: era um bug. Com ela, lutar contra um
+	# Rattata fazia **todos os outros que já vinham atrás do jogador esquecerem
+	# dele** — o oposto de "entrar despreparado numa região pode terminar muito
+	# mal", que é o terceiro pilar do projeto.
+	#
+	# Quem controla exclusividade agora é quem QUER exclusividade: o
+	# `Combate1v1`, via `RegraDeCombate.pode_engajar`, e só quando um duelo
+	# estiver acontecendo de propósito.
 
 	var alvo_valido : bool = alvo_hostil != null and is_instance_valid(alvo_hostil)
 	var pos_do_alvo : Vector3 = alvo_hostil.global_position if alvo_valido else global_position
@@ -510,7 +591,146 @@ func _agir_como_selvagem(delta: float) -> void:
 		velocity.y = move_toward(velocity.y, 0.0, delta * 4.0)
 
 	move_and_slide()
+	_tick_travessia(delta)
 	rotation.y = Locomocao3D.girar_para(rotation.y, velocity, delta)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fases 14 e 15 — travessia: água e ar
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Fôlego, quando submerso. Cheio fora d'água.
+var oxigenio : float = Mergulho.OXIGENIO_MAXIMO
+
+## Está com a cabeça debaixo d'água? Quem decide é o jogador (afundar), mas o
+## consumo e o afogamento são consequência.
+var mergulhando : bool = false
+
+## A zona em que ele está — é dela que sai a regra de voo (§29). Vazia = voo
+## livre, que é o padrão mais permissivo e o menos surpreendente.
+var zona : Dictionary = {}
+
+signal oxigenio_mudou(atual: float, maximo: float)
+signal afogou()
+
+## A superfície embaixo dele, agora. Vem do terreno, que é a fonte única da
+## geografia — não de uma segunda tabela pra alguém manter em sincronia.
+func superficie_atual() -> String:
+	return Terreno3D.superficie_em(global_position.x, global_position.z)
+
+func profundidade_atual() -> String:
+	return RegraDeTravessia.profundidade_em(
+		Terreno3D.altura_em(global_position.x, global_position.z))
+
+func pode_mergulhar_aqui() -> bool:
+	return RegraDeTravessia.pode_mergulhar(
+		arquetipo, Terreno3D.altura_em(global_position.x, global_position.z))
+
+## Um quadro de travessia: água que barra quem não nada, oxigênio de quem está
+## submerso, e teto pra quem voa.
+##
+## ⚠️ **Roda DEPOIS do `move_and_slide`**, de propósito: é uma correção do que
+## aconteceu, não uma previsão. Prever daria dois lugares decidindo pra onde o
+## corpo vai — e dois lugares decidindo é como eles passam a discordar.
+func _tick_travessia(delta: float) -> void:
+	var sup := superficie_atual()
+
+	# Fase 14: água profunda barra quem não nada. Empurra de volta em vez de
+	# travar, porque parede invisível na beira d'água é pior que ser devolvido.
+	#
+	# 🔴 `_tem_lugar_seco` não é zelo: sem ele, quem **nasce** na água era
+	# devolvido pro valor inicial de `_ultima_posicao_seca`, que era
+	# `Vector3.ZERO` — ou seja, **teleportado pra origem do mundo**. O
+	# `teste_nascimento_v3.gd` pegou na primeira rodada da suíte: um corpo criado
+	# a 300 m apareceu em (0, 13.5, 0).
+	#
+	# É a mesma família do zero silencioso: um valor padrão que parece inofensivo
+	# e vira comportamento. Agora o recuo só acontece se houver pra onde recuar.
+	# Fase 16: e, se for o JOGADOR, também a permissão da MO (§30). Capacidade e
+	# permissão são perguntas diferentes — quem nada, nada; quem atravessa o mar
+	# precisa da MO. O selvagem nunca é consultado: exigir carteira de um bicho
+	# transformaria o mundo num cartório.
+	if not _pode_estar_aqui(sup):
+		if _tem_lugar_seco:
+			var recuo := Vector3(global_position.x - _ultima_posicao_seca.x, 0.0,
+								global_position.z - _ultima_posicao_seca.z)
+			if recuo.length() > 0.01:
+				global_position.x = _ultima_posicao_seca.x
+				global_position.z = _ultima_posicao_seca.z
+				velocity.x = 0.0
+				velocity.z = 0.0
+	elif not RegraDeTravessia.e_agua(sup):
+		_ultima_posicao_seca = global_position
+		_tem_lugar_seco = true
+
+	# Oxigênio. Só conta submerso — boiar não cansa.
+	var antes := oxigenio
+	if mergulhando:
+		var prof := profundidade_atual()
+		if prof == "":
+			mergulhando = false
+		else:
+			oxigenio = Mergulho.consumir(oxigenio, delta, prof, _tem_roupa_de_mergulho)
+			if Mergulho.afogou(oxigenio):
+				mergulhando = false
+				sofrer(int(round(float(vida_maxima) * Mergulho.DANO_AO_AFOGAR)), null)
+				afogou.emit()
+	else:
+		oxigenio = Mergulho.recuperar(oxigenio, delta)
+	if not is_equal_approx(antes, oxigenio):
+		oxigenio_mudou.emit(oxigenio, Mergulho.OXIGENIO_MAXIMO)
+
+	# Fase 15: teto de voo, relativo ao terreno logo abaixo.
+	if MovementProfile.voa(arquetipo):
+		var chao := Terreno3D.altura_em(global_position.x, global_position.z)
+		var teto := RegraDeTravessia.altitude_maxima(chao, zona)
+		if global_position.y > teto:
+			global_position.y = teto
+			velocity.y = minf(velocity.y, 0.0)
+
+## As travessias que o JOGADOR liberou (Fase 16) — vem da mochila, via
+## `RegraDeMaquina.permissoes_de`. Vazio é o padrão e é restritivo de propósito:
+## permissão concedida por omissão não é permissão.
+##
+## Mora no corpo porque é o corpo que se move, mas pertence ao jogador: um
+## selvagem carrega a lista vazia e **nunca é perguntado** por ela.
+##
+## ⚠️ `Array` e não `Array[String]`: array tipado recusa `= []` vindo de fora com
+## *"Invalid set index"* em tempo de execução, e essa recusa não reprova teste —
+## ela aborta a função e o arquivo ainda sai com sucesso. Foi o que aconteceu ao
+## escrever esta fase. Tipo forte num campo que o mundo inteiro atribui troca um
+## erro impossível por um erro silencioso.
+var permissoes : Array = []
+
+## A pergunta completa da travessia. Selvagem responde só pela capacidade; o
+## jogador responde pelas duas.
+func _pode_estar_aqui(superficie: String) -> bool:
+	if not controlado_pelo_jogador:
+		return RegraDeTravessia.pode_estar_em(arquetipo, superficie)
+	return bool(RegraDeMaquina.pode_atravessar(arquetipo, superficie, permissoes)["pode"])
+
+## Por que não dá pra ir pra lá — em português, pra tela mostrar.
+func por_que_nao_atravessa(superficie: String) -> String:
+	return str(RegraDeMaquina.pode_atravessar(arquetipo, superficie, permissoes)["motivo"])
+
+## O último lugar onde ele estava fora da água profunda — o ponto de devolução.
+## Só vale depois de ele ter estado em algum lugar seco de verdade.
+var _ultima_posicao_seca : Vector3 = Vector3.ZERO
+var _tem_lugar_seco : bool = false
+var _tem_roupa_de_mergulho : bool = false
+
+## Afunda ou emerge. Devolve `{"pode", "motivo"}` — motivo em português.
+func alternar_mergulho() -> Dictionary:
+	if mergulhando:
+		mergulhando = false
+		return {"pode": true, "motivo": ""}
+	if not pode_mergulhar_aqui():
+		if not RegraDeTravessia.e_agua(superficie_atual()):
+			return {"pode": false, "motivo": "Você não está na água."}
+		if not MovementProfile.nada(arquetipo):
+			return {"pode": false, "motivo": "Este Pokémon não nada."}
+		return {"pode": false, "motivo": "A água aqui é rasa demais pra mergulhar."}
+	mergulhando = true
+	return {"pode": true, "motivo": ""}
 
 ## §6: acompanhar o treinador. A DECISÃO é da `RegraDeAcompanhar`; aqui só se
 ## executa — é o que permite provar o comportamento sem subir física.
@@ -560,6 +780,7 @@ func _seguir(delta: float) -> void:
 		velocity.y = (altura_de_voo - global_position.y) * 2.0
 
 	move_and_slide()
+	_tick_travessia(delta)
 	rotation.y = Locomocao3D.girar_para(
 		rotation.y, velocity, delta, float(MovementProfile.obter(arquetipo)["giro"]))
 
@@ -700,9 +921,34 @@ func atacar() -> Dictionary:
 # Fase 10 — as 4 skills
 # ──────────────────────────────────────────────────────────────────────────────
 
-## Os golpes nos slots, por id de `moves.json`. Quem monta o kit de verdade é
-## `KitDeCombate` (Fase 17); aqui é só a lista que a entidade usa.
+## Os golpes nos slots, por id de `moves.json` — a camada **ativa**, a que tem
+## tecla. Quem monta é `RegraDeMovePool` (Fase 17), a partir do learnset.
 var kit : Array = []
+
+## Tudo que ele sabe, sem teto — a camada **conhecida**. É daqui que a tela de
+## troca de kit escolhe, e é aqui que uma MT deposita o que ensinou.
+var conhecidos : Array = []
+
+## Golpes vindos de MT/MO. Entram no pool e **não equipam sozinhos** (§31).
+var ensinados : Array = []
+
+## Que tipo de encontro este bicho é: muda quantos slots ele carrega.
+## `jogador` usa a escada de capacidade; o resto usa a régua de selvagem.
+var categoria : String = RegraDeMovePool.CATEGORIA_PADRAO
+
+## Fase 18 — este é um Alpha. Quem decide é `RegraDeAlpha`, no NASCIMENTO:
+## virar Alpha depois de nascido mudaria stats e tamanho no meio da luta.
+var alpha : bool = false
+
+## §30: Alpha não se captura. Fica exposto aqui pra quem construir a pokébola
+## na V3 ler o estado em vez de reimplementar a regra.
+var capturavel : bool = true
+
+## Este encontro é **elite** (mais raro, nível acima do topo da faixa da zona).
+## Independente de `alpha`: os dois são sorteios separados e podem coincidir.
+## Fica no corpo porque a chance de Alpha cresce por **elite derrotado**, e
+## depois da briga não haveria como saber se o que caiu era elite.
+var elite : bool = false
 
 ## Último uso POR GOLPE, não por slot: trocar a ordem das skills não pode zerar
 ## cooldown. Ver `UsoDeSkill`.

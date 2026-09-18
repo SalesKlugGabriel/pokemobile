@@ -4,20 +4,36 @@
 ## mover a câmera — é o `Combate1v1`. Aqui só se decide, e por isso as regras
 ## de início e fim se provam sem subir o mundo.
 ##
-## ── O que "1v1 no próprio terreno, sem arena" obriga ────────────────────────
+## ── 🔴 O que esta classe É, depois da correção do Gabriel (18/09) ──────────
 ##
-## A `COMBAT_FIRST_PERSON.md` é explícita: **1v1, no terreno, sem arena**. Isso
-## soa simples e cobra três coisas que uma arena resolveria de graça:
+## Ela nasceu chamada de "1v1 sem arena", e essa leitura estava **errada para o
+## mundo**. O Gabriel corrigiu:
 ##
-##   1. **Quem NÃO está na briga precisa ser mantido fora dela.** Sem parede, o
-##      terceiro selvagem entraria andando. A regra abaixo é que ele não engaja
-##      quem já está lutando — ele continua existindo e vivendo a vida dele.
-##   2. **Nada impede o jogador de ir embora.** E isso é bom: fugir tem de ser
+## > *"estamos fazendo um game de mundo aberto, a batalha entre diversos mobs é
+## > possível, o aggro de vários mobs também, então por mais que criemos a
+## > mecânica 1v1 (usaremos para player vs player) é possível acontecer um 1v5
+## > ou 1v10 dependendo da área do mapa que o player está"*
+##
+## Então: **o 1v1 é a mecânica de DUELO** — PvP, treinador rival, chefe. O mundo
+## aberto é outra coisa, e nele vários mobs podem agredir ao mesmo tempo.
+##
+## O que sobrevive inteiro da versão anterior, porque vale nos dois casos:
+##
+##   1. **Nada impede o jogador de ir embora.** E isso é bom: fugir tem de ser
 ##      possível. Mas precisa ter uma linha, senão a briga nunca "termina" —
 ##      fica pendurada pra sempre a dois quarteirões de distância.
-##   3. **O fim tem de ser um EVENTO**, não um estado que alguém consulta. Quem
+##   2. **O fim tem de ser um EVENTO**, não um estado que alguém consulta. Quem
 ##      ganhou, quem perdeu, ou se alguém fugiu: um resultado só, declarado uma
 ##      vez.
+##   3. **Toda briga tem prazo.** Dois lutadores presos em lados opostos de uma
+##      pedra ficariam em combate pra sempre.
+##
+## O que MUDOU: a exclusividade deixou de ser regra do mundo e virou opção de
+## quem quer um duelo (ver `pode_engajar`).
+##
+## ⚠️ **Consequência a enfrentar quando o 1v5 for construído de verdade:** o
+## Gabriel já apontou que *"4 skills apenas pode ser pouco para uma luta
+## massiva"*. Está registrado no `QUADRO.md`; não é trabalho desta fase.
 class_name RegraDeCombate
 extends RefCounted
 
@@ -53,9 +69,13 @@ const SEGUNDOS_SEM_NADA_ATE_DESFAZER : float = 20.0
 
 ## Esta briga pode começar?
 ##
-## `ja_em_combate` é a trava do 1v1: enquanto uma briga corre, nenhuma outra
-## começa. Sem ela, três selvagens próximos abririam três combates e o jogador
-## estaria em todos ao mesmo tempo.
+## `ja_em_combate` impede abrir **um segundo duelo** enquanto um corre — três
+## selvagens próximos não podem abrir três duelos e deixar o jogador "em todos"
+## ao mesmo tempo.
+##
+## ⚠️ Isto **não** impede o 1v5: os outros quatro continuam agredindo, batendo e
+## perseguindo normalmente. O que não existe é um segundo *duelo declarado* — que
+## é um conceito de apresentação e de resultado, não uma parede em volta da luta.
 static func pode_comecar(distancia: float, selvagem_hostil: bool,
 		selvagem_vivo: bool, defensor_vivo: bool, ja_em_combate: bool) -> bool:
 	if ja_em_combate:
@@ -108,12 +128,23 @@ static func frase(r: String) -> String:
 
 ## Este terceiro pode engajar quem já está em combate?
 ##
-## **Não.** É o que sustenta o 1v1 sem arena: o selvagem que passa por perto
-## continua vivo, andando e reagindo ao mundo — ele só não entra numa briga que
-## já tem dois donos.
+## **No mundo aberto, SIM — e é assim que tem de ser.**
 ##
-## ⚠️ Isto NÃO é o mesmo que "ele fica parado". Um bicho congelado a dois metros
-## da luta é tão estranho quanto um que entra nela. Ele continua com a IA dele;
-## o que muda é que os dois combatentes deixam de ser alvo válido.
-static func pode_engajar(alvo_em_combate: bool) -> bool:
+## 🔴 Corrigido em 18/09 pelo Gabriel: *"estamos fazendo um game de mundo aberto,
+## a batalha entre diversos mobs é possível, o aggro de vários mobs também (...)
+## é possível acontecer um 1v5 ou 1v10 dependendo da área do mapa"*. O 1v1 é a
+## mecânica de **duelo**, para PvP — não a regra do mundo.
+##
+## A versão anterior desta função devolvia `false` sempre, e isso não era só
+## conservador demais: era um **bug**. Com ela, começar a lutar com um bicho
+## fazia todos os outros que já perseguiam o jogador **esquecerem dele** — o
+## oposto de *"entrar despreparado em determinadas regiões pode terminar muito
+## mal"*, que é o terceiro pilar do projeto.
+##
+## `exclusivo` existe para o caso em que a exclusividade É a intenção: um duelo
+## de treinador, um PvP, um chefe que ninguém interrompe. Quem passa `true` está
+## dizendo "esta briga tem dono" — e essa é uma decisão do modo, não do mundo.
+static func pode_engajar(alvo_em_combate: bool, exclusivo: bool = false) -> bool:
+	if not exclusivo:
+		return true
 	return not alvo_em_combate

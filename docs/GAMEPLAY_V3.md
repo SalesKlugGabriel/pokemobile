@@ -146,12 +146,12 @@ rodando** — não quando o código existe.
 | 10 | 4 skills | ✅ | 17/09 · `FormaDeArea3D` + `UsoDeSkill` · single/circle/cone/line, aviso e drenagem · 61 conferências |
 | 11 | Wild Pokémon | ✅ | 17/09 · `RegraDeSpawn` + `IASelvagem3D` + `SpawnerSelvagem3D` · 63 conferências |
 | 12 | Combate 1v1 | ✅ | 18/09 · `RegraDeCombate` + `Combate1v1` · 34 conferências |
-| 13 | Combate → Mundo | 🔵 próxima | fecha o laço da fantasia |
-| 14 | Surf | ⬜ | |
-| 15 | Fly | ⬜ | |
-| 16 | TM/HM | ⬜ | `TrocaDeKit` já existe |
-| 17 | Move Pool | ⬜ | `KitDeCombate` já existe |
-| 18 | Alpha | ⬜ | regras já existem |
+| 13 | Combate → Mundo | ✅ | 18/09 · `RegraDeRetorno` + `RetornoAoMundo` · 50 conferências |
+| 14 | Surf | ✅ | 18/09 · `RegraDeTravessia` |
+| 15 | Fly | ✅ | 18/09 · zonas de voo e teto relativo |
+| 16 | TM/HM | ✅ | 18/09 · `RegraDeMaquina` · capacidade (arquétipo) × permissão (MO) · 48 conferências |
+| 17 | Move Pool | ✅ | 18/09 · `RegraDeMovePool` · conhecidos / equipados / ativos · 59 conferências · 🔴 **o kit da V3 estava vazio no jogo inteiro** |
+| 18 | Alpha | ✅ | 18/09 · `RegraDeAlpha` · sorteio próprio + curadoria por espécie · 58 conferências · 🔴 **nunca tinha nascido um** · raridade 2%/0,5%/+0,1% por elite (Gabriel, 18/09) |
 | 19 | Polimento | ⬜ | **Codex entra aqui** |
 | 20 | Performance | ⬜ | |
 
