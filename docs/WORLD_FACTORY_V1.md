@@ -3,9 +3,10 @@
 ## Estado
 
 **Pronto e validado em isolamento:** spec, seed explícita, reservas manuais,
-coordenadas de chunk e gerador de terreno por triangulação.  
-**Ainda não iniciado:** cena WORLD_LAB, vegetação, rochas, água visual, caminhos,
-caverna, streaming e publicação.
+coordenadas de chunk, gerador de terreno por triangulação e laboratório de
+terreno em 16 chunks.
+**Ainda não iniciado:** vegetação, rochas, caminhos, caverna, streaming,
+integração no Laboratório oficial e publicação.
 
 ## Fonte de configuração
 
@@ -45,3 +46,23 @@ tem colisão triangulada.
 Antes de seguir para árvores, rochas ou grama, a Fase 4 deve montar o
 WORLD_LAB sem vegetação e validar jogador, colisão, praia e penhasco dentro do
 Godot. A fábrica não está autorizada a gerar mundo grande nesta etapa.
+
+## Fase 4 — laboratório de terreno isolado
+
+`scenes/tests/world_factory_terrain_lab.tscn` monta a spec `world_lab_v1` sem
+alterar `Terreno3D`, spawn ou o Laboratório oficial. O script
+`WorldFactoryTerrainLab.gd` cria 16 chunks de 64 m, cada um com malha e
+`StaticBody3D`/trimesh próprios; a água é visual e não recebe colisão. O Player
+V1 entra apenas como régua de escala, assentado por `factory.altura_em`.
+
+Validação reproduzível:
+
+```bash
+godot4 --headless --path /root/pokemobile-v3-codex \
+  --script res://scripts/tests/teste_world_factory_terrain_lab.gd
+```
+
+Resultado: **7 ok, 0 falhas** — factory criada pela spec, 16 chunks visuais,
+16 colisores, água sem física e Player V1 sobre o terreno. Isto não é ainda a
+integração de gameplay: o próximo gate é inspeção visual do relevo e revisão
+do contrato de altura/movimento antes de adicionar qualquer vegetação.
