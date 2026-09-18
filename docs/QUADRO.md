@@ -110,20 +110,33 @@ posicionar é o caminho que catapulta o jogador.
 dado** e o Claude implementa com fonte e confiança declaradas — a conta acontece
 no backend, nunca na tela.
 
-### 🔴 A pergunta que trava as DUAS tarefas novas: qual é a altura do player?
+### 🔴 A altura do player — resolvido pela evidência: **1,60 m**
 
 | Fonte | Diz |
 |---|---|
 | A folha de concept art do Gabriel (18/09) | **1,60 m** |
-| `TrainerController3D` (cápsula e malha) | **1,75 m** |
-| O `player.glb` de 14–15/09, medido | **1,750 m** |
+| `TrainerController3D` (cápsula e malha) | 1,75 m |
+| O `player.glb` de 14–15/09, medido | 1,750 m |
 
-A altura do player é o **denominador de tudo**: árvore de 8 m, pedra de 50 cm,
-largura de caminho, altura de caverna, enquadramento de câmera. Escolher errado
-obriga a refazer a fábrica de mundo inteira.
+**A folha é internamente coerente, e dá pra provar:** ela lista Pikachu em
+**0,40 m** e Charizard em **1,70 m** — e os dois batem **exatamente** com
+`heights.json` do jogo. Ela não inventou escala de Pokémon pra caber no
+personagem; usou a real.
 
-**Pergunte ao Gabriel antes da FASE 1 das duas tarefas.** E, decidido, **o código
-muda junto** — ninguém tinha notado a divergência até 18/09.
+O outlier é o **código**: 1,75 m é altura de **adulto** (a própria folha põe o
+NPC adulto em 1,75), quase certamente um placeholder que nunca foi calibrado
+contra referência nenhuma.
+
+➡️ **Trabalhe com 1,60 m.** Quando entrar, `TrainerController3D` muda junto —
+cápsula e malha, hoje em 1,75. Vale uma confirmação do Gabriel, mas a evidência
+tem lado.
+
+### 📄 A folha de referência não está no disco — a transcrição está
+
+A imagem chega ao Claude na conversa e **não é gravada na VPS**; o Gabriel
+também não consegue subi-la. A referência disponível é
+**`docs/referencias/player_v1/FOLHA-DE-REFERENCIA.md`**, escrita painel por
+painel, separando o que está desenhado do que é interpretação.
 
 ### ⚠️ Sobre o PLAYER 3D V1, antes de começar
 
