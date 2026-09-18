@@ -28,15 +28,18 @@ def report():
     armatures = [obj for obj in bpy.data.objects if obj.type == "ARMATURE"]
     actions = sorted(action.name for action in bpy.data.actions)
     height = maximum.z - minimum.z
+    eye = bpy.data.objects.get("PLAYER_V1_EYE_1")
+    backpack = bpy.data.objects.get("PLAYER_V1_BACKPACK_BODY")
+    if eye is None or backpack is None:
+        raise RuntimeError("Marcadores de orientação PLAYER_V1 ausentes")
+    def center_y(obj):
+        return sum((obj.matrix_world @ Vector(point)).y for point in obj.bound_box) / len(obj.bound_box)
     checks = {
         "height_1_60_m": abs(height - 1.60) <= 0.01,
         "feet_at_origin": abs(minimum.z) <= 0.001,
         "named_parts": all(obj.name.startswith("PLAYER_V1_") for obj in meshes),
         "budget_under_15000_triangles": triangles <= 15000,
-        "front_is_negative_blender_y": (
-            sum(point[1] for point in bpy.data.objects["PLAYER_V1_EYE_WHITE_1"].bound_box) / 8
-            < sum(point[1] for point in bpy.data.objects["PLAYER_V1_BACKPACK_BODY"].bound_box) / 8
-        ),
+        "front_is_negative_blender_y": center_y(eye) < center_y(backpack),
     }
     result = {
         "asset": "PLAYER_V1",

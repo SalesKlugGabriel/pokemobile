@@ -6,8 +6,8 @@
   "feet_z_m": 0.0,
   "bounds_m": {
     "x": [
-      -0.4015,
-      0.4015
+      -0.41,
+      0.41
     ],
     "y": [
       -0.273,
@@ -20,15 +20,16 @@
   },
   "front_in_blender": "-Y",
   "front_target_in_godot": "-Z",
-  "mesh_objects": 80,
-  "triangle_count": 3360,
-  "vertex_count": 1840,
+  "mesh_objects": 86,
+  "triangle_count": 3760,
+  "vertex_count": 2052,
   "materials": [
     "PLAYER_V1_MAT_BLACK",
     "PLAYER_V1_MAT_BLUE",
     "PLAYER_V1_MAT_DARK",
     "PLAYER_V1_MAT_HAIR",
     "PLAYER_V1_MAT_LIGHT",
+    "PLAYER_V1_MAT_PANTS",
     "PLAYER_V1_MAT_RED",
     "PLAYER_V1_MAT_SKIN",
     "PLAYER_V1_MAT_TRIM"
