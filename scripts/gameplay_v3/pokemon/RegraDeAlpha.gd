@@ -53,12 +53,13 @@ const BONUS_POR_ELITE : float = 0.001
 ## O tamanho da janela: 3 horas de relógio.
 const JANELA_SEGUNDOS : float = 3.0 * 60.0 * 60.0
 
-## ⚠️ **PROXY — o único número desta regra que NÃO é do Gabriel.**
+## O teto da chance. **CONFIRMADO pelo Gabriel em 18/09** — nasceu como proposta
+## minha e ele respondeu *"mantenha como você propôs"*.
 ##
-## O teto da chance. Sem teto, "sobe 0,1% por elite" é ilimitado: 200 elites em
-## 3 horas levariam o Alpha a 20,5%, e a raridade que ele acabou de fixar em
-## 0,5% deixaria de existir justamente pra quem mais joga. Um teto é obrigatório
-## pra regra ser coerente; **qual** teto é decisão dele.
+## Por que um teto tem de existir: sem ele, "sobe 0,1% por elite" é ilimitado.
+## 200 elites em 3 horas levariam o Alpha a 20,5%, e a raridade que ele fixou em
+## 0,5% deixaria de existir justamente pra quem mais joga — a regra se desfaria
+## sozinha no uso.
 ##
 ## 5% é 10× a base, e exige 45 elites derrotados em 3 horas pra ser atingido —
 ## o que, a 2% de chance de elite por encontro, é bastante jogo.

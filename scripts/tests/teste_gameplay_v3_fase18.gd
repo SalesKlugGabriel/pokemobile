@@ -133,7 +133,7 @@ func _sorteio() -> void:
 		is_equal_approx(R.chance([agora + hora], agora), R.CHANCE_BASE),
 		"derrota no futuro contaria pra sempre, porque nunca sai da janela")
 
-	# ── O teto (o único número que não é do Gabriel) ──
+	# ── O teto (proposto por mim, confirmado por ele em 18/09) ──
 	var muitas : Array = []
 	for i in 500:
 		muitas.append(agora - float(i))

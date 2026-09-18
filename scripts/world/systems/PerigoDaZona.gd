@@ -43,11 +43,10 @@ const ESTICA_ATE : float = 2.2
 ## — era o tipo de número que eu tinha escolhido sem fonte e ninguém tinha
 ## conferido.
 ##
-## ⚠️ Lido como **teto**, não como taxa fixa: a conta continua sendo
-## `MAX × perigo(zona)`, então Pallet segue em 0% e Cerulean Cave chega aos 2%.
-## Ler como taxa fixa apagaria o gradiente de perigo por zona, que ele não pediu
-## pra apagar. Se a intenção for 2% em todo lugar, é trocar a linha do
-## `chance_de_elite()`.
+## É **teto**, não taxa fixa: a conta continua sendo `MAX × perigo(zona)`, então
+## Pallet segue em 0% e Cerulean Cave chega aos 2%. Proposto assim pra não
+## apagar o gradiente de perigo por zona, e **CONFIRMADO pelo Gabriel** no mesmo
+## dia — *"mantenha como você propôs"*.
 const CHANCE_DE_ELITE_MAX : float = 0.02
 
 ## Quantos níveis a mais um elite ganha por cima do topo da faixa da zona.

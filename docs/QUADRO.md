@@ -189,8 +189,7 @@ o plano atual para não atrasar o projeto"*. Ficam aqui pra não virarem folclor
 | 1 | **Qual aspecto dos controles incomoda** | "melhorar os controles" são **seis** ajustes diferentes: velocidade, sensibilidade do mouse, aceleração, atrito, virada do personagem, distância da câmera. Mexer nos seis de uma vez faz ninguém saber qual melhorou |
 | 2 | Jogar a V3 depois do conserto de direção (17/09) e dizer se o W agora anda pra onde se olha | o teste prova direção e independência da câmera; **não prova sensação** |
 | 3 | ✅ **Respondido (18/09):** elite **2%**, Alpha **0,5%**, **+0,1%** por elite derrotado nas últimas **3 h**. Implementado e travado por teste | — |
-| 4 | **Teto da chance de Alpha.** Sem teto, "+0,1% por elite" é ilimitado. Está em **5%** (10× a base, ~45 elites em 3 h) | ⚠️ **PROXY** — o único número desta regra que não é dele. O teto é obrigatório pra regra ser coerente; **qual** teto é decisão dele |
-| 5 | **2% é teto ou taxa fixa?** Li como **teto**: a conta segue `2% × perigo da zona`, então Pallet fica em 0% e a zona mais perigosa chega a 2% | ler como taxa fixa apagaria o gradiente de perigo por zona, que ele não pediu pra apagar |
+| 4 | ✅ **Respondido (18/09):** o **teto de 5%** e a leitura de **2% como teto** (`× perigo da zona`, Pallet em 0%) ficam como propostos — *"mantenha como você propôs"* | — |
 
 ---
 
