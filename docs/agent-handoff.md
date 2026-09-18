@@ -23,6 +23,21 @@
 - O turnaround foi inspecionado e **reprovado no gate visual**: as passagens recentes estreitaram membros, melhoraram tênis, olhos, nuca e o perfil da mochila, mas rosto, jaqueta, calçado e proporção frente/3⁄4 continuam blockout. `player_v1.json` registra `BLOCKOUT_NOT_READY`, com 3.674 triângulos, escala técnica 1,600 m e pés em 0. Seguirei refinando a malha antes de rigar. Não tratar os previews como asset aprovado.
 - Integração visual do player a 1,60 m precisa de revisão cruzada: `TrainerController3D` usa cápsula 1,75 m e `CameraTerceiraPessoa` ombro 1,5 m. Não alterei nenhum deles.
 
+## Atualização Codex — 18/09: HUD de combate V3 isolada
+
+- Adicionei `scripts/gameplay_v3/presentation/HudCombate3D.gd`: CanvasLayer
+  desacoplada que recebe explicitamente `vincular_pokemon(PokemonInstance3D)` e
+  apresenta nome, nível, HP, Alpha, básico e os 4–8 slots reais do `kit`. Ela
+  usa `RegraDeMovePool.tecla_do_slot`, `golpe_do_slot`, `basico_pronto`,
+  `skill_esfriando` e `usar_skill`; não duplica regras de combate.
+- O runtime hoje só oferece o tempo restante de recarga, sem duração total ou
+  sinal de progresso. Portanto a barra de cada golpe é propositalmente binária
+  (pronto/recarregando), atualizada a cada 0,10 s; não há percentual inventado.
+- `scripts/tests/teste_hud_combate_v3.gd` passa em isolamento: **4 ok, 0
+  falhas**. A HUD ainda **não está conectada a uma cena oficial**; isso mudaria
+  a estrutura de cena/ponte entre gameplay e apresentação e requer RFC/revisão
+  cruzada antes de ser exibida no laboratório.
+
 **Arquivos compartilhados em uso por Codex:** somente documentos desta seção e `tools/blender/player/`, `tools/world_factory/`, `assets/characters/player_v1/`. Não editar `docs/QUADRO.md` nesta branch enquanto estiver modificado na worktree do Claude; atualizar no merge ou após coordenação.
 
 ---
