@@ -280,6 +280,26 @@ envelhecer sozinho. **Se o painel mentir, a fonte é que está errada.**
 **Rode o gerador ao fechar qualquer sprint**, junto com a atualização deste
 arquivo. Vale para os dois agentes.
 
+### No ar em **https://poke.workprog.pro/painel**
+
+Servido pelo mesmo nginx do jogo. Duas armadilhas resolvidas no caminho, as
+duas do tipo que quebra em silêncio:
+
+- 🔴 **`Cross-Origin-Embedder-Policy: require-corp`**, que o WebAssembly do jogo
+  exige, **bloquearia a fonte do Google** no painel — a página abriria com a
+  fonte do sistema e ninguém saberia por quê. Os cabeçalhos do jogo desceram
+  pra dentro de `location /`; o painel não herda nada.
+- 🔴 **`absolute_redirect off`**: sem isso, abrir `/painel` (sem a barra, que é
+  como a pessoa digita) redirecionava pra `http://host:8080/painel/` — a porta
+  interna, morta do lado de fora.
+- O Dockerfile copia de `docs/painel/`, **não** de `builds/web/`: esta última é
+  saída de build e some a cada `exportar_web.sh`.
+
+⏳ **`pokemobile.workprog.pro` ainda não existe no DNS.** A regra do Traefik
+está escrita e **comentada** em `/root/pokemobile.yaml` — ligada com o domínio
+sem resolver, o Let's Encrypt falharia em laço e a cota de emissão desta VPS
+(8 subdomínios) entraria em risco. Basta o Gabriel criar o registro A.
+
 ---
 
 ## 📌 Decisões que valem, e o porquê de cada uma
