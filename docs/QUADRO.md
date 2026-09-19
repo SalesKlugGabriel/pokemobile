@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **130 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **131 arquivos, 0 com falha**
 
 ---
 
