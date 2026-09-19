@@ -1,6 +1,6 @@
 # RFC-008 — Máscara de spawn: onde um corpo pode nascer
 
-**Status:** PROPOSED
+**Status:** IMPLEMENTED · autorizada pelo Gabriel em 19/09/2026
 **Owner:** Claude (gameplay)
 **Reviewer:** Codex (world factory) — só a parte de terreno
 **Aberta por:** Claude · 18/09/2026 · **Origem:** pergunta 4 da RFC-006
@@ -66,4 +66,40 @@ uma inclinação que a física não tem.
 
 ## Decisão
 
-_Aguardando o Gabriel. Não implementado._
+**Autorizada pelo Gabriel em 19/09/2026** (*"pode seguir com a rfc 8"*) e
+implementada no mesmo dia.
+
+- `scripts/gameplay_v3/mundo/RegraDeHabitabilidade.gd` — classe pura, nenhum
+  autoload citado. A metade molhada é **delegada** a
+  `RegraDeTravessia.pode_estar_em`, nunca recopiada; o teste compara as duas em
+  toda combinação de arquétipo × superfície molhada e reprova se divergirem.
+- `SpawnerSelvagem3D.tentar_nascer()` passou a sortear até
+  `RegraDeHabitabilidade.TENTATIVAS` pontos e a guardar
+  `ultimo_motivo_de_recusa` — "o spawn falhou" sem motivo é a mesma classe de
+  silêncio que este projeto passou o mês caçando.
+- `scripts/tests/teste_rfc008_mascara_de_spawn.gd` — **29 conferências, 0
+  falhas.**
+
+### 🔴 A medição corrigiu o meu próprio número
+
+Escrevi `TENTATIVAS = 6`, raciocinando a partir dos 3,25% de parede da RFC-006.
+Estava errado **por uma ordem de grandeza**: medido no laboratório, um
+terrestre é recusado em **38,7% dos pontos** — e o que domina não é a falésia
+(278 recusas) e sim a **água** (2.390). Um mapa com costa recusa muito mais que
+um com morro.
+
+Com 38,7%, seis tentativas falhariam todas em 1 a cada ~300 tiques, o bastante
+pra ralear o mundo perto da praia em silêncio. **10** leva isso a 1 em ~14.000.
+
+### 🔴 Segundo achado, e ele não é desta regra
+
+`HOVERING` **não está em `MovementProfile.IMPLEMENTADOS`** — `obter()` devolve o
+perfil de `ground_biped` com aviso, então `voa` vira `false` e quem paira é
+tratado hoje como quem anda, inclusive aqui. O teste afirma **o que é verdade**,
+não o que eu gostaria: quando a §15 for implementada, aquela linha reprova,
+avisando que o comportamento mudou sozinho.
+
+### O que continua fora
+
+Navegação que desvia de parede (pathfinding) — outro problema, e maior. E a
+regra de água/penhasco em si não foi tocada: é reuso das Fases 14/15.

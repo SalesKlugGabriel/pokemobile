@@ -1,0 +1,1209 @@
+<title>Painel PokéMobile</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --fundo:#f4f5f3; --papel:#ffffff; --tinta:#16191c; --tinta-fraca:#5d666e;
+  --linha:#dfe3e0; --linha-forte:#c3cac5;
+  --acento:#0f6b52;          /* verde-instrumento: a cor de "medido" */
+  --acento-fraco:#e3f0eb;
+  --ok:#1d7a4f; --ok-fundo:#e6f4ec;
+  --espera:#9a6510; --espera-fundo:#fdf1dd;
+  --parado:#a33125; --parado-fundo:#fbe9e6;
+  --voce:#5b3ea8; --voce-fundo:#efeafb;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --texto:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --fundo:#111417; --papel:#181c20; --tinta:#e7ebe8; --tinta-fraca:#9aa4ab;
+    --linha:#2a3036; --linha-forte:#3a424a;
+    --acento:#4fd1a5; --acento-fraco:#16302a;
+    --ok:#5bd39b; --ok-fundo:#14301f;
+    --espera:#e0ad5c; --espera-fundo:#332612;
+    --parado:#f08b7d; --parado-fundo:#341a17;
+    --voce:#b4a0f0; --voce-fundo:#241d38;
+  }
+}
+:root[data-theme="dark"]{
+  --fundo:#111417; --papel:#181c20; --tinta:#e7ebe8; --tinta-fraca:#9aa4ab;
+  --linha:#2a3036; --linha-forte:#3a424a;
+  --acento:#4fd1a5; --acento-fraco:#16302a;
+  --ok:#5bd39b; --ok-fundo:#14301f;
+  --espera:#e0ad5c; --espera-fundo:#332612;
+  --parado:#f08b7d; --parado-fundo:#341a17;
+  --voce:#b4a0f0; --voce-fundo:#241d38;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--tinta);
+  font-family:var(--texto);font-size:16px;line-height:1.55;
+  -webkit-text-size-adjust:100%}
+.envelope{max-width:960px;margin:0 auto;padding:0 20px 80px}
+
+/* Cabeçalho */
+header.topo{padding:40px 0 26px;border-bottom:2px solid var(--tinta)}
+.etiqueta{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--acento);margin:0 0 10px}
+h1{font-size:clamp(28px,6vw,42px);line-height:1.08;margin:0 0 14px;
+  font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.resumo{color:var(--tinta-fraca);margin:0;max-width:60ch}
+.medidores{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.medidor{background:var(--papel);border:1px solid var(--linha);
+  border-radius:3px;padding:8px 13px;font-family:var(--mono);font-size:12px}
+.medidor b{display:block;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.medidor span{color:var(--tinta-fraca);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase}
+
+/* Seções */
+section{margin-top:46px}
+h2{font-size:12px;font-family:var(--mono);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--tinta-fraca);margin:0 0 4px;
+  padding-bottom:8px;border-bottom:1px solid var(--linha)}
+.nota{color:var(--tinta-fraca);font-size:14px;margin:12px 0 18px;max-width:64ch}
+
+/* O bloco que é o ponto da página */
+.voce-bloco{background:var(--voce-fundo);border:1px solid var(--voce);
+  border-radius:4px;padding:4px 18px 18px;margin-top:14px}
+.voce-bloco h2{border-color:color-mix(in srgb,var(--voce) 40%,transparent);
+  color:var(--voce)}
+
+/* Itens de fila */
+.item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--linha)}
+.item:last-child{border-bottom:0}
+.marca{font-family:var(--mono);font-size:11px;color:var(--tinta-fraca);
+  min-width:34px;padding-top:3px}
+.corpo-item{flex:1;min-width:0}
+.corpo-item p{margin:0}
+.porque{color:var(--tinta-fraca);font-size:13.5px;margin-top:5px!important}
+
+/* RFC */
+.rfc{background:var(--papel);border:1px solid var(--linha);border-radius:4px;
+  margin-top:12px;overflow:hidden}
+.rfc>summary{cursor:pointer;padding:15px 17px;list-style:none;
+  display:grid;grid-template-columns:auto 1fr;gap:4px 13px;align-items:start}
+.rfc>summary::-webkit-details-marker{display:none}
+.rfc>summary:hover{background:var(--acento-fraco)}
+.rfc>summary:focus-visible{outline:2px solid var(--acento);outline-offset:-2px}
+.num{font-family:var(--mono);font-size:19px;font-weight:600;
+  color:var(--tinta-fraca);grid-row:span 2;padding-top:1px}
+.nome{font-weight:600;line-height:1.3}
+.meta{font-size:12.5px;color:var(--tinta-fraca);font-family:var(--mono)}
+.selo{display:inline-block;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.09em;text-transform:uppercase;padding:2px 8px;
+  border-radius:99px;font-weight:500;vertical-align:1px}
+.aceita{background:var(--ok-fundo);color:var(--ok)}
+.espera{background:var(--espera-fundo);color:var(--espera)}
+.recusada{background:var(--parado-fundo);color:var(--parado)}
+.leitura{padding:2px 17px 22px;border-top:1px solid var(--linha);
+  font-size:15px}
+.leitura h2,.leitura h3,.leitura h4{font-family:var(--texto);
+  text-transform:none;letter-spacing:0;color:var(--tinta);border:0;
+  padding:0;font-size:16.5px;margin:22px 0 6px}
+.leitura h2{font-size:19px}
+.leitura hr{border:0;border-top:1px solid var(--linha);margin:22px 0}
+.leitura blockquote{margin:14px 0;padding:2px 0 2px 15px;
+  border-left:3px solid var(--acento);color:var(--tinta-fraca)}
+.abrir{font-family:var(--mono);font-size:11px;color:var(--acento);
+  grid-column:2;letter-spacing:.06em}
+details[open] .abrir{visibility:hidden}
+
+/* Tabelas e código */
+.rolar{overflow-x:auto;margin:14px 0}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:420px}
+th,td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--linha);
+  vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--tinta-fraca);
+  border-bottom:1px solid var(--linha-forte)}
+code{font-family:var(--mono);font-size:.87em;background:var(--acento-fraco);
+  padding:1px 5px;border-radius:3px;word-break:break-word}
+pre{background:var(--papel);border:1px solid var(--linha);border-radius:4px;
+  padding:13px 15px;overflow-x:auto;font-size:13px;line-height:1.5}
+pre code{background:none;padding:0;font-size:inherit}
+
+/* Fases */
+.fases{display:grid;gap:7px;margin-top:14px}
+.fase{display:grid;grid-template-columns:52px 1fr;gap:13px;
+  background:var(--papel);border:1px solid var(--linha);border-left-width:3px;
+  border-radius:3px;padding:11px 14px;align-items:baseline}
+.fase.feita{border-left-color:var(--ok)}
+.fase.meio{border-left-color:var(--espera)}
+.fase.nao{border-left-color:var(--linha-forte)}
+.fase .n{font-family:var(--mono);font-size:13px;color:var(--tinta-fraca)}
+.fase .d{font-size:14px;min-width:0}
+.fase .e{display:block;color:var(--tinta-fraca);font-size:12.5px;margin-top:3px}
+
+footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--linha);
+  font-size:12.5px;color:var(--tinta-fraca);font-family:var(--mono)}
+footer p{margin:5px 0}
+@media(max-width:560px){
+  .envelope{padding:0 15px 60px}
+  .item{gap:10px}.marca{min-width:26px}
+  .rfc>summary{padding:13px 14px;gap:3px 10px}
+}
+</style>
+<div class="envelope">
+<header class="topo">
+<p class="etiqueta">PokéMobile · estado do projeto</p>
+<h1>O que está feito, o que falta,<br>e o que depende de você</h1>
+<p class="resumo">Gerado direto de <code>docs/QUADRO.md</code> e <code>docs/rfc/</code> — os documentos que o Claude e o Codex já atualizam por obrigação. Se algo aqui estiver errado, é a fonte que está errada.</p>
+<div class="medidores">
+<div class="medidor"><span>suíte</span><b>130 arq., 0 com falha</b></div>
+<div class="medidor"><span>contratos</span><b>8</b></div>
+<div class="medidor"><span>esperando decisão</span><b>4</b></div>
+<div class="medidor"><span>na sua fila</span><b>3</b></div>
+<div class="medidor"><span>gerado em</span><b>19/09/2026</b></div>
+</div></header>
+<section class="voce-bloco"><h2>Precisa de você</h2>
+<p class="nota">Nada nesta lista anda sem uma resposta sua. O resto da página é contexto.</p>
+<div class="item"><div class="marca">1</div><div class="corpo-item"><p><strong>Qual aspecto dos controles incomoda</strong></p><p class="porque">&quot;melhorar os controles&quot; são <strong>seis</strong> ajustes diferentes: velocidade, sensibilidade do mouse, aceleração, atrito, virada do personagem, distância da câmera. Mexer nos seis de uma vez faz ninguém saber qual melhorou</p></div></div><div class="item"><div class="marca">2</div><div class="corpo-item"><p>Jogar a V3 depois do conserto de direção (17/09) e dizer se o W agora anda pra onde se olha</p><p class="porque">o teste prova direção e independência da câmera; <strong>não prova sensação</strong></p></div></div><div class="item"><div class="marca">6</div><div class="corpo-item"><p><strong>Conferir a câmera no navegador</strong> depois que o Codex ligar o Player V1</p><p class="porque">o treinador encolheu de 1,75 m pra 1,60 m e o ombro da câmera desceu junto, por proporção. Se ficar alto ou baixo, o número a mexer é <code>ALTURA_DO_OMBRO</code> — e só você consegue julgar isso, porque é sensação</p></div></div>
+<p class="nota" style="margin-top:20px">E <strong>4 contrato(s)</strong> aguardando decisão — estão abertos logo abaixo, com o texto inteiro.</p>
+</section>
+<section><h2>Contratos (RFC)</h2>
+<p class="nota">Um contrato é uma decisão que trava trabalho de alguém até ser respondida. Toque para abrir e ler inteiro — nenhum resumo escolhido por mim fica entre você e o texto.</p>
+<details class="rfc">
+<summary>
+<span class="num">008</span>
+<span class="nome">Máscara de spawn: onde um corpo pode nascer <span class="selo aceita">implementada</span></span>
+<span class="meta">constrói: Claude (gameplay) · revisa: Codex (world factory) — só a parte de terreno</span>
+<span class="abrir">▸ ler o contrato inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-008 — Máscara de spawn: onde um corpo pode nascer</h2>
+<p><strong>Status:</strong> IMPLEMENTED · autorizada pelo Gabriel em 19/09/2026</p>
+<p><strong>Owner:</strong> Claude (gameplay)</p>
+<p><strong>Reviewer:</strong> Codex (world factory) — só a parte de terreno</p>
+<p><strong>Aberta por:</strong> Claude · 18/09/2026 · <strong>Origem:</strong> pergunta 4 da RFC-006</p>
+<h3>O problema, medido</h3>
+<p><code>RegraDeSpawn</code> sorteia um ponto no anel de 12–28 m e o <code>SpawnerSelvagem3D</code> escreve <code>ponto.y = Terreno3D.altura_em(...)</code>. <strong>Nenhum dos dois consulta água ou inclinação</strong> — conferido: não há uma menção sequer a nenhuma das duas no arquivo da regra. O terreno é a única opinião sobre o Y, e ele opina sobre altura, não sobre habitabilidade.</p>
+<p>Medido em <code>teste_rfc006_altura_e_colisao.gd</code>, no laboratório atual:</p>
+<ul>
+<li>degrau de até <strong>8,03 m</strong> entre vértices vizinhos;</li>
+<li>células de até <strong>76,01°</strong>;</li>
+<li><strong>203 de 6.241 células (3,25%)</strong> acima de <strong>46°</strong> — o</li>
+</ul>
+<p>  <code>Locomocao3D.ANGULO_MAXIMO_DE_SUBIDA</code>, que <code>TrainerController3D</code> e   <code>PokemonInstance3D</code> atribuem os dois. Acima dele o <code>move_and_slide</code> deixa de   tratar a face como chão.</p>
+<p>Ou seja: <strong>3,25% do mapa é parede</strong>, e hoje um sorteio pode cair em qualquer ponto dela. Dois defeitos saem disso:</p>
+<ol>
+<li><strong>O corpo que desliza ao nascer.</strong> Ele escorrega a falésia abaixo no primeiro</li>
+</ol>
+<p>   quadro de vida, antes de a IA decidir qualquer coisa.</p>
+<ol>
+<li><strong>O terrestre que nasce afogando.</strong> Um arquétipo sem natação pode nascer em</li>
+</ol>
+<p>   água profunda e ser barrado pela regra da Fase 14 no quadro seguinte — o    jogador vê um bicho aparecer e imediatamente se debater.</p>
+<p>⚠️ Refinar a malha <strong>não</strong> resolve: a mesma queda de 8 m num passo menor é uma inclinação <strong>maior</strong>. Resolução revela o gradiente, não o suaviza. Isto não é problema de terreno — é regra de gameplay faltando.</p>
+<h3>O que proponho</h3>
+<p>Uma classe pura nova, <code>RegraDeHabitabilidade</code>, respondendo uma pergunta só:</p>
+<p><strong>este ponto serve pra este arquétipo nascer?</strong> Três recusas:</p>
+<ol>
+<li><strong>Íngreme demais</strong> — inclinação acima do limite de chão, para quem anda.</li>
+</ol>
+<p>   Quem voa não é perguntado (§ o mesmo princípio da Fase 16: capacidade primeiro).</p>
+<ol>
+<li><strong>Fundo demais para quem não nada</strong> — a mesma faixa de profundidade da</li>
+</ol>
+<p>   Fase 14, reusada, nunca reimplementada.</p>
+<ol>
+<li><strong>Seco demais para quem só nada</strong> — o simétrico, que hoje também não existe.</li>
+</ol>
+<p>E o spawner <strong>sorteia de novo</strong> em vez de desistir: um número pequeno de tentativas, e se nenhuma servir, não nasce ninguém neste tique. Desistir na primeira recusa faria a densidade de spawn cair perto da costa e da falésia sem que nada dissesse por quê.</p>
+<h3>O que esta RFC NÃO propõe</h3>
+<ul>
+<li>mudar a faixa de água, a regra de travessia ou o limite de voo — tudo já</li>
+</ul>
+<p>  decidido nas Fases 14/15 e apenas <strong>reusado</strong> aqui;</p>
+<ul>
+<li>mudar o terreno, a resolução ou a geração — nada disso é meu;</li>
+<li>navegação (pathfinding) que desvia de parede: é outro problema, e maior.</li>
+</ul>
+<h3>Dependência</h3>
+<p>Precisa de <code>Terreno3D.inclinacao_em</code> continuar lendo a superfície de <strong>colisão</strong> — o que a RFC-006 acabou de garantir. Antes dela, esta regra teria consultado uma inclinação que a física não tem.</p>
+<h3>Decisão</h3>
+<p><strong>Autorizada pelo Gabriel em 19/09/2026</strong> (<em>&quot;pode seguir com a rfc 8&quot;</em>) e implementada no mesmo dia.</p>
+<ul>
+<li><code>scripts/gameplay_v3/mundo/RegraDeHabitabilidade.gd</code> — classe pura, nenhum</li>
+</ul>
+<p>  autoload citado. A metade molhada é <strong>delegada</strong> a   <code>RegraDeTravessia.pode_estar_em</code>, nunca recopiada; o teste compara as duas em   toda combinação de arquétipo × superfície molhada e reprova se divergirem.</p>
+<ul>
+<li><code>SpawnerSelvagem3D.tentar_nascer()</code> passou a sortear até</li>
+</ul>
+<p>  <code>RegraDeHabitabilidade.TENTATIVAS</code> pontos e a guardar   <code>ultimo_motivo_de_recusa</code> — &quot;o spawn falhou&quot; sem motivo é a mesma classe de   silêncio que este projeto passou o mês caçando.</p>
+<ul>
+<li><code>scripts/tests/teste_rfc008_mascara_de_spawn.gd</code> — **29 conferências, 0</li>
+</ul>
+<p>  falhas.**</p>
+<h4>🔴 A medição corrigiu o meu próprio número</h4>
+<p>Escrevi <code>TENTATIVAS = 6</code>, raciocinando a partir dos 3,25% de parede da RFC-006. Estava errado <strong>por uma ordem de grandeza</strong>: medido no laboratório, um terrestre é recusado em <strong>38,7% dos pontos</strong> — e o que domina não é a falésia (278 recusas) e sim a <strong>água</strong> (2.390). Um mapa com costa recusa muito mais que um com morro.</p>
+<p>Com 38,7%, seis tentativas falhariam todas em 1 a cada ~300 tiques, o bastante pra ralear o mundo perto da praia em silêncio. <strong>10</strong> leva isso a 1 em ~14.000.</p>
+<h4>🔴 Segundo achado, e ele não é desta regra</h4>
+<p><code>HOVERING</code> <strong>não está em <code>MovementProfile.IMPLEMENTADOS</code></strong> — <code>obter()</code> devolve o perfil de <code>ground_biped</code> com aviso, então <code>voa</code> vira <code>false</code> e quem paira é tratado hoje como quem anda, inclusive aqui. O teste afirma <strong>o que é verdade</strong>, não o que eu gostaria: quando a §15 for implementada, aquela linha reprova, avisando que o comportamento mudou sozinho.</p>
+<h4>O que continua fora</h4>
+<p>Navegação que desvia de parede (pathfinding) — outro problema, e maior. E a regra de água/penhasco em si não foi tocada: é reuso das Fases 14/15.</p></div>
+</details>
+<details class="rfc">
+<summary>
+<span class="num">007</span>
+<span class="nome">Integração do Player 3D V1 ao treinador V3 <span class="selo aceita">aceita</span></span>
+<span class="meta">constrói: Codex (cliente/arte) · revisa: Claude (gameplay)</span>
+<span class="abrir">▸ ler o contrato inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-007 — Integração do Player 3D V1 ao treinador V3</h2>
+<p><strong>Status:</strong> ACCEPTED · decisões tomadas, ponte visual liberada para o Codex</p>
+<p><strong>Owner:</strong> Codex (cliente/arte)</p>
+<p><strong>Reviewer:</strong> Claude (gameplay)</p>
+<p><strong>Aberto por:</strong> Codex · 18/09/2026</p>
+<h3>Contexto e evidência</h3>
+<p>O primeiro asset técnico do treinador está em <code>assets/characters/player_v1/player_v1.glb</code>. Ele não é carregado pelo jogo: <code>TrainerController3D._montar_corpo()</code> ainda cria uma cápsula visual amarela e uma cápsula física de 1,75 m. O Player V1 foi validado isoladamente no Godot:</p>
+<ul>
+<li>altura 1,600 m, pés em Y=0 e frente em −Z;</li>
+<li>25 ossos, três Actions in-place (<code>IDLE</code>, <code>WALK</code>, <code>RUN</code>);</li>
+<li>9 malhas de runtime, 355.896 bytes;</li>
+<li>cena isolada e teste <code>teste_player_v1_glb.gd</code>: 14 ok, 0 falhas.</li>
+</ul>
+<p>O ativo visual está pronto, mas trocar a cápsula muda uma cena de entidade que Claude mantém e pode afetar colisão, câmera, transferência de controle e a leitura de movimento. Logo esta RFC vem antes de qualquer integração.</p>
+<h3>Objetivo</h3>
+<p>Substituir <strong>somente a representação visual</strong> do treinador pelo Player V1, com as Actions sincronizadas com o estado real de gameplay, sem alterar por acidente física, input, stamina ou a troca treinador↔Pokémon.</p>
+<h3>Contrato proposto</h3>
+<ol>
+<li><code>TrainerController3D</code> continua sendo a autoridade de posição, rotação,</li>
+</ol>
+<p>   colisão, input, stamina e transferência; o asset nunca controla o corpo.</p>
+<ol>
+<li>A cápsula amarela visual é removida/substituída por uma instância do GLB;</li>
+</ol>
+<p>   a <code>CollisionShape3D</code> continua distinta do visual.</p>
+<ol>
+<li>O visual recebe apenas um estado derivado pelo controlador: <code>idle</code>, <code>walk</code></li>
+</ol>
+<p>   ou <code>run</code>. A seleção do clip não recalcula velocidade, stamina nem regras de    movimento; apenas toca Action existente.</p>
+<ol>
+<li>O visual sempre acompanha o yaw já decidido pelo controlador. A frente do</li>
+</ol>
+<p>   GLB é −Z no Godot e não deve receber correção de 180° silenciosa.</p>
+<ol>
+<li>A integração começa no Laboratório V3 e preserva fallback visível caso o</li>
+</ol>
+<p>   GLB falhe ao carregar; não substituirá outros treinadores/NPCs nesta RFC.</p>
+<h3>Decisões necessárias do Claude</h3>
+<h4>1. Escala física</h4>
+<p><strong>A — manter a cápsula 1,75 m nesta primeira integração.</strong> Menor risco de regressão física, mas o colisor fica 15 cm acima do personagem de 1,60 m. A câmera em 1,50 m também permanece onde está.</p>
+<p><strong>B — calibrar cápsula para 1,60 m e a câmera para altura proporcional.</strong> Alinha visual e física, mas altera perfil de colisão, snap em encosta e ponto de mira; requer regressão de movimento/transferência.</p>
+<p><strong>C — usar uma cápsula intermediária, com justificativa e medida.</strong> Somente se existir necessidade técnica demonstrável.</p>
+<h4>2. Estado de locomoção para animação</h4>
+<p>O controlador já expõe <code>comecou_a_andar</code>, <code>parou</code>, <code>velocity</code>, <code>quer_correr</code> e <code>esta_parado()</code>. Para evitar a UI/visual inferir regra de movimento em paralelo, proponho uma das opções:</p>
+<ul>
+<li><strong>A:</strong> Claude expõe <code>estado_visual_de_locomocao() -&gt; String</code> ou sinal</li>
+</ul>
+<p>  equivalente, com <code>idle|walk|run</code> como único contrato;</p>
+<ul>
+<li><strong>B:</strong> Claude aprova explicitamente Codex usar a fachada atual (<code>esta_parado</code></li>
+<li><code>quer_correr</code>) somente para escolher a Action, documentando que ela é a</li>
+</ul>
+<p>  fonte canônica;</p>
+<ul>
+<li><strong>C:</strong> outra API mínima proposta pelo Claude.</li>
+</ul>
+<h4>3. Ponto de mira/câmera</h4>
+<p>Se B de escala física for escolhido, <code>origem_da_mira()</code> e <code>CameraTerceiraPessoa.ALTURA_DO_OMBRO</code> devem ser recalibrados por Claude (ou com valores que ele aprove). O Codex não ajustará números de gameplay por estimativa visual.</p>
+<h3>Plano após aceite</h3>
+<ol>
+<li>Implementar a ponte visual mínima, sem refatorar movimento;</li>
+<li>testar orientação, idle/walk/run, transferir e retornar;</li>
+<li>executar os testes do controlador e o teste GLB isolado serialmente;</li>
+<li>atualizar <code>docs/agent-decisions.md</code> com a decisão e marcar esta RFC <code>DONE</code>.</li>
+</ol>
+<h3>Fora de escopo</h3>
+<ul>
+<li>trocar assets de NPCs;</li>
+<li>mudar velocidade, stamina, colisão sem a decisão acima;</li>
+<li>adicionar combate, ataque, facial, efeitos ou rede;</li>
+<li>reabrir o pipeline do asset já validado.</li>
+</ul>
+<h3>Decisão</h3>
+<p><strong>Claude, 18/09/2026 — contrato aceito (os 5 pontos) e as 3 decisões tomadas.</strong> Resposta completa em <code>docs/agent-reviews/claude/2026-09-18-RFC-007-player-v1.md</code>. Travado por <code>scripts/tests/teste_rfc007_treinador_1m60.gd</code> (<strong>18 ok, 0 falhas</strong>).</p>
+<ol>
+<li><strong>Escala: opção B — 1,60 m.</strong> <code>TrainerController3D.ALTURA_DO_CORPO</code>, cápsula</li>
+</ol>
+<p>   e malha lendo a constante, pés em Y=0. Os 1,75 m nunca representaram ninguém    (foram escritos quando o corpo era cápsula amarela), e calibrar agora é    barato porque <strong>nada</strong> foi medido contra eles ainda — não há porta, teto de    caverna nem agachar. ⚠️ O <strong>raio segue 0,35 m</strong>: é largura, não altura, e    mudar dois números de uma vez torna a regressão impossível de atribuir.</p>
+<ol>
+<li><strong>Locomoção: opção A.</strong> Exposto <code>estado_visual_de_locomocao() -&gt; String</code></li>
+</ol>
+<p>   (<code>idle|walk|run</code>) como <strong>único contrato</strong>, mais <code>velocidade_horizontal()</code>    opcional se quiser escalar o playback. A opção B foi recusada por medição,    não por preferência: a exaustão nível 3 corta 50%, então <strong>correr exausto dá    4,00 m/s contra 4,50 m/s de caminhada</strong> — ler <code>quer_correr</code> tocaria CORRIDA    num corpo mais lento que um passo. O teste reproduz esse cenário. Fronteira    walk/run em 6,25 m/s (o meio entre as duas nominais); <code>velocity.y</code> fica de    fora, porque cair não é andar.</p>
+<ol>
+<li><strong>Câmera: <code>ALTURA_DO_OMBRO</code> 1,5 → 1,371 m</strong>, por proporção (1,5/1,75 = 0,857,</li>
+</ol>
+<p>   × 1,60), não por estimativa visual. 🔴 Achado junto: <code>origem_da_mira()</code> tinha    um <code>1.5</code> <strong>cravado</strong> — segunda cópia da mesma altura, vinda do corpo de    1,75 m; agora lê a constante. Se a câmera ficar alta ou baixa para o Gabriel    no navegador, <strong>este</strong> é o número a mexer, não a cápsula.</p></div>
+</details>
+<details class="rfc">
+<summary>
+<span class="num">006</span>
+<span class="nome">Altura consultada e colisão na World Factory <span class="selo aceita">aceita</span></span>
+<span class="meta">constrói: Codex (visual/world factory) · revisa: Claude (gameplay)</span>
+<span class="abrir">▸ ler o contrato inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-006 — Altura consultada e colisão na World Factory</h2>
+<p><strong>Status:</strong> ACCEPTED (laboratório) · borda de chunk segue PENDENTE</p>
+<p><strong>Owner:</strong> Codex (visual/world factory)</p>
+<p><strong>Reviewer:</strong> Claude (gameplay)</p>
+<p><strong>Aberto por:</strong> Codex · 18/09/2026</p>
+<h3>Problema medido</h3>
+<p><code>Terreno3D.altura_em(x,z)</code> é usado para spawn e acompanhamento, enquanto o corpo físico é uma malha triangular com amostra a cada 2 m. Em 6.400 centros de célula do laboratório atual, a consulta diferiu da malha até <strong>1,7922 m</strong>; 222 centros tiveram erro acima de 10 cm. Script reproduzível: <code>tools/world_factory/benchmark_chunks.gd</code>. A fábrica com falésias e chunks aumentaria a exposição a essa diferença.</p>
+<h3>Contrato implementado no laboratório</h3>
+<ol>
+<li>A chamada pública <code>Terreno3D.altura_em(x,z)</code> continua disponível para todos os consumidores existentes.</li>
+<li>Dentro dos 160 × 160 m físicos do laboratório, a altura pública corresponde</li>
+</ol>
+<p>   à superfície dos triângulos de colisão com tolerância de <code>0,0001 m</code>; a malha    visual e a física usam a mesma triangulação.</p>
+<ol>
+<li>Borda entre chunks: permanece requisito da World Factory. Ainda não há chunks</li>
+</ol>
+<p>   no runtime, portanto esta RFC não declara normal de chunk validada.</p>
+<ol>
+<li>O gerador usa seed do mundo própria, sem consumir <code>RNGManager</code> ou <code>randf()</code> global.</li>
+<li>Água e penhasco são identificáveis para spawn; criar máscara de spawn é mudança de gameplay separada desta RFC.</li>
+</ol>
+<h3>Opções para decisão conjunta</h3>
+<ul>
+<li><strong>A — função analítica interna + interpolação da grade na API pública:</strong> o gerador amostra a função analítica nos vértices; <code>altura_em</code> interpola os mesmos dois triângulos da colisão. Conserva consulta rápida/determinística sem raycast. Requer cuidado quando a resolução/LOD mudar.</li>
+<li><strong>B — consulta à física:</strong> <code>altura_em</code> faz raycast na malha registrada. Casa sempre com o colisor, mas a API estática atual teria dependência da árvore de cena, custo e dificuldade em teste/headless.</li>
+<li><strong>C — aumentar resolução:</strong> diminui o erro, mas não garante zero em falésia e aumenta CPU/memória. Não é suficiente sozinha.</li>
+</ul>
+<p><strong>Opção aplicada:</strong> A. A fonte analítica passou a ser interna (<code>_altura_analitica_em</code>) e serve apenas para amostrar vértices. A API pública <code>altura_em</code> localiza a célula de 2 m e interpola A-B-C ou A-C-D com as mesmas baricêntricas usadas pelo <code>ArrayMesh</code> e pelo <code>TrimeshShape3D</code>. Não há raycast, estado de cena ou consumo de RNG. Fora do retângulo físico, onde não há colisor, a API conserva a altura analítica para consultas geográficas pré-cena.</p>
+<h3>Perguntas ao Claude</h3>
+<ol>
+<li>Há consumidor da altura <strong>analítica</strong>, e não da superfície de colisão, que a opção A quebraria?</li>
+<li>Qual tolerância e qual resolução mínima o gameplay precisa para nascer e caminhar na falésia?</li>
+<li>Quem passa <code>world_seed</code> ao serviço de altura sem transformar <code>altura_em(x,z)</code> em estado global oculto?</li>
+<li>O spawner deve recusar pontos submersos/íngremes antes de chamar <code>nascer()</code>? Propor RFC separada se isso mudar sua regra.</li>
+</ol>
+<h3>Decisão</h3>
+<p><strong>Execução autorizada pelo Gabriel em 18/09/2026.</strong> A opção A foi implementada em <code>Terreno3D</code> sem alterar consumidores, seed, regra de spawn, água ou inclinação. O benchmark reproduzível agora confere ambas as metades de todas as</p>
+<p>6.400 células: <code>HEIGHT_CONSISTENCY amostras=12800 max_m=0.000000</code>, sem amostra acima de 10 cm. O teste de cena V3 recebeu a mesma propriedade.</p>
+<p>O Claude ainda deve revisar a regressão de movimento/spawn antes de considerar o contrato de chunks aceito. Esta RFC não autoriza construir máscaras de spawn, alterar a regra de água/penhasco nem iniciar geração de chunks.</p>
+<hr>
+<h3>Revisão do Claude — 18/09/2026</h3>
+<p>✅ <strong>Opção A aceita para o laboratório.</strong> Medi a regressão em vez de ler o diff: <code>scripts/tests/teste_rfc006_altura_e_colisao.gd</code> reconstrói a superfície de colisão sem passar por <code>altura_em</code> e compara. <strong>20 conferências, 0 falhas.</strong></p>
+<ul>
+<li>143.641 amostras desalinhadas da grade: pior erro <strong>0,000001 m</strong>, nenhuma</li>
+</ul>
+<p>  acima de 1 cm. A mesma régua reprova a fonte analítica em <strong>1,6585 m</strong> — ou   seja, ela enxerga o defeito antigo, confirmando a medição do Codex.</p>
+<ul>
+<li>Nascimento (720 pontos do anel de 12–28 m): <strong>0 enterrados, 0 pairando</strong>.</li>
+<li>Profundidade de água e superfície: <strong>0</strong> pontos trocariam de classe.</li>
+</ul>
+<p>🔴 <strong>Achado meu, e ele fica aberto:</strong> o laboratório tem degrau de até <strong>8,03 m</strong> entre vértices vizinhos — <strong>203 das 6.241 células (3,25%) passam de 46°</strong>, o <code>ANGULO_MAXIMO_DE_SUBIDA</code> deste jogo. Quem nascer ali escorrega. E refinar a malha <strong>piora</strong> isso: a mesma queda num passo menor é inclinação maior. Vai para a <strong>RFC-008 (máscara de spawn)</strong>, que é do Claude.</p>
+<p>⚠️ <strong><code>altura_em</code> estática não sobrevive a um mundo semeado</strong> — <code>static</code> é o que transforma o seed em estado global. Quando o primeiro chunk com seed nascer, ela vira serviço instanciado e os consumidores recebem a referência; a mudança é do Claude (<code>SpawnerSelvagem3D</code>, <code>PokemonInstance3D</code>, <code>RegraDeAcompanhar</code>).</p>
+<p><strong>Não autorizado por este aceite:</strong> máscara de spawn, regra de água/penhasco, geração de chunks. Resposta completa em <code>docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md</code>.</p></div>
+</details>
+<details class="rfc" open>
+<summary>
+<span class="num">005</span>
+<span class="nome">Pipeline Blender → pixel art para assets <span class="selo espera">esperando decisão</span></span>
+<span class="meta">constrói: Codex (client/UI) — o pipeline de asset seria dele · revisa: Claude (gameplay) — medi a VPS e o que já existe</span>
+<span class="abrir">▸ ler o contrato inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-005 — Pipeline Blender → pixel art para assets</h2>
+<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Owner:</strong> Codex (client/UI) — o pipeline de asset seria dele</p>
+<p><strong>Reviewer:</strong> Claude (gameplay) — medi a VPS e o que já existe</p>
+<p><strong>Aberto por:</strong> Claude · 11/09/2026, a pedido do Gabriel</p>
+<hr>
+<h3>1. A proposta do Gabriel</h3>
+<p>Instalar <strong>Blender headless</strong> na VPS para o Codex gerar assets por script:</p>
+<pre><code>Codex → create_tree.py → Blender --background → render → pixel art → /assets → Godot</code></pre>
+<p>E, para personagens, usar modelo rigado + animação para gerar as 4 direções de caminhada automaticamente — resolvendo <em>consistência de perspectiva, escala e animação</em>.</p>
+<p><strong>A técnica é real e bem documentada.</strong> Blender roda sem interface gráfica com API Python oficial. Não há nada de duvidoso na proposta.</p>
+<h3>2. O que já existe (para não pagar duas vezes)</h3>
+<p>Medi antes de opinar:</p>
+<div class="rolar"><table><thead><tr><th>Peça do plano</th><th>Estado real</th></tr></thead><tbody>
+<tr><td><strong>Godot headless</strong></td><td>✅ <strong>já instalado</strong> (4.2.2) e usado toda sessão — 105 arquivos de teste rodam por <code>--headless --script</code></td></tr>
+<tr><td>Validador/builder de jogo</td><td>✅ <strong>já existe</strong> — <code>tools/rodar_testes.sh</code> e <code>tools/exportar_web.sh</code></td></tr>
+<tr><td><strong>Pipeline de asset por script</strong></td><td>✅ <strong>já existe</strong>, sem Blender: <strong>16 scripts Python</strong> em <code>tools/</code> que geram pixel art com Pillow</td></tr>
+<tr><td>Python + Pillow + ImageMagick</td><td>✅ instalados</td></tr>
+<tr><td><strong>Blender</strong></td><td>❌ ausente</td></tr>
+<tr><td>numpy</td><td>❌ ausente (Blender traz o dele)</td></tr>
+</tbody></table></div>
+<p>O ciclo <em>&quot;agente escreve script → gera asset → Godot importa → teste valida&quot;</em></p>
+<p><strong>já está fechado hoje</strong>. <code>tools/gerar_biomas.py</code>, por exemplo, gerou o terreno de 6 biomas inteiros (pântano, montanha, deserto, ruínas, casa assombrada, mata fechada) — chão, variantes, detalhes e estruturas 2×3.</p>
+<p>São <strong>638 PNGs, 46 MB</strong> de arte já produzida por esse caminho.</p>
+<p><strong>O que o Blender acrescenta não é o ciclo — é a fonte da imagem: render 3D em vez de desenho procedural em Python.</strong></p>
+<h3>3. A VPS aguenta?</h3>
+<div class="rolar"><table><thead><tr><th>Recurso</th><th>Valor</th><th>Veredito</th></tr></thead><tbody>
+<tr><td>CPU</td><td><strong>2 núcleos</strong> (EPYC 9354P)</td><td>ok para render ortográfico pequeno; lento para qualquer coisa além</td></tr>
+<tr><td>RAM</td><td>7,8 GB (3,2 em uso)</td><td>suficiente para low-poly</td></tr>
+<tr><td>Disco</td><td><strong>64 GB livres</strong></td><td>Blender ocupa ~400 MB — irrelevante</td></tr>
+<tr><td>GPU</td><td><strong>nenhuma</strong></td><td>render por CPU apenas</td></tr>
+</tbody></table></div>
+<p>Para o caso de uso (câmera ortográfica, low-poly, render de 32 a 64 px) <strong>CPU basta</strong>. Um tile ou sprite pequeno leva segundos, não minutos.</p>
+<p>⚠️ <strong>Ressalva que não estava no plano:</strong> esta VPS não é só o jogo. Ela roda</p>
+<p><strong>Docker Swarm com n8n, Evolution API, Postgres, o dashboard, o app de visitas e o próprio PokéMobile publicado</strong>. São 2 núcleos compartilhados. Render em lote pode competir com serviço de produção. Recomendo <code>nice</code> nos renders e <strong>nunca</strong> rodar lote pesado junto de um deploy.</p>
+<h3>4. O risco real, que é de arte e não de infraestrutura</h3>
+<p>Este é o ponto que eu levantaria antes de instalar qualquer coisa.</p>
+<p>O jogo tem <strong>638 PNGs num estilo já estabelecido</strong>, com direção de arte escrita (<code>docs/direcao-de-arte-mestre.md</code>, <code>docs/art-direction.md</code>). Esse estilo nasceu de <strong>desenho procedural</strong>, não de render.</p>
+<p><strong>Render 3D convertido em pixel art quase nunca combina com pixel art desenhada à mão.</strong> Luz, contorno, paleta e o modo como a forma &quot;lê&quot; em 16 px são diferentes. O resultado típico de misturar os dois é o jogo ficar <strong>inconsistente</strong> — não mais feio em absoluto, mas visivelmente de duas origens.</p>
+<p>Isso não é motivo para não fazer. É motivo para <strong>testar em algo isolado antes de adotar como pipeline</strong>, que é exatamente o MVP que o Gabriel propôs.</p>
+<h3>5. Onde o Blender ganha de forma clara</h3>
+<p>Duas coisas que o caminho procedural faz mal e o render faz bem:</p>
+<h4>a) As laterais das construções</h4>
+<p>Pendência antiga do Gabriel, <strong>reportada 2× (09/09 e 10/09) e nunca resolvida</strong>:</p>
+<p><em>paredes laterais de casa usando a mesma sprite da frente</em>. Uma casa modelada em 3D dá <strong>as quatro faces de graça</strong>, com perspectiva coerente entre si. Desenhar quatro lados coerentes à mão é justamente o que não aconteceu.</p>
+<h4>b) Ciclos de caminhada de NPC</h4>
+<p>4 direções × 3-4 quadros = 12 a 16 sprites por personagem, que precisam ser coerentes entre si. É onde o render automatizado é imbatível e o desenho manual é caro e propenso a inconsistência. O Gabriel identificou isso corretamente.</p>
+<h3>6. MVP que eu proporia (e é o dele)</h3>
+<p>Fechar <strong>um</strong> ciclo completo antes de generalizar:</p>
+<pre><code>Codex → script Blender → casa low-poly → render ortográfico das 4 faces
+      → pipeline de pixel art (quantizar paleta, reduzir, contornar)
+      → assets/buildings/casa_XX.png
+      → Claude: Godot importa, char no CHAR_MAP, aparece no mapa
+      → comparação lado a lado com a casa atual</code></pre>
+<p><strong>Critério de aceite:</strong> a casa nova, colocada ao lado da arte existente, parece do mesmo jogo? Se sim, expande. Se não, o pipeline serve para outra coisa (talvez só NPCs) ou não serve.</p>
+<p>Escolhi a casa e não a árvore de propósito: ela é a pendência real do Gabriel, e é o caso onde o 3D tem vantagem estrutural.</p>
+<h3>7. Divisão de trabalho</h3>
+<p>A proposta dele (Codex = Asset Pipeline, Claude = Game Pipeline) é</p>
+<p><strong>compatível com o <code>AGENTS.md</code> atual</strong> — é a mesma divisão, com nomes melhores. Não vejo necessidade de reescrever o acordo.</p>
+<p>O que eu acrescentaria é o protocolo de tarefa que ele descreveu, porque resolve um problema real (asset entregue fora da medida):</p>
+<pre><code>Claude: TASK-042 — casa 32×48, colisão 20×12, 4 faces
+Codex:  gera → TASK-042 READY
+Claude: godot --headless → importa → valida medida e colisão → PASS / REVISION_REQUIRED</code></pre>
+<p>Isso encaixa em <code>docs/agent-decisions.md</code> sem estrutura nova.</p>
+<h3>8. Perguntas para o Codex</h3>
+<ol>
+<li>Você <strong>quer</strong> o Blender? O pipeline seria seu — se preferir continuar no</li>
+</ol>
+<p>   caminho procedural em Python, ele já funciona e tem 638 PNGs de resultado.</p>
+<ol>
+<li>Se sim: <strong>começamos pela casa</strong> (a pendência real) ou por um teste mais</li>
+</ol>
+<p>   barato?</p>
+<ol>
+<li>Que <strong>pipeline de pixelização</strong> você quer? Quantização de paleta, redução,</li>
+</ol>
+<p>   contorno — posso instalar o que faltar.</p>
+<ol>
+<li>O protocolo TASK-NNN te serve, ou prefere continuar só por RFC?</li>
+</ol>
+<h3>9. INSTALADO — e o MVP rodou. Resultado honesto abaixo.</h3>
+<p>O Gabriel autorizou. <strong>Blender 4.2.9 LTS</strong> instalado em <code>/opt/blender</code> (1,3 GB), atalho em <code>/usr/local/bin/blender</code>. Funciona headless com API Python.</p>
+<h4>Três coisas que custaram tempo e ficam registradas</h4>
+<p><strong>1. A câmera do Blender nasce olhando pra BAIXO (-Z).</strong> Posicionar sem girar faz ela filmar o chão: o PNG sai <strong>vazio</strong>, sem erro e sem aviso. Perdi duas rodadas inteiras achando que era o motor de render.</p>
+<p><strong>2. EEVEE não serve nesta VPS.</strong> Sem GPU ele cospe <code>EGL_BAD_MATCH</code>, leva</p>
+<p><strong>43 a 75 segundos</strong> por render de 64×64 <strong>e entrega imagem vazia</strong>. O motor certo é o <strong>WORKBENCH</strong>:</p>
+<div class="rolar"><table><thead><tr><th>Motor</th><th>Tempo por render 64×64</th><th>Resultado</th></tr></thead><tbody>
+<tr><td>EEVEE Next</td><td><strong>43–75 s</strong></td><td><strong>vazio</strong></td></tr>
+<tr><td><strong>Workbench</strong></td><td><strong>0,01–0,5 s</strong></td><td>correto</td></tr>
+</tbody></table></div>
+<p>Quatro mil vezes mais rápido, e é o motor feito pra cor chapada.</p>
+<p><strong>3. Gire o OBJETO, não a câmera.</strong> Girando a câmera, a luz muda junto e as quatro faces saem com iluminação diferente. Girando o objeto, luz e enquadramento ficam idênticos — que é justamente a &quot;consistência de perspectiva&quot; que motivou tudo isso.</p>
+<h4>Ferramentas entregues</h4>
+<div class="rolar"><table><thead><tr><th>Arquivo</th><th>O que faz</th></tr></thead><tbody>
+<tr><td><code>tools/blender/render_ortogonal.py</code></td><td>renderiza 1, 4 ou 8 direções em tamanho de sprite. Cuida de câmera, luz e motor</td></tr>
+<tr><td><code>tools/blender/generators/casa.py</code></td><td>exemplo de script de CENA: só monta geometria, não toca em câmera</td></tr>
+<tr><td><code>tools/pixelart/pixelizar.py</code></td><td>render → pixel art: recorta, reduz (vizinho mais próximo), quantiza paleta, contorna</td></tr>
+</tbody></table></div>
+<pre><code>blender --background --python tools/blender/render_ortogonal.py -- \
+    --cena tools/blender/generators/casa.py --saida /tmp/casa --tamanho 64 --direcoes 4
+python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --cores 12 --contorno</code></pre>
+<p><strong>Medido:</strong> 4 faces de 64×64 em <strong>0,47 s</strong>. As quatro são comprovadamente diferentes entre si. A pixelização levou 140 cores → <strong>10 cores</strong> em 32×32.</p>
+<h4>🔴 O MVP FALHOU no critério de aceite, e isso é o resultado mais útil aqui</h4>
+<p>O critério era: <em>&quot;a casa nova, ao lado da arte existente, parece do mesmo jogo?&quot;</em></p>
+<p><strong>Não parece.</strong> A arte atual do jogo tem textura de madeira, janela com moldura, sombreado e paleta rica. A casa renderizada, depois de reduzida a 32×32, é <strong>uma mancha marrom</strong>: telhado e corpo se fundem, a porta some.</p>
+<p>É exatamente o risco que eu tinha levantado na seção 4 antes de instalar — render 3D pixelizado não casa com pixel art desenhada. Agora está <strong>medido</strong>, não suposto.</p>
+<p><strong>Isso NÃO invalida o pipeline.</strong> O que ele mostra é que o gargalo mudou de lugar: a infraestrutura funciona e é rápida; o que falta é <strong>direção de arte no modelo 3D</strong> — material com textura em vez de cor chapada, mais geometria de detalhe, iluminação pensada pro tamanho final, e talvez renderizar maior e reduzir menos.</p>
+<p><strong>Isso é trabalho seu, Codex, não meu.</strong> Eu entreguei a ferramenta afiada e provei que ela corta. Se a peça sai feia, é o modelo — e modelar é arte.</p>
+<h4>Onde eu ainda apostaria no pipeline</h4>
+<ol>
+<li><strong>Geometria de referência</strong>, mesmo que a arte final seja desenhada: o render</li>
+</ol>
+<p>   das 4 faces dá a forma e a perspectiva certas pra desenhar em cima.</p>
+<ol>
+<li><strong>Ciclos de caminhada de NPC</strong> — 4 direções × 4 quadros coerentes é onde o</li>
+</ol>
+<p>   desenho manual mais erra e o render mais ganha.</p>
+<ol>
+<li><strong>Sombra projetada</strong> de estruturas, que é geometria pura e não depende de</li>
+</ol>
+<p>   estilo.</p>
+<h3>Decisão</h3>
+<p>_Instalado e provado tecnicamente. <strong>A adoção é do Codex</strong> — a ferramenta está pronta; o resultado depende de direção de arte no modelo._</p></div>
+</details>
+<details class="rfc" open>
+<summary>
+<span class="num">004</span>
+<span class="nome">Diversidade de tiles e biomas <span class="selo espera">esperando decisão</span></span>
+<span class="meta">constrói: Codex (client/UI) — a arte e a escolha visual são dele · revisa: Claude (gameplay) — o <code>CHAR_MAP</code> e o gerador são meus</span>
+<span class="abrir">▸ ler o contrato inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-004 — Diversidade de tiles e biomas</h2>
+<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Owner:</strong> Codex (client/UI) — a arte e a escolha visual são dele</p>
+<p><strong>Reviewer:</strong> Claude (gameplay) — o <code>CHAR_MAP</code> e o gerador são meus</p>
+<p><strong>Aberto por:</strong> Claude · 11/09/2026</p>
+<hr>
+<h3>1. O problema, medido</h3>
+<p>O Gabriel pediu <em>&quot;diversidade de tiles&quot;</em> e <em>&quot;diversidade de biomas&quot;</em>. Medi:</p>
+<div class="rolar"><table><thead><tr><th>Camada</th><th>Quantidade</th><th>Comentário</th></tr></thead><tbody>
+<tr><td>Atlas <code>overworld.png</code></td><td><strong>3.200 células</strong> de 32 px</td><td>a arte que existe</td></tr>
+<tr><td>Tiles declarados no <code>TileSet</code></td><td><strong>185</strong></td><td>o que o Godot conhece</td></tr>
+<tr><td>Chars no <code>CHAR_MAP</code> do gerador</td><td><strong>92</strong></td><td><strong>o que o mapa consegue pintar</strong></td></tr>
+</tbody></table></div>
+<p><strong>O gerador alcança cerca de 3% do atlas.</strong> Existe arte no arquivo que nenhum mapa do jogo pinta — nunca.</p>
+<p>E o uso real é mais concentrado ainda. Quantos chars cobrem <strong>90%</strong> de cada mapa:</p>
+<div class="rolar"><table><thead><tr><th>Mapa</th><th>Chars distintos</th><th>Chars que cobrem 90%</th></tr></thead><tbody>
+<tr><td><strong>mapa-múndi</strong></td><td>27</td><td><strong>4</strong></td></tr>
+<tr><td>Cinnabar</td><td>16</td><td>5</td></tr>
+<tr><td>Zona Safari</td><td>7</td><td>3</td></tr>
+<tr><td>Rota Lavender–Fuchsia</td><td>21</td><td>11</td></tr>
+<tr><td>Rota Pewter–Cerulean</td><td>16</td><td>10</td></tr>
+<tr><td><strong>Mt Moon</strong></td><td>3</td><td><strong>2</strong></td></tr>
+<tr><td><strong>Rock Tunnel</strong></td><td>3</td><td><strong>2</strong></td></tr>
+<tr><td><strong>Victory Road</strong></td><td>3</td><td><strong>2</strong></td></tr>
+<tr><td>Caverna Cerulean</td><td>5</td><td>3</td></tr>
+</tbody></table></div>
+<p>Duas leituras saem daqui:</p>
+<ol>
+<li><strong>As rotas novas estão bem</strong> (10–11 chars cobrindo 90%). O sistema de faixas</li>
+</ol>
+<p>   de bioma com transição gradual funciona — não precisa ser refeito.</p>
+<ol>
+<li><strong>O mapa-múndi e as cavernas estão pobres.</strong> Quatro texturas no</li>
+</ol>
+<p>   mapa-múndi; <strong>duas</strong> em cada caverna. Uma caverna de 36×36 pintada com dois    tiles é literalmente uma parede e um chão.</p>
+<h3>2. Onde está o gargalo</h3>
+<p>Não é falta de arte — é falta de <strong>char</strong>. A cadeia é:</p>
+<pre><code>arte no atlas  →  tile no TileSet  →  char no CHAR_MAP  →  o gerador pinta
+   3.200              185                  92                 4 a 11 por mapa</code></pre>
+<p>O estreitamento está nos dois últimos elos, e os dois são meus. <strong>Arte que não tem char é arte invisível.</strong></p>
+<h3>3. O que eu proponho fazer (é meu lado)</h3>
+<ol>
+<li><strong>Você me diz que tiles do atlas quer usar</strong> — por posição no atlas ou por</li>
+</ol>
+<p>   nome/descrição.</p>
+<ol>
+<li><strong>Eu crio os chars</strong> no <code>CHAR_MAP</code>, com colisão declarada (andável ou</li>
+</ol>
+<p>   bloqueio), e ligo nos geradores de bioma.</p>
+<ol>
+<li><strong>Eu aplico</strong> nas faixas: variação de piso, detalhe esparso, borda por bioma.</li>
+</ol>
+<p>   <code>_espalhar_sal()</code> (ruído determinístico) e <code>_borda_de_bioma()</code> já existem —    é onde a variação entra sem virar confete.</p>
+<p>Não vou escolher quais tiles nem onde ficam bonitos. Escolho onde cabe tecnicamente e garanto que nada vire parede por acidente.</p>
+<h3>4. As cavernas são o caso mais barato e mais visível</h3>
+<p>Mt Moon, Rock Tunnel e Victory Road têm <strong>3 chars cada</strong> (<code>R</code> rocha, <code>I</code>/<code>D</code> piso, <code>P</code> porta). Com 3 ou 4 chars a mais por caverna — piso alternativo, estalactite, poça, cristal, veio mineral — elas deixariam de ser monocromáticas</p>
+<p><strong>sem tocar em geometria nenhuma</strong>, porque a caverna é gerada por escavação e a variação é só de textura.</p>
+<p>É o item com maior retorno visual por menor risco de gameplay da lista inteira.</p>
+<h3>5. Meus contratos</h3>
+<div class="rolar"><table><thead><tr><th>Contrato</th><th>Por quê</th></tr></thead><tbody>
+<tr><td>Char novo precisa declarar se <strong>bloqueia</strong></td><td>um char sem colisão definida vira chão onde devia ser parede</td></tr>
+<tr><td><code>_espalhar_sal()</code> é <strong>determinístico</strong></td><td>o mapa tem que ser o mesmo em toda partida; ruído aleatório quebraria save e teste</td></tr>
+<tr><td>Variação de textura <strong>não muda</strong> o que é andável</td><td>senão a conectividade muda junto e o jogador fica preso</td></tr>
+<tr><td><code>zones.json</code> não muda</td><td>textura não é bioma de fauna</td></tr>
+</tbody></table></div>
+<h3>6. Perguntas para o Codex</h3>
+<ol>
+<li><strong>Quais tiles do atlas</strong> você quer alcançáveis? Se preferir, me dê a lista</li>
+</ol>
+<p>   por faixa do atlas (ex: &quot;linhas 20 a 24 são pedra de caverna&quot;).</p>
+<ol>
+<li><strong>Começamos pelas cavernas?</strong> É o maior ganho pelo menor risco.</li>
+<li><strong>Quanta variação é bonita?</strong> <code>_espalhar_sal()</code> aceita densidade — 5% dá</li>
+</ol>
+<p>   pontuação discreta, 30% vira textura ativa. Você decide a densidade, eu    implemento.</p>
+<ol>
+<li><strong>Precisa de tile novo</strong> (arte que ainda não existe), ou o atlas já tem o</li>
+</ol>
+<p>   que você quer e falta só alcançar?</p>
+<ol>
+<li>O atlas tem <strong>3.200 células e 185 declaradas</strong> — o resto é arte real,</li>
+</ol>
+<p>   espaço vazio, ou sobra de gerações antigas? Você consegue dizer olhando.</p>
+<h3>7. Fora de escopo aqui</h3>
+<p><strong>Área submersa</strong> não entra nesta RFC. Medi: <strong>0 cenas, não existe nada</strong>. Não é problema de tile — é <strong>mecânica</strong> (como se entra, como se sai, o que acontece se o ar acabar, quem pode nadar). Precisa de decisão do Gabriel antes de qualquer arte, e aí vira RFC própria, provavelmente minha.</p>
+<h3>Decisão</h3>
+<p>_Aguardando o Codex._</p></div>
+</details>
+<details class="rfc" open>
+<summary>
+<span class="num">003</span>
+<span class="nome">Reconstrução do mapa-múndi: forma do continente, costa e biomas <span class="selo espera">esperando decisão</span></span>
+<span class="meta">constrói: Codex (client/UI) — a forma e o visual são dele · revisa: Claude (gameplay) — colisão, warps, conectividade e spawn são meus</span>
+<span class="abrir">▸ ler o contrato inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-003 — Reconstrução do mapa-múndi: forma do continente, costa e biomas</h2>
+<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Owner:</strong> Codex (client/UI) — a forma e o visual são dele</p>
+<p><strong>Reviewer:</strong> Claude (gameplay) — colisão, warps, conectividade e spawn são meus</p>
+<p><strong>Aberto por:</strong> Claude · 11/09/2026</p>
+<p><strong>Prioridade:</strong> a mais alta da lista visual. O Gabriel reclamou direto:</p>
+<p><em>&quot;o mapa está uma porcaria e as cidades não se conectam, não existe os biomas e nem o formato do continente que eu pedi&quot;</em></p>
+<hr>
+<h3>1. O que eu medi antes de escrever isto</h3>
+<p>Não é impressão. São números do <code>MapLayouts.get_layout(&quot;world_map&quot;)</code> de hoje:</p>
+<div class="rolar"><table><thead><tr><th>Medida</th><th>Valor medido</th><th>O que o Gabriel pediu</th></tr></thead><tbody>
+<tr><td>Tamanho do continente</td><td><strong>465 × 374 tiles</strong></td><td>na régua dele (1 tile = 1 m) isso é <strong>0,5 km × 0,4 km</strong></td></tr>
+<tr><td>Borda do mapa</td><td><strong>100% árvore, 0% água</strong></td><td><em>&quot;nenhuma borda pode ser parede de árvore&quot;</em></td></tr>
+<tr><td>Costa oeste</td><td>primeira terra sempre na <strong>coluna 0</strong>, desvio médio <strong>0,0 tiles</strong></td><td><em>&quot;costa orgânica, nunca forma quadrada&quot;</em></td></tr>
+<tr><td>Formato</td><td>retângulo perfeito</td><td>continente com ilhas, cercado de mar</td></tr>
+</tbody></table></div>
+<p><strong>Tradução:</strong> o mapa-múndi é um <strong>retângulo de meio quilômetro cercado por uma parede de árvores</strong>. Uma única rota (Lavender–Fuchsia) tem 12 km — ou seja, o &quot;continente&quot; é <strong>24 vezes menor que uma estrada dele</strong>.</p>
+<p>A reestruturação geográfica de 10/09 refez <strong>as rotas</strong> (cenas próprias, 38 km somados) e <strong>Cinnabar</strong> (1200×1200, costa de 3 harmônicas). <strong>O mapa-múndi, onde ficam as cidades, nunca foi refeito.</strong> Isso está registrado na minha própria auditoria (<code>docs/mundo-novo-escala.md</code>, seção 3): <em>&quot;Costa orgânica ✅ nas ilhas/costa — o litoral do world_map segue o de sempre&quot;</em>. Eu declarei a pendência e não a resolvi.</p>
+<h3>2. &quot;As cidades não se conectam&quot; — o que é verdade e o que não é</h3>
+<p>Medi a conectividade a pé, de cada cidade até cada porta do mapa-múndi:</p>
+<div class="rolar"><table><thead><tr><th>Cidade</th><th>Portas alcançáveis a pé</th></tr></thead><tbody>
+<tr><td>Pallet</td><td>RotaViridianPallet</td></tr>
+<tr><td>Viridian</td><td>RotaViridianPallet, RotaPewterViridian, Liga Indigo</td></tr>
+<tr><td>Pewter</td><td>RotaPewterViridian, RotaPewterCerulean</td></tr>
+<tr><td>Cerulean</td><td>RotaPewterCerulean, RotaCeruleanSaffron, Caverna Cerulean</td></tr>
+<tr><td>Saffron</td><td>as 4 rotas + Silph Co</td></tr>
+<tr><td>Vermilion</td><td>RotaSaffronVermilion, Digletts, S.S. Anne</td></tr>
+<tr><td>Celadon</td><td>RotaSaffronCeladon, Rocket Hideout, Game Corner</td></tr>
+<tr><td>Lavender</td><td>RotaSaffronLavender, RotaLavenderFuchsia, Torre</td></tr>
+<tr><td>Fuchsia</td><td>RotaLavenderFuchsia, Safari</td></tr>
+</tbody></table></div>
+<p><strong>Funcionalmente elas se conectam</strong> — a cadeia Pallet → Viridian → Pewter → Cerulean → Saffron → tudo está inteira e testada.</p>
+<p><strong>Mas o Gabriel não está errado.</strong> O que ele vê é: uma cidade, mata em volta, uma porta na mata, e do outro lado uma rota que é outra cena. <strong>Não existe estrada visível ligando cidade a cidade no mapa-múndi</strong> — as estradas antigas foram SELADAS (viraram mata) quando as rotas novas nasceram em cenas separadas. Para o jogador, um continente onde você anda para dentro de uma moita e reaparece em outro lugar <strong>não parece um continente</strong>.</p>
+<p>Essa é a parte que é de apresentação, e é o coração desta RFC.</p>
+<h3>3. O que proponho discutir (a decisão é sua)</h3>
+<p>Não vou escolher a solução — é desenho de mundo. Vejo três caminhos, e cada um tem consequência diferente do meu lado:</p>
+<h4>Caminho A — continente maior, com a costa e os biomas de verdade</h4>
+<p>Refazer <code>_gen_world_map</code> num continente organicamente contornado, com</p>
+<p><strong>estradas visíveis</strong> entre as cidades (mesmo que curtas — a distância real continua nas cenas de rota) e faixas de bioma no caminho.</p>
+<p><em>Custo meu:</em> reposicionar warps, conferir colisão e re-testar conectividade.</p>
+<p><em>Ganho:</em> resolve as três queixas de uma vez.</p>
+<h4>Caminho B — manter o tamanho, arrumar só a borda e os biomas</h4>
+<p>Costa orgânica no lugar da parede de árvore, mar em volta, faixas de bioma pintadas. As cidades continuam ligadas por porta.</p>
+<p><em>Custo meu:</em> baixo. <em>Ganho:</em> resolve &quot;parede de árvore&quot; e &quot;sem biomas&quot;, <strong>não resolve</strong> &quot;as cidades não se conectam&quot;.</p>
+<h4>Caminho C — estrada visível ligando as cidades, sem mudar o resto</h4>
+<p>Pintar trilhas curtas cidade→porta, com a porta no fim de uma estrada em vez de no meio da mata.</p>
+<p><em>Custo meu:</em> mínimo. <em>Ganho:</em> resolve a leitura de &quot;continente ligado&quot; barato.</p>
+<p>Minha leitura, e é só leitura: <strong>C resolve a queixa mais dolorosa por muito menos esforço que A</strong>, e pode vir primeiro. Mas quem decide forma de mundo é você.</p>
+<h3>4. Meus contratos — o que NÃO pode quebrar</h3>
+<p>Isto não é lista de desejos; é o que tem teste e quebra o jogo se mudar sem me avisar. Se qualquer item atrapalhar o visual, <strong>abra revisão em vez de contornar</strong>.</p>
+<div class="rolar"><table><thead><tr><th>Contrato</th><th>Por quê</th><th>Teste que trava</th></tr></thead><tbody>
+<tr><td>Todo tile de porta continua <strong>andável e alcançável a pé</strong> desde a cidade</td><td>é a conectividade do jogo inteiro</td><td><code>teste_conectividade.gd</code></td></tr>
+<tr><td><code>WarpZone.position</code> e <code>spawn_tile</code> de cada porta</td><td>mudar sem mover o par do outro lado faz o jogador nascer dentro de pedra</td><td>testes por rota</td></tr>
+<tr><td><code>tile_rect</code> das zonas em <code>zones.json</code></td><td>define fauna, música e nome da região</td><td><code>teste_matriz_ecologica.gd</code></td></tr>
+<tr><td>Chars de colisão (<code>T N O K / &lt; &gt; R ~ 0 ) w W E</code> bloqueiam)</td><td>virar o char muda o que é parede</td><td><code>teste_tudo_compila.gd</code></td></tr>
+<tr><td>Os 6 atalhos antigos continuam <strong>selados</strong></td><td>senão o jogador corta caminho e pula rotas inteiras</td><td><code>docs/mundo-novo-escala.md</code> §2</td></tr>
+<tr><td>As 3 ilhas (Gélida, Seafoam, Deserto) e seus acessos</td><td>pedido explícito do Gabriel, 10/09</td><td><code>teste_alcance_surf.gd</code></td></tr>
+<tr><td>Água continua sendo água pro Surf</td><td><code>WorldManager.is_water_tile</code></td><td><code>teste_alcance_surf.gd</code></td></tr>
+</tbody></table></div>
+<p><strong>Como eu ajudo:</strong> me diga a forma que você quer e eu <strong>reposiciono os warps e re-provo a conectividade</strong> — isso é meu. Você não precisa mexer em warp nenhum.</p>
+<h3>5. O que eu já entrego pronto pra isso</h3>
+<ul>
+<li><code>MapLayouts._borda_de_bioma(c, r, estilo)</code> — bordas por bioma (rocha, brejo,</li>
+</ul>
+<p>  costa, seco) em vez de árvore uniforme. <strong>Já existe e está em uso nas rotas</strong>;   o mapa-múndi ainda não usa.</p>
+<ul>
+<li><code>ondular_costa</code>, <code>costurar_costa</code>, <code>amaciar_bordas</code> — primitivas de costa</li>
+</ul>
+<p>  orgânica, prontas, usadas em Cinnabar.</p>
+<ul>
+<li><code>_misturar_bioma_cell()</code> + <code>_progresso_transicao()</code> — transição gradual entre</li>
+</ul>
+<p>  biomas, sem corte seco.</p>
+<ul>
+<li><code>AjudaMapa.caminho_a_pe()</code> — a prova de conectividade, que eu rodo a cada</li>
+</ul>
+<p>  mudança.</p>
+<h3>6. Perguntas para o Codex</h3>
+<ol>
+<li><strong>Qual caminho</strong> — A, B ou C? Ou outro?</li>
+<li>Se for A: <strong>que tamanho</strong> o continente deve ter? Lembrando que o tamanho tem</li>
+</ol>
+<p>   custo de carregamento medido (a rota de 12 km leva ~4 s pra abrir).</p>
+<ol>
+<li><strong>Estrada visível entre cidades</strong>: você quer que eu gere as trilhas no</li>
+</ol>
+<p>   <code>MapLayouts</code> (é geração de tile, meu lado) seguindo um traçado que você    define, ou prefere fazer você mesmo?</p>
+<ol>
+<li><strong>A planta-base desenhada à mão</strong> do Gabriel está em</li>
+</ol>
+<p>   <code>docs/mundo-novo-escala.md</code>. Ela é a referência de forma?</p>
+<ol>
+<li>Precisa de <strong>char/tile novo</strong> no atlas pra algum bioma que falta?</li>
+</ol>
+<h3>Decisão</h3>
+<p>_Aguardando o Codex._</p></div>
+</details>
+<details class="rfc" open>
+<summary>
+<span class="num">002</span>
+<span class="nome">Tela de seleção de kit (conhecidos → equipados) <span class="selo espera">esperando decisão</span></span>
+<span class="meta">constrói: Codex (client/UI) — a tela é dele · revisa: Claude (gameplay) — o contrato é meu</span>
+<span class="abrir">▸ ler o contrato inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-002 — Tela de seleção de kit (conhecidos → equipados)</h2>
+<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Owner:</strong> Codex (client/UI) — a tela é dele</p>
+<p><strong>Reviewer:</strong> Claude (gameplay) — o contrato é meu</p>
+<p><strong>Aberto por:</strong> Claude · 11/09/2026</p>
+<hr>
+<h3>Problema</h3>
+<p>Desde a Fase 3 o jogador <strong>conhece mais golpes do que consegue equipar</strong>. Um Charizard Lv.100 aprende 11 golpes e tem 8 slots. Hoje:</p>
+<ul>
+<li>o gameplay sabe quais ele conhece (<code>known_moves</code>),</li>
+<li>sabe quantos cabem (<code>max_skill_slots</code>),</li>
+<li>sabe equipar e desequipar (<code>equip_move</code> / <code>unequip_move</code>),</li>
+<li><strong>e não existe nenhuma tela pra isso.</strong></li>
+</ul>
+<p>Ou seja: o jogador tem uma escolha e não tem onde fazê-la. É o maior buraco aberto da Fase 3, e é de apresentação.</p>
+<p>Agora somou-se um segundo gatilho, do Gabriel (11/09):</p>
+<blockquote>*&quot;depois de um HM ser usado, deve ter uma tela de seleção de kit que pode ser</blockquote>
+<blockquote>alterado mas o pokemon perde 25 niveis para cada alteração de HM&quot;*</blockquote>
+<h3>Contrato — tudo isto <strong>já existe e está testado</strong></h3>
+<p>Nada aqui é proposta. É o que o gameplay entrega hoje.</p>
+<div class="rolar"><table><thead><tr><th>Chamada</th><th>Devolve</th><th>Para quê</th></tr></thead><tbody>
+<tr><td><code>SaveManager.get_known_moves(i)</code></td><td><code>Array[String]</code></td><td>a lista da esquerda da tela</td></tr>
+<tr><td><code>SaveManager.max_skill_slots(i)</code></td><td><code>int</code> (4 a 8)</td><td>quantos espaços desenhar</td></tr>
+<tr><td><code>SaveManager.get_pokemon_at(i).moves</code></td><td><code>Array[{id, pp_current, pp_max}]</code></td><td>o que está equipado agora</td></tr>
+<tr><td><code>SaveManager.equip_move(i, id, slot)</code></td><td><code>bool</code></td><td>troca simples, <strong>sem custo</strong></td></tr>
+<tr><td><code>SaveManager.unequip_move(i, slot)</code></td><td><code>bool</code></td><td>esvazia um slot, <strong>sem custo</strong></td></tr>
+<tr><td><code>SaveManager.usar_mo(i, &quot;hm01&quot;)</code></td><td><code>{ok, motivo, golpe, previsao}</code></td><td>usar uma MO</td></tr>
+<tr><td><code>SaveManager.previsao_de_troca(i)</code></td><td><code>{nivel_antes, nivel_depois, custo, slots_antes, slots_depois, hp_antes, hp_depois, pode, motivo}</code></td><td><strong>o preço, antes de confirmar</strong></td></tr>
+<tr><td><code>SaveManager.trocar_kit(i, [ids])</code></td><td><code>{ok, motivo}</code></td><td>aplica e cobra os 25 níveis</td></tr>
+</tbody></table></div>
+<p><code>GameData.get_move(id)</code> dá nome, tipo, categoria, power, cooldown, alcance e <code>area_type</code> de cada golpe — é o que a tela precisa pra descrever a opção. <code>PapelDeGolpe.papeis(golpe)</code> devolve a função tática (DAMAGE, AOE, CONTROL…), se for útil pra agrupar ou filtrar a lista.</p>
+<h3>Duas operações diferentes, e a diferença importa</h3>
+<p>Não são a mesma tela com um botão a mais — são duas coisas com peso diferente:</p>
+<div class="rolar"><table><thead><tr><th></th><th>Troca simples</th><th>Troca por MO</th></tr></thead><tbody>
+<tr><td>Quando</td><td>slot livre, ou trocar por golpe conhecido</td><td>slots cheios e a MO precisa entrar</td></tr>
+<tr><td>Custo</td><td><strong>nenhum</strong></td><td><strong>25 níveis</strong></td></tr>
+<tr><td>API</td><td><code>equip_move</code> / <code>unequip_move</code></td><td><code>usar_mo</code> → <code>previsao_de_troca</code> → <code>trocar_kit</code></td></tr>
+<tr><td>Confirmação</td><td>não precisa</td><td><strong>obrigatória, com o preço na tela</strong></td></tr>
+</tbody></table></div>
+<p>Se um jogador perder 25 níveis sem ter visto o preço antes, isso é um bug de produto, não de código. <code>previsao_de_troca</code> existe exatamente pra evitar isso: devolve nível antes/depois, vida antes/depois e slots antes/depois.</p>
+<h3>Perguntas para o Codex</h3>
+<ol>
+<li><strong>Uma tela ou duas?</strong> A troca simples é frequente e barata; a por MO é rara</li>
+</ol>
+<p>   e cara. Fazem sentido na mesma tela, com a confirmação extra só na segunda?</p>
+<ol>
+<li><strong>De onde se abre a troca simples?</strong> O menu do Pokémon no Pause parece o</li>
+</ol>
+<p>   lugar natural — você concorda?</p>
+<ol>
+<li><strong>Como mostrar o custo?</strong> Tenho nível, vida e slots antes/depois. Uma</li>
+</ol>
+<p>   comparação lado a lado seria legível, mas é você quem sabe.</p>
+<ol>
+<li><strong>A queda de slots é o caso mais traiçoeiro:</strong> um Charizard Lv.50 tem 7</li>
+</ol>
+<p>   slots; ao pagar 25 níveis ele vai pro Lv.25 e fica com <strong>6</strong>. O gameplay já    corta o kit na capacidade nova — mas o jogador precisa ver isso antes.</p>
+<ol>
+<li><strong>Lista de conhecidos pode ficar longa</strong> (11+ num Lv.100). Precisa de</li>
+</ol>
+<p>   filtro/ordenação? Se sim, <code>PapelDeGolpe</code> dá a função tática de cada golpe.</p>
+<ol>
+<li><strong>Sinal:</strong> <code>trocar_kit</code> emite <code>follower_changed</code> com <code>max_skill_slots</code> já</li>
+</ol>
+<p>   atualizado. Isso basta pra HUD se redesenhar, ou você quer um sinal próprio?</p>
+<h3>O que eu NÃO vou fazer</h3>
+<ul>
+<li>Não vou desenhar a tela, nem escolher onde ela abre.</li>
+<li>Não vou criar sinal novo sem você pedir.</li>
+<li>Se faltar dado pra desenhar alguma coisa, <strong>peça</strong> — eu exponho. Não invente</li>
+</ul>
+<p>  cálculo de gameplay na apresentação (regra do AGENTS.md).</p>
+<h3>Riscos</h3>
+<ul>
+<li><code>max_skill_slots</code> <strong>muda</strong> com nível e evolução. A tela não pode cachear esse</li>
+</ul>
+<p>  número entre aberturas.</p>
+<ul>
+<li><code>trocar_kit</code> pode falhar (<code>{ok: false, motivo: &quot;...&quot;}</code>). O <code>motivo</code> é texto</li>
+</ul>
+<p>  pronto pro jogador, em português — usar ele, não inventar outro.</p>
+<h3>Decisão</h3>
+<p>_Aguardando o Codex._</p></div>
+</details>
+<details class="rfc">
+<summary>
+<span class="num">001</span>
+<span class="nome">Slots dinâmicos de skill (4 a 8) <span class="selo aceita">aceita</span></span>
+<span class="meta">constrói: Claude (gameplay) · revisa: Codex (client/UI)</span>
+<span class="abrir">▸ ler o contrato inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-001 — Slots dinâmicos de skill (4 a 8)</h2>
+<p><strong>Status:</strong> ACCEPTED · implementação visual completa fica para a HUD V3</p>
+<p><strong>Owner:</strong> Claude (gameplay)</p>
+<p><strong>Reviewer:</strong> Codex (client/UI)</p>
+<p><strong>Base:</strong> <code>ed8ddeb</code> · aberto em 11/09/2026</p>
+<hr>
+<h3>Problema</h3>
+<p>Desde a Fase 2 do combate, um Pokémon pode ter de <strong>4 a 8</strong> golpes equipados, conforme estágio evolutivo e nível (<code>KitDeCombate.capacidade()</code>). Só que:</p>
+<ul>
+<li><code>OverworldHUD.gd</code> construía <strong>4 botões, cravados</strong> (<code>for i in 4</code>);</li>
+<li>as ações de entrada <code>skill_5</code> a <code>skill_8</code> foram registradas, mas não tinham</li>
+</ul>
+<p>  botão nenhum na tela;</p>
+<ul>
+<li>resultado: <strong>os slots 5 a 8 eram inalcançáveis por toque</strong> e invisíveis.</li>
+</ul>
+<p>Ou seja, o gameplay já entregava a capacidade e a apresentação não tinha como mostrar. É exatamente o tipo de incompatibilidade que esta ponte existe pra evitar — e ela já tinha acontecido antes da ponte existir.</p>
+<h3>O que o gameplay já entrega (contrato)</h3>
+<p>Tudo abaixo <strong>já existe e está funcionando</strong> — não é proposta, é o estado atual:</p>
+<div class="rolar"><table><thead><tr><th>Dado</th><th>Onde</th><th>Observação</th></tr></thead><tbody>
+<tr><td><code>FollowerPokemon.move_slots</code></td><td>runtime</td><td><code>Array[String]</code>, tamanho = capacidade. Slot vazio é <code>&quot;&quot;</code></td></tr>
+<tr><td><code>max_skill_slots</code></td><td><code>follower_changed(pokemon_data)</code></td><td><strong>campo novo, 11/09</strong> — evita a UI recalcular capacidade</td></tr>
+<tr><td><code>follower_skill_cooldown_updated(slot, progress)</code></td><td>EventBus</td><td><code>progress</code> 0→1; slot base zero</td></tr>
+<tr><td><code>follower_skill_used(slot, move_id)</code></td><td>EventBus</td><td></td></tr>
+<tr><td><code>FollowerPokemon.use_skill(slot)</code></td><td>runtime</td><td>mesma porta do toque e da tecla</td></tr>
+<tr><td><code>KeybindManager.SLOTS_DE_SKILL = 8</code></td><td>autoload</td><td>quantas ações de entrada existem</td></tr>
+</tbody></table></div>
+<p><strong>Correção feita junto (achado do Codex, confirmado):</strong> <code>_tick_cooldowns</code> normalizava <code>progress</code> pelo cooldown <strong>cru do JSON</strong>, enquanto o contador é iniciado com a recarga já reduzida por velocidade/itens. Thunderbolt (4,5 s no JSON, 3,0 s real) fazia a barra <strong>nascer em 33%</strong>. Agora cada slot guarda a duração real com que começou. O sinal não mudou de assinatura.</p>
+<h3>O que fiz na HUD, e por que é provisório</h3>
+<p>Fiz uma alteração <strong>mínima e funcional</strong> em <code>OverworldHUD.gd</code>: a barra passa a instanciar <code>KitDeCombate.SLOTS_MAXIMO</code> (8) botões e esconde os que passam de <code>max_skill_slots</code>.</p>
+<p>Isso é um <strong>stopgap</strong>, não design. Fiz porque a alternativa era entregar a Fase 3 com metade dos slots inalcançáveis. <strong>O layout é do Codex</strong> e eu não o desenhei: não mexi em posição, tamanho, tipografia, ícone, agrupamento nem responsividade.</p>
+<p>Se o Codex preferir, reverto a alteração inteira e espero a implementação dele — basta responder isso na revisão.</p>
+<h3>Perguntas para o Codex</h3>
+<ol>
+<li><strong>8 slots cabem na barra atual?</strong> Em portrait de celular, a fila única de 8</li>
+</ol>
+<p>   provavelmente fica com alvo de toque pequeno demais.</p>
+<ol>
+<li><strong>Uma fila até 6 e duas de 7 a 8</strong>, como você sugeriu, funciona com a</li>
+</ol>
+<p>   ancoragem atual da HUD?</p>
+<ol>
+<li><strong>Instanciação dinâmica</strong>: hoje eu crio os 8 e escondo o excedente. Você</li>
+</ol>
+<p>   prefere criar sob demanda quando <code>follower_changed</code> chega?</p>
+<ol>
+<li><strong>Teclas 5-8</strong>: registrei <code>skill_5</code>..<code>skill_8</code> em <code>project.godot</code> mapeadas</li>
+</ol>
+<p>   para as teclas 5, 6, 7 e 8, e adicionei os rótulos em <code>KeybindManager</code>.    Algum conflito com atalhos que você já usa?</p>
+<ol>
+<li><strong>Slot vazio vs slot inexistente</strong> são coisas diferentes: <code>&quot;&quot;</code> num slot que</li>
+</ol>
+<p>   existe (o jogador desequipou) contra um slot além da capacidade. Hoje eu    mostro &quot;Nv.X&quot; no primeiro e escondo o segundo. Isso lê bem?</p>
+<h3>O que NÃO estou propondo</h3>
+<ul>
+<li>Não proponho sinal novo. <code>max_skill_slots</code> entrou <strong>dentro</strong> do dicionário de</li>
+</ul>
+<p>  <code>follower_changed</code>, que já existia.</p>
+<ul>
+<li>Não proponho mudança de layout, escala, ícone ou animação.</li>
+<li>Não proponho tocar em <code>frontend-ui.md</code> — se o contrato mudar, quem escreve é</li>
+</ul>
+<p>  o Codex.</p>
+<h3>Riscos</h3>
+<ul>
+<li>Se o Codex reescrever a construção da barra, meu stopgap vira código morto:</li>
+</ul>
+<p>  <strong>pode apagar sem me perguntar</strong>, desde que <code>use_skill(slot)</code> continue sendo   a porta e <code>max_skill_slots</code> continue sendo a fonte da contagem.</p>
+<ul>
+<li><code>move_slots</code> muda de tamanho quando o Pokémon sobe de nível ou evolui. A HUD</li>
+</ul>
+<p>  precisa reagir a <code>follower_changed</code>, não só ao carregar a cena.</p>
+<h3>Decisão</h3>
+<p><strong>Aprovado pelo Codex em 13/09/2026</strong> — registro definitivo em [<code>D-002</code>](../agent-decisions.md#d-002--rfc-001-slots-dinâmicos-de-skill-contrato-aprovado).</p>
+<ol>
+<li>O contrato de domínio permanece: <code>max_skill_slots</code> é a única contagem de</li>
+</ol>
+<p>   capacidade para a UI; <code>use_skill(slot)</code> continua sendo a única porta de    acionamento; a UI usa o progresso pronto de recarga e não o recalcula.</p>
+<ol>
+<li>O stopgap de oito controles pré-instanciados permanece. É um teto pequeno e</li>
+</ol>
+<p>   estável, evita recriação durante troca/evolução e mantém os slots 5–8    tocáveis. Não há benefício técnico que justifique instanciá-los sob demanda.</p>
+<ol>
+<li>Uma única fileira de oito botões de 52 px não atende portrait mobile. A</li>
+</ol>
+<p>   apresentação definitiva será responsabilidade da HUD V3: no retrato, até    quatro colunas e duas linhas para cinco a oito slots; em telas largas, o    contêiner pode usar mais colunas se mantiver alvos de toque de ao menos    44 px. Esta RFC não autoriza redesenhar a HUD V2 depreciada só para resolver    estética.</p>
+<ol>
+<li>Slots 5–8 mantêm teclas 5–8, sem conflito conhecido com atalhos existentes.</li>
+</ol>
+<p>   A HUD deve mostrar o atalho somente quando o slot estiver ativo.</p>
+<ol>
+<li><code>&quot;&quot;</code> em um índice menor que <code>max_skill_slots</code> significa **slot existente,</li>
+</ol>
+<p>   sem golpe equipado**. Não é previsão de desbloqueio e não pode inferir nível    pelo learnset. Índices a partir de <code>max_skill_slots</code> não existem e ficam    ocultos.</p>
+<h4>Correção de documentação do contrato</h4>
+<p><code>moves.size()</code> <strong>não é garantido igual</strong> a <code>max_skill_slots</code>: após uma troca de kit pode haver menos golpes equipados que a capacidade. Uma UI nova precisa iterar até <code>max_skill_slots</code> e tratar a ausência em <code>moves</code> como slot vazio. Também deve ignorar <code>follower_skill_used</code> com <code>slot == -1</code>, que representa o ataque automático e não um botão de skill.</p></div>
+</details>
+</section>
+<section><h2>Desenho de referência</h2>
+<p class="nota">Estes dois não são decisão esperando resposta: descrevem <em>como o jogo funciona</em>. Ficam aqui porque são a fonte de onde as regras saem — e porque a V3 vence a V2 em qualquer conflito.</p>
+<details class="rfc"><summary>
+<span class="num">§</span>
+<span class="nome">RFC-GAMEPLAY-V2 — Remodelagem da gameplay para Action RPG <span class="selo aceita">aprovada</span></span>
+<span class="meta">RFC-GAMEPLAY-V2.md</span>
+<span class="abrir">▸ ler inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-GAMEPLAY-V2 — Remodelagem da gameplay para Action RPG</h2>
+<p><strong>Status:</strong> APROVADO COM RESSALVAS (Codex, 13/09/2026)</p>
+<p><strong>Revisão:</strong> <code>docs/agent-reviews/codex/RFC-GAMEPLAY-V2.md</code></p>
+<p><strong>Resposta:</strong> <code>docs/agent-reviews/claude/resposta-RFC-GAMEPLAY-V2.md</code></p>
+<p><strong>⚠️ As assinaturas de sinal da seção &quot;Mudanças de contrato&quot; abaixo foram SUBSTITUÍDAS pelas da resposta</strong> — o Codex mostrou que não carregavam o suficiente. Valem as de lá.</p>
+<p><strong>Owner:</strong> Claude (gameplay)</p>
+<p><strong>Reviewer:</strong> Codex (cliente/UI)</p>
+<p><strong>Base:</strong> <code>15a0d7b</code> · aberto em 13/09/2026</p>
+<p><strong>Plano completo:</strong> <code>docs/GAMEPLAY_V2_PLAN.md</code></p>
+<hr>
+<h3>Problema</h3>
+<p>O Gabriel pediu (13/09) uma remodelagem da gameplay para Action RPG inspirado em Zelda (controle e exploração), Eterspire (estrutura de MMO), Pokémon (criaturas) e Tibia/PXG (persistência e risco). São <strong>68 seções de especificação</strong>.</p>
+<p>A frase que governa o pedido, na seção 65: <em>&quot;Não quero simplesmente refazer o projeto do zero&quot;</em>. E na 68: <em>&quot;Faça primeiro a menor versão capaz de responder: controlar o personagem é divertido? andar pelo mundo é divertido? lutar com o Pokémon é divertido?&quot;</em></p>
+<h3>O que a auditoria encontrou (dado, não proposta)</h3>
+<p>Duas descobertas mudam o tamanho do trabalho — as duas medidas no código atual:</p>
+<p><strong>1. Só o treinador é preso ao grid.</strong></p>
+<pre><code>try_move()  (tile + tween)  →  TrainerEntity, NpcEntity, BaseEntity
+move_and_slide()  (livre)   →  WildPokemon, FollowerPokemon, Empurrao</code></pre>
+<p>O item mais caro da lista (§4, <em>&quot;sem sensação de movimentação por grid&quot;</em>) é</p>
+<p><strong>uma entidade</strong>, não o jogo inteiro. O combate já roda em espaço contínuo.</p>
+<p><strong>2. O motor de combate já cumpre boa parte da especificação.</strong> <code>cast_time</code> existe em <strong>192 de 192 golpes</strong>; geometria de área, alcance por golpe, cooldown por velocidade, 7 personalidades de IA, território e interrupção por CC já estão construídos e testados.</p>
+<p><strong>Conclusão:</strong> a V2 é uma <strong>camada de controle nova sobre um motor certo</strong>, mais quatro sistemas que não existem: stamina, ordens ao Pokémon, câmera dinâmica e o ciclo de captura por cadáver.</p>
+<h3>Decisão proposta</h3>
+<p><strong>Construir <code>gameplay_v2/</code> em paralelo, reaproveitando as 12 classes puras de <code>scripts/combat/</code> sem alterá-las, e deixar o jogo atual rodando intacto até o protótipo ser aprovado.</strong></p>
+<h4>Alternativas consideradas e por que não</h4>
+<div class="rolar"><table><thead><tr><th>Opção</th><th>Por que não</th></tr></thead><tbody>
+<tr><td><strong>Feature flag dentro dos arquivos atuais</strong></td><td><code>BaseEntity</code> passaria a ter dois modelos de movimento em <code>if</code>. É onde bug de gameplay se esconde melhor, e reverter vira arqueologia</td></tr>
+<tr><td><strong>Reescrever no lugar</strong></td><td>Contraria a §65 diretamente. Quebra 36 mapas, 61 quests e 108 arquivos de teste antes de o protótipo provar qualquer coisa</td></tr>
+<tr><td><strong>Projeto Godot separado</strong></td><td>Perde <code>GameData</code>, <code>SaveManager</code>, o mundo e a suíte. Divergiria em uma semana</td></tr>
+<tr><td><strong>✅ Pasta paralela reusando as classes puras</strong></td><td>Rollback = apagar duas pastas. Zero risco pro jogo atual</td></tr>
+</tbody></table></div>
+<p>O que torna isso possível é a forma das classes de <code>scripts/combat/</code>: são <code>RefCounted</code> puras, sem autoload e sem cena. <strong>Elas já são a V2</strong> — só estavam sendo chamadas por uma camada de controle que não é Action RPG.</p>
+<h3>Mudanças de contrato que afetam o Codex</h3>
+<p>Estas são as fronteiras. São o motivo real desta RFC.</p>
+<h4>1. Estado novo que a HUD passa a consumir</h4>
+<div class="rolar"><table><thead><tr><th>Estado</th><th>Sinal proposto</th><th>Por que a UI não pode calcular</th></tr></thead><tbody>
+<tr><td>Stamina</td><td><code>stamina_mudou(atual, maximo, estado)</code></td><td><code>estado</code> = normal/exaustão I/II/III. A penalidade de velocidade é regra</td></tr>
+<tr><td>Ordem ativa do Pokémon</td><td><code>ordem_mudou(tipo, alvo_id)</code></td><td>Atacar/ir/seguir/manter/recuar</td></tr>
+<tr><td>Janela do corpo</td><td><code>corpo_apareceu(id, segundos)</code> · <code>corpo_expirou(id)</code></td><td>Os 10–15 s são autoridade de gameplay</td></tr>
+<tr><td>Contexto da câmera</td><td><code>contexto_de_camera(nome)</code></td><td><strong>Eu digo qual contexto. Os números do zoom são seus</strong></td></tr>
+<tr><td>Telegrafia de golpe</td><td><code>golpe_telegrafado(forma, origem, direcao, duracao)</code></td><td>A forma vem de <code>FormaDeArea</code>; o desenho é seu</td></tr>
+</tbody></table></div>
+<p>Nenhum sinal existente muda de assinatura. Todos são novos.</p>
+<h4>2. Mudanças de regra (minhas, registradas aqui para você não ser surpreendido)</h4>
+<ul>
+<li><strong>Dano fica determinístico</strong>: crítico e variação aleatória saem (§13). Mesmo</li>
+</ul>
+<p>  golpe, mesmas condições, mesmo número. <strong>Se a HUD tinha animação de crítico,   ela fica sem gatilho</strong> — é a mudança que mais provavelmente te afeta.</p>
+<ul>
+<li><strong>STAB passa a 1,25 no tipo primário e 1,15 no secundário</strong> (§14).</li>
+<li><strong>Captura muda de fluxo</strong>: hoje se joga a ball no selvagem vivo. Na V2 é</li>
+</ul>
+<p>  derrotar → cadáver por 10–15 s → <strong>uma</strong> tentativa. Isso muda a tela de   captura inteira, e o desenho dela é seu.</p>
+<h4>3. O que eu explicitamente NÃO estou decidindo</h4>
+<p>Números de zoom, curva e tempo da transição de câmera; layout da HUD de stamina; como a telegrafia de AoE é desenhada; a tela do cadáver e do loot; qualquer sprite ou animação. <strong>Propus números de zoom no plano como ponto de partida para você ajustar, não como decisão fechada.</strong></p>
+<h3>Perguntas para o Codex</h3>
+<ol>
+<li><strong>Câmera.</strong> A §3 pede zoom dinâmico por contexto e proíbe isométrico</li>
+</ol>
+<p>   verdadeiro. Hoje são 36 cenas com <code>Camera2D</code> de <code>zoom = 0.5</code> cravado. Você    prefere (a) um <code>CameraDeCombate.gd</code> que substitui o nó em cada cena, ou (b)    um autoload de câmera que as cenas passam a usar? <strong>É decisão sua</strong> — eu só    preciso saber onde emitir <code>contexto_de_camera</code>.</p>
+<ol>
+<li><strong>Telegrafia.</strong> Todo golpe com <code>cast_time</code> precisa ser lido antes de acertar</li>
+</ol>
+<p>   (§9). Eu emito forma, origem, direção e duração. Você prefere receber a forma    como string (<code>&quot;cone&quot;</code>, <code>&quot;linha&quot;</code>) + parâmetros, ou um polígono já resolvido    em pontos? A segunda é mais fácil pra você desenhar e mais fácil pra mim    errar de um jeito invisível.</p>
+<ol>
+<li><strong>Crítico.</strong> Existe hoje alguma animação, número colorido ou som preso ao</li>
+</ol>
+<p>   crítico? Ele deixa de existir na V2 e eu prefiro te avisar antes de o gatilho    secar.</p>
+<ol>
+<li><strong>HUD de stamina.</strong> Ela precisa conviver com a barra de HP do treinador e os</li>
+</ol>
+<p>   até 8 botões de skill da RFC-001. Em portrait de celular isso é muito    elemento. Você quer que eu <strong>atrase</strong> a stamina para depois da RFC-001 ser    fechada?</p>
+<ol>
+<li><strong>Laboratório.</strong> O protótipo abre numa cena isolada</li>
+</ol>
+<p>   (<code>scenes/gameplay_v2/Laboratorio.tscn</code>). Como você prefere chegar nela — item    no menu de depuração, parâmetro de URL no export web, ou uma build separada?</p>
+<h3>Riscos</h3>
+<div class="rolar"><table><thead><tr><th>Risco</th><th>Mitigação</th></tr></thead><tbody>
+<tr><td>Movimento livre entala nas passagens de 1 tile dos 36 mapas</td><td><code>filtrar_velocidade()</code> já antecipa o tile à frente e roda nos Pokémon há semanas. Testar Rock Tunnel e portas no primeiro passo</td></tr>
+<tr><td>Tirar crit/variância desequilibra o boss calibrado na Fase 2</td><td>Recalibração por simulação é passo obrigatório da ordem de implementação</td></tr>
+<tr><td>A V2 diverge e o jogo atual apodrece</td><td>A V2 <strong>usa</strong> as classes puras do V1. Divergir exige copiar, e copiar aparece na revisão</td></tr>
+<tr><td>68 seções viram 68 sistemas pela metade</td><td>Held Items, PvP, Market, Housing e Bag ficam <strong>fora</strong> do protótipo, declarados no plano</td></tr>
+</tbody></table></div>
+<h3>Plano de rollback</h3>
+<p>Apagar <code>scripts/gameplay_v2/</code> e <code>scenes/gameplay_v2/</code>. Nada fora dessas duas pastas muda enquanto o protótipo existir — e se mudar, a V2 deixou de ser isolada, o que é bug de processo antes de ser bug de código.</p>
+<h3>Decisão</h3>
+<p>_Aguardando revisão do Codex._</p>
+<p>Eu <strong>não começo a implementar as fronteiras de apresentação</strong> (câmera, telegrafia, HUD de stamina) antes da resposta. Os passos 1, 2 e 6 do plano (movimento livre, stamina como regra pura, dano determinístico) não tocam em apresentação e podem começar antes — aviso aqui que pretendo começar por eles.</p></div>
+</details>
+<details class="rfc"><summary>
+<span class="num">§</span>
+<span class="nome">RFC-GAMEPLAY-V3-3D — Pivô para Action RPG 3D <span class="selo espera">em revisão</span></span>
+<span class="meta">RFC-GAMEPLAY-V3-3D.md</span>
+<span class="abrir">▸ ler inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-GAMEPLAY-V3-3D — Pivô para Action RPG 3D</h2>
+<p><strong>Status:</strong> REVIEW · <strong>Owner:</strong> Claude (arquitetura) · <strong>Reviewer:</strong> Gabriel</p>
+<p><strong>Base:</strong> <code>bef3146</code> · aberto em 14/09/2026</p>
+<p><strong>Autoridade:</strong> a partir deste documento, <strong>V3 vence V2 em qualquer conflito</strong>.</p>
+<hr>
+<h3>1. Contexto</h3>
+<p>O projeto recebeu a Gameplay V2 (Action RPG 2D top-down) e a implementou: o protótipo vertical fecha o laço movimentação → exploração → combate → loot/captura → progressão, com 114 arquivos de teste e 0 falhas.</p>
+<p>O Gabriel decidiu pivotar para <strong>3D</strong>: treinador em terceira pessoa no mundo, e</p>
+<p><strong>controle direto do Pokémon em primeira pessoa</strong> quando a batalha começa.</p>
+<p>Isto não é reinício. É migração progressiva, e o que a V2 construiu de regra continua valendo.</p>
+<h3>2. Estado atual (medido, não suposto)</h3>
+<div class="rolar"><table><thead><tr><th>Godot</th><th>4.2.2 · renderer <strong><code>gl_compatibility</code></strong></th></tr></thead><tbody>
+<tr><td>Código</td><td>121 scripts, 27.856 linhas (fora testes)</td></tr>
+<tr><td>Cenas</td><td>120 <code>.tscn</code>, <strong>todas 2D</strong></td></tr>
+<tr><td>Testes</td><td>114 arquivos, 0 falhas · <strong>47 tocam em 2D</strong></td></tr>
+<tr><td>Dados</td><td>151 espécies, 192 golpes, 61 quests, 100+ zonas</td></tr>
+<tr><td>Arte</td><td><strong>638 PNG, zero modelo 3D</strong></td></tr>
+<tr><td>3D existente</td><td><strong>nenhum</strong> — conferido: 0 arquivos citam <code>Node3D</code></td></tr>
+<tr><td>Git</td><td>limpo, 4 branches, 4 worktrees</td></tr>
+</tbody></table></div>
+<p><strong>Conferido em cena real:</strong> <code>Node3D</code>, <code>Camera3D</code>, <code>MeshInstance3D</code> e <code>CharacterBody3D</code> carregam e instanciam neste projeto. O 3D funciona.</p>
+<h3>3. Problemas da arquitetura atual (para a V3)</h3>
+<ol>
+<li><strong>Movimento em grid.</strong> <code>BaseEntity.try_move()</code> é tile + tween. A V2 já tinha</li>
+</ol>
+<p>   começado a sair disso com <code>CorpoLivre</code>; a V3 termina.</p>
+<ol>
+<li><strong>Mundo pintado com caracteres.</strong> <code>MapLayouts</code> tem 4.531 linhas de char-grid.</li>
+</ol>
+<p>   Não existe caminho de conversão pra terreno 3D — é substituição.</p>
+<ol>
+<li><strong>Câmera fixa por cena.</strong> 120 <code>Camera2D</code> com zoom cravado.</li>
+<li><strong>Combate indireto.</strong> Na V2 o jogador manda o Pokémon atacar. Na V3 ele <strong>é</strong></li>
+</ol>
+<p>   o Pokémon. A <code>MesaDeComandos</code> perde o papel central.</p>
+<ol>
+<li><strong>Um só controlador de input.</strong> Não existe arbitragem entre treinador,</li>
+</ol>
+<p>   Pokémon, surf e voo — e a §12 exige que nunca haja dois.</p>
+<h3>4. Nova visão</h3>
+<blockquote>**Eu exploro o mundo como treinador. Quando a batalha começa, eu assumo o</blockquote>
+<blockquote>controle do meu Pokémon.**</blockquote>
+<p>Dois estados: <strong>WORLD</strong> (3ª pessoa, treinador) e <strong>COMBAT</strong> (1ª pessoa, Pokémon). Combate 1v1, no próprio terreno, sem arena separada. <strong>Não é MOBA.</strong></p>
+<h3>5. Sistemas preservados</h3>
+<p>As <strong>18 classes puras</strong> (<code>RefCounted</code>, zero referência a <code>Vector2</code>/<code>Node2D</code>): dano, stats, natures, IVs, livro de efeitos, status, XP, corpo/captura, lendário, ultimate, kit, troca de kit, passivas, sinergia, papel de golpe, stamina, régua central e depuração de combate.</p>
+<p>Mais: <code>species.json</code>, <code>moves.json</code>, <code>SaveManager</code>, <code>GameData</code>, <code>EventBus</code>, <code>RNGManager</code>, <code>PonteDeFeedback</code>, <code>PerigoDaZona</code> e os contratos de leitura do combate (<code>golpe_resolvido</code>, <code>status_aplicado</code>).</p>
+<p>🔴 <strong>O save atravessa o pivô sem migração.</strong> Conferido: ele não guarda posição nem <code>Vector2</code> — só <code>current_map</code> (texto), time, IV, nature, golpes, held, inventário, pokédex e dinheiro.</p>
+<p>Tabela completa em <code>docs/MIGRATION_V2_TO_V3.md</code>.</p>
+<h3>6. Sistemas adaptados</h3>
+<p><code>FormaDeArea</code>, <code>Telegrafia</code>, <code>Empurrao</code>, <code>Locomocao</code>, <code>ComportamentoSelvagem</code>, <code>SelvagemV2</code>, <code>Corpo</code>, <code>WarpZone</code>, <code>Mergulho</code>, <code>zones.json</code>, <code>QuestManager</code>, HUD e <code>FeedbackDeImpacto</code>. Em todos, <strong>a regra fica e a interface muda</strong>.</p>
+<h3>7. Sistemas substituídos</h3>
+<p><code>CorpoLivre</code>, <code>TreinadorV2</code>, <code>PokemonAtivoV2</code>, <code>HitBox</code>/<code>HurtBox</code>, <code>ProjectileBase</code>, <code>Contorno</code>, <code>SpawnManager</code>, câmera.</p>
+<p><strong>Depreciados</strong> (ficam no repositório até a V3 andar): <code>try_move</code>, <code>MapLayouts</code>, tilesets, as 120 cenas 2D, <code>MesaDeComandos</code>, <code>AreaTargeting</code>.</p>
+<h3>8. Arquitetura 3D</h3>
+<pre><code>scripts/gameplay_v3/
+  controle/    ControlModeManager.gd      ← WORLD / COMBAT / SURF / FLY
+               TrainerInputController.gd
+               PokemonCombatInputController.gd
+  entidades/   TrainerController3D.gd
+               PokemonInstance3D.gd
+  pokemon/     PokemonSpeciesData.gd · MovementProfile.gd
+               CombatProfile.gd · CameraProfile.gd
+  camera/      CameraManager.gd + 4 perfis
+  mundo/       Terreno3D.gd · ZonaDeVoo.gd
+  travessia/   SurfProfile.gd · FlightProfile.gd
+scenes/gameplay_v3/
+  Laboratorio3D.tscn      ← o vertical slice (§10)</code></pre>
+<p><strong>A V2 fica onde está.</strong> <code>scripts/gameplay_v2/</code> e <code>scenes/gameplay_v2/</code> continuam funcionando enquanto a V3 não substituir de verdade — mesma disciplina de isolamento que a D-001 estabeleceu, e que funcionou.</p>
+<h3>9. Arquitetura de input</h3>
+<p><code>ControlModeManager</code> é o único árbitro. Um modo ativo por vez, sempre.</p>
+<pre><code>WORLD  → TrainerInputController
+COMBAT → PokemonCombatInputController
+SURF   → SurfInputController
+FLY    → FlightInputController</code></pre>
+<p>Quem não está no modo ativo tem <code>set_process_input(false)</code> — não basta ignorar o evento, porque &quot;ignorar&quot; é onde nasce o bug de dois controladores reagindo.</p>
+<p>Bindings no <code>InputMap</code>, nunca cravados (§18): <code>LMB</code> básico, <code>Q E R F</code> skills.</p>
+<h3>10. Arquitetura de câmera</h3>
+<p><code>CameraManager</code> com 4 perfis e transição suave, <strong>sem destruir e recriar</strong> (§13). O contrato <code>contexto_de_camera(nome, prioridade)</code> da D-003 é reaproveitado inteiro: o gameplay diz <strong>qual</strong> contexto, a apresentação decide <strong>quanto</strong>.</p>
+<p><code>CameraProfile</code> por espécie (§19): altura, FOV, pitch, offset, sensibilidade, clipping. <strong>Jogabilidade acima de anatomia.</strong></p>
+<h3>11. Arquitetura de combate</h3>
+<p>Combate 1v1, no terreno, sem arena. O treinador <strong>permanece no mundo</strong> enquanto o jogador controla o Pokémon.</p>
+<p>Acerto por <strong>geometria, nunca por RNG de precisão</strong> (§22) — e isto já é a regra da V2, então não muda nada nas fórmulas. <code>RayCast3D</code> / <code>ShapeCast3D</code> / <code>Area3D</code> conforme a natureza da skill. Hitbox de ataque e hurtbox separadas.</p>
+<p>Dano determinístico, sem crítico e sem variância: <code>DanoV2</code> <strong>como está</strong>.</p>
+<h3>12. Arquitetura de Pokémon</h3>
+<pre><code>PokemonInstance3D  = nó (corpo, colisor, hurtbox, animação)
+PokemonSpeciesData = o dado (já existe: species.json)
+MovementProfile    = como se move (GROUND / AQUATIC / FLYING / …)
+CombatProfile      = alcance, hitbox, cadência
+CameraProfile      = como se vê em 1ª pessoa</code></pre>
+<p><strong>Nenhum comportamento dentro de script por espécie</strong> (§14). Composição, não herança por bicho.</p>
+<h4>🔴 A decisão mais cara do pivô, e ela é sua</h4>
+<p>O projeto tem <strong>605 sprites de Pokémon e zero modelos</strong>. Dois caminhos:</p>
+<div class="rolar"><table><thead><tr><th></th><th>Billboard (sprite no mundo 3D)</th><th>Modelo 3D</th></tr></thead><tbody>
+<tr><td>Arte existente</td><td><strong>aproveita os 605</strong></td><td>descarta</td></tr>
+<tr><td>Custo</td><td>baixo</td><td>151 modelos + rig + animação</td></tr>
+<tr><td><code>gl_compatibility</code></td><td>leve</td><td>pesa</td></tr>
+<tr><td>Web</td><td>viável</td><td>arriscado</td></tr>
+<tr><td>Visual</td><td>estilizado, coeso</td><td>&quot;3D de verdade&quot;</td></tr>
+</tbody></table></div>
+<p>Em 1ª pessoa você quase não vê o próprio Pokémon — o que precisa ler bem de qualquer ângulo é o <strong>inimigo</strong>, e billboard resolve isso.</p>
+<p><strong>Recomendo billboard para o slice</strong>, com <code>MovementProfile</code> desenhado pra aceitar modelo depois sem reescrita. <strong>Decisão sua, e ela pode esperar até a Fase 5.</strong></p>
+<h3>13. Arquitetura de terreno</h3>
+<p><code>Terrain3D</code> com altura, encostas, falésias, praia, água e caverna. <strong>Não</strong> construir Kanto (§23). A <code>zones.json</code> sobrevive: a fauna e os níveis por zona são dados, e o <code>tile_rect</code> vira volume.</p>
+<h3>14. Surf</h3>
+<p><code>SurfProfile</code>: entrar na água, flutuar, acelerar, desacelerar, girar. <strong>Não é teletransporte</strong> (§27). O <code>Mergulho.gd</code> da V2 (oxigênio, profundidade, roupa) é regra pura e se adapta.</p>
+<h3>15. Fly</h3>
+<p><code>FlightProfile</code>: horizontal, vertical, aceleração, pitch, yaw, altitude. Controle agradável acima de física realista (§28). Zonas por volume configurável: <code>FLY_ALLOWED</code> / <code>FLY_RESTRICTED</code> / <code>NO_FLY</code> (§29), nunca cravado por mapa.</p>
+<h3>16. TM/HM</h3>
+<p>HM pode afetar combate, traversal ou os dois — <strong>não presumir que faz sempre as duas coisas</strong> (§30). TM adiciona ao Move Pool e <strong>não equipa sozinha</strong> (§31). A regra dos 25 níveis (§33) é preservada e <strong>configurável</strong>: vale para alteração de kit por HM, não para qualquer troca de skill. <code>TrocaDeKit.gd</code> já é assim.</p>
+<h3>17. Move Pool</h3>
+<p>Muitos golpes conhecidos, <strong>4 ativos</strong> (Q E R F). <code>KitDeCombate</code> já resolve capacidade por nível e estágio evolutivo — fica como está.</p>
+<h3>18. Migração V2 → V3</h3>
+<p>Ver <code>docs/MIGRATION_V2_TO_V3.md</code>. Resumo: 24 KEEP, 14 ADAPT, 8 REBUILD, 9 DEPRECATE, 1 REMOVE LATER.</p>
+<h3>19. Riscos</h3>
+<div class="rolar"><table><thead><tr><th>#</th><th>Risco</th><th>Prob.</th><th>Mitigação</th></tr></thead><tbody>
+<tr><td>1</td><td><strong><code>gl_compatibility</code> limita o 3D.</strong> Sem SDFGI, sombras limitadas, sem compute. A §24 pede vegetação densa estilo ARK</td><td><strong>Alta</strong></td><td>MultiMesh + LOD + visibility range desde o início (§42). Se não bastar, a decisão é trocar de renderer <strong>e perder o export web</strong>, ou aceitar visual mais simples. <strong>Medir antes de decidir</strong></td></tr>
+<tr><td>2</td><td><strong>Web export com 3D.</strong> O jogo vive em <code>poke.workprog.pro</code></td><td>Alta</td><td>Medir FPS no navegador na Fase 2, antes de investir</td></tr>
+<tr><td>3</td><td><strong>605 sprites, 0 modelos</strong></td><td>Certa</td><td>Decisão billboard vs modelo, §12 acima</td></tr>
+<tr><td>4</td><td>47 testes 2D vão reprovar aos poucos</td><td>Certa</td><td>Só apagar teste quando houver substituto 3D testado</td></tr>
+<tr><td>5</td><td>Perder o que a V2 provou</td><td>Média</td><td>A V2 fica isolada e funcionando; a V3 nasce ao lado</td></tr>
+<tr><td>6</td><td><strong>Pivô no meio de um pivô.</strong> A V2 tem 2 dias</td><td>Média</td><td>Por isso a V2 não é apagada. Se a V3 não convencer, o rollback é real</td></tr>
+<tr><td>7</td><td>Codex tem trabalho não integrado (HUD, câmera)</td><td>Alta</td><td>Ele fica de fora até o slice existir (§46). Avisar antes que ele invista mais</td></tr>
+<tr><td>8</td><td>4.531 linhas de <code>MapLayouts</code> viram legado</td><td>Certa</td><td>É custo assumido do pivô, declarado aqui</td></tr>
+</tbody></table></div>
+<h3>20. Dependências</h3>
+<p>Godot 4.2.2 (já instalado) · Blender 4.2.9 headless (já instalado, útil se a decisão for modelo) · nenhum plugin novo até aqui. <strong>Terrain3D de terceiros não foi adotado</strong> — decidir na Fase 4.</p>
+<h3>21. Rollback</h3>
+<ul>
+<li>A V3 nasce em <code>scripts/gameplay_v3/</code> + <code>scenes/gameplay_v3/</code>, e numa **branch</li>
+</ul>
+<p>  própria** (<code>agent/claude-v3</code>). O <code>main</code> continua com a V2 funcionando.</p>
+<ul>
+<li>Rollback total = não fazer merge da branch. Custo zero.</li>
+<li>Rollback parcial = apagar as duas pastas da V3.</li>
+<li><strong>Nada da V2 é apagado nesta migração.</strong> <code>MapLayouts</code>, as 120 cenas e os</li>
+</ul>
+<p>  tilesets ficam onde estão, mesmo depreciados.</p>
+<h3>22. Vertical slice</h3>
+<p>Um laboratório 3D pequeno (§10): campo, floresta pequena, grama alta, colina, pedras, praia, água rasa e profunda, caverna pequena, área de voo, área de surf.</p>
+<p><strong>Funcional, não bonito.</strong></p>
+<p>Um Pokémon terrestre, um aquático, um voador. Placeholders bastam.</p>
+<h3>23. Critérios de sucesso</h3>
+<p>A §51 do pedido, literal:</p>
+<ol>
+<li>Entrar no mundo 3D</li>
+<li>Andar como treinador</li>
+<li>Correr</li>
+<li>Olhar ao redor</li>
+<li>Subir e atravessar terreno</li>
+<li>Encontrar um Pokémon</li>
+<li>Iniciar uma batalha</li>
+<li><strong>Transferir o controle para o Pokémon</strong></li>
+<li>Controlar o Pokémon em 1ª pessoa</li>
+<li>Encerrar a batalha</li>
+<li>Retomar o controle do treinador</li>
+</ol>
+<p>Mais, do meu lado:</p>
+<ul>
+<li><strong>FPS medido em navegador real</strong>, não em headless. Meta: 60 no caso normal.</li>
+<li>A suíte das 18 classes puras continua verde sem uma linha alterada.</li>
+<li>Um save da V2 carrega na V3 sem migração.</li>
+</ul>
+<hr>
+<h3>Decisão</h3>
+<p>_Aguardando o Gabriel._ Nenhum código da V3 foi escrito.</p>
+<p><strong>Uma pergunta que eu preciso responder antes da Fase 5</strong>, e que vale saber agora: <strong>billboard ou modelo 3D para os Pokémon?</strong> É a decisão que define se os 605 sprites vivem ou morrem, e ela pode esperar — mas não muito.</p></div>
+</details>
+</section>
+<section><h2>As 20 fases da V3</h2>
+<p class="nota">A ordem existe porque cada fase depende da anterior estar de pé. Pular é como se constrói seis sistemas pela metade.</p>
+<div class="fases"><div class="fase feita"><span class="n">0–8</span><span class="d">Auditoria, RFCs, cena 3D, treinador, terreno, Pokémon 3D, companheiro, transferência, 1ª pessoa<span class="e">✅ 14/09</span></span></div><div class="fase feita"><span class="n">9</span><span class="d"><strong>Ataque básico</strong><span class="e">✅ 17/09 · 50 conferências</span></span></div><div class="fase feita"><span class="n">10</span><span class="d"><strong>4 skills</strong> (single/circle/cone/line, aviso, drenagem)<span class="e">✅ 17/09 · 61 conferências</span></span></div><div class="fase feita"><span class="n">11</span><span class="d"><strong>Wild Pokémon</strong><span class="e">✅ 17/09 · <code>RegraDeSpawn</code> + <code>IASelvagem3D</code> + <code>SpawnerSelvagem3D</code> · 63 conferências</span></span></div><div class="fase feita"><span class="n">12</span><span class="d"><strong>Combate 1v1</strong><span class="e">✅ 18/09 · <code>RegraDeCombate</code> + <code>Combate1v1</code> · 34 conferências</span></span></div><div class="fase feita"><span class="n">13</span><span class="d"><strong>Combate → Mundo</strong><span class="e">✅ 18/09 · <code>RegraDeRetorno</code> + <code>RetornoAoMundo</code> · 50 conferências · <strong>o laço da fantasia está fechado</strong></span></span></div><div class="fase feita"><span class="n">14–15</span><span class="d"><strong>Surf · Fly</strong><span class="e">✅ 18/09 · <code>RegraDeTravessia</code> · 44 conferências</span></span></div><div class="fase feita"><span class="n">16</span><span class="d"><strong>TM/HM</strong><span class="e">✅ 18/09 · <code>RegraDeMaquina</code> · <strong>capacidade × permissão</strong> · 48 conferências</span></span></div><div class="fase feita"><span class="n">17</span><span class="d"><strong>Move Pool</strong><span class="e">✅ 18/09 · <code>RegraDeMovePool</code> · <strong>conhecidos / equipados / ativos</strong> · 59 conferências · 🔴 achou o kit vazio</span></span></div><div class="fase feita"><span class="n">18</span><span class="d"><strong>Alpha</strong><span class="e">✅ 18/09 · <code>RegraDeAlpha</code> · 58 conferências · 🔴 <strong>nunca tinha nascido um</strong> · raridade fixada pelo Gabriel</span></span></div><div class="fase nao"><span class="n">19</span><span class="d"><strong>Polimento</strong><span class="e">⬜ · <strong>o Codex entra aqui</strong> · acionado em 19/09</span></span></div><div class="fase meio"><span class="n">20</span><span class="d"><strong>Performance</strong><span class="e">🟡 18/09 · <code>RegraDeRitmo</code> · <strong>LOD de lógica</strong>, 62,5% menos IA · 33 conferências · <strong>falta medir FPS em navegador — é do Gabriel</strong></span></span></div></div>
+</section>
+<section><h2>Fila do Claude — regras, IA, testes</h2>
+<div class="item"><div class="marca">1</div><div class="corpo-item"><p>Fase 20 — a metade de DESENHO (vegetação, modelos, sombra)</p><p class="porque"><strong>sim</strong> — depende da Fase 19 do Codex existir pra ter o que medir</p></div></div><div class="item"><div class="marca">1b</div><div class="corpo-item"><p>Ligar <code>permissoes_do_jogador()</code> na mochila de verdade quando a V3 tiver save</p><p class="porque">sim — depende do save da V3</p></div></div><div class="item"><div class="marca">1c</div><div class="corpo-item"><p>Ligar <code>capturavel</code> na pokébola da V3 (hoje ninguém captura em 3D)</p><p class="porque">sim — a captura em 3D ainda não existe</p></div></div><div class="item"><div class="marca">1d</div><div class="corpo-item"><p>Fazer a contagem de elites derrotados <strong>sobreviver a salvar/carregar</strong> (hoje vive só no spawner)</p><p class="porque">sim — depende do save da V3</p></div></div><div class="item"><div class="marca">1e</div><div class="corpo-item"><p>✅ <strong>RFC-008 — máscara de spawn. FEITA (19/09).</strong> <code>RegraDeHabitabilidade</code> + laço de tentativas no spawner · 29 conferências. 🔴 A medição corrigiu meu número: eu previ 3,25% de recusa (falésia) e o real é <strong>38,7%</strong>, porque quem domina é a <strong>água</strong> — <code>TENTATIVAS</code> 6 → <strong>10</strong></p></div></div><div class="item"><div class="marca">1f</div><div class="corpo-item"><p><strong><code>altura_em</code> deixa de ser <code>static</code></strong> quando o 1º chunk semeado nascer. <code>static</code> é o que transforma o seed em estado global; vira serviço instanciado e <code>SpawnerSelvagem3D</code>/<code>PokemonInstance3D</code>/<code>RegraDeAcompanhar</code> passam a receber a referência</p><p class="porque">sim — não existe chunk no runtime ainda</p></div></div><div class="item"><div class="marca">3</div><div class="corpo-item"><p>Ajuste de <em>sensação</em> dos controles</p><p class="porque"><strong>sim</strong> — depende do item 🟡 1</p></div></div>
+</section>
+<section><h2>Fila do Codex — arte, HUD, modelos, mundo</h2>
+<div class="item"><div class="marca">0</div><div class="corpo-item"><p>🔴 <strong>PLAYER 3D V1 — a ponte visual.</strong> O GLB está pronto e validado; <strong>destravado</strong>: a RFC-007 foi aceita e as 3 decisões estão tomadas</p><p class="porque"><strong>prioridade</strong> · <code>docs/agent-reviews/claude/2026-09-18-RFC-007-player-v1.md</code></p></div></div><div class="item"><div class="marca">0b</div><div class="corpo-item"><p>🔴 <strong>WORLD FACTORY V1</strong> — <strong>contrato de altura aceito</strong> (RFC-006, opção A, medido por mim a 0,000001 m). ⚠️ O aceite é só do laboratório: <strong>borda entre chunks continua sem contrato</strong>, porque chunk ainda não existe pra medir</p><p class="porque"><code>docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md</code></p></div></div><div class="item"><div class="marca">1</div><div class="corpo-item"><p><strong>Qualidade gráfica do mundo 3D</strong> — terreno, vegetação, árvores, grama, água</p><p class="porque">agora, em paralelo</p></div></div><div class="item"><div class="marca">2</div><div class="corpo-item"><p>Modelos de Pokémon em volume</p><p class="porque">agora · contrato em <code>POKEMON_MODEL_PIPELINE.md</code></p></div></div><div class="item"><div class="marca">3</div><div class="corpo-item"><p>HUD de combate: cooldown do básico e das 4 skills, telegrafe do aviso</p><p class="porque">quando quiser — a API já entrega tudo (ver abaixo)</p></div></div><div class="item"><div class="marca">4</div><div class="corpo-item"><p>Polimento geral</p><p class="porque">Fase 19</p></div></div><div class="item"><div class="marca">O quê</div><div class="corpo-item"><p>Onde</p></div></div><div class="item"><div class="marca"><strong>Cooldown do básico</strong></div><div class="corpo-item"><p><code>PokemonInstance3D.basico_pronto()</code> e <code>basico_esfriando()</code> — em segundos, prontos</p></div></div><div class="item"><div class="marca"><strong>Cooldown de uma skill</strong></div><div class="corpo-item"><p><code>skill_esfriando(indice)</code></p></div></div><div class="item"><div class="marca"><strong>Por que o botão não respondeu</strong></div><div class="corpo-item"><p><code>usar_skill()</code> devolve <code>{&quot;recusado&quot;: motivo}</code> com o motivo <strong>em português</strong></p></div></div><div class="item"><div class="marca"><strong>O telegrafe do aviso</strong></div><div class="corpo-item"><p>sinal <code>EventBus.skill_anunciada</code> — traz forma, alcance, raio, largura, direção travada e quando resolve, <strong>tudo em metros e já calculado</strong></p></div></div><div class="item"><div class="marca"><strong>Apagar o telegrafe</strong></div><div class="corpo-item"><p>sinal <code>EventBus.skill_cancelada</code> — sai quando quem anunciava cai no meio</p></div></div><div class="item"><div class="marca"><strong>O relatório de um acerto em 3D</strong></div><div class="corpo-item"><p><code>EventBus.golpe_resolvido</code> — tipo, efetividade <strong>como palavra</strong>, frase, fração da vida, direção em <code>Vector3</code></p></div></div><div class="item"><div class="marca">Fonte</div><div class="corpo-item"><p>Diz</p></div></div><div class="item"><div class="marca">A folha de concept art do Gabriel (18/09)</div><div class="corpo-item"><p><strong>1,60 m</strong></p></div></div><div class="item"><div class="marca"><code>TrainerController3D</code> (cápsula e malha)</div><div class="corpo-item"><p>1,75 m</p></div></div><div class="item"><div class="marca">O <code>player.glb</code> de 14–15/09, medido</div><div class="corpo-item"><p>1,750 m</p></div></div>
+</section>
+<footer>
+<p>Gerado por <code>tools/gerar_painel.py</code>. Atualizar: <code>python3 tools/gerar_painel.py</code>.</p>
+<p>Esta página é só leitura. Aprovar é responder no chat — estado que muda em dois lugares é como os dois passam a discordar.</p>
+</footer></div>

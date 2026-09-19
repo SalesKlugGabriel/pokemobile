@@ -42,11 +42,27 @@ if [ "${1:-}" = "--so" ]; then
   if [ -z "$padrao" ]; then echo "uso: $0 --so <padrão>"; exit 2; fi
 fi
 
+# 🔴 LOG POR WORKTREE (19/09). Era `/tmp/saida_teste.txt`, um caminho global —
+# e o `ARCHITECTURE.md` já avisava pra não rodar duas instâncias no mesmo
+# servidor. O aviso não bastou: com Claude e Codex em worktrees diferentes na
+# mesma VPS, os dois escrevem e LEEM o mesmo arquivo, e o resultado de um teste
+# some no meio do outro.
+#
+# O sintoma é traiçoeiro porque não parece contenção: dá "não chegou a rodar
+# (nenhuma linha de resultado)" — a mesma mensagem de um teste que morreu ao
+# compilar. Custou 5 reprovações falsas numa suíte só; as 5 passaram sozinhas
+# depois, 4 vezes seguidas.
+#
+# O caminho agora carrega o nome da worktree, então duas suítes simultâneas
+# deixam de se ver. Continua valendo NÃO rodar as duas ao mesmo tempo (são 2
+# núcleos, e a lentidão ainda pode estourar o `timeout 300`) — mas agora, se
+# alguém rodar, o resultado é lento, não falso.
+saida="/tmp/saida_teste_$(basename "$(pwd)").txt"
+
 falhas=0; total=0; nomes=()
 for f in scripts/tests/teste_*.gd; do
   if [ -n "$padrao" ] && ! echo "$f" | grep -qi -- "$padrao"; then continue; fi
   total=$((total+1))
-  saida=/tmp/saida_teste.txt
   ruim=0
   if ! timeout 300 godot4 --headless --script "res://$f" >"$saida" 2>&1; then
     ruim=1
@@ -73,9 +89,9 @@ if [ -z "$padrao" ] && [ -d assets/gerado ]; then
   pngs=$(find assets/gerado -name "*.png" 2>/dev/null | head -400)
   if [ -n "$pngs" ]; then
     total=$((total+1))
-    if ! python3 tools/pixelart/conferir_asset.py $pngs > /tmp/saida_arte.txt 2>&1; then
+    if ! python3 tools/pixelart/conferir_asset.py $pngs > "/tmp/saida_arte_$(basename "$(pwd)").txt" 2>&1; then
       falhas=$((falhas+1)); nomes+=("assets/gerado (conferência de arte)")
-      grep "✗" /tmp/saida_arte.txt | head -6
+      grep "✗" "/tmp/saida_arte_$(basename "$(pwd)").txt" | head -6
     fi
   fi
 fi

@@ -41,7 +41,7 @@ verdade.
 | 16 | **TM/HM** | ✅ 18/09 · `RegraDeMaquina` · **capacidade × permissão** · 48 conferências |
 | 17 | **Move Pool** | ✅ 18/09 · `RegraDeMovePool` · **conhecidos / equipados / ativos** · 59 conferências · 🔴 achou o kit vazio |
 | 18 | **Alpha** | ✅ 18/09 · `RegraDeAlpha` · 58 conferências · 🔴 **nunca tinha nascido um** · raridade fixada pelo Gabriel |
-| 19 | **Polimento** | ⬜ · **o Codex entra aqui** |
+| 19 | **Polimento** | ⬜ · **o Codex entra aqui** · acionado em 19/09 |
 | 20 | **Performance** | 🟡 18/09 · `RegraDeRitmo` · **LOD de lógica**, 62,5% menos IA · 33 conferências · **falta medir FPS em navegador — é do Gabriel** |
 
 **As 18 primeiras fases estão fechadas** — a migração de regras acabou. A 20 tem
@@ -88,7 +88,7 @@ posicionar é o caminho que catapulta o jogador.
 | 1b | Ligar `permissoes_do_jogador()` na mochila de verdade quando a V3 tiver save | sim — depende do save da V3 |
 | 1c | Ligar `capturavel` na pokébola da V3 (hoje ninguém captura em 3D) | sim — a captura em 3D ainda não existe |
 | 1d | Fazer a contagem de elites derrotados **sobreviver a salvar/carregar** (hoje vive só no spawner) | sim — depende do save da V3 |
-| 1e | **RFC-008 — máscara de spawn.** Recusar ponto íngreme/submerso antes de `nascer()`. Medido: **3,25% do laboratório passa de 46°** (o limite de chão deste jogo) — quem nasce ali escorrega no 1º quadro de vida | não — só espera o Gabriel aprovar a RFC |
+| 1e | ✅ **RFC-008 — máscara de spawn. FEITA (19/09).** `RegraDeHabitabilidade` + laço de tentativas no spawner · 29 conferências. 🔴 A medição corrigiu meu número: eu previ 3,25% de recusa (falésia) e o real é **38,7%**, porque quem domina é a **água** — `TENTATIVAS` 6 → **10** | — |
 | 1f | **`altura_em` deixa de ser `static`** quando o 1º chunk semeado nascer. `static` é o que transforma o seed em estado global; vira serviço instanciado e `SpawnerSelvagem3D`/`PokemonInstance3D`/`RegraDeAcompanhar` passam a receber a referência | sim — não existe chunk no runtime ainda |
 | 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
 
@@ -244,8 +244,41 @@ correr apertada — a opção B teria tocado CORRIDA ali. O contrato novo é
 | 2 | Jogar a V3 depois do conserto de direção (17/09) e dizer se o W agora anda pra onde se olha | o teste prova direção e independência da câmera; **não prova sensação** |
 | 3 | ✅ **Respondido (18/09):** elite **2%**, Alpha **0,5%**, **+0,1%** por elite derrotado nas últimas **3 h**. Implementado e travado por teste | — |
 | 4 | ✅ **Respondido (18/09):** o **teto de 5%** e a leitura de **2% como teto** (`× perigo da zona`, Pallet em 0%) ficam como propostos — *"mantenha como você propôs"* | — |
-| 5 | **Aprovar a RFC-008 (máscara de spawn)** | 3,25% do laboratório é mais íngreme que o limite de chão: quem nasce ali escorrega. A correção é minha e está escrita, mas é **mudança de regra de gameplay** — não faço sem você dizer |
+| 5 | ✅ **Respondido (19/09):** *"pode seguir com a rfc 8"* — implementada e travada por teste no mesmo dia | — |
 | 6 | **Conferir a câmera no navegador** depois que o Codex ligar o Player V1 | o treinador encolheu de 1,75 m pra 1,60 m e o ombro da câmera desceu junto, por proporção. Se ficar alto ou baixo, o número a mexer é `ALTURA_DO_OMBRO` — e só você consegue julgar isso, porque é sensação |
+
+---
+
+## 🔴 Duas suítes ao mesmo tempo davam falha FALSA — corrigido em 19/09
+
+`rodar_testes.sh` escrevia em `/tmp/saida_teste.txt`, um caminho **global**. Com
+Claude e Codex em worktrees diferentes na mesma VPS, os dois escreviam e liam o
+mesmo arquivo, e o resultado de um teste sumia no meio do outro.
+
+O sintoma engana porque não parece contenção: sai **"não chegou a rodar (nenhuma
+linha de resultado)"** — exatamente a mensagem de um teste que morreu ao
+compilar. Custou **5 reprovações falsas** numa suíte; as 5 passaram sozinhas
+depois, 4 vezes seguidas cada.
+
+O caminho passou a carregar o nome da worktree. ⚠️ Continua valendo **não rodar
+as duas ao mesmo tempo** — são 2 núcleos, e a lentidão ainda pode estourar o
+`timeout 300` de cada teste. A diferença é que agora o resultado fica lento, não
+**falso**.
+
+---
+
+## 🖥️ O painel do Gabriel
+
+`docs/painel/index.html` — uma página só, pra ler as sprints, os contratos e a
+fila de pendências sem abrir documento nenhum. Feita pro celular.
+
+⚠️ Ela é **gerada**, não escrita: `python3 tools/gerar_painel.py` lê este
+`QUADRO.md` e `docs/rfc/*.md` e monta a página. O motivo é o mesmo que criou
+este quadro — um painel escrito à mão seria o oitavo documento de coordenação a
+envelhecer sozinho. **Se o painel mentir, a fonte é que está errada.**
+
+**Rode o gerador ao fechar qualquer sprint**, junto com a atualização deste
+arquivo. Vale para os dois agentes.
 
 ---
 

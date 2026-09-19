@@ -64,6 +64,12 @@ func _sorteio_padrao() -> float:
 ##
 ## 🔵 Pendente declarado: isto ainda **não sobrevive a salvar e carregar** —
 ## a V3 não tem save. Ver `docs/QUADRO.md`.
+## RFC-008: por que a última tentativa de nascimento foi recusada. Existe porque
+## "o spawn falhou" sem motivo é a mesma classe de silêncio que este projeto
+## passou o mês caçando — com isto, medir *onde* o mundo está recusando corpos é
+## uma pergunta, não uma escavação. Vazio quando o último nascimento deu certo.
+var ultimo_motivo_de_recusa : String = RegraDeHabitabilidade.OK
+
 var derrotas_de_elite : Array = []
 
 var _vivos : Array = []
@@ -115,13 +121,40 @@ func tentar_nascer() -> Node3D:
 	if id <= 0:
 		return null
 
-	var ponto := RegraDeSpawn.ponto_no_anel(
-		jogador.global_position, sortear.call(), sortear.call())
-	# O chão manda no Y. E a trava do anel é reconferida DEPOIS de o terreno
-	# opinar — ver o comentário do cabeçalho sobre travas que só vivem na regra.
-	ponto.y = Terreno3D.altura_em(ponto.x, ponto.z)
-	if not RegraDeSpawn.distancia_segura(jogador.global_position, ponto):
+	# RFC-008: o arquétipo precisa ser conhecido ANTES de escolher o ponto — é
+	# ele que decide se a encosta e a água barram. Lido da mesma fonte que o
+	# `montar()` vai ler, pra os dois nunca discordarem sobre o mesmo bicho.
+	var arquetipo : String = str(GameData.get_species(id).get(
+		"arquetipo", MovementProfile.GROUND_BIPED))
+
+	var ponto := Vector3.ZERO
+	var achou : bool = false
+	# Tenta alguns pontos antes de desistir. Desistir na primeira recusa faria a
+	# densidade de spawn cair perto da costa e da falésia **em silêncio** — o
+	# jogador andaria pra praia e o mundo esvaziaria sem nada dizer por quê.
+	for _tentativa in RegraDeHabitabilidade.TENTATIVAS:
+		var candidato := RegraDeSpawn.ponto_no_anel(
+			jogador.global_position, sortear.call(), sortear.call())
+		# O chão manda no Y. E a trava do anel é reconferida DEPOIS de o terreno
+		# opinar — ver o comentário do cabeçalho sobre travas que só vivem na
+		# regra.
+		candidato.y = Terreno3D.altura_em(candidato.x, candidato.z)
+		if not RegraDeSpawn.distancia_segura(jogador.global_position, candidato):
+			continue
+		var veredito : Dictionary = RegraDeHabitabilidade.pode_nascer(
+			arquetipo,
+			Terreno3D.superficie_em(candidato.x, candidato.z),
+			rad_to_deg(Terreno3D.inclinacao_em(candidato.x, candidato.z)),
+			rad_to_deg(Locomocao3D.ANGULO_MAXIMO_DE_SUBIDA))
+		if not bool(veredito["pode"]):
+			ultimo_motivo_de_recusa = str(veredito["motivo"])
+			continue
+		ponto = candidato
+		achou = true
+		break
+	if not achou:
 		return null
+	ultimo_motivo_de_recusa = RegraDeHabitabilidade.OK
 
 	# Fase 18, régua do Gabriel (18/09): elite e Alpha são **sorteios
 	# independentes**. A chance de Alpha cresce com os elites derrotados nas
