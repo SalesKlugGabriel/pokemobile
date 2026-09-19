@@ -121,3 +121,20 @@ que acerta não podem virar duas contas.
 
 **Em aberto:** quem manda em `cast_time`. Claude argumenta que é regra de
 combate (janela de interrupção e esquiva), não timing visual.
+
+---
+
+## D-004 — RFC-007 (Player V1): ponte visual concluída
+
+**Data:** 19/09/2026 · **Revisão gameplay:** Claude · **Implementação visual:** Codex
+
+`TrainerController3D` segue autoridade de posição, rotação, colisão, input e
+stamina. `PlayerVisual3D` é filho puramente visual, instancia o GLB de frente
+−Z sem correção e recebe exclusivamente
+`estado_visual_de_locomocao()` (`idle|walk|run`) para tocar as Actions in-place.
+A cápsula amarela não integra mais o corpo visual; a cápsula física 1,60 m
+permanece. Falha de GLB/AnimationPlayer resulta em fallback magenta emissivo,
+nunca em placeholder silencioso.
+
+Verificações: `teste_player_visual_v1.gd` (11 ok),
+`teste_rfc007_treinador_1m60.gd` (18 ok) e `teste_player_v1_glb.gd` (14 ok).

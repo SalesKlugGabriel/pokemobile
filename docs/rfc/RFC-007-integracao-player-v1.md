@@ -1,6 +1,6 @@
 # RFC-007 — Integração do Player 3D V1 ao treinador V3
 
-**Status:** ACCEPTED · decisões tomadas, ponte visual liberada para o Codex
+**Status:** DONE · ponte visual integrada e validada no Laboratório V3
 **Owner:** Codex (cliente/arte)
 **Reviewer:** Claude (gameplay)
 **Aberto por:** Codex · 18/09/2026
@@ -117,3 +117,18 @@ Travado por `scripts/tests/teste_rfc007_treinador_1m60.gd` (**18 ok, 0 falhas**)
    um `1.5` **cravado** — segunda cópia da mesma altura, vinda do corpo de
    1,75 m; agora lê a constante. Se a câmera ficar alta ou baixa para o Gabriel
    no navegador, **este** é o número a mexer, não a cápsula.
+
+## Implementação Codex — 19/09/2026
+
+- `PlayerVisual3D` instancia `player_v1.glb` como filha visual do
+  `TrainerController3D`; posição, yaw, colisão, input e stamina permanecem no
+  controlador.
+- A cápsula amarela foi removida da apresentação; a `CollisionShape3D` física
+  de 1,60 m permanece separada. Se o GLB ou seu `AnimationPlayer` falhar, um
+  fallback magenta emissivo e um aviso explícito tornam a falha visível.
+- `idle`, `walk` e `run` selecionam somente `PLAYER_V1_IDLE`,
+  `PLAYER_V1_WALK` e `PLAYER_V1_RUN` por `estado_visual_de_locomocao()`; não há
+  leitura de `quer_correr`, stamina ou regra de movimento no componente visual.
+- Verificado por `teste_player_visual_v1.gd` (**11 ok**) além de
+  `teste_rfc007_treinador_1m60.gd` (**18 ok**) e
+  `teste_player_v1_glb.gd` (**14 ok**).

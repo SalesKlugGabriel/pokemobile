@@ -46,6 +46,21 @@ teste `--script`, o `_ready` de um nó **só dispara no quadro seguinte** ao
 e o marcador que a suíte procura é `=== Resultado:` — imprimir só `Resultado:`
 faz um teste que passa sozinho contar como **"não chegou a rodar"**.
 
+## Atualização Codex — 19/09: Player V1 integrado ao treinador no Laboratório V3
+
+- RFC-007 está **DONE**. `PlayerVisual3D` instancia
+  `assets/characters/player_v1/player_v1.glb` como apresentação do
+  `TrainerController3D`; a cápsula física de 1,60 m continua separada e a
+  cápsula amarela visual foi removida.
+- O componente recebe somente `estado_visual_de_locomocao()` e toca
+  `PLAYER_V1_IDLE`, `PLAYER_V1_WALK` ou `PLAYER_V1_RUN`. Não lê intenção de
+  corrida, stamina ou velocidade para decidir estado; portanto não reabre o
+  caso medido de exaustão.
+- Se GLB/AnimationPlayer falhar, o fallback magenta emissivo é visível e emite
+  aviso; a falha não vira placeholder silencioso.
+- Testes isolados, em série: ponte **11 ok**, contrato RFC-007 **18 ok**, asset
+  GLB **14 ok**. O julgamento estético no navegador segue pendente do Gabriel.
+
 ## Claude — 18/09: Fase 20 (metade de lógica) + a decisão sobre Unreal
 
 🔴 **A migração pra Unreal Engine 5 está DESCARTADA, e não por preferência.** A

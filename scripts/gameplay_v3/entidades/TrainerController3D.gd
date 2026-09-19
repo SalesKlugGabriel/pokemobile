@@ -19,6 +19,8 @@
 extends CharacterBody3D
 class_name TrainerController3D
 
+const PlayerVisualScript = preload("res://scripts/gameplay_v3/presentation/PlayerVisual3D.gd")
+
 ## RFC-007, decisão 1 (opção B): **a altura do treinador é 1,60 m.**
 ##
 ## Era 1,75 m — um número que nunca representou ninguém: foi escrito quando o
@@ -44,6 +46,7 @@ signal parou()
 
 var stamina : Stamina = Stamina.new()
 var camera : CameraTerceiraPessoa = null
+var visual_do_jogador : Node = null
 
 ## §11: a §5 da V2 vale igual — correr, nadar, escalar e pular custam fôlego.
 var _parado_antes : bool = true
@@ -75,8 +78,8 @@ func _ready() -> void:
 	camera.top_level = true
 	camera.seguir(global_position)
 
-## Corpo mínimo. Malha e animação são do Codex (§48) — o que está aqui é o
-## necessário pra colidir e pra dar pra ver onde o personagem está.
+## Corpo físico. A malha e animação vivem no componente visual do Codex; a
+## cápsula abaixo é apenas colisão e não pode voltar a ser o boneco amarelo.
 func _montar_corpo() -> void:
 	var forma := CollisionShape3D.new()
 	var capsula := CapsuleShape3D.new()
@@ -86,16 +89,8 @@ func _montar_corpo() -> void:
 	forma.position.y = ALTURA_DO_CORPO * 0.5
 	add_child(forma)
 
-	var vis := MeshInstance3D.new()
-	var malha := CapsuleMesh.new()
-	malha.radius = RAIO_DO_CORPO
-	malha.height = ALTURA_DO_CORPO
-	vis.mesh = malha
-	vis.position.y = ALTURA_DO_CORPO * 0.5
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.95, 0.82, 0.35)
-	vis.material_override = mat
-	add_child(vis)
+	visual_do_jogador = PlayerVisualScript.new()
+	add_child(visual_do_jogador)
 
 	# §11: inclinação. Sem isto o corpo trava na primeira ladeira e "sobe"
 	# qualquer parede vertical — os dois ficam errados ao mesmo tempo.
@@ -146,6 +141,10 @@ func _physics_process(delta: float) -> void:
 	velocity.y = Locomocao3D.aplicar_gravidade(velocity.y, is_on_floor(), delta)
 
 	move_and_slide()
+	if visual_do_jogador != null:
+		# RFC-007: o visual consome exclusivamente o estado efetivo, nunca
+		# `quer_correr` ou qualquer outra intenção de input.
+		visual_do_jogador.call("apresentar_locomocao", estado_visual_de_locomocao())
 
 	# 🔴 MUDANÇA DE DESIGN — Gabriel, 18/09: *"o mouse precisa ser a mira para
 	# todas as ações, inclusive em combate, para arremessar pokébolas, para usar
