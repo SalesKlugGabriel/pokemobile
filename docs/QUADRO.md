@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **131 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **133 arquivos, 0 com falha**
 
 ---
 
@@ -85,9 +85,9 @@ posicionar é o caminho que catapulta o jogador.
 | # | O quê | Bloqueado? |
 |---|---|---|
 | 1 | Fase 20 — a metade de DESENHO (vegetação, modelos, sombra) | **sim** — depende da Fase 19 do Codex existir pra ter o que medir |
-| 1b | Ligar `permissoes_do_jogador()` na mochila de verdade quando a V3 tiver save | sim — depende do save da V3 |
-| 1c | Ligar `capturavel` na pokébola da V3 (hoje ninguém captura em 3D) | sim — a captura em 3D ainda não existe |
-| 1d | Fazer a contagem de elites derrotados **sobreviver a salvar/carregar** (hoje vive só no spawner) | sim — depende do save da V3 |
+| 1b | ✅ **FEITO (19/09).** `permissoes_do_jogador()` lê `SaveManager.save_data["inventory"]`. 🔴 O comentário apontava a chave **errada** (`"items"`) — ligar por ele leria `{}` e o jogador perderia Surf e Voar **sem erro nenhum** | — |
+| 1c | Ligar `capturavel` na pokébola da V3 | **sim, e de verdade** — a captura em 3D não existe como mecânica; é fase nova, não fiação. ⚠️ Era o único dos três que realmente dependia de algo que falta |
+| 1d | ✅ **FEITO (19/09).** `world.elites_derrotados` no save + migração pra save antigo (`load_game` substitui o dicionário cru). Carimbo **Unix**, então "3 horas" continua sendo 3 h de relógio com o jogo fechado | — |
 | 1e | ✅ **RFC-008 — máscara de spawn. FEITA (19/09).** `RegraDeHabitabilidade` + laço de tentativas no spawner · 29 conferências. 🔴 A medição corrigiu meu número: eu previ 3,25% de recusa (falésia) e o real é **38,7%**, porque quem domina é a **água** — `TENTATIVAS` 6 → **10** | — |
 | 1f | **`altura_em` deixa de ser `static`** quando o 1º chunk semeado nascer. `static` é o que transforma o seed em estado global; vira serviço instanciado e `SpawnerSelvagem3D`/`PokemonInstance3D`/`RegraDeAcompanhar` passam a receber a referência | sim — não existe chunk no runtime ainda |
 | 3 | Ajuste de *sensação* dos controles | **sim** — depende do item 🟡 1 |
@@ -376,6 +376,19 @@ implementada — tudo avisa, nunca cai num default calado.
   baseline no próprio teste.
 - **Em teste `--script`, autoload não é identificador.** Usar variável de membro
   preenchida por `root.get_node()` — e só a partir do primeiro `_process`.
+- **🔴 `_init()` roda ANTES de os autoloads entrarem na árvore; `_initialize()`,
+  depois.** É a forma exata de armadilha acima, e a **quinta** vez que ela
+  aparece (19/09). A consequência é indireta e engana: um script que eu só quero
+  instanciar (`SpawnerSelvagem3D`) **não compila** dentro de `_init` só porque
+  cita `GameData` — o erro sai numa linha que não é a minha, o arquivo segue
+  rodando o resto, e parece bug do código sob teste. **Todo teste que instancia
+  algo do jogo usa `_initialize`**; `_init` só serve pra teste de classe pura.
+- **`_ready` de um nó só dispara no quadro SEGUINTE ao `add_child`.** Conferir
+  filhos logo depois encontra zero e reprova código correto.
+- **Cuidado com o comentário que aponta uma chave.** Um comentário do
+  `Laboratorio3D` mandava ler `save_data["items"]`; a chave real é
+  `"inventory"`. Confiar nele teria apagado Surf e Voar **sem erro nenhum**.
+  Documentação não é fonte de verdade — o código é.
 - **Em headless o laço roda o mais rápido que consegue.** Esperar tempo real
   esperando **tempo de parede**, nunca contando quadros.
 - **Cena montada em `_initialize` não entra na árvore de verdade.** Montar no

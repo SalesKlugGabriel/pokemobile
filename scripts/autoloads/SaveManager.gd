@@ -38,6 +38,13 @@ var save_data: Dictionary = {
 		"lendarios_derrotados": [],
 		"defeated_alphas": [],
 		"alpha_respawn_timers": {},
+		# Carimbos Unix dos elites derrotados (V3, Fase 18 + 19/09). A chance de
+		# Alpha cresce +0,1% por elite caído nas últimas 3 h — régua do Gabriel.
+		# Fica no save, e não em memória, porque fechar o jogo não pode zerar o
+		# bônus que o jogador acabou de conquistar. Unix e não tempo de sessão:
+		# assim "3 horas" continua sendo 3 horas de relógio, e guardar o jogo de
+		# um dia pro outro não acumula bônus.
+		"elites_derrotados": [],
 		"defeated_trainers": []
 	},
 	"final_choice": "",
@@ -108,8 +115,26 @@ func load_game() -> bool:
 	if not save_data.has("tutorial_seen"):
 		save_data["tutorial_seen"] = TutorialManager.DICAS.keys()
 	_migrar_hp_da_reengenharia()
+	_migrar_elites_derrotados()
 	_save_exists = true
 	return true
+
+## Save anterior a 19/09 não tem `world.elites_derrotados`.
+##
+## 🔴 Isto é obrigatório, não zelo: `load_game` faz `save_data = parsed`, uma
+## substituição CRUA do dicionário inteiro — os valores padrão declarados lá em
+## cima não são mesclados de volta. Sem esta migração, ler
+## `save_data["world"]["elites_derrotados"]` num save antigo dá erro de chave
+## ausente, e é o tipo de erro que só aparece na máquina de quem já jogava.
+##
+## Começa **vazia**, e não com um palpite: quem tinha save antes desta data não
+## derrotou elite nenhum "nas últimas 3 horas" — inventar carimbo seria dar
+## bônus de Alpha que ninguém ganhou.
+func _migrar_elites_derrotados() -> void:
+	if not save_data.has("world") or not (save_data["world"] is Dictionary):
+		save_data["world"] = {}
+	if not save_data["world"].has("elites_derrotados"):
+		save_data["world"]["elites_derrotados"] = []
 
 ## Versão do esquema de combate gravada no save. Sobe quando uma fórmula muda
 ## de um jeito que altera números já salvos.
@@ -205,6 +230,7 @@ func new_game(trainer_name: String, starter_species_id: int) -> void:
 	save_data["world"]["lendarios_derrotados"] = []
 	save_data["world"]["defeated_alphas"]      = []
 	save_data["world"]["alpha_respawn_timers"] = {}
+	save_data["world"]["elites_derrotados"]    = []
 	save_data["world"]["defeated_trainers"]    = []
 	save_data["final_choice"] = ""
 	save_data["rng_seed"]     = randi()

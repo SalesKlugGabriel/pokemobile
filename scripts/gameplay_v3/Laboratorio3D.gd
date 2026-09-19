@@ -387,16 +387,33 @@ func _encerrar() -> void:
 ## ele que aparece na tela.
 ## Fase 16: o que o jogador tem permissão de atravessar aqui.
 ##
-## O laboratório é bancada de teste, então ele **concede as duas** — mas concede
-## por escrito, num lugar visível, em vez de deixar a permissão valer por
-## omissão. No mundo de verdade esta função lê a mochila:
+## ── 19/09: ligado à mochila DE VERDADE ──────────────────────────────────────
 ##
-##     RegraDeMaquina.permissoes_de(SaveManager.save_data["items"], GameData.items)
+## Até hoje isto devolvia uma mochila de teste cravada. Agora lê
+## `SaveManager.save_data["inventory"]`, que é a mochila real da V2 — a mesma
+## que o jogador enche jogando.
 ##
-## Enquanto a V3 não tem mochila, a MOCHILA DE TESTE abaixo é a fonte — e o
-## caminho de leitura é o mesmo, então trocar uma pela outra não muda regra
-## nenhuma, só de onde vem a lista.
+## 🔴 **E o comentário que estava aqui apontava a chave ERRADA.** Ele dizia
+## `save_data["items"]`; a chave real é **`"inventory"`**. Ligar pelo que estava
+## escrito teria lido um dicionário vazio — e `permissoes_de({}, catalogo)`
+## devolve `[]`, que é *falha fechada*. O jogador perderia Surf e Voar **sem
+## nenhum erro**: as travessias simplesmente parariam de funcionar, e o motivo
+## na tela seria "você não tem a MO", que é uma frase perfeitamente plausível.
+## É o zero silencioso de novo, e desta vez estava escrito num comentário
+## esperando alguém confiar nele.
+##
+## ── Por que ainda existe uma mochila de teste ───────────────────────────────
+##
+## Porque o laboratório precisa andar **sem save nenhum**: em headless, e na
+## primeira vez que alguém abre a cena sem ter jogado. A regra é explícita —
+## havendo save, ele manda; não havendo, a bancada concede as duas e **declara
+## que está concedendo**, em vez de deixar a permissão valer por omissão.
 const MOCHILA_DE_TESTE : Array[String] = ["hm02", "hm04"]
+
+## De onde a última leitura de permissão veio. Existe pra o teste e a tela
+## poderem perguntar "isto é a mochila do jogador ou a da bancada?" — sem isso,
+## uma bancada concedendo tudo é indistinguível de um save que concede tudo.
+var origem_das_permissoes : String = "bancada"
 
 func permissoes_do_jogador() -> Array:
 	var catalogo : Dictionary = {}
@@ -405,7 +422,23 @@ func permissoes_do_jogador() -> Array:
 		catalogo = dados.items
 	if catalogo.is_empty():
 		# Sem catálogo carregado (teste headless), a bancada ainda precisa andar.
+		origem_das_permissoes = "bancada (sem catálogo)"
 		return [RegraDeMaquina.TRAVESSIA_AGUA, RegraDeMaquina.TRAVESSIA_AR]
+
+	# ⚠️ `get_node_or_null`, nunca o identificador `SaveManager` — autoload não
+	# é identificador em teste `--script`, e citá-lo aqui faria o arquivo
+	# inteiro parar de compilar num teste. A lição de quatro fases seguidas.
+	var save := get_node_or_null("/root/SaveManager")
+	if save != null and save.save_data is Dictionary:
+		var mochila = save.save_data.get("inventory", {})
+		# Mochila vazia é caso legítimo (jogador no começo), e aí a resposta
+		# certa é `[]` — nenhuma travessia. Não caio na bancada aqui, senão um
+		# save de verdade seria silenciosamente promovido a tudo liberado.
+		if mochila is Dictionary or mochila is Array:
+			origem_das_permissoes = "mochila do jogador"
+			return RegraDeMaquina.permissoes_de(mochila, catalogo)
+
+	origem_das_permissoes = "bancada (sem save)"
 	return RegraDeMaquina.permissoes_de(MOCHILA_DE_TESTE, catalogo)
 
 func assumir_pokemon() -> Dictionary:

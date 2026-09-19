@@ -195,6 +195,41 @@ func registrar_elite_derrotado(quando: float = -1.0) -> void:
 	derrotas_de_elite.append(_agora() if quando < 0.0 else quando)
 	_esquecer_velhas()
 
+## ── Atravessar o salvar/carregar (19/09) ────────────────────────────────────
+##
+## A janela de 3 h do Alpha é de tempo **real**, não de tempo jogado: os
+## carimbos são Unix (`Time.get_unix_time_from_system`). Isso faz a regra do
+## Gabriel — *"nas últimas 3 hrs"* — continuar significando três horas de
+## relógio mesmo com o jogo fechado no meio, sem nenhum código a mais.
+##
+## Fosse tempo de sessão, fechar o jogo congelaria a janela e o jogador
+## acumularia bônus guardando-o de um dia pro outro.
+
+## O que salvar. Já esquece o que saiu da janela: guardar carimbo morto é
+## engordar o save com dado que não influencia nada.
+func para_o_save() -> Array:
+	_esquecer_velhas()
+	return derrotas_de_elite.duplicate()
+
+## Restaurar do save.
+##
+## ⚠️ **Preenche no lugar**, como `_esquecer_velhas` — e pela mesma razão, que
+## já custou um bug aqui: `derrotas_de_elite = lista` faria este spawner apontar
+## pra outra lista, e dois spawners que compartilhavam a contagem por referência
+## se separariam **em silêncio** no carregar. Carimbo inválido é descartado em
+## vez de contaminar a janela.
+func do_save(lista) -> void:
+	var limpa : Array = []
+	if lista is Array:
+		for quando in lista:
+			if typeof(quando) in [TYPE_FLOAT, TYPE_INT]:
+				limpa.append(float(quando))
+	derrotas_de_elite.clear()
+	derrotas_de_elite.append_array(limpa)
+	# Um save antigo pode trazer carimbo já vencido — a janela manda, não o
+	# arquivo.
+	_esquecer_velhas()
+
 ## A lista não cresce pra sempre: o que saiu da janela não influencia mais nada
 ## e guardar é só memória vazando devagar.
 ##
