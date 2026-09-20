@@ -23,6 +23,10 @@ extends Node3D
 signal nasceu(quem: Node3D, entrada: Dictionary, elite: bool)
 signal desapareceu(quem: Node3D)
 
+## Fase 21: um selvagem caiu e deixou corpo. Quem escuta é a HUD (pra desenhar o
+## relógio da §28) e o treinador (pra saber em que mirar).
+signal corpo_deixado(corpo: Node3D)
+
 ## A zona em que este spawner atua — o dicionário de `zones.json`, inteiro. Não
 ## uma cópia com "só os campos que preciso": `PerigoDaZona` lê a tabela de
 ## `wild_pokemon` pra calcular o perigo, e uma cópia parcial mentiria pra ele.
@@ -62,8 +66,10 @@ func _sorteio_padrao() -> float:
 ## então nada a fazer; quando houver vários, quem os cria passa uma lista só —
 ## senão cada zona contaria a sua e o bônus sairia menor que o especificado.
 ##
-## 🔵 Pendente declarado: isto ainda **não sobrevive a salvar e carregar** —
-## a V3 não tem save. Ver `docs/QUADRO.md`.
+## ✅ 19/09: isto **sobrevive a salvar e carregar** — `para_o_save()` /
+## `do_save()` mais abaixo, guardado em `world.elites_derrotados`. O comentário
+## anterior dizia que a V3 não tinha save; tinha (o `SaveManager` da V2).
+
 ## RFC-008: por que a última tentativa de nascimento foi recusada. Existe porque
 ## "o spawn falhou" sem motivo é a mesma classe de silêncio que este projeto
 ## passou o mês caçando — com isto, medir *onde* o mundo está recusando corpos é
@@ -168,10 +174,36 @@ func tentar_nascer() -> Node3D:
 	var bicho := PokemonInstance3D.nascer(self, id, nivel, ponto, "",
 		RegraDeMovePool.CATEGORIA_PADRAO, alpha)
 	bicho.elite = elite
+	# Fase 21: quem cai deixa corpo. Ligado ao SINAL, e não à varredura de
+	# `_limpar_mortos`, de propósito — a varredura roda depois, e até lá o nó já
+	# pode ter sido liberado. O corpo tem de nascer onde ele caiu, no instante
+	# em que caiu.
+	bicho.derrotado.connect(_ao_cair)
 	bicho.virar_selvagem(jogador)
 	_vivos.append(bicho)
 	nasceu.emit(bicho, entrada, elite)
 	return bicho
+
+## Fase 21: um selvagem caiu. Nasce o corpo, e o elite entra na janela do Alpha
+## **aqui**, não na varredura.
+##
+## ⚠️ A contagem de elite saiu do `_limpar_mortos` pra cá porque lá ela dependia
+## de o nó ainda ser válido quando a varredura passasse: um elite liberado antes
+## disso simplesmente não contava, e o bônus que o jogador ganhou sumia sem que
+## nada acusasse. Aqui o sinal chega no quadro da queda.
+func _ao_cair(quem: Node) -> void:
+	if not (quem is PokemonInstance3D):
+		return
+	var caido : PokemonInstance3D = quem
+	if caido.elite:
+		registrar_elite_derrotado()
+	corpo_deixado.emit(Corpo3D.nascer(get_parent_ou_eu(), caido, sortear.call()))
+
+## O corpo nasce como irmão do spawner, não filho: o spawner despeja quem está
+## longe, e um corpo filho iria junto quando isso acontecesse.
+func get_parent_ou_eu() -> Node:
+	var p := get_parent()
+	return p if p != null else self
 
 ## Tira da conta quem morreu ou foi liberado. Sem isto a população só cresce no
 ## contador e a zona para de gerar encontro — um bug que só aparece depois de
@@ -182,11 +214,9 @@ func _limpar_mortos() -> void:
 		if is_instance_valid(b) and not b.esta_derrotado():
 			sobrando.append(b)
 			continue
-		# Elite que CAIU alimenta a chance de Alpha. Só aqui — quem some por
-		# distância (`_despejar_distantes`) sai da lista sem passar por este
-		# ramo, e tem de ser assim: andar pra longe de um elite não é derrotá-lo.
-		if is_instance_valid(b) and b.elite:
-			registrar_elite_derrotado()
+		# ⚠️ A contagem de elite NÃO mora mais aqui — mudou pra `_ao_cair`, que
+		# é o sinal da queda. Andar pra longe de um elite continua não sendo
+		# derrotá-lo: `_despejar_distantes` nunca emite `derrotado`.
 	_vivos = sobrando
 
 ## Um elite caiu. Público porque o combate (Fase 12) também pode saber disso

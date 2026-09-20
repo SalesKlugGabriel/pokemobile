@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **133 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **134 arquivos, 0 com falha**
 
 ---
 
@@ -27,7 +27,7 @@ verdade.
 
 ---
 
-## As 20 fases
+## As fases da V3
 
 | # | Fase | Estado |
 |---|---|---|
@@ -42,9 +42,10 @@ verdade.
 | 17 | **Move Pool** | ✅ 18/09 · `RegraDeMovePool` · **conhecidos / equipados / ativos** · 59 conferências · 🔴 achou o kit vazio |
 | 18 | **Alpha** | ✅ 18/09 · `RegraDeAlpha` · 58 conferências · 🔴 **nunca tinha nascido um** · raridade fixada pelo Gabriel |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** · acionado em 19/09 |
+| 21 | **Captura em 3D** | ✅ 20/09 · `RegraDeArremesso` + `Corpo3D` + `PokebolaLancada3D` · 47 conferências · **a regra da V2 não mudou uma linha** · 🔴 o arco fixo passava 2,49 m ACIMA de um corpo a 6 m |
 | 20 | **Performance** | 🟡 18/09 · `RegraDeRitmo` · **LOD de lógica**, 62,5% menos IA · 33 conferências · **falta medir FPS em navegador — é do Gabriel** |
 
-**As 18 primeiras fases estão fechadas** — a migração de regras acabou. A 20 tem
+**As 18 primeiras fases estão fechadas**, mais a 21 — a migração de regras acabou. A 20 tem
 a metade que é minha feita (custo de lógica); a outra metade é desenho, e depende
 da 19 (Codex) existir pra ter o que medir.
 
@@ -86,7 +87,9 @@ posicionar é o caminho que catapulta o jogador.
 |---|---|---|
 | 1 | Fase 20 — a metade de DESENHO (vegetação, modelos, sombra) | **sim** — depende da Fase 19 do Codex existir pra ter o que medir |
 | 1b | ✅ **FEITO (19/09).** `permissoes_do_jogador()` lê `SaveManager.save_data["inventory"]`. 🔴 O comentário apontava a chave **errada** (`"items"`) — ligar por ele leria `{}` e o jogador perderia Surf e Voar **sem erro nenhum** | — |
-| 1c | Ligar `capturavel` na pokébola da V3 | **sim, e de verdade** — a captura em 3D não existe como mecânica; é fase nova, não fiação. ⚠️ Era o único dos três que realmente dependia de algo que falta |
+| 1c | ✅ **FEITO (20/09) — virou a Fase 21.** `capturavel` é lido de quem caiu, e nem a Master Ball pega um Alpha. A captura deixou de ser um clique num cadáver e passou a ser **uma bola atravessando o espaço** | — |
+| 1g | Guardar no save quem foi capturado (hoje `tentar_capturar` devolve espécie/nível e ninguém escuta) | não — é fiação, e o `SaveManager` já tem `team`/`pc`/`pokedex` |
+| 1h | Loot: a §35 diz que cada item é arrastado pra Bag, um a um. `Corpo3D.pegar()` existe; **a tela é do Codex** | depende da HUD de corpo |
 | 1d | ✅ **FEITO (19/09).** `world.elites_derrotados` no save + migração pra save antigo (`load_game` substitui o dicionário cru). Carimbo **Unix**, então "3 horas" continua sendo 3 h de relógio com o jogo fechado | — |
 | 1e | ✅ **RFC-008 — máscara de spawn. FEITA (19/09).** `RegraDeHabitabilidade` + laço de tentativas no spawner · 29 conferências. 🔴 A medição corrigiu meu número: eu previ 3,25% de recusa (falésia) e o real é **38,7%**, porque quem domina é a **água** — `TENTATIVAS` 6 → **10** | — |
 | 1f | **`altura_em` deixa de ser `static`** quando o 1º chunk semeado nascer. `static` é o que transforma o seed em estado global; vira serviço instanciado e `SpawnerSelvagem3D`/`PokemonInstance3D`/`RegraDeAcompanhar` passam a receber a referência | sim — não existe chunk no runtime ainda |
@@ -295,10 +298,10 @@ duas do tipo que quebra em silêncio:
 - O Dockerfile copia de `docs/painel/`, **não** de `builds/web/`: esta última é
   saída de build e some a cada `exportar_web.sh`.
 
-⏳ **`pokemobile.workprog.pro` ainda não existe no DNS.** A regra do Traefik
-está escrita e **comentada** em `/root/pokemobile.yaml` — ligada com o domínio
-sem resolver, o Let's Encrypt falharia em laço e a cota de emissão desta VPS
-(8 subdomínios) entraria em risco. Basta o Gabriel criar o registro A.
+✅ **Decidido (19/09): fica neste endereço, sem DNS novo.** O Gabriel foi
+direto — *"vamos manter no link atual, sem novo dns"*. O subdomínio
+`pokemobile.workprog.pro` foi **descartado**, e a regra do Traefik saiu do
+`/root/pokemobile.yaml`. Não reabrir sem ele pedir.
 
 ---
 
@@ -385,6 +388,16 @@ implementada — tudo avisa, nunca cai num default calado.
   algo do jogo usa `_initialize`**; `_init` só serve pra teste de classe pura.
 - **`_ready` de um nó só dispara no quadro SEGUINTE ao `add_child`.** Conferir
   filhos logo depois encontra zero e reprova código correto.
+- **🔴 E um nó adicionado dentro de `_initialize` NÃO está na árvore.**
+  `global_position` devolve `(0,0,0)` — com erro no console que se perde, e sem
+  exceção. Custou meia fase em 20/09, **com a linha logo acima já escrita aqui**:
+  ler a disciplina não substitui segui-la. O molde que funciona é **três
+  quadros**: `_initialize` só para classe pura, quadro 1 monta a cena, quadro 2
+  confere.
+- **Instanciar entidade pelo `class_name` trava um teste `--script`.**
+  `PokemonInstance3D.new()` pendura o Godot; `load()` do arquivo funciona.
+  Conferido com `git stash` que isso é anterior à Fase 21 — é por isso que todo
+  teste do projeto usa `load()`.
 - **Cuidado com o comentário que aponta uma chave.** Um comentário do
   `Laboratorio3D` mandava ler `save_data["items"]`; a chave real é
   `"inventory"`. Confiar nele teria apagado Surf e Voar **sem erro nenhum**.

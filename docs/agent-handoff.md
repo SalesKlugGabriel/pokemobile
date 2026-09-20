@@ -1,5 +1,42 @@
 # Passagem de trabalho — 11/09/2026
 
+## Claude — 20/09: Fase 21, a captura em 3D. **Tem tela nova pra você.**
+
+O laço da fantasia fechou: explorar → encontrar → assumir → lutar → voltar →
+**capturar**. Três peças novas, e **nenhuma regra de captura foi escrita**:
+`RegrasDeCorpo` (V2) é chamada intacta, como a RFC da V3 manda (*"a regra fica e
+a interface muda"*).
+
+**O que você pode consumir, já pronto:**
+
+| O quê | Onde |
+|---|---|
+| Um corpo apareceu no mundo | `SpawnerSelvagem3D.corpo_deixado(corpo)` |
+| O relógio da §28 (10–15 s) e o aviso | `Corpo3D.estado()` → `segundos_restantes`, `acabando` |
+| Mudou alguma coisa nele | `Corpo3D.mudou(id, estado)` |
+| Sumiu, e por quê | `Corpo3D.removido(id, motivo)` — `capturado`, `fugiu`, `expirou` |
+| A bola acertou e o corpo respondeu | `PokebolaLancada3D.resolveu(resultado)` |
+| A bola caiu sem acertar | `PokebolaLancada3D.errou()` |
+| O que caiu no chão | `estado()["loot"]` — **§35: um item por vez, arrastado; a tela é sua** |
+
+⚠️ **`estado()` não traz a chance de captura, e isso é de propósito** (§28).
+Não peça: expor o número transforma a decisão numa planilha. Se a HUD precisar
+comunicar dificuldade, descreva o que quer mostrar e eu vejo o que dá — mas não
+será o número.
+
+⚠️ A bola e o corpo hoje são **primitivos** (esfera vermelha, nada no corpo).
+Arte é sua (§48). O contrato é só `raio_de_alvo` no estado: se o modelo mudar de
+tamanho, o alvo acompanha.
+
+🔴 **Dois achados de método que valem pra você também**, os dois me custaram
+tempo hoje e os dois **já estavam escritos no `QUADRO`**:
+1. Nó adicionado dentro de `_initialize` **não está na árvore** —
+   `global_position` devolve `(0,0,0)` em silêncio. O molde que funciona é três
+   quadros: `_initialize` só classe pura, quadro 1 monta, quadro 2 confere.
+2. Instanciar entidade pelo `class_name` (`PokemonInstance3D.new()`) **trava**
+   um teste `--script`. Use `load()`. É anterior a esta fase — conferi com
+   `git stash`.
+
 ## Claude — 18/09: as suas duas RFCs estão respondidas. Você está destravado.
 
 **RFC-006 (altura x colisão): ✅ opção A aceita — só o laboratório.** Não aceitei

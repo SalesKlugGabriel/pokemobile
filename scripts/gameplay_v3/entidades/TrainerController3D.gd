@@ -44,6 +44,14 @@ signal stamina_mudou(atual: float, maximo: float, estado: String)
 signal comecou_a_andar()
 signal parou()
 
+## Fase 21: o atributo Luck do treinador, que a chance de captura consulta.
+##
+## ⚠️ Vive aqui e não é recalculado: o `Corpo3D` procura por
+## `treinador_v3`/`treinador_v2` no grupo e lê este campo, exatamente como o
+## `Corpo` da V2 fazia. Quando a árvore de talentos da V3 existir, ela escreve
+## aqui — e nada mais precisa mudar.
+var sorte : int = 0
+
 var stamina : Stamina = Stamina.new()
 var camera : CameraTerceiraPessoa = null
 var visual_do_jogador : Node = null
@@ -104,6 +112,65 @@ func _montar_corpo() -> void:
 func _unhandled_input(evento: InputEvent) -> void:
 	if evento is InputEventMouseMotion and camera != null:
 		camera.girar((evento as InputEventMouseMotion).relative)
+	# Fase 21. A ação `pokeball` **já existia** no InputMap (Espaço) e nada a
+	# lia — o mesmo padrão do kit vazio da Fase 17 e do Alpha que nunca nascia
+	# da Fase 18: a tecla existia, apertar não fazia nada, e não dava erro.
+	elif evento.is_action_pressed("pokeball"):
+		arremessar_pokebola()
+
+## Arremessa uma pokébola no corpo mais próximo dentro do alcance.
+##
+## ── Por que a mira é do mouse, e por que isto estava previsto ───────────────
+##
+## É a decisão do Gabriel de 18/09: *"o mouse precisa ser a mira para todas as
+## ações, inclusive em combate, para arremessar pokébolas"*. O `origem_da_mira()`
+## foi escrito naquele dia **com esta bola em mente** — o comentário dele diz,
+## com todas as letras, que uma pokébola nascendo no chão atravessaria o próprio
+## corpo no primeiro passo.
+##
+## ── Por que existe alvo, se a mira é livre ──────────────────────────────────
+##
+## Porque a §28 diz que a tensão está na **escolha**, não na pontaria. Exigir
+## acerto milimétrico num corpo pequeno, com o Alpha vindo por cima, tornaria a
+## captura um teste de mira — e a decisão de arriscar deixaria de ser a parte
+## difícil. Então a mira escolhe o alvo, e a bola vai atrás dele.
+func arremessar_pokebola(qual_ball: String = "pokeball") -> Dictionary:
+	var corpo := corpo_mirado()
+	if corpo == null:
+		return {"lancou": false,
+			"motivo": "Nenhum corpo por perto pra tentar capturar."}
+
+	var alcance : Dictionary = RegraDeArremesso.no_alcance(
+		global_position, corpo.global_position)
+	if not bool(alcance["pode"]):
+		return {"lancou": false, "motivo": str(alcance["motivo"])}
+
+	PokebolaLancada3D.lancar(get_parent(), origem_da_mira(),
+		direcao_de_mira(), corpo, qual_ball, sorte)
+	return {"lancou": true, "motivo": "", "alvo": corpo}
+
+## O corpo que a mira escolhe: o mais próximo dentro do alcance, entre os que
+## ainda aceitam tentativa.
+##
+## ⚠️ Filtra por `pode_tentar` ANTES de escolher, não depois. Escolher o mais
+## próximo e só então descobrir que ele é um Alpha faria a bola ser desperdiçada
+## num alvo impossível enquanto um capturável estava logo atrás.
+func corpo_mirado() -> Node3D:
+	if not is_inside_tree():
+		return null
+	var melhor : Node3D = null
+	var menor : float = INF
+	for c in get_tree().get_nodes_in_group("corpo_v3"):
+		if not is_instance_valid(c) or not (c is Node3D):
+			continue
+		if c.get("dados") != null \
+				and not bool(RegrasDeCorpo.pode_tentar(c.dados)["pode"]):
+			continue
+		var d : float = global_position.distance_to((c as Node3D).global_position)
+		if d < menor and d <= RegraDeArremesso.alcance_maximo():
+			menor = d
+			melhor = c
+	return melhor
 
 func _ler_teclado() -> void:
 	if not le_teclado:
