@@ -28,7 +28,7 @@ static func validar(spec: Dictionary) -> PackedStringArray:
 	for chave in ["min_x", "min_z", "width", "depth"]:
 		if not bounds.has(chave):
 			erros.append("bounds_m.%s ausente" % chave)
-	for chave in ["sample_step_m", "chunk_size_m", "sea_level_m"]:
+	for chave in ["sample_step_m", "chunk_size_m", "sea_level_m", "beach_width_m", "shoreline_width_m", "shallow_depth_m"]:
 		if not terrain.has(chave):
 			erros.append("terrain.%s ausente" % chave)
 	if not erros.is_empty():
@@ -39,4 +39,7 @@ static func validar(spec: Dictionary) -> PackedStringArray:
 		erros.append("chunk_size_m precisa ser múltiplo positivo de sample_step_m")
 	if float(bounds["width"]) <= 0.0 or float(bounds["depth"]) <= 0.0:
 		erros.append("bounds_m precisa ter dimensões positivas")
+	for chave in ["beach_width_m", "shoreline_width_m", "shallow_depth_m"]:
+		if float(terrain[chave]) <= 0.0:
+			erros.append("terrain.%s precisa ser positivo" % chave)
 	return erros

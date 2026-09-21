@@ -1,5 +1,28 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: World Factory V1, fundação terrain / beach / water
+
+- Evoluí a **mesma** `WorldTerrainFactory` e a cena isolada
+  `world_factory_terrain_lab.tscn`; não criei Factory V2, não toquei em
+  `Terreno3D`, spawn, `SpawnerSelvagem3D` ou no Laboratório oficial.
+- `world_lab_v1.json` agora expõe largura de praia/shoreline, profundidade rasa,
+  limiares de rocha e cinco formações declarativas que instanciam GLBs existentes
+  da biblioteca. A mesma seed continua reproduzindo relevo e superfícies.
+- O relevo usa camadas macro/média/fina interpoladas em coordenadas globais;
+  `altura_em` ainda descreve exatamente a triangulação física. A factory também
+  classifica leito profundo/raso, shoreline, areia, grama e rocha para o material.
+- O laboratório usa os shaders V3 já existentes para terreno e água, luz/fog de
+  teste e água subdividida; as cinco rochas assentam na altura física. Player V1
+  permanece régua de escala de 1,60 m, sem mudar seu controlador ou animações.
+- Validado em série: `validate_world_factory.gd` **16 ok, 0 falhas** e
+  `teste_world_factory_terrain_lab.gd` **11 ok, 0 falhas**. Export Web temporário
+  carrega em WebGL e foi capturado localmente; nenhuma publicação foi feita.
+  Baseline de 64 m: geração 151,517 ms e trimesh 34,624 ms (mediana, VPS).
+- Não feito de propósito: vegetação/scatter, árvores, grama, cavernas jogáveis,
+  água física/Surf, streaming, LOD visual definitivo e integração ao LAB oficial.
+  Próximo passo visual é vegetação com instancing/visibility range, não aumentar
+  área do mundo.
+
 ## Claude — 20/09: Fase 21, a captura em 3D. **Tem tela nova pra você.**
 
 O laço da fantasia fechou: explorar → encontrar → assumir → lutar → voltar →

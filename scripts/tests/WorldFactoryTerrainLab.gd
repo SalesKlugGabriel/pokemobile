@@ -4,6 +4,15 @@ extends Node3D
 const WorldSpec := preload("res://scripts/world_factory/WorldSpec.gd")
 const TerrainFactory := preload("res://scripts/world_factory/WorldTerrainFactory.gd")
 const PLAYER_V1 := preload("res://assets/characters/player_v1/player_v1.glb")
+const TERRAIN_SHADER := preload("res://assets/shaders/v3/terrain.gdshader")
+const WATER_SHADER := preload("res://assets/shaders/v3/water.gdshader")
+const ROCK_VARIANTS := {
+	"small": preload("res://assets/models/environment/rocks/rock_small.glb"),
+	"round": preload("res://assets/models/environment/rocks/rock_round.glb"),
+	"angular": preload("res://assets/models/environment/rocks/rock_angular.glb"),
+	"large": preload("res://assets/models/environment/rocks/rock_large.glb"),
+	"flat": preload("res://assets/models/environment/rocks/rock_flat.glb")
+}
 
 var factory: WorldTerrainFactory
 var chunk_count := 0
@@ -18,7 +27,9 @@ func _ready() -> void:
 	factory = TerrainFactory.new(spec)
 	_build_chunks(spec)
 	_build_water(spec)
+	_build_rock_formations(spec)
 	_place_scale_reference(spec)
+	_configure_camera()
 
 
 func _build_chunks(spec: Dictionary) -> void:
@@ -26,9 +37,13 @@ func _build_chunks(spec: Dictionary) -> void:
 	var terrain: Dictionary = spec["terrain"]
 	var count_x := int(float(bounds["width"]) / float(terrain["chunk_size_m"]))
 	var count_z := int(float(bounds["depth"]) / float(terrain["chunk_size_m"]))
-	var material := StandardMaterial3D.new()
-	material.vertex_color_use_as_albedo = true
-	material.roughness = 0.92
+	var material := ShaderMaterial.new()
+	material.shader = TERRAIN_SHADER
+	material.set_shader_parameter("sea_level", factory.nivel_do_mar())
+	material.set_shader_parameter("shoreline_height", factory.largura_linha_dagua_m() * 0.18)
+	material.set_shader_parameter("beach_height", factory.largura_praia_m() * 0.26)
+	material.set_shader_parameter("rock_height", float(terrain.get("rock_height_start_m", 10.0)))
+	material.set_shader_parameter("rock_slope", float(terrain.get("rock_slope_start", 0.42)))
 	for cx in count_x:
 		for cz in count_z:
 			var root := Node3D.new()
@@ -56,17 +71,47 @@ func _build_water(spec: Dictionary) -> void:
 	water.name = "WaterVisualOnly"
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(float(bounds["width"]), float(bounds["depth"]))
+	plane.subdivide_width = 64
+	plane.subdivide_depth = 64
 	water.mesh = plane
 	water.position = Vector3(
 		float(bounds["min_x"]) + float(bounds["width"]) * .5,
 		float(terrain["sea_level_m"]),
 		float(bounds["min_z"]) + float(bounds["depth"]) * .5)
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.08, 0.36, 0.57, .58)
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.roughness = .22
+	var material := ShaderMaterial.new()
+	material.shader = WATER_SHADER
 	water.material_override = material
 	add_child(water)
+
+
+func _build_rock_formations(spec: Dictionary) -> void:
+	var visual: Dictionary = spec.get("visual", {})
+	var formations: Array = visual.get("rock_formations", [])
+	var root := Node3D.new()
+	root.name = "RockFormations"
+	add_child(root)
+	for formation_value in formations:
+		if not formation_value is Dictionary:
+			push_warning("WORLD_LAB ignorou formação rochosa inválida")
+			continue
+		var formation: Dictionary = formation_value
+		var variant := str(formation.get("variant", ""))
+		var packed := ROCK_VARIANTS.get(variant) as PackedScene
+		if packed == null:
+			push_warning("WORLD_LAB não encontrou variante de rocha: %s" % variant)
+			continue
+		var position_m: Array = formation.get("position_m", [])
+		if position_m.size() != 2:
+			push_warning("WORLD_LAB ignorou rocha sem position_m: %s" % formation.get("id", "?"))
+			continue
+		var x := float(position_m[0])
+		var z := float(position_m[1])
+		var rock := packed.instantiate() as Node3D
+		rock.name = "Rock_%s" % str(formation.get("id", variant))
+		rock.position = Vector3(x, factory.altura_em(x, z) - 0.03, z)
+		rock.rotation_degrees.y = float(formation.get("yaw_deg", 0.0))
+		rock.scale = Vector3.ONE * float(formation.get("scale", 1.0))
+		root.add_child(rock)
 
 
 func _place_scale_reference(spec: Dictionary) -> void:
@@ -80,3 +125,12 @@ func _place_scale_reference(spec: Dictionary) -> void:
 	var animation := player.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	if animation and animation.has_animation("PLAYER_V1_IDLE"):
 		animation.play("PLAYER_V1_IDLE")
+
+
+func _configure_camera() -> void:
+	var camera := get_node_or_null("Camera3D") as Camera3D
+	if camera == null:
+		return
+	camera.position = Vector3(13.0, 13.0, 58.0)
+	camera.fov = 60.0
+	camera.look_at(Vector3(-2.0, 1.5, 7.0), Vector3.UP)

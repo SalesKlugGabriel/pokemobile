@@ -4,11 +4,17 @@
 
 [sub_resource type="Environment" id="Environment_lab"]
 background_mode = 1
-background_color = Color(0.26, 0.48, 0.72, 1)
+background_color = Color(0.25, 0.44, 0.66, 1)
 ambient_light_source = 3
-ambient_light_color = Color(0.7, 0.82, 1, 1)
-ambient_light_energy = 0.7
+ambient_light_color = Color(0.52, 0.64, 0.78, 1)
+ambient_light_energy = 0.42
 tonemap_mode = 2
+tonemap_exposure = 0.82
+fog_enabled = true
+fog_light_color = Color(0.55, 0.69, 0.79, 1)
+fog_light_energy = 0.36
+fog_density = 0.0015
+fog_sky_affect = 0.55
 
 [node name="WorldFactoryTerrainLab" type="Node3D"]
 script = ExtResource("1_lab")
@@ -18,8 +24,10 @@ environment = SubResource("Environment_lab")
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
 rotation_degrees = Vector3(-48, -32, 0)
-light_energy = 1.1
+light_color = Color(1, 0.92, 0.78, 1)
+light_energy = 0.82
 shadow_enabled = true
+directional_shadow_max_distance = 120.0
 
 [node name="Camera3D" type="Camera3D" parent="."]
 position = Vector3(12, 11, 18)

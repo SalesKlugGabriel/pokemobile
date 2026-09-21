@@ -7,7 +7,21 @@
     "sample_step_m": 2,
     "chunk_size_m": 64,
     "sea_level_m": 0.0,
-    "max_walk_slope_deg": 46.0
+    "max_walk_slope_deg": 46.0,
+    "beach_width_m": 8.0,
+    "shoreline_width_m": 2.0,
+    "shallow_depth_m": 2.4,
+    "rock_slope_start": 0.42,
+    "rock_height_start_m": 10.0
+  },
+  "visual": {
+    "rock_formations": [
+      { "id": "coastal_flat", "variant": "flat", "position_m": [-67, 12], "scale": 1.25, "yaw_deg": 18 },
+      { "id": "coastal_round", "variant": "round", "position_m": [-48, 3], "scale": 0.85, "yaw_deg": -34 },
+      { "id": "hillside_angular", "variant": "angular", "position_m": [-43, 49], "scale": 1.1, "yaw_deg": 72 },
+      { "id": "cave_large", "variant": "large", "position_m": [62, -42], "scale": 1.45, "yaw_deg": -22 },
+      { "id": "cave_small", "variant": "small", "position_m": [53, -58], "scale": 0.75, "yaw_deg": 126 }
+    ]
   },
   "manual_reservations": [
     {

@@ -35,6 +35,22 @@ func _run() -> void:
 	_check(visual_chunks == 16, "cada chunk possui malha visual")
 	_check(collision_chunks == 16, "cada chunk possui colisão triangulada")
 	_check(lab.get_node_or_null("WaterVisualOnly") is MeshInstance3D, "água visual existe sem corpo físico")
+	var water := lab.get_node_or_null("WaterVisualOnly") as MeshInstance3D
+	_check(water != null and water.material_override is ShaderMaterial,
+		"água usa material shader extensível")
+	if water and water.mesh is PlaneMesh:
+		var plane := water.mesh as PlaneMesh
+		_check(plane.subdivide_width == 64 and plane.subdivide_depth == 64,
+			"água possui malha subdividida para ondas suaves")
+	var rock_root := lab.get_node_or_null("RockFormations") as Node3D
+	_check(rock_root != null and rock_root.get_child_count() == 5,
+		"laboratório instancia cinco formações rochosas da biblioteca")
+	if rock_root and lab.factory:
+		var all_grounded := true
+		for rock in rock_root.get_children():
+			var node := rock as Node3D
+			all_grounded = all_grounded and node != null and absf(node.position.y - lab.factory.altura_em(node.position.x, node.position.z) + .03) < .001
+		_check(all_grounded, "rochas assentam na superfície da factory")
 	var player := lab.get_node_or_null("PlayerV1ScaleReference") as Node3D
 	_check(player != null, "Player V1 está na cena como régua")
 	if player and lab.factory:

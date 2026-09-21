@@ -37,6 +37,10 @@ func _initialize() -> void:
 	_conf(maior_delta < 0.000001, "mesma seed reproduz altura", "delta %.8f" % maior_delta)
 	_conf(absf(a.altura_em(31.4, -21.7) - c.altura_em(31.4, -21.7)) > 0.0001,
 		"seed distinta altera o terreno")
+	_conf(a.largura_praia_m() == float(spec["terrain"]["beach_width_m"])
+		and a.largura_linha_dagua_m() == float(spec["terrain"]["shoreline_width_m"])
+		and a.profundidade_rasa_m() == float(spec["terrain"]["shallow_depth_m"]),
+		"parâmetros de costa vêm explicitamente da spec")
 
 	var delta_borda := 0.0
 	for i in 33:
@@ -48,6 +52,20 @@ func _initialize() -> void:
 	var malha := a.gerar_malha_chunk(0, 0)
 	_conf(malha != null and malha.get_surface_count() == 1, "chunk gera uma malha")
 	_conf(malha.create_trimesh_shape() != null, "chunk gera colisão triangulada")
+
+	var classes := {}
+	var classes_reproduzidas := true
+	for ix in 128:
+		for iz in 128:
+			var x := float(spec["bounds_m"]["min_x"]) + ix * 2.0 + 0.31
+			var z := float(spec["bounds_m"]["min_z"]) + iz * 2.0 + 0.67
+			var classe := a.tipo_de_superficie_em(x, z)
+			classes[classe] = int(classes.get(classe, 0)) + 1
+			classes_reproduzidas = classes_reproduzidas and classe == b.tipo_de_superficie_em(x, z)
+	for classe_esperada in ["deep_waterbed", "shallow_waterbed", "shoreline", "sand", "grass", "rock"]:
+		_conf(int(classes.get(classe_esperada, 0)) > 0,
+			"WORLD_LAB contém faixa %s" % classe_esperada, str(classes))
+	_conf(classes_reproduzidas, "classificação de superfície é determinística")
 	_finalizar()
 
 func _finalizar() -> void:
