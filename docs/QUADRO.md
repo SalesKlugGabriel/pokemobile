@@ -346,6 +346,33 @@ envelhecer sozinho. **Se o painel mentir, a fonte é que está errada.**
 **Rode o gerador ao fechar qualquer sprint**, junto com a atualização deste
 arquivo. Vale para os dois agentes.
 
+### 🎯 Um lugar só (21/09)
+
+Pedido do Gabriel: *"quero unificar todas as tarefas em 1 lugar só para ter
+visibilidade em vez de ficar enviando prompt para você e codex
+individualmente"*.
+
+O painel ganhou, logo abaixo de "Precisa de você":
+
+- **Próximos passos** — as filas do Claude, do Codex e do Gabriel **numa lista
+  só**, na ordem de ataque, cada linha dizendo de quem é. O que está **travado**
+  vai pro fim e diz por quê. **Item concluído não aparece** — ele vive no
+  histórico deste arquivo.
+- **Mandar tarefa** — escreve, escolhe Claude / Codex / os dois, e ela entra na
+  fila. Os agentes leem no começo da sessão; o Gabriel não precisa abrir dois
+  chats.
+
+🔴 **Dois defeitos achados ao construir:**
+
+1. A lista mostrava **24 itens e 8 eram documentação** ("Onde", "1,75 m") — a
+   extração pegava **todas** as tabelas da seção, inclusive as de subseções
+   `###`. Corrigido: só a primeira tabela conta. Uma lista de tarefas com lixo
+   dentro ensina a ignorar a lista.
+2. A fila estava **no fim da página e cheia de ✅** — era por isso que o Gabriel
+   não achava o que falta.
+
+`python3 tools/conferir_painel.py` trava os dois (10 conferências).
+
 ### ✅ Decidir pelo painel (21/09)
 
 Toda RFC que espera decisão ganha, **no fim do texto**, um bloco
@@ -360,6 +387,13 @@ assim que as duas passam a discordar.
 **Onde a decisão fica:** no armazenamento do artifact (`decisoes/<arquivo>`),
 que o Claude lê com `read_db` e **transcreve na própria RFC** — a RFC continua
 sendo a fonte de verdade, o painel é a porta.
+
+⚠️ **São duas cópias, e agora ela diz isso.** O Gabriel abriu
+`poke.workprog.pro/painel` e não conseguiu aprovar — estava certo. A cópia do
+nginx agora nasce com um **aviso de espelho** no topo e os botões desligados
+com o motivo; o JavaScript esconde o aviso onde o runtime existe. Nascer
+avisando e esconder depois (e não o contrário) é o que impede a cópia sem
+runtime de mostrar botão morto até o script rodar.
 
 ⚠️ Os botões só funcionam na versão publicada como **Artifact** (é lá que existe
 `claude.use("db")`). No espelho do nginx eles aparecem **desligados com o motivo
