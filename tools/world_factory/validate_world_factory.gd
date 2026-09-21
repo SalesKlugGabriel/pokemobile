@@ -108,7 +108,41 @@ func _initialize() -> void:
 		corals_valid = corals_valid and a.tipo_de_superficie_em(position.x, position.z) == "shallow_waterbed"
 		corals_valid = corals_valid and position.y < a.nivel_do_mar()
 	_conf(corals_valid, "corais ficam somente sob água rasa")
+	var settings_by_group := {
+		"trees": vegetation_config["trees"],
+		"grass_short": grass_config["short"],
+		"grass_mid": grass_config["mid"],
+		"grass_tall": grass_config["tall"],
+		"corals": vegetation_config["corals"]
+	}
+	var composition_valid := true
+	var zones_used := {}
+	for group_name in settings_by_group:
+		var settings: Dictionary = settings_by_group[group_name]
+		for item_value in vegetation_a[group_name]:
+			var item: Dictionary = item_value
+			var position: Vector3 = item["position"]
+			var zone_id := str(item.get("zone_id", ""))
+			composition_valid = composition_valid and _position_is_in_declared_zone(position, zone_id, settings["zones"])
+			if not zones_used.has(group_name):
+				zones_used[group_name] = {}
+			zones_used[group_name][zone_id] = true
+	_conf(composition_valid, "todo prop pertence à zona declarada de composição")
+	_conf((zones_used["trees"] as Dictionary).size() >= 2
+		and (zones_used["grass_tall"] as Dictionary).size() >= 2
+		and (zones_used["corals"] as Dictionary).size() >= 2,
+		"bosques, grama alta e recifes usam mais de uma composição")
 	_finalizar()
+
+
+func _position_is_in_declared_zone(position: Vector3, zone_id: String, zones: Array) -> bool:
+	for zone_value in zones:
+		var zone: Dictionary = zone_value
+		if str(zone["id"]) != zone_id:
+			continue
+		var center: Array = zone["center_m"]
+		return Vector2(position.x - float(center[0]), position.z - float(center[1])).length() <= float(zone["radius_m"]) + 0.001
+	return false
 
 func _finalizar() -> void:
 	print("=== Resultado: %d ok, %d falha(s) ===" % [ok, fail])

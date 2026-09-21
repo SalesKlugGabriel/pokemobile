@@ -31,19 +31,46 @@
         "max_scale": 1.18,
         "lod0_end_m": 46.0,
         "lod_overlap_m": 8.0,
-        "variants": ["a", "b", "c", "d", "e"]
+        "variants": ["a", "b", "c", "d", "e"],
+        "zones": [
+          { "id": "clearing_rim", "center_m": [-28, 12], "radius_m": 48.0, "weight": 0.46 },
+          { "id": "north_wood", "center_m": [34, 72], "radius_m": 50.0, "weight": 0.34 },
+          { "id": "east_grove", "center_m": [70, 34], "radius_m": 34.0, "weight": 0.20 }
+        ]
       },
       "grass": {
-        "short": { "count": 110, "min_spacing_m": 1.25, "min_scale": 0.82, "max_scale": 1.20 },
-        "mid": { "count": 76, "min_spacing_m": 1.65, "min_scale": 0.84, "max_scale": 1.15 },
-        "tall": { "count": 42, "min_spacing_m": 2.40, "min_scale": 0.80, "max_scale": 1.10 }
+        "short": {
+          "count": 110, "min_spacing_m": 1.25, "min_scale": 0.82, "max_scale": 1.20,
+          "zones": [
+            { "id": "clearing_meadow", "center_m": [-4, 37], "radius_m": 70.0, "weight": 0.58 },
+            { "id": "north_meadow", "center_m": [38, 72], "radius_m": 54.0, "weight": 0.42 }
+          ]
+        },
+        "mid": {
+          "count": 76, "min_spacing_m": 1.65, "min_scale": 0.84, "max_scale": 1.15,
+          "zones": [
+            { "id": "western_meadow", "center_m": [-54, 42], "radius_m": 46.0, "weight": 0.55 },
+            { "id": "northern_edge", "center_m": [32, 66], "radius_m": 42.0, "weight": 0.45 }
+          ]
+        },
+        "tall": {
+          "count": 42, "min_spacing_m": 2.40, "min_scale": 0.80, "max_scale": 1.10,
+          "zones": [
+            { "id": "western_tall_grass", "center_m": [-56, 44], "radius_m": 33.0, "weight": 0.60 },
+            { "id": "northern_tall_grass", "center_m": [31, 57], "radius_m": 29.0, "weight": 0.40 }
+          ]
+        }
       },
       "corals": {
         "count": 28,
         "min_spacing_m": 3.50,
         "min_scale": 0.72,
         "max_scale": 1.18,
-        "variants": ["branch", "crown", "fan"]
+        "variants": ["branch", "crown", "fan"],
+        "zones": [
+          { "id": "west_reef", "center_m": [-62, -18], "radius_m": 42.0, "weight": 0.56 },
+          { "id": "east_reef", "center_m": [40, -17], "radius_m": 37.0, "weight": 0.44 }
+        ]
       }
     },
     "rock_formations": [

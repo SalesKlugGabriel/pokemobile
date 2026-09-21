@@ -94,19 +94,49 @@ func _espalhar(settings: Dictionary, salt: int, aceitar: Callable) -> Array[Dict
 	var min_z := float(_bounds.get("min_z", 0.0))
 	var max_x := min_x + float(_bounds.get("width", 0.0))
 	var max_z := min_z + float(_bounds.get("depth", 0.0))
+	var zones: Array = settings.get("zones", [])
 	for _attempt in attempts:
 		if accepted.size() >= count:
 			break
-		var x := rng.randf_range(min_x, max_x)
-		var z := rng.randf_range(min_z, max_z)
+		var candidate := _sortear_posicao(rng, zones, min_x, min_z, max_x, max_z)
+		var x := float(candidate["x"])
+		var z := float(candidate["z"])
 		if not aceitar.call(x, z) or not _respeita_espacamento(x, z, accepted, spacing):
 			continue
 		accepted.append({
 			"position": Vector3(x, _factory.altura_em(x, z) + 0.015, z),
 			"yaw": rng.randf_range(0.0, TAU),
-			"scale": rng.randf_range(float(settings.get("min_scale", 1.0)), float(settings.get("max_scale", 1.0)))
+			"scale": rng.randf_range(float(settings.get("min_scale", 1.0)), float(settings.get("max_scale", 1.0))),
+			"zone_id": str(candidate["zone_id"])
 		})
 	return accepted
+
+
+func _sortear_posicao(rng: RandomNumberGenerator, zones: Array, min_x: float, min_z: float, max_x: float, max_z: float) -> Dictionary:
+	if zones.is_empty():
+		return {"x": rng.randf_range(min_x, max_x), "z": rng.randf_range(min_z, max_z), "zone_id": "world"}
+	var total_weight := 0.0
+	for value in zones:
+		if value is Dictionary:
+			total_weight += float((value as Dictionary).get("weight", 0.0))
+	var roll := rng.randf_range(0.0, total_weight)
+	var selected: Dictionary = zones[0] as Dictionary
+	for value in zones:
+		if not value is Dictionary:
+			continue
+		var zone: Dictionary = value
+		roll -= float(zone["weight"])
+		if roll <= 0.0:
+			selected = zone
+			break
+	var center: Array = selected["center_m"]
+	var angle := rng.randf_range(0.0, TAU)
+	var distance := sqrt(rng.randf()) * float(selected["radius_m"])
+	return {
+		"x": clampf(float(center[0]) + cos(angle) * distance, min_x, max_x),
+		"z": clampf(float(center[1]) + sin(angle) * distance, min_z, max_z),
+		"zone_id": str(selected["id"])
+	}
 
 
 func _respeita_espacamento(x: float, z: float, accepted: Array[Dictionary], spacing: float) -> bool:

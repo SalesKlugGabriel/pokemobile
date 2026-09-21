@@ -69,11 +69,29 @@ static func validar(spec: Dictionary) -> PackedStringArray:
 			erros.append("grupo de vegetação inválido")
 			continue
 		var group: Dictionary = group_value
-		for chave in ["count", "min_spacing_m", "min_scale", "max_scale"]:
+		for chave in ["count", "min_spacing_m", "min_scale", "max_scale", "zones"]:
 			if not group.has(chave):
 				erros.append("grupo de vegetação sem %s" % chave)
 		if group.has("count") and int(group["count"]) < 0:
 			erros.append("contagem de vegetação não pode ser negativa")
 		if group.has("min_spacing_m") and float(group["min_spacing_m"]) <= 0.0:
 			erros.append("espaçamento de vegetação precisa ser positivo")
+		if group.has("zones"):
+			var zones: Array = group["zones"]
+			if zones.is_empty():
+				erros.append("vegetação precisa declarar ao menos uma zona de composição")
+			for zone_value in zones:
+				if not zone_value is Dictionary:
+					erros.append("zona de vegetação inválida")
+					continue
+				var zone: Dictionary = zone_value
+				for chave in ["id", "center_m", "radius_m", "weight"]:
+					if not zone.has(chave):
+						erros.append("zona de vegetação sem %s" % chave)
+				if zone.has("center_m") and (zone["center_m"] as Array).size() != 2:
+					erros.append("center_m de zona precisa ter x/z")
+				if zone.has("radius_m") and float(zone["radius_m"]) <= 0.0:
+					erros.append("raio de zona precisa ser positivo")
+				if zone.has("weight") and float(zone["weight"]) <= 0.0:
+					erros.append("peso de zona precisa ser positivo")
 	return erros

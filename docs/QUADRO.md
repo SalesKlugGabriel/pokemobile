@@ -103,7 +103,7 @@ posicionar é o caminho que catapulta o jogador.
 |---|---|---|
 | 0 | 🔴 **PLAYER 3D V1 — a ponte visual.** O GLB está pronto e validado; **destravado**: a RFC-007 foi aceita e as 3 decisões estão tomadas | **prioridade** · `docs/agent-reviews/claude/2026-09-18-RFC-007-player-v1.md` |
 | 0b | 🔴 **WORLD FACTORY V1** — **contrato de altura aceito** (RFC-006, opção A, medido por mim a 0,000001 m). ⚠️ O aceite é só do laboratório: **borda entre chunks continua sem contrato**, porque chunk ainda não existe pra medir | `docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md` |
-| 1 | **Qualidade gráfica do mundo 3D** — base isolada pronta: terreno, praia, água, rochas, vegetação instanciada e LOD1 de árvores; falta composição e integração | agora, em paralelo |
+| 1 | **Qualidade gráfica do mundo 3D** — base isolada pronta: terreno, praia, água, rochas, vegetação composta/instanciada e LOD1 de árvores; falta medição real e integração | agora, em paralelo |
 | 2 | Modelos de Pokémon em volume | agora · contrato em `POKEMON_MODEL_PIPELINE.md` |
 | 3 | HUD de combate: cooldown do básico e das 4 skills, telegrafe do aviso | quando quiser — a API já entrega tudo (ver abaixo) |
 | 4 | Polimento geral | Fase 19 |

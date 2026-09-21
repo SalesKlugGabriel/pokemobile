@@ -1,5 +1,21 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: World Factory V1, composição ambiental
+
+- A distribuição do WORLD_LAB passou a usar zonas declarativas na mesma spec:
+  borda da clareira, mata norte e bosque leste; prados para grama; duas manchas
+  de grama alta; e dois recifes. Não há coordenadas de composição escondidas no
+  código e não foi criado outro gerador.
+- `WorldVegetationScatter` escolhe uma zona ponderada antes da posição e grava
+  `zone_id` no resultado. Ainda exige a superfície apropriada, inclinação,
+  espaçamento e exclusão de spawn/clareira/caminho/caverna; portanto a melhoria
+  visual não permite árvore na água ou prop ocupando rota.
+- Testado após importação: `validate_world_factory.gd` **22 ok, 0 falhas**,
+  incluindo determinismo, contagem, reservas, superfícies e aderência de cada
+  prop à sua zona; o teste de cena permanece **18 ok, 0 falhas**.
+- Próximo passo: medição de FPS/composição no navegador real e polimento de
+  materiais/transições, sem integrar gameplay ou expandir o mundo.
+
 ## Atualização Codex — 21/09: World Factory V1, LOD1 de árvores
 
 - Criei cinco GLBs LOD1 reutilizáveis com

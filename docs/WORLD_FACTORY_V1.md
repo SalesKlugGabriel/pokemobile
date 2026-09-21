@@ -60,6 +60,21 @@ começa em 38 m (sobreposição/fade de 8 m), segue até 104 m e não projeta so
 Não é um modelo de impostor final, mas é uma troca de malha real, configurada na
 spec e pronta para medição em navegador.
 
+## Fase 6 — composição ambiental declarativa
+
+A vegetação não é mais espalhada de maneira uniforme pelo retângulo do mundo.
+Cada grupo da spec declara zonas circulares com `id`, centro, raio e peso: borda
+da clareira, mata ao norte e bosque a leste para árvores; prados para grama;
+manchas de grama alta; e dois recifes no raso. A World Factory sorteia uma zona
+ponderada antes de escolher uma posição, preservando seed, regras de superfície,
+espaçamento e reservas. `zone_id` acompanha cada transformação para inspeção e
+teste, sem criar um segundo mapa de biomas.
+
+Essa camada define intenção de composição no WORLD_LAB — áreas abertas continuam
+abertas, vegetação densa fica agrupada e os recifes possuem leitura própria — mas
+não declara geografia canônica além do que já existe em `world_lab_v1.json`.
+Rios, cidades, cavernas e biomas finais continuam dados de mundo futuros.
+
 ## Contratos
 
 - `WorldTerrainFactory` recebe a spec no construtor. Não lê `RNGManager`, não
@@ -113,9 +128,10 @@ visuais, 16 colisores, água shader sem física, malha de água subdividida, cin
 rochas assentadas, 16 MultiMeshes de vegetação com visibility range e Player V1
 sobre o terreno. O teste também confirma as cinco variantes LOD1, sua faixa de
 ativação e que seus arquivos são menores que LOD0. O validador de spec/factory
-retorna **20 ok, 0 falhas**, inclusive
+retorna **22 ok, 0 falhas**, inclusive
 contagem declarada, determinismo do scatter, exclusão das reservas, vegetação
-terrestre fora da água e corais somente no raso. O export Web temporário concluiu
+terrestre fora da água, corais somente no raso e todas as instâncias dentro de
+sua zona de composição declarada. O export Web temporário concluiu
 sem erro de script ou shader; o renderer SwiftShader headless da VPS não manteve
 a cena V3 viva depois do carregamento, portanto FPS e avaliação visual final
 seguem para navegador real, sem publicação.
@@ -126,5 +142,5 @@ FPS é uma medição de navegador real e permanece fora deste laboratório.
 
 Isto não é ainda a integração de gameplay: `Terreno3D`, spawn, Surf e a
 superfície física da água continuam fora do escopo. O próximo gate visual é
-composição/variação de vegetação sob medição real; não expandir o mapa antes
-dele.
+medir composição/LOD em navegador real e então polir materiais e transições;
+não expandir o mapa antes dele.
