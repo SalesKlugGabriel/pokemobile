@@ -213,29 +213,11 @@ func _physics_process(delta: float) -> void:
 		# `quer_correr` ou qualquer outra intenção de input.
 		visual_do_jogador.call("apresentar_locomocao", estado_visual_de_locomocao())
 
-	# 🔴 MUDANÇA DE DESIGN — Gabriel, 18/09: *"o mouse precisa ser a mira para
-	# todas as ações, inclusive em combate, para arremessar pokébolas, para usar
-	# ataques"*.
-	#
-	# Antes o corpo virava pra onde ANDAVA (`girar_para`). Era o modelo clássico
-	# de 3ª pessoa, e tem uma consequência que ele sentiu na pele: **você nunca
-	# vê a frente do personagem**, porque ele se vira pro lado do movimento e a
-	# câmera está atrás. Quando ele anda na sua direção, você vê as costas
-	# andando pra trás.
-	#
-	# Agora o corpo segue a MIRA — a mesma regra que o Pokémon em 1ª pessoa já
-	# usava. Com isso:
-	#   · o personagem encara sempre pra onde o mouse aponta;
-	#   · W anda pra frente da mira, S anda de costas de verdade, A e D andam
-	#     de lado — e isso é legível, porque a frente dele está visível;
-	#   · e qualquer ação (pokébola, ataque) sai na direção que o jogador vê.
-	#
-	# `girar_para` continua existindo e testado: quem vira pra direção do
-	# movimento é o **selvagem** (Fase 11), que não tem mouse.
-	if camera != null:
-		rotation.y = camera.yaw()
-	else:
-		rotation.y = Locomocao3D.girar_para(rotation.y, velocity, delta)
+	# Decisão do Gabriel, 21/09: em terceira pessoa o corpo olha para onde
+	# CAMINHA. Atrelá-lo ao yaw da câmera fazia o modelo ficar de frente para o
+	# observador e ler W como uma caminhada de costas. A mira continua sendo a
+	# câmera em `direcao_de_mira()`; orientação corporal não decide ataques.
+	rotation.y = Locomocao3D.girar_para(rotation.y, velocity, delta)
 
 	# A câmera é `top_level`: não herda mais nada do corpo, então a posição dela
 	# tem de ser acompanhada à mão. É de propósito — herdar a posição traria a

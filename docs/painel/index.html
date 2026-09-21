@@ -209,7 +209,7 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 <p class="resumo">Gerado direto de <code>docs/QUADRO.md</code> e <code>docs/rfc/</code> — os documentos que o Claude e o Codex já atualizam por obrigação. Se algo aqui estiver errado, é a fonte que está errada.</p>
 <div class="medidores">
 <div class="medidor"><span>suíte</span><b>134 arq., 0 com falha</b></div>
-<div class="medidor"><span>contratos</span><b>8</b></div>
+<div class="medidor"><span>contratos</span><b>9</b></div>
 <div class="medidor"><span>esperando decisão</span><b>4</b></div>
 <div class="medidor"><span>na sua fila</span><b>3</b></div>
 <div class="medidor"><span>gerado em</span><b>21/09/2026</b></div>
@@ -222,6 +222,24 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 </section>
 <section id="rfcs"><h2>Contratos (RFC)</h2>
 <p class="nota">Um contrato é uma decisão que trava trabalho de alguém até ser respondida. Toque para abrir e ler inteiro — nenhum resumo escolhido por mim fica entre você e o texto.</p>
+<details class="rfc">
+<summary>
+<span class="num">009</span>
+<span class="nome">Orientação do corpo em terceira pessoa <span class="selo aceita">implementada</span></span>
+<span class="meta">constrói: Codex (apresentação/integração 3D) · revisa: Gabriel (direção de produto)</span>
+<span class="abrir">▸ ler o contrato inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-009 — Orientação do corpo em terceira pessoa</h2>
+<p><strong>Status:</strong> IMPLEMENTED · decisão direta do Gabriel em 21/09/2026</p>
+<p><strong>Owner:</strong> Codex (apresentação/integração 3D)</p>
+<p><strong>Reviewer:</strong> Gabriel (direção de produto)</p>
+<h3>Decisão</h3>
+<p>O corpo visual do treinador gira para a direção real de deslocamento. A câmera continua sendo a fonte de mira para pokébola e ataques; ela não força mais o yaw do modelo.</p>
+<h3>Motivo</h3>
+<p>Atrelar <code>rotation.y</code> ao yaw da câmera mantinha o personagem voltado ao observador e fazia a caminhada parecer de costas. W permanece relativo à frente da câmera; A/D precisa demonstrar que o corpo acompanha a própria velocidade, não a câmera.</p>
+<h3>Verificação</h3>
+<p><code>teste_controles_v3.gd</code> cobre W, câmera independente e uma passada lateral: movimento existe, frente do corpo alinha ao deslocamento e o yaw diverge do da câmera quando necessário.</p></div>
+</details>
 <details class="rfc">
 <summary>
 <span class="num">008</span>
