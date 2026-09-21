@@ -47,6 +47,10 @@ ESTADOS = [
     ("PROPOSED", "espera", "esperando decisão"),
     ("DRAFT", "espera", "rascunho"),
     ("REJECTED", "recusada", "recusada"),
+    # Aposentada pela V3 (21/09): não é recusa nem decisão pendente — é um
+    # contrato da era 2D que deixou de fazer sentido. Contá-la como "esperando"
+    # inflaria o número que o Gabriel usa pra saber o que falta dele.
+    ("OBSOLETA", "obsoleta", "aposentada pela V3"),
 ]
 
 
@@ -101,6 +105,30 @@ def ler_rfcs():
     # Mais recente primeiro: é a ordem em que o Gabriel precisa das coisas.
     rfcs.sort(key=lambda r: r["numero"], reverse=True)
     return rfcs
+
+
+## O que exatamente está sendo decidido, e como seria executado.
+##
+## Sai de uma seção `## O pedido` da própria RFC — nunca de um resumo meu. O
+## Gabriel pediu isso com todas as letras: *"bem claro do que está sendo
+## solicitado e como deveria ser executado"*, logo acima dos botões.
+##
+## Sem a seção, o painel diz que ela falta em vez de inventar: um resumo
+## fabricado aqui seria uma segunda versão do contrato, e é exatamente assim
+## que as duas passam a discordar.
+def pedido(texto):
+    linhas = texto.split("\n")
+    dentro = False
+    fora = []
+    for l in linhas:
+        if l.startswith("## "):
+            if dentro:
+                break
+            dentro = l.strip().lower().startswith("## o pedido")
+            continue
+        if dentro:
+            fora.append(l)
+    return "\n".join(fora).strip()
 
 
 def secao_do_quadro(titulo_contem):
@@ -364,6 +392,7 @@ h2{font-size:12px;font-family:var(--mono);letter-spacing:.16em;
 .aceita{background:var(--ok-fundo);color:var(--ok)}
 .espera{background:var(--espera-fundo);color:var(--espera)}
 .recusada{background:var(--parado-fundo);color:var(--parado)}
+.obsoleta{background:var(--linha);color:var(--tinta-fraca)}
 .leitura{padding:2px 17px 22px;border-top:1px solid var(--linha);
   font-size:15px}
 .leitura h2,.leitura h3,.leitura h4{font-family:var(--texto);
@@ -417,6 +446,33 @@ footer p{margin:5px 0}
 # Estes ajustes são deliberadamente colocados depois: deixam a geração pequena,
 # não mudam nenhuma fonte de conteúdo e priorizam a leitura com uma mão.
 CSS += """
+/* ── O bloco de decisão (21/09) ─────────────────────────────────────────── */
+.decidir{margin-top:26px;border:2px solid var(--voce);border-radius:8px;
+  padding:16px 16px 14px;background:var(--voce-fundo)}
+.decidir h4{margin:0 0 10px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--voce)}
+.decidir .pedido>*:first-child{margin-top:0}
+.decidir .pedido>*:last-child{margin-bottom:0}
+.semPedido{margin:0;font-size:14px;color:var(--tinta-fraca)}
+.botoes{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+.bt{flex:1 1 30%;min-width:112px;min-height:46px;border-radius:7px;
+  border:1px solid var(--linha-forte);background:var(--papel);
+  color:var(--tinta);font:600 15px var(--texto);cursor:pointer;
+  padding:10px 12px}
+.bt:hover{border-color:var(--voce)}
+.bt:disabled{opacity:.5;cursor:not-allowed}
+.bt.aprovar{border-color:var(--ok);color:var(--ok)}
+.bt.reprovar{border-color:var(--parado);color:var(--parado)}
+.bt.escolhido{background:var(--voce);border-color:var(--voce);color:#fff}
+.caixaComentario{margin-top:12px;display:flex;flex-direction:column;gap:9px}
+.caixaComentario textarea{width:100%;border:1px solid var(--linha-forte);
+  border-radius:7px;padding:11px;font:400 15px/1.5 var(--texto);
+  background:var(--papel);color:var(--tinta);resize:vertical}
+.estadoDecisao{margin:11px 0 0;font-size:13.5px;color:var(--tinta-fraca);
+  min-height:1.2em}
+.jaDecidido{margin-top:12px;padding:11px 13px;border-radius:7px;
+  background:var(--papel);border:1px solid var(--linha);font-size:14px}
+""" + """
 :root{
   --fundo:#f7f8fa; --papel:#ffffff; --tinta:#17212b; --tinta-fraca:#607080;
   --linha:#dce3ea; --linha-forte:#bac6d1; --acento:#166b5c;
@@ -474,6 +530,42 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
   .leitura{padding-left:20px;padding-right:20px}
 }
 """
+
+
+## O bloco de decisão: o pedido em destaque e os três botões.
+##
+## ⚠️ Os botões só FUNCIONAM na versão publicada como Artifact, onde a página
+## alcança `claude.use("db")` — é de lá que eu leio as decisões depois. No
+## espelho servido pelo nginx (`poke.workprog.pro/painel`) não existe esse
+## runtime, então eles aparecem desligados, com o motivo escrito. Degradar
+## dizendo por quê é melhor que um botão que não faz nada em silêncio, que é
+## justamente o defeito que este projeto passou o mês caçando.
+def bloco_de_decisao(r):
+    if r["classe"] not in ("espera",):
+        return ""
+    ped = pedido(r["corpo"])
+    fora = ['<div class="decidir" data-rfc="%s">' % html.escape(r["arquivo"])]
+    fora.append('<h4>O que está sendo decidido</h4>')
+    if ped:
+        fora.append('<div class="pedido">%s</div>' % markdown(ped))
+    else:
+        fora.append('<p class="semPedido">⚠️ Esta RFC ainda não tem a seção '
+                    "<code>## O pedido</code>. O painel não inventa um resumo: "
+                    "leia o texto inteiro acima antes de decidir, e cobre a "
+                    "seção de quem abriu a RFC.</p>")
+    fora.append('<div class="jaDecidido" hidden></div>')
+    fora.append('<div class="botoes">'
+                '<button class="bt aprovar" data-ac="aprovada">Aprovar</button>'
+                '<button class="bt reprovar" data-ac="reprovada">Reprovar</button>'
+                '<button class="bt comentar" data-ac="comentario">Comentar</button>'
+                "</div>")
+    fora.append('<div class="caixaComentario" hidden>'
+                '<textarea rows="4" placeholder="O que você quer dizer sobre '
+                'esta decisão? Vai junto com ela."></textarea>'
+                '<button class="bt enviar">Enviar</button></div>')
+    fora.append('<p class="estadoDecisao" role="status"></p>')
+    fora.append("</div>")
+    return "".join(fora)
 
 
 def selo(rfc):
@@ -601,12 +693,109 @@ def gerar():
                                % (r["dono"] or "—", r["revisor"] or "—")))
         partes.append('<span class="abrir">▸ ler o contrato inteiro</span>')
         partes.append("</summary>")
-        partes.append('<div class="leitura">%s</div>' % markdown(r["corpo"]))
+        partes.append('<div class="leitura">%s%s</div>'
+                      % (markdown(r["corpo"]), bloco_de_decisao(r)))
         partes.append("</details>")
     partes.append("</section>")
 
+    # ── O que liga os botões de decisão ao armazenamento
+    #
+    # Só funciona onde `claude.use("db")` existe — a versão publicada como
+    # Artifact. No espelho do nginx o runtime não existe, e aí os botões ficam
+    # desligados COM O MOTIVO ESCRITO: botão que não faz nada em silêncio é o
+    # defeito que este projeto passou o mês caçando.
+    partes.append("""<script>
+(function () {
+  var blocos = Array.prototype.slice.call(document.querySelectorAll('.decidir'));
+  if (!blocos.length) return;
+
+  function diz(b, txt) { b.querySelector('.estadoDecisao').textContent = txt; }
+  function trava(b, motivo) {
+    Array.prototype.forEach.call(b.querySelectorAll('button'), function (x) {
+      x.disabled = true;
+    });
+    diz(b, motivo);
+  }
+
+  // Sem runtime, nada de botão mudo.
+  if (!(window.claude && typeof window.claude.use === 'function')) {
+    blocos.forEach(function (b) {
+      trava(b, 'Esta cópia é só leitura. Para decidir, abra o painel pelo link '
+             + 'do Claude — é lá que a decisão fica guardada.');
+    });
+    return;
+  }
+
+  window.claude.use('db').then(function (db) {
+    if (!db) {
+      blocos.forEach(function (b) {
+        trava(b, 'Esta cópia é só leitura. Para decidir, abra o painel pelo '
+               + 'link do Claude.');
+      });
+      return;
+    }
+
+    blocos.forEach(function (b) {
+      var rfc = b.getAttribute('data-rfc');
+      var doc = db.doc('decisoes/' + rfc.replace(/[^A-Za-z0-9_.-]/g, '_'));
+      var caixa = b.querySelector('.caixaComentario');
+      var ja = b.querySelector('.jaDecidido');
+
+      function mostrar(d) {
+        if (!d || !d.estado) { ja.hidden = true; return; }
+        var quando = d.quando ? new Date(d.quando).toLocaleString('pt-BR') : '';
+        ja.hidden = false;
+        ja.textContent = 'Você já respondeu: ' + d.estado
+          + (d.comentario ? ' — “' + d.comentario + '”' : '')
+          + (quando ? ' · ' + quando : '');
+        Array.prototype.forEach.call(b.querySelectorAll('.bt[data-ac]'), function (x) {
+          x.classList.toggle('escolhido', x.getAttribute('data-ac') === d.estado);
+        });
+      }
+
+      // Uma assinatura por documento, nunca dentro de render.
+      doc.onSnapshot(function (snap) { mostrar(snap && snap.data); });
+
+      function gravar(estado, comentario) {
+        diz(b, 'gravando…');
+        doc.set({
+          estado: estado, comentario: comentario || '',
+          rfc: rfc, quando: new Date().toISOString()
+        }).then(function () {
+          diz(b, 'Guardado. O Claude lê isto e transcreve a decisão na própria '
+               + 'RFC — que continua sendo a fonte de verdade.');
+        }).catch(function (e) {
+          diz(b, 'Não consegui guardar: ' + ((e && e.code) || 'erro') + '. '
+               + 'Nada foi registrado.');
+        });
+      }
+
+      Array.prototype.forEach.call(b.querySelectorAll('.bt[data-ac]'), function (bt) {
+        bt.addEventListener('click', function () {
+          var ac = bt.getAttribute('data-ac');
+          if (ac === 'comentario') {
+            caixa.hidden = !caixa.hidden;
+            if (!caixa.hidden) caixa.querySelector('textarea').focus();
+            return;
+          }
+          // Aprovar/reprovar levam junto o que estiver escrito: separar os dois
+          // faria o comentário do Gabriel se perder ao clicar em Aprovar.
+          gravar(ac, caixa.querySelector('textarea').value.trim());
+        });
+      });
+
+      b.querySelector('.enviar').addEventListener('click', function () {
+        var txt = caixa.querySelector('textarea').value.trim();
+        if (!txt) { diz(b, 'Escreva algo antes de enviar.'); return; }
+        gravar('comentario', txt);
+      });
+    });
+  });
+})();
+</script>""")
+
     # ── Fases
-    partes.append('<section id="fases"><h2>As 20 fases da V3</h2>')
+    partes.append('<section id="fases"><h2>As fases da V3</h2>')
     partes.append('<p class="nota">A ordem existe porque cada fase depende da '
                   "anterior estar de pé. Pular é como se constrói seis sistemas "
                   "pela metade.</p>")

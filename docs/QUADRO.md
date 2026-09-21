@@ -294,6 +294,43 @@ em vez de republicar velho. Nunca mais `docker build` solto pra "publicar".
 
 ---
 
+## 🗑️ A V1/V2 aposentada — e o que NÃO deu pra apagar (21/09)
+
+Decisão do Gabriel: *"tudo que era plano da V2 e da V1 a gente pode esquecer
+para não dar ruído... podemos basicamente apagar a V1/V2 **se não interferir na
+V3**"*.
+
+🔴 **Medi antes, e a condição dele salvou o jogo: o código da V1/V2 NÃO pode ser
+apagado.** Calculei o fecho transitivo a partir da cena principal, dos autoloads
+e de `gameplay_v3/`, seguindo `.gd` **e** `.tscn`: **254 dos 432** arquivos são
+alcançados a partir do jogo rodando. Só **39** ficam fora, e parte deles é do
+Codex, isolada de propósito.
+
+A V3 **roda sobre** as classes puras da V2 — `RegrasDeCorpo`, `Stamina`,
+`DamageCalculator`, `KitDeCombate`, `StatsDePokemon`, `ComportamentoSelvagem`,
+`PerigoDaZona`, `Mergulho` e mais 20. E a **tela inicial é 2D**: é dela que sai
+o botão que abre a V3.
+
+✅ **O que foi aposentado:** os **documentos**, que era o ruído de verdade —
+8 planos e auditorias da era 2D (`GAMEPLAY_V2_PLAN`, `auditoria-combate`,
+`mundo-novo-escala`, `playtest-fase3`, `plano-operacao-por-ia`,
+`tileset-referencia-visual`, `customizacao-personagem`,
+`backlog-visual-gabriel`) e o `progresso.md`. Os ponteiros que apontavam pra
+eles foram reescritos, não deixados quebrados. **Tudo está no histórico do
+git** — apagar não é perder.
+
+✅ **RFC-003, 004 e 005 marcadas OBSOLETAS.** Elas são da era 2D
+(reconstrução do mapa `MapLayouts`, tiles, pipeline Blender→pixel art). O
+Gabriel disse *"pode seguir com tudo"* sobre as RFCs **e** *"esquecer a V1/V2"*
+no mesmo pedido — as duas frases se contradizem aqui, e a segunda é a que vale:
+executá-las seria construir para o mundo que a V3 substitui.
+
+⚠️ **RFC-002 NÃO foi aposentada** junto, e a diferença importa: ela resolve uma
+escolha de **gameplay** (kit), não de mundo — e as Fases 16/17 até ampliaram a
+régua dela. É a única RFC esperando decisão hoje.
+
+---
+
 ## 🖥️ O painel do Gabriel
 
 `docs/painel/index.html` — uma página só, pra ler as sprints, os contratos e a
@@ -306,6 +343,26 @@ envelhecer sozinho. **Se o painel mentir, a fonte é que está errada.**
 
 **Rode o gerador ao fechar qualquer sprint**, junto com a atualização deste
 arquivo. Vale para os dois agentes.
+
+### ✅ Decidir pelo painel (21/09)
+
+Toda RFC que espera decisão ganha, **no fim do texto**, um bloco
+`O que está sendo decidido` com **o que se pede e como seria executado**, e os
+botões **Aprovar · Reprovar · Comentar**.
+
+⚠️ **O pedido sai de uma seção `## O pedido` da própria RFC.** Quem abre uma
+RFC escreve essa seção; sem ela o painel **diz que falta** em vez de inventar um
+resumo — um resumo fabricado no painel seria uma segunda versão do contrato, e é
+assim que as duas passam a discordar.
+
+**Onde a decisão fica:** no armazenamento do artifact (`decisoes/<arquivo>`),
+que o Claude lê com `read_db` e **transcreve na própria RFC** — a RFC continua
+sendo a fonte de verdade, o painel é a porta.
+
+⚠️ Os botões só funcionam na versão publicada como **Artifact** (é lá que existe
+`claude.use("db")`). No espelho do nginx eles aparecem **desligados com o motivo
+escrito** — botão que não faz nada em silêncio é o defeito que este projeto
+passa o mês caçando.
 
 ### No ar em **https://poke.workprog.pro/painel**
 

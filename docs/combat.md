@@ -1,7 +1,7 @@
 # Combate — responsabilidade e interfaces
 
 Responsável pela regra: Claude. Fonte: implementação, não esta descrição.
-Referência detalhada: [auditoria-combate.md](auditoria-combate.md), incluindo Fase 2;
+Referência detalhada: a auditoria de combate da V2 *(aposentada em 21/09)*, incluindo Fase 2;
 a primeira seção descreve o estado ANTERIOR à reengenharia.
 
 - `StatsDePokemon.gd`: stats compartilhados; `DamageCalculator.gd`: dano/tipos.

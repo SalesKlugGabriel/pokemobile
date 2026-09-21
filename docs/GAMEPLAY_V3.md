@@ -218,7 +218,7 @@ o Codex pode começar a *pensar* antes da vez dele.
 4. `tools/rodar_testes.sh` antes de começar, pra saber de onde partiu.
 5. ⚠️ **Nunca rodar a suíte com outro `godot4` ativo** (`ps aux | grep godot4`).
    Duas suítes em 2 núcleos produzem reprovação falsa — já aconteceu.
-6. Ao terminar: atualizar a tabela de fases **aqui**, `progresso.md`, e commitar.
+6. Ao terminar: atualizar a tabela de fases **aqui**, `progresso.md` *(aposentado em 21/09 — está no histórico do git)*, e commitar.
 
 **Nada da V2 é apagado nesta migração.** `MapLayouts`, as 120 cenas 2D e os
 tilesets ficam no repositório mesmo depreciados, até a V3 substituir de verdade.

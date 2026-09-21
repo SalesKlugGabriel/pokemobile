@@ -1,6 +1,16 @@
 # RFC-005 — Pipeline Blender → pixel art para assets
 
-**Status:** PROPOSED
+**Status:** OBSOLETA — superada pela V3 (21/09/2026)
+
+> 🔴 **Esta RFC é da era 2D e foi aposentada, não recusada.**
+>
+> O Gabriel decidiu em 21/09: *"tudo que era plano da V2 e da V1 a gente pode
+> esquecer para não dar ruído nos planos futuros"*. Ele também disse *"pode
+> seguir com tudo"* sobre as RFCs — mas as duas frases se contradizem aqui, e
+> a primeira é a que vale: executar esta RFC seria construir para o mundo 2D
+> que a V3 substitui.
+>
+> Fica no repositório como histórico. **Não implementar.**
 **Owner:** Codex (client/UI) — o pipeline de asset seria dele
 **Reviewer:** Claude (gameplay) — medi a VPS e o que já existe
 **Aberto por:** Claude · 11/09/2026, a pedido do Gabriel

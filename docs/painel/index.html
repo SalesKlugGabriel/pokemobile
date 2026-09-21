@@ -97,6 +97,7 @@ h2{font-size:12px;font-family:var(--mono);letter-spacing:.16em;
 .aceita{background:var(--ok-fundo);color:var(--ok)}
 .espera{background:var(--espera-fundo);color:var(--espera)}
 .recusada{background:var(--parado-fundo);color:var(--parado)}
+.obsoleta{background:var(--linha);color:var(--tinta-fraca)}
 .leitura{padding:2px 17px 22px;border-top:1px solid var(--linha);
   font-size:15px}
 .leitura h2,.leitura h3,.leitura h4{font-family:var(--texto);
@@ -144,6 +145,33 @@ footer p{margin:5px 0}
   .item{gap:10px}.marca{min-width:26px}
   .rfc>summary{padding:13px 14px;gap:3px 10px}
 }
+
+/* ── O bloco de decisão (21/09) ─────────────────────────────────────────── */
+.decidir{margin-top:26px;border:2px solid var(--voce);border-radius:8px;
+  padding:16px 16px 14px;background:var(--voce-fundo)}
+.decidir h4{margin:0 0 10px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--voce)}
+.decidir .pedido>*:first-child{margin-top:0}
+.decidir .pedido>*:last-child{margin-bottom:0}
+.semPedido{margin:0;font-size:14px;color:var(--tinta-fraca)}
+.botoes{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+.bt{flex:1 1 30%;min-width:112px;min-height:46px;border-radius:7px;
+  border:1px solid var(--linha-forte);background:var(--papel);
+  color:var(--tinta);font:600 15px var(--texto);cursor:pointer;
+  padding:10px 12px}
+.bt:hover{border-color:var(--voce)}
+.bt:disabled{opacity:.5;cursor:not-allowed}
+.bt.aprovar{border-color:var(--ok);color:var(--ok)}
+.bt.reprovar{border-color:var(--parado);color:var(--parado)}
+.bt.escolhido{background:var(--voce);border-color:var(--voce);color:#fff}
+.caixaComentario{margin-top:12px;display:flex;flex-direction:column;gap:9px}
+.caixaComentario textarea{width:100%;border:1px solid var(--linha-forte);
+  border-radius:7px;padding:11px;font:400 15px/1.5 var(--texto);
+  background:var(--papel);color:var(--tinta);resize:vertical}
+.estadoDecisao{margin:11px 0 0;font-size:13.5px;color:var(--tinta-fraca);
+  min-height:1.2em}
+.jaDecidido{margin-top:12px;padding:11px 13px;border-radius:7px;
+  background:var(--papel);border:1px solid var(--linha);font-size:14px}
 
 :root{
   --fundo:#f7f8fa; --papel:#ffffff; --tinta:#17212b; --tinta-fraca:#607080;
@@ -210,7 +238,7 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 <div class="medidores">
 <div class="medidor"><span>suíte</span><b>134 arq., 0 com falha</b></div>
 <div class="medidor"><span>contratos</span><b>8</b></div>
-<div class="medidor"><span>esperando decisão</span><b>4</b></div>
+<div class="medidor"><span>esperando decisão</span><b>1</b></div>
 <div class="medidor"><span>na sua fila</span><b>3</b></div>
 <div class="medidor"><span>gerado em</span><b>21/09/2026</b></div>
 </div></header>
@@ -218,7 +246,7 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 <section id="voce" class="voce-bloco"><h2>Precisa de você</h2>
 <p class="nota">Nada nesta lista anda sem uma resposta sua. O resto da página é contexto.</p>
 <div class="item"><div class="marca">1</div><div class="corpo-item"><p><strong>Qual aspecto dos controles incomoda</strong></p><p class="porque">&quot;melhorar os controles&quot; são <strong>seis</strong> ajustes diferentes: velocidade, sensibilidade do mouse, aceleração, atrito, virada do personagem, distância da câmera. Mexer nos seis de uma vez faz ninguém saber qual melhorou</p></div></div><div class="item"><div class="marca">2</div><div class="corpo-item"><p>Jogar a V3 depois do conserto de direção (17/09) e dizer se o W agora anda pra onde se olha</p><p class="porque">o teste prova direção e independência da câmera; <strong>não prova sensação</strong></p></div></div><div class="item"><div class="marca">6</div><div class="corpo-item"><p><strong>Conferir a câmera no navegador</strong> depois que o Codex ligar o Player V1</p><p class="porque">o treinador encolheu de 1,75 m pra 1,60 m e o ombro da câmera desceu junto, por proporção. Se ficar alto ou baixo, o número a mexer é <code>ALTURA_DO_OMBRO</code> — e só você consegue julgar isso, porque é sensação</p></div></div>
-<p class="nota" style="margin-top:20px">E <strong>4 contrato(s)</strong> aguardando decisão — estão abertos logo abaixo, com o texto inteiro.</p>
+<p class="nota" style="margin-top:20px">E <strong>1 contrato(s)</strong> aguardando decisão — estão abertos logo abaixo, com o texto inteiro.</p>
 </section>
 <section id="rfcs"><h2>Contratos (RFC)</h2>
 <p class="nota">Um contrato é uma decisão que trava trabalho de alguém até ser respondida. Toque para abrir e ler inteiro — nenhum resumo escolhido por mim fica entre você e o texto.</p>
@@ -473,15 +501,24 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 <p>⚠️ <strong><code>altura_em</code> estática não sobrevive a um mundo semeado</strong> — <code>static</code> é o que transforma o seed em estado global. Quando o primeiro chunk com seed nascer, ela vira serviço instanciado e os consumidores recebem a referência; a mudança é do Claude (<code>SpawnerSelvagem3D</code>, <code>PokemonInstance3D</code>, <code>RegraDeAcompanhar</code>).</p>
 <p><strong>Não autorizado por este aceite:</strong> máscara de spawn, regra de água/penhasco, geração de chunks. Resposta completa em <code>docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md</code>.</p></div>
 </details>
-<details class="rfc" open>
+<details class="rfc">
 <summary>
 <span class="num">005</span>
-<span class="nome">Pipeline Blender → pixel art para assets <span class="selo espera">esperando decisão</span></span>
+<span class="nome">Pipeline Blender → pixel art para assets <span class="selo obsoleta">aposentada pela V3</span></span>
 <span class="meta">constrói: Codex (client/UI) — o pipeline de asset seria dele · revisa: Claude (gameplay) — medi a VPS e o que já existe</span>
 <span class="abrir">▸ ler o contrato inteiro</span>
 </summary>
 <div class="leitura"><h2>RFC-005 — Pipeline Blender → pixel art para assets</h2>
-<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Status:</strong> OBSOLETA — superada pela V3 (21/09/2026)</p>
+<blockquote>🔴 <strong>Esta RFC é da era 2D e foi aposentada, não recusada.</strong></blockquote>
+<blockquote></blockquote>
+<blockquote>O Gabriel decidiu em 21/09: *&quot;tudo que era plano da V2 e da V1 a gente pode</blockquote>
+<blockquote>esquecer para não dar ruído nos planos futuros&quot;<em>. Ele também disse </em>&quot;pode</blockquote>
+<blockquote>seguir com tudo&quot;* sobre as RFCs — mas as duas frases se contradizem aqui, e</blockquote>
+<blockquote>a primeira é a que vale: executar esta RFC seria construir para o mundo 2D</blockquote>
+<blockquote>que a V3 substitui.</blockquote>
+<blockquote></blockquote>
+<blockquote>Fica no repositório como histórico. <strong>Não implementar.</strong></blockquote>
 <p><strong>Owner:</strong> Codex (client/UI) — o pipeline de asset seria dele</p>
 <p><strong>Reviewer:</strong> Claude (gameplay) — medi a VPS e o que já existe</p>
 <p><strong>Aberto por:</strong> Claude · 11/09/2026, a pedido do Gabriel</p>
@@ -604,15 +641,24 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <h3>Decisão</h3>
 <p>_Instalado e provado tecnicamente. <strong>A adoção é do Codex</strong> — a ferramenta está pronta; o resultado depende de direção de arte no modelo._</p></div>
 </details>
-<details class="rfc" open>
+<details class="rfc">
 <summary>
 <span class="num">004</span>
-<span class="nome">Diversidade de tiles e biomas <span class="selo espera">esperando decisão</span></span>
+<span class="nome">Diversidade de tiles e biomas <span class="selo obsoleta">aposentada pela V3</span></span>
 <span class="meta">constrói: Codex (client/UI) — a arte e a escolha visual são dele · revisa: Claude (gameplay) — o <code>CHAR_MAP</code> e o gerador são meus</span>
 <span class="abrir">▸ ler o contrato inteiro</span>
 </summary>
 <div class="leitura"><h2>RFC-004 — Diversidade de tiles e biomas</h2>
-<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Status:</strong> OBSOLETA — superada pela V3 (21/09/2026)</p>
+<blockquote>🔴 <strong>Esta RFC é da era 2D e foi aposentada, não recusada.</strong></blockquote>
+<blockquote></blockquote>
+<blockquote>O Gabriel decidiu em 21/09: *&quot;tudo que era plano da V2 e da V1 a gente pode</blockquote>
+<blockquote>esquecer para não dar ruído nos planos futuros&quot;<em>. Ele também disse </em>&quot;pode</blockquote>
+<blockquote>seguir com tudo&quot;* sobre as RFCs — mas as duas frases se contradizem aqui, e</blockquote>
+<blockquote>a primeira é a que vale: executar esta RFC seria construir para o mundo 2D</blockquote>
+<blockquote>que a V3 substitui.</blockquote>
+<blockquote></blockquote>
+<blockquote>Fica no repositório como histórico. <strong>Não implementar.</strong></blockquote>
 <p><strong>Owner:</strong> Codex (client/UI) — a arte e a escolha visual são dele</p>
 <p><strong>Reviewer:</strong> Claude (gameplay) — o <code>CHAR_MAP</code> e o gerador são meus</p>
 <p><strong>Aberto por:</strong> Claude · 11/09/2026</p>
@@ -699,15 +745,24 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <h3>Decisão</h3>
 <p>_Aguardando o Codex._</p></div>
 </details>
-<details class="rfc" open>
+<details class="rfc">
 <summary>
 <span class="num">003</span>
-<span class="nome">Reconstrução do mapa-múndi: forma do continente, costa e biomas <span class="selo espera">esperando decisão</span></span>
+<span class="nome">Reconstrução do mapa-múndi: forma do continente, costa e biomas <span class="selo obsoleta">aposentada pela V3</span></span>
 <span class="meta">constrói: Codex (client/UI) — a forma e o visual são dele · revisa: Claude (gameplay) — colisão, warps, conectividade e spawn são meus</span>
 <span class="abrir">▸ ler o contrato inteiro</span>
 </summary>
 <div class="leitura"><h2>RFC-003 — Reconstrução do mapa-múndi: forma do continente, costa e biomas</h2>
-<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Status:</strong> OBSOLETA — superada pela V3 (21/09/2026)</p>
+<blockquote>🔴 <strong>Esta RFC é da era 2D e foi aposentada, não recusada.</strong></blockquote>
+<blockquote></blockquote>
+<blockquote>O Gabriel decidiu em 21/09: *&quot;tudo que era plano da V2 e da V1 a gente pode</blockquote>
+<blockquote>esquecer para não dar ruído nos planos futuros&quot;<em>. Ele também disse </em>&quot;pode</blockquote>
+<blockquote>seguir com tudo&quot;* sobre as RFCs — mas as duas frases se contradizem aqui, e</blockquote>
+<blockquote>a primeira é a que vale: executar esta RFC seria construir para o mundo 2D</blockquote>
+<blockquote>que a V3 substitui.</blockquote>
+<blockquote></blockquote>
+<blockquote>Fica no repositório como histórico. <strong>Não implementar.</strong></blockquote>
 <p><strong>Owner:</strong> Codex (client/UI) — a forma e o visual são dele</p>
 <p><strong>Reviewer:</strong> Claude (gameplay) — colisão, warps, conectividade e spawn são meus</p>
 <p><strong>Aberto por:</strong> Claude · 11/09/2026</p>
@@ -723,7 +778,7 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <tr><td>Formato</td><td>retângulo perfeito</td><td>continente com ilhas, cercado de mar</td></tr>
 </tbody></table></div>
 <p><strong>Tradução:</strong> o mapa-múndi é um <strong>retângulo de meio quilômetro cercado por uma parede de árvores</strong>. Uma única rota (Lavender–Fuchsia) tem 12 km — ou seja, o &quot;continente&quot; é <strong>24 vezes menor que uma estrada dele</strong>.</p>
-<p>A reestruturação geográfica de 10/09 refez <strong>as rotas</strong> (cenas próprias, 38 km somados) e <strong>Cinnabar</strong> (1200×1200, costa de 3 harmônicas). <strong>O mapa-múndi, onde ficam as cidades, nunca foi refeito.</strong> Isso está registrado na minha própria auditoria (<code>docs/mundo-novo-escala.md</code>, seção 3): <em>&quot;Costa orgânica ✅ nas ilhas/costa — o litoral do world_map segue o de sempre&quot;</em>. Eu declarei a pendência e não a resolvi.</p>
+<p>A reestruturação geográfica de 10/09 refez <strong>as rotas</strong> (cenas próprias, 38 km somados) e <strong>Cinnabar</strong> (1200×1200, costa de 3 harmônicas). <strong>O mapa-múndi, onde ficam as cidades, nunca foi refeito.</strong> Isso está registrado na minha própria auditoria (<code>mundo-novo-escala.md</code> <em>(aposentado em 21/09 — está no histórico do git)</em>, seção 3): <em>&quot;Costa orgânica ✅ nas ilhas/costa — o litoral do world_map segue o de sempre&quot;</em>. Eu declarei a pendência e não a resolvi.</p>
 <h3>2. &quot;As cidades não se conectam&quot; — o que é verdade e o que não é</h3>
 <p>Medi a conectividade a pé, de cada cidade até cada porta do mapa-múndi:</p>
 <div class="rolar"><table><thead><tr><th>Cidade</th><th>Portas alcançáveis a pé</th></tr></thead><tbody>
@@ -761,7 +816,7 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <tr><td><code>WarpZone.position</code> e <code>spawn_tile</code> de cada porta</td><td>mudar sem mover o par do outro lado faz o jogador nascer dentro de pedra</td><td>testes por rota</td></tr>
 <tr><td><code>tile_rect</code> das zonas em <code>zones.json</code></td><td>define fauna, música e nome da região</td><td><code>teste_matriz_ecologica.gd</code></td></tr>
 <tr><td>Chars de colisão (<code>T N O K / &lt; &gt; R ~ 0 ) w W E</code> bloqueiam)</td><td>virar o char muda o que é parede</td><td><code>teste_tudo_compila.gd</code></td></tr>
-<tr><td>Os 6 atalhos antigos continuam <strong>selados</strong></td><td>senão o jogador corta caminho e pula rotas inteiras</td><td><code>docs/mundo-novo-escala.md</code> §2</td></tr>
+<tr><td>Os 6 atalhos antigos continuam <strong>selados</strong></td><td>senão o jogador corta caminho e pula rotas inteiras</td><td><code>mundo-novo-escala.md</code> <em>(aposentado em 21/09 — está no histórico do git)</em> §2</td></tr>
 <tr><td>As 3 ilhas (Gélida, Seafoam, Deserto) e seus acessos</td><td>pedido explícito do Gabriel, 10/09</td><td><code>teste_alcance_surf.gd</code></td></tr>
 <tr><td>Água continua sendo água pro Surf</td><td><code>WorldManager.is_water_tile</code></td><td><code>teste_alcance_surf.gd</code></td></tr>
 </tbody></table></div>
@@ -796,7 +851,7 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <ol>
 <li><strong>A planta-base desenhada à mão</strong> do Gabriel está em</li>
 </ol>
-<p>   <code>docs/mundo-novo-escala.md</code>. Ela é a referência de forma?</p>
+<p>   <code>mundo-novo-escala.md</code> <em>(aposentado em 21/09 — está no histórico do git)</em>. Ela é a referência de forma?</p>
 <ol>
 <li>Precisa de <strong>char/tile novo</strong> no atlas pra algum bioma que falta?</li>
 </ol>
@@ -891,8 +946,50 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <li><code>trocar_kit</code> pode falhar (<code>{ok: false, motivo: &quot;...&quot;}</code>). O <code>motivo</code> é texto</li>
 </ul>
 <p>  pronto pro jogador, em português — usar ele, não inventar outro.</p>
+<h3>O pedido</h3>
+<p><strong>O que está sendo solicitado:</strong> construir a <strong>tela de troca de kit</strong> — a única escolha do jogo que hoje existe na regra e não tem onde ser feita. Um Charizard Lv.100 conhece 11 golpes e equipa 8; o jogador tem a escolha e não tem a tela.</p>
+<p>⚠️ Esta RFC é de 11/09, da era 2D, mas <strong>não foi aposentada com as outras</strong>: a escolha que ela resolve é de gameplay, não de mundo, e o kit vale igual na V3 (as Fases 16 e 17 até ampliaram a régua — 4 a 8 slots, e a MO deposita no pool sem equipar sozinha).</p>
+<p><strong>Como seria executado:</strong></p>
+<ol>
+<li><strong>Quem constrói é o Codex</strong> (a tela é dele); o contrato é do Claude.</li>
+<li><strong>Nada de conta nova na tela.</strong> Todas as chamadas da tabela acima já existem</li>
+</ol>
+<p>   e estão testadas — a tela lê e mostra, nunca recalcula.</p>
+<ol>
+<li><strong>O preço aparece antes de confirmar.</strong> <code>previsao_de_troca()</code> devolve nível</li>
+</ol>
+<p>   antes/depois, custo, slots e HP: a tela mostra isso e só então pergunta.    Trocar MO custa 25 níveis por alteração (regra do Gabriel), e cobrar sem    avisar seria punir sem informar.</p>
+<ol>
+<li><strong><code>max_skill_slots</code> nunca é cacheado</strong> entre aberturas — ele muda com nível</li>
+</ol>
+<p>   e evolução.</p>
+<ol>
+<li>Quando a troca falha, usa-se o <code>motivo</code> que vem pronto em português; não se</li>
+</ol>
+<p>   inventa outro texto.</p>
+<p><strong>Se for aprovada</strong>, ela entra na fila do Codex depois da Fase 19 (polimento) — não antes, porque a V3 ainda está ganhando cara e uma tela nova sobre uma HUD que vai mudar é trabalho feito duas vezes.</p>
 <h3>Decisão</h3>
-<p>_Aguardando o Codex._</p></div>
+<p>_Aguardando o Gabriel — decidível pelo painel._</p><div class="decidir" data-rfc="RFC-002-tela-de-troca-de-kit.md"><h4>O que está sendo decidido</h4><div class="pedido"><p><strong>O que está sendo solicitado:</strong> construir a <strong>tela de troca de kit</strong> — a única escolha do jogo que hoje existe na regra e não tem onde ser feita. Um Charizard Lv.100 conhece 11 golpes e equipa 8; o jogador tem a escolha e não tem a tela.</p>
+<p>⚠️ Esta RFC é de 11/09, da era 2D, mas <strong>não foi aposentada com as outras</strong>: a escolha que ela resolve é de gameplay, não de mundo, e o kit vale igual na V3 (as Fases 16 e 17 até ampliaram a régua — 4 a 8 slots, e a MO deposita no pool sem equipar sozinha).</p>
+<p><strong>Como seria executado:</strong></p>
+<ol>
+<li><strong>Quem constrói é o Codex</strong> (a tela é dele); o contrato é do Claude.</li>
+<li><strong>Nada de conta nova na tela.</strong> Todas as chamadas da tabela acima já existem</li>
+</ol>
+<p>   e estão testadas — a tela lê e mostra, nunca recalcula.</p>
+<ol>
+<li><strong>O preço aparece antes de confirmar.</strong> <code>previsao_de_troca()</code> devolve nível</li>
+</ol>
+<p>   antes/depois, custo, slots e HP: a tela mostra isso e só então pergunta.    Trocar MO custa 25 níveis por alteração (regra do Gabriel), e cobrar sem    avisar seria punir sem informar.</p>
+<ol>
+<li><strong><code>max_skill_slots</code> nunca é cacheado</strong> entre aberturas — ele muda com nível</li>
+</ol>
+<p>   e evolução.</p>
+<ol>
+<li>Quando a troca falha, usa-se o <code>motivo</code> que vem pronto em português; não se</li>
+</ol>
+<p>   inventa outro texto.</p>
+<p><strong>Se for aprovada</strong>, ela entra na fila do Codex depois da Fase 19 (polimento) — não antes, porque a V3 ainda está ganhando cara e uma tela nova sobre uma HUD que vai mudar é trabalho feito duas vezes.</p></div><div class="jaDecidido" hidden></div><div class="botoes"><button class="bt aprovar" data-ac="aprovada">Aprovar</button><button class="bt reprovar" data-ac="reprovada">Reprovar</button><button class="bt comentar" data-ac="comentario">Comentar</button></div><div class="caixaComentario" hidden><textarea rows="4" placeholder="O que você quer dizer sobre esta decisão? Vai junto com ela."></textarea><button class="bt enviar">Enviar</button></div><p class="estadoDecisao" role="status"></p></div></div>
 </details>
 <details class="rfc">
 <summary>
@@ -999,7 +1096,96 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <p><code>moves.size()</code> <strong>não é garantido igual</strong> a <code>max_skill_slots</code>: após uma troca de kit pode haver menos golpes equipados que a capacidade. Uma UI nova precisa iterar até <code>max_skill_slots</code> e tratar a ausência em <code>moves</code> como slot vazio. Também deve ignorar <code>follower_skill_used</code> com <code>slot == -1</code>, que representa o ataque automático e não um botão de skill.</p></div>
 </details>
 </section>
-<section id="fases"><h2>As 20 fases da V3</h2>
+<script>
+(function () {
+  var blocos = Array.prototype.slice.call(document.querySelectorAll('.decidir'));
+  if (!blocos.length) return;
+
+  function diz(b, txt) { b.querySelector('.estadoDecisao').textContent = txt; }
+  function trava(b, motivo) {
+    Array.prototype.forEach.call(b.querySelectorAll('button'), function (x) {
+      x.disabled = true;
+    });
+    diz(b, motivo);
+  }
+
+  // Sem runtime, nada de botão mudo.
+  if (!(window.claude && typeof window.claude.use === 'function')) {
+    blocos.forEach(function (b) {
+      trava(b, 'Esta cópia é só leitura. Para decidir, abra o painel pelo link '
+             + 'do Claude — é lá que a decisão fica guardada.');
+    });
+    return;
+  }
+
+  window.claude.use('db').then(function (db) {
+    if (!db) {
+      blocos.forEach(function (b) {
+        trava(b, 'Esta cópia é só leitura. Para decidir, abra o painel pelo '
+               + 'link do Claude.');
+      });
+      return;
+    }
+
+    blocos.forEach(function (b) {
+      var rfc = b.getAttribute('data-rfc');
+      var doc = db.doc('decisoes/' + rfc.replace(/[^A-Za-z0-9_.-]/g, '_'));
+      var caixa = b.querySelector('.caixaComentario');
+      var ja = b.querySelector('.jaDecidido');
+
+      function mostrar(d) {
+        if (!d || !d.estado) { ja.hidden = true; return; }
+        var quando = d.quando ? new Date(d.quando).toLocaleString('pt-BR') : '';
+        ja.hidden = false;
+        ja.textContent = 'Você já respondeu: ' + d.estado
+          + (d.comentario ? ' — “' + d.comentario + '”' : '')
+          + (quando ? ' · ' + quando : '');
+        Array.prototype.forEach.call(b.querySelectorAll('.bt[data-ac]'), function (x) {
+          x.classList.toggle('escolhido', x.getAttribute('data-ac') === d.estado);
+        });
+      }
+
+      // Uma assinatura por documento, nunca dentro de render.
+      doc.onSnapshot(function (snap) { mostrar(snap && snap.data); });
+
+      function gravar(estado, comentario) {
+        diz(b, 'gravando…');
+        doc.set({
+          estado: estado, comentario: comentario || '',
+          rfc: rfc, quando: new Date().toISOString()
+        }).then(function () {
+          diz(b, 'Guardado. O Claude lê isto e transcreve a decisão na própria '
+               + 'RFC — que continua sendo a fonte de verdade.');
+        }).catch(function (e) {
+          diz(b, 'Não consegui guardar: ' + ((e && e.code) || 'erro') + '. '
+               + 'Nada foi registrado.');
+        });
+      }
+
+      Array.prototype.forEach.call(b.querySelectorAll('.bt[data-ac]'), function (bt) {
+        bt.addEventListener('click', function () {
+          var ac = bt.getAttribute('data-ac');
+          if (ac === 'comentario') {
+            caixa.hidden = !caixa.hidden;
+            if (!caixa.hidden) caixa.querySelector('textarea').focus();
+            return;
+          }
+          // Aprovar/reprovar levam junto o que estiver escrito: separar os dois
+          // faria o comentário do Gabriel se perder ao clicar em Aprovar.
+          gravar(ac, caixa.querySelector('textarea').value.trim());
+        });
+      });
+
+      b.querySelector('.enviar').addEventListener('click', function () {
+        var txt = caixa.querySelector('textarea').value.trim();
+        if (!txt) { diz(b, 'Escreva algo antes de enviar.'); return; }
+        gravar('comentario', txt);
+      });
+    });
+  });
+})();
+</script>
+<section id="fases"><h2>As fases da V3</h2>
 <p class="nota">A ordem existe porque cada fase depende da anterior estar de pé. Pular é como se constrói seis sistemas pela metade.</p>
 <div class="fases"></div>
 </section>
@@ -1025,7 +1211,7 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <p><strong>Owner:</strong> Claude (gameplay)</p>
 <p><strong>Reviewer:</strong> Codex (cliente/UI)</p>
 <p><strong>Base:</strong> <code>15a0d7b</code> · aberto em 13/09/2026</p>
-<p><strong>Plano completo:</strong> <code>docs/GAMEPLAY_V2_PLAN.md</code></p>
+<p><strong>Plano completo:</strong> <code>GAMEPLAY_V2_PLAN.md</code> <em>(aposentado em 21/09 — está no histórico do git)</em></p>
 <hr>
 <h3>Problema</h3>
 <p>O Gabriel pediu (13/09) uma remodelagem da gameplay para Action RPG inspirado em Zelda (controle e exploração), Eterspire (estrutura de MMO), Pokémon (criaturas) e Tibia/PXG (persistência e risco). São <strong>68 seções de especificação</strong>.</p>

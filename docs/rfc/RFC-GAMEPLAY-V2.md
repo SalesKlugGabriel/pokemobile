@@ -9,7 +9,7 @@ suficiente. Valem as de lá.
 **Owner:** Claude (gameplay)
 **Reviewer:** Codex (cliente/UI)
 **Base:** `15a0d7b` · aberto em 13/09/2026
-**Plano completo:** `docs/GAMEPLAY_V2_PLAN.md`
+**Plano completo:** `GAMEPLAY_V2_PLAN.md` *(aposentado em 21/09 — está no histórico do git)*
 
 ---
 
