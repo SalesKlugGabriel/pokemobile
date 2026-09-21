@@ -52,6 +52,7 @@ var _tela : Label = null
 
 var treinador : TrainerController3D = null
 var controle : ControlModeManager = null
+var hud_de_combate : HudCombate3D = null
 
 func _ready() -> void:
 	_montar_base()
@@ -67,8 +68,9 @@ func _ready() -> void:
 
 	_montar_treinador()
 	_montar_pokemon()   # precisa do treinador pronto: o 1º do trio o acompanha
+	_montar_hud_de_combate()
 	_povoar(600)   # vegetação leve, só pra ter referência de movimento no mundo
-	PonteDeFeedback.anotar("Laboratório 3D aberto (Fase 3)")
+	_anotar("Laboratório 3D aberto (Fase 3)")
 
 ## §16: **três** Pokémon, um por arquétipo implementado — não dezenas.
 ## O objetivo é provar a arquitetura, e três bastam pra isso.
@@ -80,6 +82,16 @@ const TRIO_DE_TESTE : Array[Dictionary] = [
 
 var pokemons : Array = []
 var companheiro : PokemonInstance3D = null
+
+## A HUD é uma apresentação do Pokémon que está sob controle. Ela não procura
+## entidades nem decide estado: o Laboratório, que arbitra a transferência, é a
+## única ponte que a vincula e desvincula.
+func _montar_hud_de_combate() -> void:
+	hud_de_combate = HudCombate3D.new()
+	hud_de_combate.name = "HudCombate3D"
+	add_child(hud_de_combate)
+	hud_de_combate.desvincular_pokemon()
+	hud_de_combate.hide()
 
 ## Fase 7 — os sinais da transferência. O Codex decide duração, curva e efeito;
 ## eu digo QUANDO e ENTRE QUEM (mesma fronteira da D-003).
@@ -110,7 +122,7 @@ func _montar_pokemon() -> void:
 		companheiro.derrotado.connect(_ao_cair_o_pokemon)
 		companheiro.global_position = Terreno3D.ponto_em(
 			treinador.global_position.x + 2.0, treinador.global_position.z + 2.0, 0.5)
-		PonteDeFeedback.anotar("%s acompanha o treinador" % companheiro.nome_exibido)
+		_anotar("%s acompanha o treinador" % companheiro.nome_exibido)
 
 ## §11 + §12: o treinador nasce, e o árbitro de input é quem lhe dá o controle.
 ## Nunca o contrário — o controlador não se auto-ativa.
@@ -463,7 +475,10 @@ func assumir_pokemon() -> Dictionary:
 	if treinador.camera != null and treinador.camera.camera != null:
 		treinador.camera.camera.current = false
 
-	PonteDeFeedback.anotar("assumiu %s" % companheiro.nome_exibido)
+	_anotar("assumiu %s" % companheiro.nome_exibido)
+	if hud_de_combate != null:
+		hud_de_combate.show()
+		hud_de_combate.vincular_pokemon(companheiro)
 	transferencia_concluida.emit(ControlModeManager.COMBAT)
 	return {"ok": true, "motivo": ""}
 
@@ -488,7 +503,10 @@ func voltar_ao_treinador() -> Dictionary:
 	if treinador.camera.camera != null:
 		treinador.camera.camera.current = true
 
-	PonteDeFeedback.anotar("voltou a ser o treinador")
+	_anotar("voltou a ser o treinador")
+	if hud_de_combate != null:
+		hud_de_combate.desvincular_pokemon()
+		hud_de_combate.hide()
 	transferencia_concluida.emit(ControlModeManager.WORLD)
 	return {"ok": true, "motivo": ""}
 
@@ -499,8 +517,16 @@ func _ao_cair_o_pokemon(_quem: Node) -> void:
 		return
 	if not Transferencia.deve_devolver_controle(true, false):
 		return
-	PonteDeFeedback.anotar("o Pokémon caiu — o treinador está exposto")
+	_anotar("o Pokémon caiu — o treinador está exposto")
 	voltar_ao_treinador()
+
+## Autoload não é identificador garantido quando a cena é carregada por um
+## teste `--script`. A ponte segue opcional para a bancada, sem inventar uma
+## mensagem nem falhar o Laboratório por causa da camada de feedback.
+func _anotar(texto: String) -> void:
+	var ponte := get_node_or_null("/root/PonteDeFeedback")
+	if ponte != null:
+		ponte.call("anotar", texto)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Entrada
