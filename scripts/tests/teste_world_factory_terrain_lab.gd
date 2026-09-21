@@ -51,6 +51,22 @@ func _run() -> void:
 			var node := rock as Node3D
 			all_grounded = all_grounded and node != null and absf(node.position.y - lab.factory.altura_em(node.position.x, node.position.z) + .03) < .001
 		_check(all_grounded, "rochas assentam na superfície da factory")
+	var vegetation := lab.get_node_or_null("Vegetation") as Node3D
+	_check(vegetation != null, "vegetação é montada pela World Factory")
+	if vegetation:
+		var multimeshes := 0
+		var range_configured := true
+		for child in vegetation.get_children():
+			var instance := child as MultiMeshInstance3D
+			if instance and instance.multimesh and instance.multimesh.instance_count > 0:
+				multimeshes += 1
+				range_configured = range_configured and instance.visibility_range_end > 0.0
+		_check(multimeshes == 11, "vegetação usa 11 MultiMeshes para todas as variantes reutilizáveis")
+		_check(range_configured, "vegetação possui visibility range para o laboratório")
+		_check(int(lab.vegetation_count.get("trees", 0)) > 0
+			and int(lab.vegetation_count.get("grass_short", 0)) > 0
+			and int(lab.vegetation_count.get("corals", 0)) > 0,
+			"árvores, grama e corais são distribuídos")
 	var player := lab.get_node_or_null("PlayerV1ScaleReference") as Node3D
 	_check(player != null, "Player V1 está na cena como régua")
 	if player and lab.factory:

@@ -15,6 +15,35 @@
     "rock_height_start_m": 10.0
   },
   "visual": {
+    "vegetation": {
+      "seed_offset": 4701,
+      "visibility": {
+        "grass_end_m": 48.0,
+        "tree_end_m": 104.0,
+        "coral_end_m": 42.0,
+        "fade_margin_m": 12.0
+      },
+      "trees": {
+        "count": 32,
+        "min_spacing_m": 9.0,
+        "max_slope": 0.25,
+        "min_scale": 0.82,
+        "max_scale": 1.18,
+        "variants": ["a", "b", "c", "d", "e"]
+      },
+      "grass": {
+        "short": { "count": 110, "min_spacing_m": 1.25, "min_scale": 0.82, "max_scale": 1.20 },
+        "mid": { "count": 76, "min_spacing_m": 1.65, "min_scale": 0.84, "max_scale": 1.15 },
+        "tall": { "count": 42, "min_spacing_m": 2.40, "min_scale": 0.80, "max_scale": 1.10 }
+      },
+      "corals": {
+        "count": 28,
+        "min_spacing_m": 3.50,
+        "min_scale": 0.72,
+        "max_scale": 1.18,
+        "variants": ["branch", "crown", "fan"]
+      }
+    },
     "rock_formations": [
       { "id": "coastal_flat", "variant": "flat", "position_m": [-67, 12], "scale": 1.25, "yaw_deg": 18 },
       { "id": "coastal_round", "variant": "round", "position_m": [-48, 3], "scale": 0.85, "yaw_deg": -34 },

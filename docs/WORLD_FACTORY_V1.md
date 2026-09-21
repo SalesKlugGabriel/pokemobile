@@ -5,8 +5,10 @@
 **Pronto e validado em isolamento:** spec, seed explícita, reservas manuais,
 coordenadas de chunk, relevo multiescala por triangulação, praia, shoreline,
 água visual, cinco formações rochosas GLB e laboratório em 16 chunks.
-**Ainda não iniciado:** vegetação, caminhos, caverna jogável, streaming,
-integração no Laboratório oficial e publicação.
+**Pronto e validado em isolamento:** vegetação inicial instanciada (árvores,
+grama e corais), com alcance de visibilidade.
+**Ainda não iniciado:** caminhos, caverna jogável, streaming, integração no
+Laboratório oficial e publicação.
 
 ## Fonte de configuração
 
@@ -20,10 +22,36 @@ protótipo. Ela declara, sem defaults silenciosos:
   `shallow_depth_m`, além dos limiares de rocha;
 - cinco formações rochosas de referência, cada uma apontando para uma variante
   reutilizável em `assets/models/environment/rocks/`;
+- vegetação com seed própria derivada da seed do mundo, densidade, espaçamento,
+  escala, variantes e distâncias de visibilidade todos explícitos;
 - reservas manuais: spawn, clareira, caminho e futura caverna.
 
 Reservas ainda não alteram gameplay nem colocam props; são ownership explícito
 para que o scatter das fases seguintes não possa ocupar esses espaços.
+
+## Fase 5 — vegetação de referência instanciada
+
+`WorldVegetationScatter` é uma camada pequena da **mesma** World Factory: recebe
+`WorldSpec` e `WorldTerrainFactory`, não cria geografia e não consulta RNG
+global. Cada categoria deriva uma sequência de `world_seed + seed_offset + salt`;
+alterar ordem de montagem da cena não altera o mundo. A saída contém apenas
+transformações, enquanto `WorldFactoryTerrainLab` decide apresentá-las em
+`MultiMeshInstance3D`.
+
+O WORLD_LAB atual monta 32 árvores entre as cinco variantes existentes, 228
+clusters de grama (baixa/média/alta) e 28 corais entre três variantes, todos com
+variação de rotação e escala. Árvores e grama aceitam exclusivamente superfície
+`grass`, respeitam inclinação e excluem spawn, clareira, caminho e reserva de
+caverna. Corais aceitam exclusivamente `shallow_waterbed`; portanto árvores e
+grama não podem nascer dentro da água, e corais não ocupam solo seco ou oceano
+profundo. Não há colisores de vegetação nesta fase: o Player V1 permanece a
+régua de escala, e colisões/obstáculos de gameplay pertencem à integração futura.
+
+São 11 MultiMeshes (cinco árvores, três gramíneas e três corais), em vez de
+288 nós de props. As distâncias de visibilidade e margem de fade também vêm da
+spec: grama 48 m, árvores 104 m, corais 42 m e margem 12 m. Isto é culling de
+apresentação, não LOD geométrico final; LODs de mesh e vegetação de produção
+continuam pendentes para a Fase 19/20.
 
 ## Contratos
 
@@ -73,11 +101,15 @@ godot4 --headless --path /root/pokemobile-v3-codex \
   --script res://scripts/tests/teste_world_factory_terrain_lab.gd
 ```
 
-Resultado atual: **11 ok, 0 falhas** — factory criada pela spec, 16 chunks
+Resultado atual: **15 ok, 0 falhas** — factory criada pela spec, 16 chunks
 visuais, 16 colisores, água shader sem física, malha de água subdividida, cinco
-rochas assentadas e Player V1 sobre o terreno. A captura Web local foi feita em
-1280 × 720 com WebGL: relevo, costa e as transições são visíveis; não houve
-publicação.
+rochas assentadas, 11 MultiMeshes de vegetação com visibility range e Player V1
+sobre o terreno. O validador de spec/factory retorna **20 ok, 0 falhas**, inclusive
+contagem declarada, determinismo do scatter, exclusão das reservas, vegetação
+terrestre fora da água e corais somente no raso. O export Web temporário concluiu
+sem erro de script ou shader; o renderer SwiftShader headless da VPS não manteve
+a cena V3 viva depois do carregamento, portanto FPS e avaliação visual final
+seguem para navegador real, sem publicação.
 
 Medição CPU em 21/09 (VPS, 2 núcleos, headless): 16 chunks de 64 m / 32.768
 triângulos geraram em **151,517 ms** (mediana); trimeshes em **34,624 ms**.
@@ -85,4 +117,5 @@ FPS é uma medição de navegador real e permanece fora deste laboratório.
 
 Isto não é ainda a integração de gameplay: `Terreno3D`, spawn, Surf e a
 superfície física da água continuam fora do escopo. O próximo gate visual é
-vegetação instanciada/LOD; não expandir o mapa antes dele.
+composição/variação de vegetação e LOD de mesh sob medição real; não expandir o
+mapa antes dele.

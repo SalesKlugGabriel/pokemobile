@@ -1,5 +1,27 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: World Factory V1, vegetação instanciada
+
+- Evoluí a Factory V1 isolada sem tocar `Terreno3D`, spawn, o Laboratório oficial
+  nem a geografia. `WorldVegetationScatter` recebe a mesma spec/factory, deriva
+  RNG determinístico por categoria e entrega transformações; a cena do WORLD_LAB
+  continua dona da apresentação.
+- A spec agora declara 32 árvores (cinco variantes), 228 clusters de grama
+  (três alturas), 28 corais (três variantes), escalas, espaçamentos e visibility
+  ranges. O laboratório converte esses dados em 11 `MultiMeshInstance3D`, com
+  sombra e fade configurado, em vez de centenas de nós de props.
+- Árvore e grama aceitam somente `grass` com inclinação permitida; corais aceitam
+  somente `shallow_waterbed`. Spawn, clareira, caminho e futura caverna excluem
+  todo scatter. Assim não há árvore/grama na água e não há coral em terra.
+- Testado em série após importação: `validate_world_factory.gd` **20 ok, 0
+  falhas**; `teste_world_factory_terrain_lab.gd` **15 ok, 0 falhas**. O export
+  Web temporário concluiu sem erro de parse/script/shader. Chromium com
+  SwiftShader nesta VPS carrega a página, mas encerra antes da cena V3 estabilizar;
+  não usei isso como medição de FPS nem publiquei nada.
+- Próximo passo: polir composição e LOD geométrico sob medição em navegador real;
+  ainda não integrar gameplay, streaming, colisão de props, Surf, cavernas ou
+  expandir mapa.
+
 ## Atualização Codex — 21/09: World Factory V1, fundação terrain / beach / water
 
 - Evoluí a **mesma** `WorldTerrainFactory` e a cena isolada

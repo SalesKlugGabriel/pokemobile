@@ -3,6 +3,7 @@ extends Node3D
 
 const WorldSpec := preload("res://scripts/world_factory/WorldSpec.gd")
 const TerrainFactory := preload("res://scripts/world_factory/WorldTerrainFactory.gd")
+const VegetationScatter := preload("res://scripts/world_factory/WorldVegetationScatter.gd")
 const PLAYER_V1 := preload("res://assets/characters/player_v1/player_v1.glb")
 const TERRAIN_SHADER := preload("res://assets/shaders/v3/terrain.gdshader")
 const WATER_SHADER := preload("res://assets/shaders/v3/water.gdshader")
@@ -13,9 +14,27 @@ const ROCK_VARIANTS := {
 	"large": preload("res://assets/models/environment/rocks/rock_large.glb"),
 	"flat": preload("res://assets/models/environment/rocks/rock_flat.glb")
 }
+const TREE_VARIANTS := {
+	"a": preload("res://assets/models/environment/trees/tree_a.glb"),
+	"b": preload("res://assets/models/environment/trees/tree_b.glb"),
+	"c": preload("res://assets/models/environment/trees/tree_c.glb"),
+	"d": preload("res://assets/models/environment/trees/tree_d.glb"),
+	"e": preload("res://assets/models/environment/trees/tree_e.glb")
+}
+const GRASS_VARIANTS := {
+	"short": preload("res://assets/models/environment/grass/grass_short.glb"),
+	"mid": preload("res://assets/models/environment/grass/grass_mid.glb"),
+	"tall": preload("res://assets/models/environment/grass/grass_tall.glb")
+}
+const CORAL_VARIANTS := {
+	"branch": preload("res://assets/models/environment/corals/coral_branch.glb"),
+	"crown": preload("res://assets/models/environment/corals/coral_crown.glb"),
+	"fan": preload("res://assets/models/environment/corals/coral_fan.glb")
+}
 
 var factory: WorldTerrainFactory
 var chunk_count := 0
+var vegetation_count := {}
 
 
 func _ready() -> void:
@@ -28,6 +47,7 @@ func _ready() -> void:
 	_build_chunks(spec)
 	_build_water(spec)
 	_build_rock_formations(spec)
+	_build_vegetation(spec)
 	_place_scale_reference(spec)
 	_configure_camera()
 
@@ -112,6 +132,91 @@ func _build_rock_formations(spec: Dictionary) -> void:
 		rock.rotation_degrees.y = float(formation.get("yaw_deg", 0.0))
 		rock.scale = Vector3.ONE * float(formation.get("scale", 1.0))
 		root.add_child(rock)
+
+
+func _build_vegetation(spec: Dictionary) -> void:
+	var scatter := VegetationScatter.new(spec, factory)
+	var groups := scatter.gerar()
+	var visual: Dictionary = spec.get("visual", {})
+	var vegetation: Dictionary = visual.get("vegetation", {})
+	var visibility: Dictionary = vegetation.get("visibility", {})
+	var root := Node3D.new()
+	root.name = "Vegetation"
+	add_child(root)
+
+	var grass_material := ShaderMaterial.new()
+	grass_material.shader = preload("res://assets/shaders/v3/vegetation.gdshader")
+	var tree_material := ShaderMaterial.new()
+	tree_material.shader = preload("res://assets/shaders/v3/tree.gdshader")
+	var fade := float(visibility["fade_margin_m"])
+	vegetation_count = {}
+	for kind in ["short", "mid", "tall"]:
+		var items: Array = groups["grass_" + kind]
+		_add_multimesh(root, "Grass_%s" % kind.capitalize(), GRASS_VARIANTS[kind], items,
+			grass_material, float(visibility["grass_end_m"]), fade)
+		vegetation_count["grass_" + kind] = items.size()
+
+	var trees_by_variant := {}
+	for item in groups["trees"]:
+		var variant := str(item.get("variant", ""))
+		if not trees_by_variant.has(variant):
+			trees_by_variant[variant] = []
+		trees_by_variant[variant].append(item)
+	for variant in TREE_VARIANTS:
+		var items: Array = trees_by_variant.get(variant, [])
+		_add_multimesh(root, "Trees_%s" % variant.to_upper(), TREE_VARIANTS[variant], items,
+			tree_material, float(visibility["tree_end_m"]), fade)
+	vegetation_count["trees"] = (groups["trees"] as Array).size()
+
+	var corals_by_variant := {}
+	for item in groups["corals"]:
+		var variant := str(item.get("variant", ""))
+		if not corals_by_variant.has(variant):
+			corals_by_variant[variant] = []
+		corals_by_variant[variant].append(item)
+	for variant in CORAL_VARIANTS:
+		var items: Array = corals_by_variant.get(variant, [])
+		_add_multimesh(root, "Corals_%s" % variant.capitalize(), CORAL_VARIANTS[variant], items,
+			null, float(visibility["coral_end_m"]), fade)
+	vegetation_count["corals"] = (groups["corals"] as Array).size()
+
+
+func _add_multimesh(root: Node3D, node_name: String, packed: PackedScene, items: Array, material: Material, range_end: float, fade: float) -> void:
+	if items.is_empty():
+		return
+	var mesh := _extract_mesh(packed)
+	if mesh == null:
+		push_warning("WORLD_LAB não encontrou mesh em vegetação: %s" % node_name)
+		return
+	var multimesh := MultiMesh.new()
+	multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	multimesh.mesh = mesh
+	multimesh.instance_count = items.size()
+	for index in items.size():
+		var item: Dictionary = items[index]
+		var scale := float(item["scale"])
+		var basis := Basis(Vector3.UP, float(item["yaw"])).scaled(Vector3.ONE * scale)
+		multimesh.set_instance_transform(index, Transform3D(basis, item["position"]))
+	var visual := MultiMeshInstance3D.new()
+	visual.name = node_name
+	visual.multimesh = multimesh
+	visual.material_override = material
+	visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	visual.visibility_range_end = range_end
+	visual.visibility_range_end_margin = fade
+	visual.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	root.add_child(visual)
+
+
+func _extract_mesh(packed: PackedScene) -> Mesh:
+	var source := packed.instantiate()
+	var visual := source.find_child("*", true, false) as MeshInstance3D
+	if visual == null:
+		source.free()
+		return null
+	var mesh := visual.mesh
+	source.free()
+	return mesh
 
 
 func _place_scale_reference(spec: Dictionary) -> void:

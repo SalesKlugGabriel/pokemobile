@@ -20,7 +20,7 @@ static func carregar_world_lab() -> Dictionary:
 
 static func validar(spec: Dictionary) -> PackedStringArray:
 	var erros := PackedStringArray()
-	for chave in ["id", "version", "world_seed", "bounds_m", "terrain", "manual_reservations"]:
+	for chave in ["id", "version", "world_seed", "bounds_m", "terrain", "visual", "manual_reservations"]:
 		if not spec.has(chave):
 			erros.append("campo obrigatório ausente: %s" % chave)
 	var bounds: Dictionary = spec.get("bounds_m", {})
@@ -42,4 +42,28 @@ static func validar(spec: Dictionary) -> PackedStringArray:
 	for chave in ["beach_width_m", "shoreline_width_m", "shallow_depth_m"]:
 		if float(terrain[chave]) <= 0.0:
 			erros.append("terrain.%s precisa ser positivo" % chave)
+	var visual: Dictionary = spec.get("visual", {})
+	var vegetation: Dictionary = visual.get("vegetation", {})
+	if vegetation.is_empty():
+		erros.append("visual.vegetation ausente")
+		return erros
+	for chave in ["seed_offset", "visibility", "trees", "grass", "corals"]:
+		if not vegetation.has(chave):
+			erros.append("visual.vegetation.%s ausente" % chave)
+	var grass: Dictionary = vegetation.get("grass", {})
+	for chave in ["short", "mid", "tall"]:
+		if not grass.has(chave):
+			erros.append("visual.vegetation.grass.%s ausente" % chave)
+	for group_value in [vegetation.get("trees", {}), vegetation.get("corals", {}), grass.get("short", {}), grass.get("mid", {}), grass.get("tall", {})]:
+		if not group_value is Dictionary:
+			erros.append("grupo de vegetação inválido")
+			continue
+		var group: Dictionary = group_value
+		for chave in ["count", "min_spacing_m", "min_scale", "max_scale"]:
+			if not group.has(chave):
+				erros.append("grupo de vegetação sem %s" % chave)
+		if group.has("count") and int(group["count"]) < 0:
+			erros.append("contagem de vegetação não pode ser negativa")
+		if group.has("min_spacing_m") and float(group["min_spacing_m"]) <= 0.0:
+			erros.append("espaçamento de vegetação precisa ser positivo")
 	return erros
