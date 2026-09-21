@@ -75,6 +75,21 @@ abertas, vegetação densa fica agrupada e os recifes possuem leitura própria �
 não declara geografia canônica além do que já existe em `world_lab_v1.json`.
 Rios, cidades, cavernas e biomas finais continuam dados de mundo futuros.
 
+## Fase 7 — polimento de material e transição
+
+O shader de terreno agora combina variação macro, média e granular para o leito
+marinho, areia úmida/seca, grama, pequenas manchas de solo e rocha. A ordem das
+camadas mantém rocha como acabamento final sobre encosta/altura, evitando que
+variação de grama a cubra. O shader de água recebeu resposta de Fresnel, emissão
+discreta, transparência variável e ondas em duas escalas; a profundidade visual
+continua sendo dada pelo leito classificado sob o plano de água.
+
+Árvores voltaram a usar os materiais PBR que já existem nos seus GLBs. Antes, um
+shader único substituía tronco e copa e usava altura global, o que mudava a cor
+de uma árvore conforme a elevação do terreno. Grama conserva o shader V3 de
+vento e variação. Essa fase não acrescenta textura externa, não altera a paleta
+canônica e não tenta esconder geometria com iluminação.
+
 ## Contratos
 
 - `WorldTerrainFactory` recebe a spec no construtor. Não lê `RNGManager`, não
@@ -123,7 +138,7 @@ godot4 --headless --path /root/pokemobile-v3-codex \
   --script res://scripts/tests/teste_world_factory_terrain_lab.gd
 ```
 
-Resultado atual: **18 ok, 0 falhas** — factory criada pela spec, 16 chunks
+Resultado atual: **20 ok, 0 falhas** — factory criada pela spec, 16 chunks
 visuais, 16 colisores, água shader sem física, malha de água subdividida, cinco
 rochas assentadas, 16 MultiMeshes de vegetação com visibility range e Player V1
 sobre o terreno. O teste também confirma as cinco variantes LOD1, sua faixa de
@@ -131,7 +146,8 @@ ativação e que seus arquivos são menores que LOD0. O validador de spec/factor
 retorna **22 ok, 0 falhas**, inclusive
 contagem declarada, determinismo do scatter, exclusão das reservas, vegetação
 terrestre fora da água, corais somente no raso e todas as instâncias dentro de
-sua zona de composição declarada. O export Web temporário concluiu
+sua zona de composição declarada. O teste de cena também verifica árvores com
+materiais PBR próprios e grama com shader V3. O export Web temporário concluiu
 sem erro de script ou shader; o renderer SwiftShader headless da VPS não manteve
 a cena V3 viva depois do carregamento, portanto FPS e avaliação visual final
 seguem para navegador real, sem publicação.
@@ -142,5 +158,5 @@ FPS é uma medição de navegador real e permanece fora deste laboratório.
 
 Isto não é ainda a integração de gameplay: `Terreno3D`, spawn, Surf e a
 superfície física da água continuam fora do escopo. O próximo gate visual é
-medir composição/LOD em navegador real e então polir materiais e transições;
-não expandir o mapa antes dele.
+medir composição/LOD e materiais em navegador real; não expandir o mapa antes
+dele.

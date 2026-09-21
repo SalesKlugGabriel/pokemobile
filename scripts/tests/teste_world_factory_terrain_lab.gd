@@ -78,6 +78,12 @@ func _run() -> void:
 			if source and lod:
 				lod_is_lighter = lod_is_lighter and lod.get_length() < source.get_length()
 		_check(lod_is_lighter, "arquivos LOD1 são menores que as árvores próximas")
+		var tree_visual := vegetation.get_node_or_null("Trees_A") as MultiMeshInstance3D
+		var grass_visual := vegetation.get_node_or_null("Grass_Short") as MultiMeshInstance3D
+		_check(tree_visual != null and tree_visual.material_override == null,
+			"árvores preservam materiais PBR próprios do GLB")
+		_check(grass_visual != null and grass_visual.material_override is ShaderMaterial,
+			"grama mantém shader V3 de vento e variação")
 		_check(int(lab.vegetation_count.get("trees", 0)) > 0
 			and int(lab.vegetation_count.get("grass_short", 0)) > 0
 			and int(lab.vegetation_count.get("corals", 0)) > 0,

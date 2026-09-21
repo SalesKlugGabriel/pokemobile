@@ -1,5 +1,21 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: World Factory V1, materiais e transições
+
+- Polimento visual limitado ao WORLD_LAB: terreno agora tem variação em escalas
+  macro/média/granular, solo discreto, areia úmida/seca e rocha corretamente por
+  cima de grama; água ganhou Fresnel, emissão leve e transparência/ondas mais
+  legíveis. A topografia, superfícies e parâmetros da Factory não mudaram.
+- Removi o override genérico das árvores para preservar os materiais PBR dos
+  GLBs — ele fazia tronco/copa dependerem da altura global do mundo. Grama segue
+  no shader V3 de vento; corais preservam seus materiais de asset.
+- Importação e teste de cena: **20 ok, 0 falhas**. O validador de Factory segue
+  em **22 ok, 0 falhas**. A inspeção estética e FPS em navegador real continuam
+  pendentes do Gabriel; não publiquei nem alterei integração de gameplay.
+- Próximo passo: medir a composição/material no navegador real; em seguida,
+  escolher com evidência se a próxima melhoria é LOD adicional, iluminação ou
+  integração do WORLD_LAB.
+
 ## Atualização Codex — 21/09: World Factory V1, composição ambiental
 
 - A distribuição do WORLD_LAB passou a usar zonas declarativas na mesma spec:

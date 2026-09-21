@@ -154,8 +154,6 @@ func _build_vegetation(spec: Dictionary) -> void:
 
 	var grass_material := ShaderMaterial.new()
 	grass_material.shader = preload("res://assets/shaders/v3/vegetation.gdshader")
-	var tree_material := ShaderMaterial.new()
-	tree_material.shader = preload("res://assets/shaders/v3/tree.gdshader")
 	var fade := float(visibility["fade_margin_m"])
 	vegetation_count = {}
 	for kind in ["short", "mid", "tall"]:
@@ -173,9 +171,9 @@ func _build_vegetation(spec: Dictionary) -> void:
 	for variant in TREE_VARIANTS:
 		var items: Array = trees_by_variant.get(variant, [])
 		_add_multimesh(root, "Trees_%s" % variant.to_upper(), TREE_VARIANTS[variant], items,
-			tree_material, 0.0, float(tree_settings["lod0_end_m"]), fade, true)
+			null, 0.0, float(tree_settings["lod0_end_m"]), fade, true)
 		_add_multimesh(root, "TreesLod1_%s" % variant.to_upper(), TREE_LOD1_VARIANTS[variant], items,
-			tree_material, float(tree_settings["lod0_end_m"]) - float(tree_settings["lod_overlap_m"]),
+			null, float(tree_settings["lod0_end_m"]) - float(tree_settings["lod_overlap_m"]),
 			float(visibility["tree_end_m"]), fade, false)
 	vegetation_count["trees"] = (groups["trees"] as Array).size()
 

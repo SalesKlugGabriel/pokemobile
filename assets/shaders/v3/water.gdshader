@@ -14,8 +14,12 @@ void vertex() {
 void fragment() {
 	float broad_wave = 0.5 + 0.5 * sin(world_pos.x * 0.07 + world_pos.z * 0.05 + TIME * 0.45);
 	float ripples = 0.5 + 0.5 * sin(world_pos.x * 0.20 + world_pos.z * 0.11 + TIME * 0.8);
-	ALBEDO = mix(deep_color, shallow_color, 0.20 + broad_wave * 0.22 + ripples * 0.11);
-	METALLIC = 0.05;
-	ROUGHNESS = 0.12;
-	ALPHA = 0.64;
+	float wave_mix = 0.16 + broad_wave * 0.25 + ripples * 0.13;
+	float fresnel = pow(1.0 - clamp(dot(normalize(NORMAL), normalize(VIEW)), 0.0, 1.0), 3.0);
+	vec3 water = mix(deep_color, shallow_color, wave_mix);
+	ALBEDO = mix(water, vec3(0.52, 0.76, 0.79), fresnel * 0.34);
+	EMISSION = water * (0.035 + ripples * 0.018);
+	METALLIC = 0.02;
+	ROUGHNESS = mix(0.16, 0.07, fresnel);
+	ALPHA = mix(0.55, 0.70, fresnel);
 }
