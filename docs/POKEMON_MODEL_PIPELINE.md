@@ -98,6 +98,12 @@ Charizard (#6), Gyarados (#130) e Pidgeot (#18) entregues pelo Codex e
 **aprovados**: altura exata da Pokédex (1,700 / 6,500 / 1,500 m), pés em 0,000,
 animações completas.
 
+**Rattata (#19)** entrou em 21/09 como o primeiro modelo de selvagem em volume:
+0,300 m, 1.442 triângulos, dois materiais, rig quadrúpede e seis Actions.
+O relatório e a fonte reproduzível estão em
+[`POKEMON_RATTATA_19_REPORT.md`](POKEMON_RATTATA_19_REPORT.md). Assim, os testes
+de spawn/skills/performance V3 deixam de exercitar o fallback visual para #19.
+
 Duas coisas que a entrega mostrou que **o contrato estava errado**, não o modelo:
 
 ### 1. O nome da animação é livre; o que importa é o papel

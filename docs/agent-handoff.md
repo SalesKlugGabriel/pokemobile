@@ -1,5 +1,21 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: Rattata #19, primeiro selvagem em volume
+
+- `assets/models/pokemon/19.glb` substitui o primitivo de Rattata, usado nas
+  regressões de skills, spawn e ritmo. O carregamento continua genérico pelo ID
+  já existente em `PokemonInstance3D`; não houve comportamento por espécie.
+- Fonte Blender reproduzível, módulos de material/modelo/rig/Actions/export e
+  previews estão em `tools/blender/pokemon/rattata/`. A entrega tem 1.442
+  triângulos, dois materiais PBR, 14 ossos e Actions in-place `IDLE`, `WALK`,
+  `RUN`, `ATTACK_01`, `HIT` e `FAINT`.
+- Régua Godot: `teste_modelo_rattata_19.gd` **17 ok, 0 falhas** (altura 0,30 m,
+  pés, rig, clips, orçamento). A Fase 10 segue **61 ok, 0 falhas** sem o aviso
+  de modelo ausente para #19.
+- A inspeção de poses corrigiu eixos de orelha/cauda e a hierarquia anatômica do
+  rig antes da exportação. A seleção de Actions em runtime ainda depende de
+  contrato de gameplay; RFC-010 foi aberta, sem alterar o motor.
+
 ## Atualização Codex — 21/09: impacto de golpes no mundo 3D
 
 - `ImpactoDeGolpe3D` escuta somente `EventBus.golpe_resolvido`. O relatório já
