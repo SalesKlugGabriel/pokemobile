@@ -1,5 +1,25 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: impacto de golpes no mundo 3D
+
+- `ImpactoDeGolpe3D` escuta somente `EventBus.golpe_resolvido`. O relatório já
+  calculado fornece `destino`, tipo, efetividade e fração de vida; a apresentação
+  cria dois anéis emissivos breves naquela posição, sem escolher alvo, recalcular
+  dano ou transformar efetividade em regra própria.
+- A intensidade visual usa o rótulo de efetividade já produzido pelo motor e a
+  cor é exclusivamente linguagem de apresentação por tipo. Há teto de **12**
+  impactos simultâneos para que combate com vários alvos não degrade o laboratório.
+- `Laboratorio3D` monta o VFX junto da HUD e da telegrafia. Regressão isolada:
+  `teste_impacto_de_golpe_3d.gd` (**8 ok, 0 falhas**); apresentação já existente:
+  HUD **4/4**, integração da HUD **6/6**, telegrafia **6/6**.
+
+### Próxima lacuna de apresentação
+
+A tela de corpo/loot segue esperando a fiação transacional da Bag: hoje
+`Corpo3D.pegar()` remove o item do corpo imediatamente, mas não há operação
+atômica que o adicione à mochila. Não chamar esse método pela UI antes dessa
+ponte, pois um botão bonito poderia apagar loot.
+
 ## Atualização Codex — 21/09: telegrafia visual 3D de skills
 
 - `TelegrafoSkill3D` agora escuta o anúncio já calculado de `UsoDeSkill` pelo

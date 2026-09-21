@@ -54,6 +54,7 @@ var treinador : TrainerController3D = null
 var controle : ControlModeManager = null
 var hud_de_combate : HudCombate3D = null
 var telegrafo_de_skill : TelegrafoSkill3D = null
+var impacto_de_golpe : ImpactoDeGolpe3D = null
 
 func _ready() -> void:
 	_montar_base()
@@ -71,6 +72,7 @@ func _ready() -> void:
 	_montar_pokemon()   # precisa do treinador pronto: o 1º do trio o acompanha
 	_montar_hud_de_combate()
 	_montar_telegrafo_de_skill()
+	_montar_impacto_de_golpe()
 	_povoar(600)   # vegetação leve, só pra ter referência de movimento no mundo
 	_anotar("Laboratório 3D aberto (Fase 3)")
 
@@ -101,6 +103,13 @@ func _montar_telegrafo_de_skill() -> void:
 	telegrafo_de_skill = TelegrafoSkill3D.new()
 	telegrafo_de_skill.name = "TelegrafoSkill3D"
 	add_child(telegrafo_de_skill)
+
+## O relatório de combate já define onde acertou e o significado do acerto.
+## Esta ponte só adiciona a leitura visual no mundo; não participa do dano.
+func _montar_impacto_de_golpe() -> void:
+	impacto_de_golpe = ImpactoDeGolpe3D.new()
+	impacto_de_golpe.name = "ImpactoDeGolpe3D"
+	add_child(impacto_de_golpe)
 
 ## Fase 7 — os sinais da transferência. O Codex decide duração, curva e efeito;
 ## eu digo QUANDO e ENTRE QUEM (mesma fronteira da D-003).
