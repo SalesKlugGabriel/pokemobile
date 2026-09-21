@@ -204,9 +204,42 @@ func _pintar_botao(botao: Button) -> void:
 ## Isto é botão de DESENVOLVIMENTO, não de produto: sem ele, nenhum conserto da
 ## V3 é jogável fora do editor, e "está no ar" viraria uma frase sem efeito.
 ## O desenho de verdade (menu, transição, nome) é do Codex, na Fase 19.
+## O endereço pede o laboratório direto?
+##
+## 🔴 21/09: o Gabriel abria `poke.workprog.pro/v3d/` **havia semanas** e passou
+## a ver 404. Conferi tudo — nenhuma versão do `nginx.conf`, em nenhuma branch,
+## e nenhum rótulo do Traefik jamais serviu esse caminho. Ele não estava vendo
+## uma página morrer; estava usando um endereço que nunca existiu, e chegando ao
+## laboratório por outro caminho sem perceber.
+##
+## Corrigir o Gabriel seria a resposta pior. O endereço que ele tem na memória é
+## a coisa mais próxima de um atalho oficial que este projeto tem — então ele
+## passou a existir, e a levar direto ao laboratório.
+##
+## ⚠️ `JavaScriptBridge` só existe no build web. No desktop e em teste headless
+## isto devolve `false` sem erro, e o botão continua sendo o caminho.
+func _endereco_pede_o_laboratorio() -> bool:
+	if not OS.has_feature("web"):
+		return false
+	if not JavaScriptBridge.has_method("eval"):
+		return false
+	var onde = JavaScriptBridge.eval("window.location.pathname + window.location.search", true)
+	if onde == null:
+		return false
+	var texto := str(onde).to_lower()
+	return texto.contains("/v3d") or texto.contains("lab=1")
+
 func _porta_da_v3() -> void:
 	var caixa := $VBox
 	if caixa == null:
+		return
+
+	# Antes de desenhar o botão: se o endereço já pediu o laboratório, vai
+	# direto. `call_deferred` porque trocar de cena dentro do `_ready` da cena
+	# que está nascendo é trocar o tapete debaixo do próprio pé.
+	if _endereco_pede_o_laboratorio():
+		get_tree().call_deferred("change_scene_to_file",
+			"res://scenes/gameplay_v3/Laboratorio3D.tscn")
 		return
 	var b := Button.new()
 	b.name = "BtnV3"

@@ -28,5 +28,26 @@ c("existe a caixa de mandar tarefa", 'id="tarefaTexto"' in t and 'data-para="cla
 c("e ela oferece os dois agentes", 'data-para="codex"' in t and 'data-para="ambos"' in t)
 c("o espelho avisa que é espelho", 'id="avisoEspelho"' in t)
 c("os botões de decisão existem", 'class="decidir"' in t)
+
+# ── O atalho /v3d/ (21/09) ─────────────────────────────────────────────────
+# O Gabriel usava esse endereço havia semanas e ele nunca existiu. Agora
+# existe, e estas conferências impedem que ele volte a sumir em silêncio.
+ng = io.open("nginx.conf", encoding="utf-8").read()
+c("a rota /v3d/ existe", "location /v3d/" in ng)
+c("e /v3d sem barra redireciona", "location = /v3d" in ng)
+# O simétrico que mais importa: o jogo PRECISA dos cabeçalhos, o painel não.
+bloco_v3d = ng.split("location /v3d/")[1].split("}")[0] if "location /v3d/" in ng else ""
+c("/v3d/ tem os cabeçalhos que o WebAssembly exige",
+  "Cross-Origin-Embedder-Policy" in bloco_v3d and "Cross-Origin-Opener-Policy" in bloco_v3d,
+  "sem eles o jogo não sobe em /v3d/")
+bloco_pn = ng.split("location /painel/")[1].split("}")[0] if "location /painel/" in ng else ""
+c("e /painel/ continua SEM eles", "Cross-Origin" not in bloco_pn,
+  "herdar isso bloqueia a fonte do Google no painel, em silêncio")
+c("usa alias, não root", "alias /usr/share/nginx/html/" in bloco_v3d,
+  "com root o nginx procuraria /v3d/index.js, que não existe")
+ts = io.open("scripts/ui/TitleScreen.gd", encoding="utf-8").read()
+c("a tela inicial lê o endereço", "_endereco_pede_o_laboratorio" in ts)
+c("e ainda oferece o botão pra quem entra pela raiz", 'Gameplay V3 (3D)' in ts)
+
 print("\n=== Resultado: %d ok, %d falhas ===" % (ok,fail))
 sys.exit(1 if fail else 0)
