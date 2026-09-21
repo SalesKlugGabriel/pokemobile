@@ -270,6 +270,30 @@ as duas ao mesmo tempo** — são 2 núcleos, e a lentidão ainda pode estourar 
 
 ---
 
+## 🔴 Publicar é UM comando — e por que (21/09)
+
+O Gabriel reportou uma página fora do ar. O 404 era de um endereço que nunca
+existiu (`/v3d/`), mas o achado de verdade foi outro: **o jogo no ar estava 3
+dias e 28 commits atrás do código.** As Fases 20 e 21, as RFCs 006/007/008 e a
+ponte visual do Player V1 estavam commitadas e **invisíveis**.
+
+A causa é armadilha de processo, não bug. O `Dockerfile` faz
+`COPY builds/web/ ...` — ele **copia** o build, não o gera. Eu rodei
+`docker build` várias vezes por dia pra publicar o painel, e cada uma
+republicou fielmente um `builds/web/` de 18/09.
+
+⚠️ **O perigo é o disfarce:** `converged` imprime sucesso, o site responde 200,
+a tag da imagem muda. **Parecia deploy.**
+
+➡️ **Use `./tools/publicar.sh`.** Ele exporta, empacota, publica e **confere o
+carimbo no ar** — e **recusa** publicar se o export não tiver gerado nada novo,
+em vez de republicar velho. Nunca mais `docker build` solto pra "publicar".
+
+⚠️ E 200 não prova que o jogo RODA: abrir em navegador continua sendo o gate.
+**A V3 é o botão "Gameplay V3 (3D) — teste" na tela inicial**, não um endereço.
+
+---
+
 ## 🖥️ O painel do Gabriel
 
 `docs/painel/index.html` — uma página só, pra ler as sprints, os contratos e a
