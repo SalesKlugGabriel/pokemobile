@@ -14,7 +14,7 @@ config_version=5
 
 config/name="PokéMobile"
 config/description="Action RPG Top-Down baseado em Kanto — mundo aberto, single-player, desktop"
-run/main_scene="res://scenes/ui/TitleScreen.tscn"
+run/main_scene="res://scenes/gameplay_v3/EntradaV3.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 config/icon="res://assets/icons/icon.png"
 

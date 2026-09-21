@@ -1,5 +1,15 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: entrada V3 como rota padrão
+
+- `project.godot` agora inicia em `EntradaV3.tscn`, uma entrada responsiva que
+  declara que o laboratório ainda é ambiente de desenvolvimento e abre somente
+  `Laboratorio3D.tscn`. Ela não cria, carrega nem inventa estado de save.
+- A antiga `TitleScreen.tscn` e seu fluxo 2D continuam preservados como legado,
+  mas deixam de ser a rota inicial: a experiência padrão passa a ser 3D.
+- Regressão `teste_entrada_v3.gd` confere rota, cena, destino, CTA e alvo de
+  toque sem precisar montar o mundo real.
+
 ## Atualização Codex — 21/09: Rattata #19, primeiro selvagem em volume
 
 - `assets/models/pokemon/19.glb` substitui o primitivo de Rattata, usado nas
