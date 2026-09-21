@@ -1,6 +1,6 @@
 # RFC-002 — Tela de seleção de kit (conhecidos → equipados)
 
-**Status:** PROPOSED
+**Status:** APROVADA pelo Gabriel em 21/09/2026 — na fila do Codex
 **Owner:** Codex (client/UI) — a tela é dele
 **Reviewer:** Claude (gameplay) — o contrato é meu
 **Aberto por:** Claude · 11/09/2026
@@ -122,4 +122,17 @@ que vai mudar é trabalho feito duas vezes.
 
 ## Decisão
 
-_Aguardando o Gabriel — decidível pelo painel._
+✅ **APROVADA pelo Gabriel em 21/09/2026, 11:34**, pelo botão do painel.
+
+Foi a **primeira decisão tomada pelo painel** em vez de por mensagem, e o
+caminho fechou inteiro: o botão gravou, eu li com `read_db` e transcrevi aqui.
+A RFC continua sendo a fonte de verdade; o painel é a porta.
+
+**Vai para a fila do Codex** (a tela é dele), depois da Fase 19 — como a seção
+"O pedido" já previa: uma tela nova sobre uma HUD que ainda está ganhando cara
+é trabalho feito duas vezes.
+
+⚠️ Lembretes que o executor precisa ter à mão, e que já estão no corpo acima:
+nenhuma conta nova na tela; `previsao_de_troca()` mostra o preço **antes** de
+confirmar (25 níveis por troca de MO); `max_skill_slots` nunca é cacheado entre
+aberturas; e o `motivo` de uma falha já vem pronto em português.

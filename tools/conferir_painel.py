@@ -17,8 +17,14 @@ c("nenhuma linha de documentação virou tarefa", not lixo,
   "a extração voltou a pegar tabelas de subseção")
 c("toda tarefa diz de quem é", all('class="dono' in i for i in itens))
 # Item concluído não aparece: ele vive no histórico do QUADRO.
-feitos=[i for i in itens if "✅" in i]
-c("item concluído não aparece na lista", not feitos, str(len(feitos))+" com ✅")
+# ⚠️ A régua é "COMEÇA com ✅", a mesma do gerador — e não "contém ✅".
+# Uma linha pode citar uma aprovação no meio do texto e continuar pendente:
+# "RFC-002 ✅ aprovada pelo Gabriel" é trabalho A FAZER pelo Codex. Conferir
+# por "contém" reprovava a linha certa.
+def _texto(i):
+    return re.sub('<[^>]+>','',re.search(r'<div class="oque"><p>(.*?)</p>',i,re.S).group(1)).strip()
+feitos=[i for i in itens if _texto(i).startswith("✅")]
+c("item concluído não aparece na lista", not feitos, str(len(feitos))+" começam com ✅")
 # O travado vai pro fim — lista que começa pelo bloqueado ensina a ignorá-la.
 trav=[n for n,i in enumerate(itens) if 'travado' in i[:40]]
 livres=[n for n,i in enumerate(itens) if 'travado' not in i[:40]]

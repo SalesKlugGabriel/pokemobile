@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **136 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **143 arquivos, 0 com falha**
 
 ---
 
@@ -42,6 +42,7 @@ verdade.
 | 17 | **Move Pool** | ✅ 18/09 · `RegraDeMovePool` · **conhecidos / equipados / ativos** · 59 conferências · 🔴 achou o kit vazio |
 | 18 | **Alpha** | ✅ 18/09 · `RegraDeAlpha` · 58 conferências · 🔴 **nunca tinha nascido um** · raridade fixada pelo Gabriel |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** · acionado em 19/09 |
+| — | **RFC-010 — o Pokémon diz o que faz** | ✅ 21/09 · `estado_visual_de_locomocao()` (idle/walk/run/swim/fly) + `velocidade_horizontal()` + sinal de attack/hit/faint · 18 conferências · **destrava a animação dos Pokémon** |
 | — | **Alarme de pontas soltas** | ✅ 21/09 · `teste_pontas_soltas.gd` · 13 pontas declaradas · 🔴 achou a `HudCombate3D` órfã, e achou o ponto cego dentro de si mesmo |
 | 21b | **A captura chega no save** | ✅ 21/09 · `RegraDeGuardarCaptura` + o ouvinte que faltava · 25 conferências · 🔴 **`resolveu` era emitido e ninguém escutava** — o jogador capturava e o Pokémon evaporava |
 | 21 | **Captura em 3D** | ✅ 20/09 · `RegraDeArremesso` + `Corpo3D` + `PokebolaLancada3D` · 47 conferências · **a regra da V2 não mudou uma linha** · 🔴 o arco fixo passava 2,49 m ACIMA de um corpo a 6 m |
@@ -103,12 +104,13 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Quando |
 |---|---|---|
-| 0 | 🔴 **PLAYER 3D V1 — a ponte visual.** O GLB está pronto e validado; **destravado**: a RFC-007 foi aceita e as 3 decisões estão tomadas | **prioridade** · `docs/agent-reviews/claude/2026-09-18-RFC-007-player-v1.md` |
-| 0b | 🔴 **WORLD FACTORY V1** — **contrato de altura aceito** (RFC-006, opção A, medido por mim a 0,000001 m). ⚠️ O aceite é só do laboratório: **borda entre chunks continua sem contrato**, porque chunk ainda não existe pra medir | `docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md` |
+| 0 | ✅ **PLAYER 3D V1 — FEITO (21/09).** Ponte visual no ar, e a **frente do asset corrigida na raiz** depois do moonwalk que o Gabriel achou | — |
+| 0b | 🟡 **WORLD FACTORY V1 — andando.** Vegetação determinística por zona, LOD de árvore e materiais entregues em 21/09. ⚠️ **Borda entre chunks continua sem contrato** — não gerar chunk semeado antes disso | `docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md` |
 | 1 | **Qualidade gráfica do mundo 3D** — base isolada pronta: terreno/praia/água polidos, rochas, vegetação composta/instanciada e LOD1 de árvores; falta medição real e integração | agora, em paralelo |
 | 2 | Modelos de Pokémon em volume | agora · contrato em `POKEMON_MODEL_PIPELINE.md` |
-| 3 | HUD de combate: cooldown do básico e das 4 skills, telegrafe do aviso | quando quiser — a API já entrega tudo (ver abaixo) |
+| 3 | ✅ **HUD de combate LIGADA (21/09).** Mais telegrafia visual de skill e feedback de impacto 3D, os dois consumindo os sinais calculados | — |
 | 4 | Polimento geral | Fase 19 |
+| 5 | **RFC-002 — a tela de troca de kit.** ✅ **Aprovada pelo Gabriel em 21/09 pelo painel.** A escolha existe na regra desde a Fase 3 e não tem onde ser feita | depois da Fase 19 — tela nova sobre HUD que ainda muda é trabalho feito duas vezes |
 
 ### ⚠️ O que o Claude entregou e o Codex pode consumir já
 
@@ -466,6 +468,19 @@ tem cópia **fora** desta VPS, que é onde backup precisa estar.
 
 **O modelo:** `main` é a linha integrada; `agent/claude-v3` e `agent/codex-v3`
 são trabalho em curso; `arquivo/*` é histórico guardado.
+
+---
+
+## ✅ A primeira decisão tomada pelo painel (21/09)
+
+O Gabriel **aprovou a RFC-002 pelo botão**, às 11:34, e o caminho fechou
+inteiro: o botão gravou, eu li com `read_db`, e transcrevi a decisão **na
+própria RFC**. A RFC segue sendo a fonte de verdade; o painel é a porta.
+
+⚠️ **Isto é rotina agora:** ao retomar, ler `decisoes` e `tarefas` do painel
+**antes** de perguntar qualquer coisa ao Gabriel. Uma decisão que ele já tomou
+e que eu não li vira uma pergunta repetida — que é o oposto do que o painel
+existe pra resolver.
 
 ---
 

@@ -856,6 +856,64 @@ func _seguir(delta: float) -> void:
 func esta_derrotado() -> bool:
 	return _derrotado
 
+# ──────────────────────────────────────────────────────────────────────────────
+# RFC-010 — o que este corpo está FAZENDO, pra quem desenha
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Um momento que merece animação própria. Sem regra no payload: só o papel.
+##
+## ⚠️ Emitido **depois** de o motor confirmar o evento, nunca antes — é a
+## diferença entre a animação contar o que aconteceu e a animação prometer o
+## que talvez aconteça.
+signal animacao_visual_solicitada(papel: String)
+
+const PAPEL_ATAQUE := "attack"
+const PAPEL_DANO := "hit"
+const PAPEL_QUEDA := "faint"
+
+## A velocidade horizontal de fato, em m/s.
+##
+## ⚠️ Lê `ultimo_avanco` quando ele existe, e não `velocity` cru — e essa é a
+## resposta à pergunta 3 do Codex. O LOD de lógica da Fase 20 multiplica a
+## velocidade pra compensar quadros pulados; um corpo distante tem `velocity`
+## até 4× inflada por um quadro. `ultimo_avanco` é o que de fato foi entregue
+## ao `move_and_slide`, que é o que o olho vê.
+func velocidade_horizontal() -> float:
+	var v : Vector3 = ultimo_avanco if ultimo_avanco != Vector3.ZERO else velocity
+	return Vector2(v.x, v.z).length()
+
+## RFC-010: o **único** contrato de locomoção visual deste corpo.
+##
+## Devolve `idle`, `walk`, `run`, `swim` ou `fly`. Derivado do que o corpo
+## **faz** — nunca de `intencao`, `quer_correr` ou `estado_selvagem`, que são
+## intenção e estado interno. É a mesma decisão da RFC-007 no treinador, e pelo
+## mesmo motivo medido: lá, correr exausto dá 4,00 m/s contra 4,50 de caminhada,
+## e ler a intenção animaria CORRIDA num corpo mais lento que um passo.
+##
+## ── Por que o meio é a fronteira ────────────────────────────────────────────
+##
+## `walk` vira `run` no meio do caminho entre a velocidade de caminhada e a de
+## corrida DESTE corpo — que sai de `MovementProfile`, e portanto já respeita o
+## arquétipo: um Snorlax "corre" mais devagar que um Pidgeot anda.
+func estado_visual_de_locomocao() -> String:
+	# Voar e nadar vêm do MEIO, não da velocidade: um Gyarados parado na água
+	# continua nadando, e um Pidgeot pairando continua voando. Tratar os dois
+	# como `idle` mostraria o bicho de pé em cima do mar.
+	if MovementProfile.voa(arquetipo) and not is_on_floor():
+		return "fly"
+	if MovementProfile.nada(arquetipo) \
+			and RegraDeTravessia.e_agua(superficie_atual()):
+		return "swim"
+
+	var v : float = velocidade_horizontal()
+	if v <= Locomocao3D.LIMIAR_PARADO:
+		return "idle"
+	# A velocidade máxima DESTE corpo, do perfil dele. Sem isto a fronteira
+	# seria a do treinador, e um arquétipo lento nunca chegaria a "run".
+	var maxima : float = MovementProfile.velocidade(
+		arquetipo, int(stats.get("spe", 50)))
+	return "run" if v >= maxima * 0.6 else "walk"
+
 func stats_de_ataque() -> Dictionary:
 	return {"level": nivel, "types": tipos,
 			"atk": int(stats.get("atk", 50)), "spa": int(stats.get("spa", 50))}
@@ -880,8 +938,12 @@ func sofrer(dano: int, de_quem: Node = null) -> void:
 		if IASelvagem3D.chama_o_bando(personalidade):
 			_gritar_pro_bando()
 	vida_mudou.emit(vida, vida_maxima)
+	# RFC-010: o dano já foi confirmado aqui — é o ponto certo pra pedir a
+	# animação, e não há segunda regra envolvida.
+	animacao_visual_solicitada.emit(PAPEL_DANO)
 	if vida <= 0:
 		_derrotado = true
+		animacao_visual_solicitada.emit(PAPEL_QUEDA)
 		derrotado.emit(self)
 
 ## Chama os vizinhos da mesma espécie. Quem responde fica provocado, mas **não
@@ -956,6 +1018,10 @@ func atacar() -> Dictionary:
 	# não custaria nada e o jogador spammaria o botão sem risco — o oposto do que
 	# um combate de ação pede.
 	_ultimo_basico = _agora()
+	# RFC-010: a animação de ataque segue o COOLDOWN, não o acerto — pelo mesmo
+	# motivo acima. Golpear o ar tem de parecer golpear o ar; se só o acerto
+	# animasse, errar seria invisível e o jogador não aprenderia a mirar.
+	animacao_visual_solicitada.emit(PAPEL_ATAQUE)
 	if alvo == null:
 		return {}
 

@@ -42,7 +42,12 @@ ESTADOS = [
     ("ACCEPTED", "aceita", "aceita"),
     ("IMPLEMENTED", "aceita", "implementada"),
     ("DONE", "aceita", "fechada"),
-    ("APROVADO", "aceita", "aprovada"),
+    # ⚠️ "APROVAD" e não "APROVADO": o status real da RFC-002 é "APROVADA"
+    # (feminino, porque é *a* RFC). Com o prefixo masculino ela caía no padrão
+    # e era contada como "esperando decisão" — inflando justamente o número que
+    # o Gabriel usa pra saber o que falta dele. Achado ao conferir o painel
+    # depois da primeira aprovação de verdade.
+    ("APROVAD", "aceita", "aprovada"),
     ("REVIEW", "espera", "em revisão"),
     ("PROPOSED", "espera", "esperando decisão"),
     ("DRAFT", "espera", "rascunho"),
