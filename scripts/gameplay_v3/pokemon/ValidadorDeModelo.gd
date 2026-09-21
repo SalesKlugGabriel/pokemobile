@@ -32,7 +32,11 @@ const TOLERANCIA_DE_ALTURA : float = 0.08
 ## Quanto os pés podem sair do zero, em metros.
 const TOLERANCIA_DOS_PES : float = 0.05
 
-## A caixa que a malha ocupa, no espaço do nó — a verdade do que o jogo vê.
+## A caixa que a malha ocupa, RELATIVA ao nó validado.
+##
+## A régua quer saber se a origem do asset está nos próprios pés; usar a caixa
+## global confundia "o modelo foi colocado numa colina/Y=2" com "o export tem
+## os pés 2 m acima da própria origem" e emitia falso aviso em todo selvagem.
 static func caixa(no: Node3D) -> AABB:
 	var agg := AABB()
 	var primeiro := true
@@ -43,7 +47,8 @@ static func caixa(no: Node3D) -> AABB:
 			pilha.append(c)
 		if atual is MeshInstance3D:
 			var m : MeshInstance3D = atual
-			var mundo : AABB = m.global_transform * m.get_aabb()
+			var relativo : Transform3D = no.global_transform.affine_inverse() * m.global_transform
+			var mundo : AABB = relativo * m.get_aabb()
 			if primeiro:
 				agg = mundo
 				primeiro = false

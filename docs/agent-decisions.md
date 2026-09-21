@@ -130,7 +130,8 @@ combate (janela de interrupção e esquiva), não timing visual.
 
 `TrainerController3D` segue autoridade de posição, rotação, colisão, input e
 stamina. `PlayerVisual3D` é filho puramente visual, instancia o GLB de frente
-−Z sem correção e recebe exclusivamente
+−Z sem correção; em 21/09 o pipeline Blender foi corrigido porque o pacote
+anterior medido chegava a +Z. O visual recebe exclusivamente
 `estado_visual_de_locomocao()` (`idle|walk|run`) para tocar as Actions in-place.
 A cápsula amarela não integra mais o corpo visual; a cápsula física 1,60 m
 permanece. Falha de GLB/AnimationPlayer resulta em fallback magenta emissivo,

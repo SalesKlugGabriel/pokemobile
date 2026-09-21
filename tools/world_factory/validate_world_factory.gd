@@ -3,6 +3,7 @@ extends SceneTree
 
 const Spec = preload("res://scripts/world_factory/WorldSpec.gd")
 const Factory = preload("res://scripts/world_factory/WorldTerrainFactory.gd")
+const VegetationScatter = preload("res://scripts/world_factory/WorldVegetationScatter.gd")
 
 var ok := 0
 var fail := 0
@@ -37,6 +38,10 @@ func _initialize() -> void:
 	_conf(maior_delta < 0.000001, "mesma seed reproduz altura", "delta %.8f" % maior_delta)
 	_conf(absf(a.altura_em(31.4, -21.7) - c.altura_em(31.4, -21.7)) > 0.0001,
 		"seed distinta altera o terreno")
+	_conf(a.largura_praia_m() == float(spec["terrain"]["beach_width_m"])
+		and a.largura_linha_dagua_m() == float(spec["terrain"]["shoreline_width_m"])
+		and a.profundidade_rasa_m() == float(spec["terrain"]["shallow_depth_m"]),
+		"parâmetros de costa vêm explicitamente da spec")
 
 	var delta_borda := 0.0
 	for i in 33:
@@ -48,7 +53,96 @@ func _initialize() -> void:
 	var malha := a.gerar_malha_chunk(0, 0)
 	_conf(malha != null and malha.get_surface_count() == 1, "chunk gera uma malha")
 	_conf(malha.create_trimesh_shape() != null, "chunk gera colisão triangulada")
+
+	var classes := {}
+	var classes_reproduzidas := true
+	for ix in 128:
+		for iz in 128:
+			var x := float(spec["bounds_m"]["min_x"]) + ix * 2.0 + 0.31
+			var z := float(spec["bounds_m"]["min_z"]) + iz * 2.0 + 0.67
+			var classe := a.tipo_de_superficie_em(x, z)
+			classes[classe] = int(classes.get(classe, 0)) + 1
+			classes_reproduzidas = classes_reproduzidas and classe == b.tipo_de_superficie_em(x, z)
+	for classe_esperada in ["deep_waterbed", "shallow_waterbed", "shoreline", "sand", "grass", "rock"]:
+		_conf(int(classes.get(classe_esperada, 0)) > 0,
+			"WORLD_LAB contém faixa %s" % classe_esperada, str(classes))
+	_conf(classes_reproduzidas, "classificação de superfície é determinística")
+
+	var scatter_a := VegetationScatter.new(spec, a)
+	var scatter_b := VegetationScatter.new(spec, b)
+	var vegetation_a: Dictionary = scatter_a.gerar()
+	var vegetation_b: Dictionary = scatter_b.gerar()
+	var vegetation_config: Dictionary = (spec["visual"] as Dictionary)["vegetation"]
+	var grass_config: Dictionary = vegetation_config["grass"]
+	_conf((vegetation_a["trees"] as Array).size() == int((vegetation_config["trees"] as Dictionary)["count"])
+		and (vegetation_a["grass_short"] as Array).size() == int((grass_config["short"] as Dictionary)["count"])
+		and (vegetation_a["grass_mid"] as Array).size() == int((grass_config["mid"] as Dictionary)["count"])
+		and (vegetation_a["grass_tall"] as Array).size() == int((grass_config["tall"] as Dictionary)["count"])
+		and (vegetation_a["corals"] as Array).size() == int((vegetation_config["corals"] as Dictionary)["count"]),
+		"spec entrega a quantidade declarada de vegetação")
+	var deterministic_scatter := true
+	for group_name in vegetation_a:
+		var first: Array = vegetation_a[group_name]
+		var second: Array = vegetation_b[group_name]
+		if first.size() != second.size():
+			deterministic_scatter = false
+			break
+		for index in first.size():
+			var one: Dictionary = first[index]
+			var two: Dictionary = second[index]
+			deterministic_scatter = deterministic_scatter and (one["position"] as Vector3).is_equal_approx(two["position"] as Vector3)
+			deterministic_scatter = deterministic_scatter and is_equal_approx(float(one["yaw"]), float(two["yaw"]))
+	_conf(deterministic_scatter, "mesma seed reproduz scatter de vegetação")
+	var terrestrial_valid := true
+	for group_name in ["trees", "grass_short", "grass_mid", "grass_tall"]:
+		for item_value in vegetation_a[group_name]:
+			var item: Dictionary = item_value
+			var position: Vector3 = item["position"]
+			terrestrial_valid = terrestrial_valid and a.tipo_de_superficie_em(position.x, position.z) == "grass"
+			terrestrial_valid = terrestrial_valid and not scatter_a.em_reserva_manual(position.x, position.z)
+	_conf(terrestrial_valid, "árvores e grama ficam em solo gramado fora das reservas")
+	var corals_valid := true
+	for item_value in vegetation_a["corals"]:
+		var item: Dictionary = item_value
+		var position: Vector3 = item["position"]
+		corals_valid = corals_valid and a.tipo_de_superficie_em(position.x, position.z) == "shallow_waterbed"
+		corals_valid = corals_valid and position.y < a.nivel_do_mar()
+	_conf(corals_valid, "corais ficam somente sob água rasa")
+	var settings_by_group := {
+		"trees": vegetation_config["trees"],
+		"grass_short": grass_config["short"],
+		"grass_mid": grass_config["mid"],
+		"grass_tall": grass_config["tall"],
+		"corals": vegetation_config["corals"]
+	}
+	var composition_valid := true
+	var zones_used := {}
+	for group_name in settings_by_group:
+		var settings: Dictionary = settings_by_group[group_name]
+		for item_value in vegetation_a[group_name]:
+			var item: Dictionary = item_value
+			var position: Vector3 = item["position"]
+			var zone_id := str(item.get("zone_id", ""))
+			composition_valid = composition_valid and _position_is_in_declared_zone(position, zone_id, settings["zones"])
+			if not zones_used.has(group_name):
+				zones_used[group_name] = {}
+			zones_used[group_name][zone_id] = true
+	_conf(composition_valid, "todo prop pertence à zona declarada de composição")
+	_conf((zones_used["trees"] as Dictionary).size() >= 2
+		and (zones_used["grass_tall"] as Dictionary).size() >= 2
+		and (zones_used["corals"] as Dictionary).size() >= 2,
+		"bosques, grama alta e recifes usam mais de uma composição")
 	_finalizar()
+
+
+func _position_is_in_declared_zone(position: Vector3, zone_id: String, zones: Array) -> bool:
+	for zone_value in zones:
+		var zone: Dictionary = zone_value
+		if str(zone["id"]) != zone_id:
+			continue
+		var center: Array = zone["center_m"]
+		return Vector2(position.x - float(center[0]), position.z - float(center[1])).length() <= float(zone["radius_m"]) + 0.001
+	return false
 
 func _finalizar() -> void:
 	print("=== Resultado: %d ok, %d falha(s) ===" % [ok, fail])

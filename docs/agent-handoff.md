@@ -1,5 +1,171 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: entrada V3 como rota padrão
+
+- `project.godot` agora inicia em `EntradaV3.tscn`, uma entrada responsiva que
+  declara que o laboratório ainda é ambiente de desenvolvimento e abre somente
+  `Laboratorio3D.tscn`. Ela não cria, carrega nem inventa estado de save.
+- A antiga `TitleScreen.tscn` e seu fluxo 2D continuam preservados como legado,
+  mas deixam de ser a rota inicial: a experiência padrão passa a ser 3D.
+- Regressão `teste_entrada_v3.gd` confere rota, cena, destino, CTA e alvo de
+  toque sem precisar montar o mundo real.
+
+## Atualização Codex — 21/09: Rattata #19, primeiro selvagem em volume
+
+- `assets/models/pokemon/19.glb` substitui o primitivo de Rattata, usado nas
+  regressões de skills, spawn e ritmo. O carregamento continua genérico pelo ID
+  já existente em `PokemonInstance3D`; não houve comportamento por espécie.
+- Fonte Blender reproduzível, módulos de material/modelo/rig/Actions/export e
+  previews estão em `tools/blender/pokemon/rattata/`. A entrega tem 1.442
+  triângulos, dois materiais PBR, 14 ossos e Actions in-place `IDLE`, `WALK`,
+  `RUN`, `ATTACK_01`, `HIT` e `FAINT`.
+- Régua Godot: `teste_modelo_rattata_19.gd` **17 ok, 0 falhas** (altura 0,30 m,
+  pés, rig, clips, orçamento). A Fase 10 segue **61 ok, 0 falhas** sem o aviso
+  de modelo ausente para #19.
+- A inspeção de poses corrigiu eixos de orelha/cauda e a hierarquia anatômica do
+  rig antes da exportação. A seleção de Actions em runtime ainda depende de
+  contrato de gameplay; RFC-010 foi aberta, sem alterar o motor.
+
+## Atualização Codex — 21/09: impacto de golpes no mundo 3D
+
+- `ImpactoDeGolpe3D` escuta somente `EventBus.golpe_resolvido`. O relatório já
+  calculado fornece `destino`, tipo, efetividade e fração de vida; a apresentação
+  cria dois anéis emissivos breves naquela posição, sem escolher alvo, recalcular
+  dano ou transformar efetividade em regra própria.
+- A intensidade visual usa o rótulo de efetividade já produzido pelo motor e a
+  cor é exclusivamente linguagem de apresentação por tipo. Há teto de **12**
+  impactos simultâneos para que combate com vários alvos não degrade o laboratório.
+- `Laboratorio3D` monta o VFX junto da HUD e da telegrafia. Regressão isolada:
+  `teste_impacto_de_golpe_3d.gd` (**8 ok, 0 falhas**); apresentação já existente:
+  HUD **4/4**, integração da HUD **6/6**, telegrafia **6/6**.
+
+### Próxima lacuna de apresentação
+
+A tela de corpo/loot segue esperando a fiação transacional da Bag: hoje
+`Corpo3D.pegar()` remove o item do corpo imediatamente, mas não há operação
+atômica que o adicione à mochila. Não chamar esse método pela UI antes dessa
+ponte, pois um botão bonito poderia apagar loot.
+
+## Atualização Codex — 21/09: telegrafia visual 3D de skills
+
+- `TelegrafoSkill3D` agora escuta o anúncio já calculado de `UsoDeSkill` pelo
+  `EventBus` e desenha no chão as quatro formas reais (`single`, `circle`,
+  `cone`, `line`) com alcance, raio, largura e direção em metros. Não calcula
+  dano, área, alvo nem duração; limpa por cancelamento ou pelo `resolve_em`
+  que recebe da regra.
+- O componente é montado pelo `Laboratorio3D`, portanto não é uma peça visual
+  isolada. O teste cobre criação, forma, nó visível, cancelamento e a ponte com
+  a cena: **6 ok, 0 falhas**.
+- A HUD de corpo/loot permanece deliberadamente pendente: chamar `Corpo3D.pegar`
+  antes da fiação para a Bag removeria item sem guardá-lo. Falta Claude ligar a
+  entrada atômica do item na mochila; então não há botão enganoso nesta branch.
+
+## Atualização Codex — 21/09: orientação canônica do Player V1
+
+- Corrigi a causa do moonwalk no próprio pipeline Blender/GLB. A medição do
+  pacote anterior demonstrou frente em +Z no Godot, oposta à frente −Z do
+  `Locomocao3D`; a geometria, rig e rotações de Action passam a ser convertidos
+  na fonte, antes da exportação.
+- `player_v1.glb` atual mede sapatos e boné apontando para −Z no importador
+  Godot. `PlayerVisual3D` desta branch não recebe e não deve receber yaw de
+  180°; o teste novo bloqueia tanto o asset em +Z quanto uma compensação no
+  componente visual.
+- Próximo passo: integrar esta revisão do asset na linha de Claude sem carregar
+  o remendo temporário de `CORRECAO_DE_FRENTE`.
+
+## Atualização Codex — 21/09: World Factory V1, materiais e transições
+
+- Polimento visual limitado ao WORLD_LAB: terreno agora tem variação em escalas
+  macro/média/granular, solo discreto, areia úmida/seca e rocha corretamente por
+  cima de grama; água ganhou Fresnel, emissão leve e transparência/ondas mais
+  legíveis. A topografia, superfícies e parâmetros da Factory não mudaram.
+- Removi o override genérico das árvores para preservar os materiais PBR dos
+  GLBs — ele fazia tronco/copa dependerem da altura global do mundo. Grama segue
+  no shader V3 de vento; corais preservam seus materiais de asset.
+- Importação e teste de cena: **20 ok, 0 falhas**. O validador de Factory segue
+  em **22 ok, 0 falhas**. A inspeção estética e FPS em navegador real continuam
+  pendentes do Gabriel; não publiquei nem alterei integração de gameplay.
+- Próximo passo: medir a composição/material no navegador real; em seguida,
+  escolher com evidência se a próxima melhoria é LOD adicional, iluminação ou
+  integração do WORLD_LAB.
+
+## Atualização Codex — 21/09: World Factory V1, composição ambiental
+
+- A distribuição do WORLD_LAB passou a usar zonas declarativas na mesma spec:
+  borda da clareira, mata norte e bosque leste; prados para grama; duas manchas
+  de grama alta; e dois recifes. Não há coordenadas de composição escondidas no
+  código e não foi criado outro gerador.
+- `WorldVegetationScatter` escolhe uma zona ponderada antes da posição e grava
+  `zone_id` no resultado. Ainda exige a superfície apropriada, inclinação,
+  espaçamento e exclusão de spawn/clareira/caminho/caverna; portanto a melhoria
+  visual não permite árvore na água ou prop ocupando rota.
+- Testado após importação: `validate_world_factory.gd` **22 ok, 0 falhas**,
+  incluindo determinismo, contagem, reservas, superfícies e aderência de cada
+  prop à sua zona; o teste de cena permanece **18 ok, 0 falhas**.
+- Próximo passo: medição de FPS/composição no navegador real e polimento de
+  materiais/transições, sem integrar gameplay ou expandir o mundo.
+
+## Atualização Codex — 21/09: World Factory V1, LOD1 de árvores
+
+- Criei cinco GLBs LOD1 reutilizáveis com
+  `tools/blender/generators/gerar_lod_arvores.py`; os LOD0 não foram alterados.
+  A redução medida no Blender é 0,38: 948–1.268 triângulos por árvore passaram
+  a 360–481, preservando origem, orientação e materiais de cada variante.
+- O WORLD_LAB permanece no mesmo `WorldVegetationScatter` e nas mesmas
+  transformações determinísticas. Agora cada variante de árvore tem MultiMesh
+  próximo com sombra (0–46 m) e LOD1 sem sombra (38–104 m), com faixa de
+  sobreposição controlada explicitamente pela spec. Não há novo gerador.
+- Testado em série: validador da Factory **20 ok, 0 falhas**; cena isolada
+  **18 ok, 0 falhas**, incluindo presença de todos os LODs, faixa distante e
+  arquivo LOD menor. FPS continua pendente de navegador real do Gabriel.
+- Próximo passo: composição ambiental — densidade/agrupamentos coerentes,
+  clareiras e leitura da costa — ainda sem integração com gameplay ou expansão.
+
+## Atualização Codex — 21/09: World Factory V1, vegetação instanciada
+
+- Evoluí a Factory V1 isolada sem tocar `Terreno3D`, spawn, o Laboratório oficial
+  nem a geografia. `WorldVegetationScatter` recebe a mesma spec/factory, deriva
+  RNG determinístico por categoria e entrega transformações; a cena do WORLD_LAB
+  continua dona da apresentação.
+- A spec agora declara 32 árvores (cinco variantes), 228 clusters de grama
+  (três alturas), 28 corais (três variantes), escalas, espaçamentos e visibility
+  ranges. O laboratório converte esses dados em 11 `MultiMeshInstance3D`, com
+  sombra e fade configurado, em vez de centenas de nós de props.
+- Árvore e grama aceitam somente `grass` com inclinação permitida; corais aceitam
+  somente `shallow_waterbed`. Spawn, clareira, caminho e futura caverna excluem
+  todo scatter. Assim não há árvore/grama na água e não há coral em terra.
+- Testado em série após importação: `validate_world_factory.gd` **20 ok, 0
+  falhas**; `teste_world_factory_terrain_lab.gd` **15 ok, 0 falhas**. O export
+  Web temporário concluiu sem erro de parse/script/shader. Chromium com
+  SwiftShader nesta VPS carrega a página, mas encerra antes da cena V3 estabilizar;
+  não usei isso como medição de FPS nem publiquei nada.
+- Próximo passo: polir composição e LOD geométrico sob medição em navegador real;
+  ainda não integrar gameplay, streaming, colisão de props, Surf, cavernas ou
+  expandir mapa.
+
+## Atualização Codex — 21/09: World Factory V1, fundação terrain / beach / water
+
+- Evoluí a **mesma** `WorldTerrainFactory` e a cena isolada
+  `world_factory_terrain_lab.tscn`; não criei Factory V2, não toquei em
+  `Terreno3D`, spawn, `SpawnerSelvagem3D` ou no Laboratório oficial.
+- `world_lab_v1.json` agora expõe largura de praia/shoreline, profundidade rasa,
+  limiares de rocha e cinco formações declarativas que instanciam GLBs existentes
+  da biblioteca. A mesma seed continua reproduzindo relevo e superfícies.
+- O relevo usa camadas macro/média/fina interpoladas em coordenadas globais;
+  `altura_em` ainda descreve exatamente a triangulação física. A factory também
+  classifica leito profundo/raso, shoreline, areia, grama e rocha para o material.
+- O laboratório usa os shaders V3 já existentes para terreno e água, luz/fog de
+  teste e água subdividida; as cinco rochas assentam na altura física. Player V1
+  permanece régua de escala de 1,60 m, sem mudar seu controlador ou animações.
+- Validado em série: `validate_world_factory.gd` **16 ok, 0 falhas** e
+  `teste_world_factory_terrain_lab.gd` **11 ok, 0 falhas**. Export Web temporário
+  carrega em WebGL e foi capturado localmente; nenhuma publicação foi feita.
+  Baseline de 64 m: geração 151,517 ms e trimesh 34,624 ms (mediana, VPS).
+- Não feito de propósito: vegetação/scatter, árvores, grama, cavernas jogáveis,
+  água física/Surf, streaming, LOD visual definitivo e integração ao LAB oficial.
+  Próximo passo visual é vegetação com instancing/visibility range, não aumentar
+  área do mundo.
+
 ## Claude — 20/09: Fase 21, a captura em 3D. **Tem tela nova pra você.**
 
 O laço da fantasia fechou: explorar → encontrar → assumir → lutar → voltar →

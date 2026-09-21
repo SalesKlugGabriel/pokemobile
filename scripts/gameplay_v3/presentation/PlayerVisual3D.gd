@@ -13,31 +13,26 @@ const CLIPES_POR_ESTADO := {
 	"run": "PLAYER_V1_RUN",
 }
 
-## 🔴 21/09 — o moonwalk, e por que esta correção existe.
+## ✅ 21/09 — o moonwalk foi corrigido NA RAIZ, e a compensação saiu daqui.
 ##
-## O Gabriel: *"o player sempre anda de costas (moon walk)"*. A causa foi
-## **medida**, não deduzida — em 17/09 eu já errei este mesmo diagnóstico duas
-## vezes lendo código.
+## Histórico curto, porque ele vale: o Gabriel reportou o treinador andando de
+## costas. Medi o GLB (somando vértices por altura) e a frente do modelo era
+## **+Z**, enquanto a RFC-007 declarava −Z e o Godot espera −Z. A declaração
+## estava errada e enganou os dois agentes.
 ##
-## Somei os vértices do GLB por altura e olhei pra que lado eles crescem:
+## Apliquei uma compensação de 180° aqui, **declarada e travada por teste** —
+## nunca silenciosa, que é o que a RFC-007 proíbe com razão. E avisei o Codex de
+## que o conserto de verdade era no asset.
 ##
-##     sapatos (y < 0,15) · 626 vértices · z de −0,119 a +0,273
-##     boné    (y > 1,35) · 878 vértices · z de −0,133 a +0,239
+## Ele reexportou o modelo. Medido depois do merge:
 ##
-## Dedos do pé e aba do boné apontam os dois pra **+Z**. Ou seja: **a frente do
-## modelo é +Z**, e a RFC-007 declarava −Z. A afirmação estava errada.
+##     sapatos  623 vértices · z de −0,273 a +0,119   → frente −Z ✅
+##     boné     878 vértices · z de −0,239 a +0,133   → frente −Z ✅
 ##
-## Em Godot, um nó com `rotation.y = 0` olha pra −Z, e `Locomocao3D.girar_para`
-## mira −Z corretamente. Com o modelo de frente pra +Z, o corpo vira pro rumo
-## certo e o boneco aparece de costas — exatamente o moonwalk.
-##
-## ⚠️ A RFC-007 proíbe **"correção de 180° silenciosa"**, e ela está certa: uma
-## rotação escondida transforma um defeito de asset num mistério de gameplay.
-## Esta correção não é silenciosa — ela é declarada aqui, medida acima, e
-## **travada por teste**: `teste_player_v1_frente.gd` remede o GLB e reprova se
-## a orientação do asset mudar. No dia em que o Codex reexportar o modelo de
-## frente pra −Z, o teste reprova e manda apagar estas duas linhas.
-const CORRECAO_DE_FRENTE : float = PI
+## Com o asset certo, **manter a compensação traria o moonwalk de volta, ao
+## contrário**. Por isso ela saiu. O teste `teste_player_v1_frente.gd` continua
+## remedindo o GLB a cada suíte: o dia em que a orientação escorregar de novo,
+## ele reprova antes de o Gabriel ver.
 
 var _modelo: Node3D = null
 var _animacao: AnimationPlayer = null
@@ -83,10 +78,6 @@ func _instanciar_modelo() -> void:
 		_ativar_fallback("não foi possível carregar " + CENA_DO_PLAYER)
 		return
 	_modelo = cena.instantiate() as Node3D
-	if _modelo != null:
-		# Ver CORRECAO_DE_FRENTE: o asset olha pra +Z; o Godot e o
-		# `girar_para` esperam −Z.
-		_modelo.rotate_y(CORRECAO_DE_FRENTE)
 	if _modelo == null:
 		_ativar_fallback("o GLB não instanciou como Node3D")
 		return

@@ -9,6 +9,7 @@ import os
 import sys
 
 import bpy
+from mathutils import Matrix
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "../../.."))
@@ -17,6 +18,26 @@ sys.path.insert(0, SCRIPT_DIR)
 
 from geometry_player import build_player  # noqa: E402
 from materials_player import create_materials  # noqa: E402
+
+
+# Blender e Godot usam convenções de eixos diferentes na passagem glTF. A
+# malha autoral originalmente tinha a frente em -Y; depois da importação no
+# Godot isso vira +Z, oposto ao contrato de Locomocao3D (frente -Z). Espelhar
+# a geometria em Y na FONTE produz frente +Y no Blender e -Z no Godot, sem
+# compensação escondida no controlador de gameplay.
+ESPELHO_FRENTE_PARA_EXPORTACAO = Matrix.Diagonal((1.0, -1.0, 1.0, 1.0))
+
+
+def orientar_malhas_para_godot(meshes):
+    for obj in meshes.objects:
+        if obj.type != "MESH":
+            continue
+        obj.data.transform(ESPELHO_FRENTE_PARA_EXPORTACAO)
+        # Espelho inverte a orientação dos polígonos. Corrigir a winding aqui
+        # evita normais voltadas para dentro no material PBR de runtime.
+        for polygon in obj.data.polygons:
+            polygon.flip()
+        obj.data.update()
 
 
 def create():
@@ -29,6 +50,7 @@ def create():
     parent.children.link(meshes)
     materials = create_materials()
     build_player(meshes, materials)
+    orientar_malhas_para_godot(meshes)
     for obj in meshes.objects:
         obj.display_type = "TEXTURED"
     os.makedirs(OUTPUT_DIR, exist_ok=True)

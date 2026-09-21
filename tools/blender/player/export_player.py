@@ -7,7 +7,6 @@ import bpy
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
 OUTPUT = os.path.join(PROJECT_DIR, "assets/characters/player_v1/player_v1.glb")
 
-
 def main():
     armature = bpy.data.objects.get("PLAYER_V1_ARMATURE")
     if armature is None:

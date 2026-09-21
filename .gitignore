@@ -14,3 +14,7 @@ builds/
 
 # Ferramentas de teste locais (Playwright etc.) — nunca versionar
 node_modules/
+
+# Cache de módulos Python e cópia temporária criada pelo Blender ao salvar fonte.
+__pycache__/
+*.blend1

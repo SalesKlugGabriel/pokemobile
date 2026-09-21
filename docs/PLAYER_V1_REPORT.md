@@ -14,13 +14,16 @@
 | Rig | Sim — 25 ossos, incluindo tronco, membros, boné e mochila |
 | Skinning | Sim — pesos explícitos por região, testados em pose de locomoção |
 | Animações | `PLAYER_V1_IDLE`, `PLAYER_V1_WALK`, `PLAYER_V1_RUN` (in-place) |
-| GLB | 355.896 bytes; 9 malhas de runtime mescladas por material |
+| GLB | 355.884 bytes; 9 malhas de runtime mescladas por material |
 | Cena de teste | `scenes/tests/player_v1_test.tscn` |
-| Godot test | PASS — 14 verificações no `teste_player_v1_glb.gd` |
+| Orientação | Frente canônica −Z no Godot; medida no pacote importado |
+| Godot test | PASS — `teste_player_v1_glb.gd` e `teste_player_v1_frente.gd` |
 
 ## Validações executadas
 
 - Malha: altura, origem, orientação, nomenclatura e orçamento de triângulos.
+  A exportação espelha a fonte em Y antes do GLB, pois a conversão glTF leva
+  Blender +Y para Godot −Z; não existe correção de yaw no controlador.
 - Rig: 25 ossos obrigatórios, modifier Armature e influência útil em 112 malhas-fonte.
 - Animação: Actions persistidas, membros alternados em walk/run e root sem deslocamento.
 - Exportação: GLB binário com skeleton e os três clips importados no Godot.

@@ -20,7 +20,7 @@ static func carregar_world_lab() -> Dictionary:
 
 static func validar(spec: Dictionary) -> PackedStringArray:
 	var erros := PackedStringArray()
-	for chave in ["id", "version", "world_seed", "bounds_m", "terrain", "manual_reservations"]:
+	for chave in ["id", "version", "world_seed", "bounds_m", "terrain", "visual", "manual_reservations"]:
 		if not spec.has(chave):
 			erros.append("campo obrigatório ausente: %s" % chave)
 	var bounds: Dictionary = spec.get("bounds_m", {})
@@ -28,7 +28,7 @@ static func validar(spec: Dictionary) -> PackedStringArray:
 	for chave in ["min_x", "min_z", "width", "depth"]:
 		if not bounds.has(chave):
 			erros.append("bounds_m.%s ausente" % chave)
-	for chave in ["sample_step_m", "chunk_size_m", "sea_level_m"]:
+	for chave in ["sample_step_m", "chunk_size_m", "sea_level_m", "beach_width_m", "shoreline_width_m", "shallow_depth_m"]:
 		if not terrain.has(chave):
 			erros.append("terrain.%s ausente" % chave)
 	if not erros.is_empty():
@@ -39,4 +39,59 @@ static func validar(spec: Dictionary) -> PackedStringArray:
 		erros.append("chunk_size_m precisa ser múltiplo positivo de sample_step_m")
 	if float(bounds["width"]) <= 0.0 or float(bounds["depth"]) <= 0.0:
 		erros.append("bounds_m precisa ter dimensões positivas")
+	for chave in ["beach_width_m", "shoreline_width_m", "shallow_depth_m"]:
+		if float(terrain[chave]) <= 0.0:
+			erros.append("terrain.%s precisa ser positivo" % chave)
+	var visual: Dictionary = spec.get("visual", {})
+	var vegetation: Dictionary = visual.get("vegetation", {})
+	if vegetation.is_empty():
+		erros.append("visual.vegetation ausente")
+		return erros
+	for chave in ["seed_offset", "visibility", "trees", "grass", "corals"]:
+		if not vegetation.has(chave):
+			erros.append("visual.vegetation.%s ausente" % chave)
+	var grass: Dictionary = vegetation.get("grass", {})
+	var tree_settings: Dictionary = vegetation.get("trees", {})
+	for chave in ["lod0_end_m", "lod_overlap_m"]:
+		if not tree_settings.has(chave):
+			erros.append("visual.vegetation.trees.%s ausente" % chave)
+	if tree_settings.has("lod0_end_m") and tree_settings.has("lod_overlap_m"):
+		var lod_end := float(tree_settings["lod0_end_m"])
+		var overlap := float(tree_settings["lod_overlap_m"])
+		var far_end := float((vegetation.get("visibility", {}) as Dictionary).get("tree_end_m", 0.0))
+		if lod_end <= 0.0 or overlap <= 0.0 or lod_end >= far_end or overlap >= lod_end:
+			erros.append("LOD de árvores precisa ter faixa próxima válida dentro de tree_end_m")
+	for chave in ["short", "mid", "tall"]:
+		if not grass.has(chave):
+			erros.append("visual.vegetation.grass.%s ausente" % chave)
+	for group_value in [vegetation.get("trees", {}), vegetation.get("corals", {}), grass.get("short", {}), grass.get("mid", {}), grass.get("tall", {})]:
+		if not group_value is Dictionary:
+			erros.append("grupo de vegetação inválido")
+			continue
+		var group: Dictionary = group_value
+		for chave in ["count", "min_spacing_m", "min_scale", "max_scale", "zones"]:
+			if not group.has(chave):
+				erros.append("grupo de vegetação sem %s" % chave)
+		if group.has("count") and int(group["count"]) < 0:
+			erros.append("contagem de vegetação não pode ser negativa")
+		if group.has("min_spacing_m") and float(group["min_spacing_m"]) <= 0.0:
+			erros.append("espaçamento de vegetação precisa ser positivo")
+		if group.has("zones"):
+			var zones: Array = group["zones"]
+			if zones.is_empty():
+				erros.append("vegetação precisa declarar ao menos uma zona de composição")
+			for zone_value in zones:
+				if not zone_value is Dictionary:
+					erros.append("zona de vegetação inválida")
+					continue
+				var zone: Dictionary = zone_value
+				for chave in ["id", "center_m", "radius_m", "weight"]:
+					if not zone.has(chave):
+						erros.append("zona de vegetação sem %s" % chave)
+				if zone.has("center_m") and (zone["center_m"] as Array).size() != 2:
+					erros.append("center_m de zona precisa ter x/z")
+				if zone.has("radius_m") and float(zone["radius_m"]) <= 0.0:
+					erros.append("raio de zona precisa ser positivo")
+				if zone.has("weight") and float(zone["weight"]) <= 0.0:
+					erros.append("peso de zona precisa ser positivo")
 	return erros
