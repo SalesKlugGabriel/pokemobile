@@ -29,6 +29,8 @@
         "max_slope": 0.25,
         "min_scale": 0.82,
         "max_scale": 1.18,
+        "lod0_end_m": 46.0,
+        "lod_overlap_m": 8.0,
         "variants": ["a", "b", "c", "d", "e"]
       },
       "grass": {

@@ -47,11 +47,18 @@ grama não podem nascer dentro da água, e corais não ocupam solo seco ou ocean
 profundo. Não há colisores de vegetação nesta fase: o Player V1 permanece a
 régua de escala, e colisões/obstáculos de gameplay pertencem à integração futura.
 
-São 11 MultiMeshes (cinco árvores, três gramíneas e três corais), em vez de
-288 nós de props. As distâncias de visibilidade e margem de fade também vêm da
-spec: grama 48 m, árvores 104 m, corais 42 m e margem 12 m. Isto é culling de
-apresentação, não LOD geométrico final; LODs de mesh e vegetação de produção
-continuam pendentes para a Fase 19/20.
+São 16 MultiMeshes (cinco árvores LOD0, cinco LOD1, três gramíneas e três
+corais), em vez de centenas de nós de props. As distâncias de visibilidade e
+margem de fade também vêm da spec: grama 48 m, árvores 104 m, corais 42 m e
+margem 12 m.
+
+`tools/blender/generators/gerar_lod_arvores.py` deriva os cinco GLBs LOD1 sem
+alterar os LOD0: `tree_[a-e]_lod1.glb`. A redução por Decimate é 0,38 e foi
+validada no Blender: A 1.028 → 390, B 948 → 360, C 1.188 → 451, D 1.108 → 421,
+E 1.268 → 481 triângulos. LOD0 fica ativo até 46 m e ainda projeta sombra; LOD1
+começa em 38 m (sobreposição/fade de 8 m), segue até 104 m e não projeta sombra.
+Não é um modelo de impostor final, mas é uma troca de malha real, configurada na
+spec e pronta para medição em navegador.
 
 ## Contratos
 
@@ -101,10 +108,12 @@ godot4 --headless --path /root/pokemobile-v3-codex \
   --script res://scripts/tests/teste_world_factory_terrain_lab.gd
 ```
 
-Resultado atual: **15 ok, 0 falhas** — factory criada pela spec, 16 chunks
+Resultado atual: **18 ok, 0 falhas** — factory criada pela spec, 16 chunks
 visuais, 16 colisores, água shader sem física, malha de água subdividida, cinco
-rochas assentadas, 11 MultiMeshes de vegetação com visibility range e Player V1
-sobre o terreno. O validador de spec/factory retorna **20 ok, 0 falhas**, inclusive
+rochas assentadas, 16 MultiMeshes de vegetação com visibility range e Player V1
+sobre o terreno. O teste também confirma as cinco variantes LOD1, sua faixa de
+ativação e que seus arquivos são menores que LOD0. O validador de spec/factory
+retorna **20 ok, 0 falhas**, inclusive
 contagem declarada, determinismo do scatter, exclusão das reservas, vegetação
 terrestre fora da água e corais somente no raso. O export Web temporário concluiu
 sem erro de script ou shader; o renderer SwiftShader headless da VPS não manteve
@@ -117,5 +126,5 @@ FPS é uma medição de navegador real e permanece fora deste laboratório.
 
 Isto não é ainda a integração de gameplay: `Terreno3D`, spawn, Surf e a
 superfície física da água continuam fora do escopo. O próximo gate visual é
-composição/variação de vegetação e LOD de mesh sob medição real; não expandir o
-mapa antes dele.
+composição/variação de vegetação sob medição real; não expandir o mapa antes
+dele.

@@ -1,5 +1,21 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: World Factory V1, LOD1 de árvores
+
+- Criei cinco GLBs LOD1 reutilizáveis com
+  `tools/blender/generators/gerar_lod_arvores.py`; os LOD0 não foram alterados.
+  A redução medida no Blender é 0,38: 948–1.268 triângulos por árvore passaram
+  a 360–481, preservando origem, orientação e materiais de cada variante.
+- O WORLD_LAB permanece no mesmo `WorldVegetationScatter` e nas mesmas
+  transformações determinísticas. Agora cada variante de árvore tem MultiMesh
+  próximo com sombra (0–46 m) e LOD1 sem sombra (38–104 m), com faixa de
+  sobreposição controlada explicitamente pela spec. Não há novo gerador.
+- Testado em série: validador da Factory **20 ok, 0 falhas**; cena isolada
+  **18 ok, 0 falhas**, incluindo presença de todos os LODs, faixa distante e
+  arquivo LOD menor. FPS continua pendente de navegador real do Gabriel.
+- Próximo passo: composição ambiental — densidade/agrupamentos coerentes,
+  clareiras e leitura da costa — ainda sem integração com gameplay ou expansão.
+
 ## Atualização Codex — 21/09: World Factory V1, vegetação instanciada
 
 - Evoluí a Factory V1 isolada sem tocar `Terreno3D`, spawn, o Laboratório oficial

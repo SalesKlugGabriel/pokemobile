@@ -51,6 +51,16 @@ static func validar(spec: Dictionary) -> PackedStringArray:
 		if not vegetation.has(chave):
 			erros.append("visual.vegetation.%s ausente" % chave)
 	var grass: Dictionary = vegetation.get("grass", {})
+	var tree_settings: Dictionary = vegetation.get("trees", {})
+	for chave in ["lod0_end_m", "lod_overlap_m"]:
+		if not tree_settings.has(chave):
+			erros.append("visual.vegetation.trees.%s ausente" % chave)
+	if tree_settings.has("lod0_end_m") and tree_settings.has("lod_overlap_m"):
+		var lod_end := float(tree_settings["lod0_end_m"])
+		var overlap := float(tree_settings["lod_overlap_m"])
+		var far_end := float((vegetation.get("visibility", {}) as Dictionary).get("tree_end_m", 0.0))
+		if lod_end <= 0.0 or overlap <= 0.0 or lod_end >= far_end or overlap >= lod_end:
+			erros.append("LOD de árvores precisa ter faixa próxima válida dentro de tree_end_m")
 	for chave in ["short", "mid", "tall"]:
 		if not grass.has(chave):
 			erros.append("visual.vegetation.grass.%s ausente" % chave)

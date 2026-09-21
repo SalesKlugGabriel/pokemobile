@@ -21,6 +21,13 @@ const TREE_VARIANTS := {
 	"d": preload("res://assets/models/environment/trees/tree_d.glb"),
 	"e": preload("res://assets/models/environment/trees/tree_e.glb")
 }
+const TREE_LOD1_VARIANTS := {
+	"a": preload("res://assets/models/environment/trees/tree_a_lod1.glb"),
+	"b": preload("res://assets/models/environment/trees/tree_b_lod1.glb"),
+	"c": preload("res://assets/models/environment/trees/tree_c_lod1.glb"),
+	"d": preload("res://assets/models/environment/trees/tree_d_lod1.glb"),
+	"e": preload("res://assets/models/environment/trees/tree_e_lod1.glb")
+}
 const GRASS_VARIANTS := {
 	"short": preload("res://assets/models/environment/grass/grass_short.glb"),
 	"mid": preload("res://assets/models/environment/grass/grass_mid.glb"),
@@ -140,6 +147,7 @@ func _build_vegetation(spec: Dictionary) -> void:
 	var visual: Dictionary = spec.get("visual", {})
 	var vegetation: Dictionary = visual.get("vegetation", {})
 	var visibility: Dictionary = vegetation.get("visibility", {})
+	var tree_settings: Dictionary = vegetation.get("trees", {})
 	var root := Node3D.new()
 	root.name = "Vegetation"
 	add_child(root)
@@ -153,7 +161,7 @@ func _build_vegetation(spec: Dictionary) -> void:
 	for kind in ["short", "mid", "tall"]:
 		var items: Array = groups["grass_" + kind]
 		_add_multimesh(root, "Grass_%s" % kind.capitalize(), GRASS_VARIANTS[kind], items,
-			grass_material, float(visibility["grass_end_m"]), fade)
+			grass_material, 0.0, float(visibility["grass_end_m"]), fade)
 		vegetation_count["grass_" + kind] = items.size()
 
 	var trees_by_variant := {}
@@ -165,7 +173,10 @@ func _build_vegetation(spec: Dictionary) -> void:
 	for variant in TREE_VARIANTS:
 		var items: Array = trees_by_variant.get(variant, [])
 		_add_multimesh(root, "Trees_%s" % variant.to_upper(), TREE_VARIANTS[variant], items,
-			tree_material, float(visibility["tree_end_m"]), fade)
+			tree_material, 0.0, float(tree_settings["lod0_end_m"]), fade, true)
+		_add_multimesh(root, "TreesLod1_%s" % variant.to_upper(), TREE_LOD1_VARIANTS[variant], items,
+			tree_material, float(tree_settings["lod0_end_m"]) - float(tree_settings["lod_overlap_m"]),
+			float(visibility["tree_end_m"]), fade, false)
 	vegetation_count["trees"] = (groups["trees"] as Array).size()
 
 	var corals_by_variant := {}
@@ -177,11 +188,11 @@ func _build_vegetation(spec: Dictionary) -> void:
 	for variant in CORAL_VARIANTS:
 		var items: Array = corals_by_variant.get(variant, [])
 		_add_multimesh(root, "Corals_%s" % variant.capitalize(), CORAL_VARIANTS[variant], items,
-			null, float(visibility["coral_end_m"]), fade)
+			null, 0.0, float(visibility["coral_end_m"]), fade)
 	vegetation_count["corals"] = (groups["corals"] as Array).size()
 
 
-func _add_multimesh(root: Node3D, node_name: String, packed: PackedScene, items: Array, material: Material, range_end: float, fade: float) -> void:
+func _add_multimesh(root: Node3D, node_name: String, packed: PackedScene, items: Array, material: Material, range_begin: float, range_end: float, fade: float, casts_shadow: bool = true) -> void:
 	if items.is_empty():
 		return
 	var mesh := _extract_mesh(packed)
@@ -201,7 +212,9 @@ func _add_multimesh(root: Node3D, node_name: String, packed: PackedScene, items:
 	visual.name = node_name
 	visual.multimesh = multimesh
 	visual.material_override = material
-	visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if casts_shadow else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	visual.visibility_range_begin = range_begin
+	visual.visibility_range_begin_margin = fade if range_begin > 0.0 else 0.0
 	visual.visibility_range_end = range_end
 	visual.visibility_range_end_margin = fade
 	visual.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF

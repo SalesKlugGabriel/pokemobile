@@ -55,14 +55,29 @@ func _run() -> void:
 	_check(vegetation != null, "vegetação é montada pela World Factory")
 	if vegetation:
 		var multimeshes := 0
+		var tree_lod_instances := 0
 		var range_configured := true
+		var lod_ranges_configured := true
 		for child in vegetation.get_children():
 			var instance := child as MultiMeshInstance3D
 			if instance and instance.multimesh and instance.multimesh.instance_count > 0:
 				multimeshes += 1
+				if instance.name.begins_with("TreesLod1_"):
+					tree_lod_instances += 1
+					lod_ranges_configured = lod_ranges_configured and instance.visibility_range_begin > 0.0
 				range_configured = range_configured and instance.visibility_range_end > 0.0
-		_check(multimeshes == 11, "vegetação usa 11 MultiMeshes para todas as variantes reutilizáveis")
+		_check(multimeshes == 16, "vegetação usa 16 MultiMeshes para todas as variantes e LOD")
+		_check(tree_lod_instances == 5, "cinco variantes de árvore possuem LOD1 distante")
+		_check(lod_ranges_configured, "LOD1 de árvore inicia somente fora da faixa próxima")
 		_check(range_configured, "vegetação possui visibility range para o laboratório")
+		var lod_is_lighter := true
+		for variant in ["a", "b", "c", "d", "e"]:
+			var source := FileAccess.open("res://assets/models/environment/trees/tree_%s.glb" % variant, FileAccess.READ)
+			var lod := FileAccess.open("res://assets/models/environment/trees/tree_%s_lod1.glb" % variant, FileAccess.READ)
+			lod_is_lighter = lod_is_lighter and source != null and lod != null
+			if source and lod:
+				lod_is_lighter = lod_is_lighter and lod.get_length() < source.get_length()
+		_check(lod_is_lighter, "arquivos LOD1 são menores que as árvores próximas")
 		_check(int(lab.vegetation_count.get("trees", 0)) > 0
 			and int(lab.vegetation_count.get("grass_short", 0)) > 0
 			and int(lab.vegetation_count.get("corals", 0)) > 0,
