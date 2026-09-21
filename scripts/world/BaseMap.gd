@@ -43,6 +43,10 @@ func _ready() -> void:
 	# andar — que é justamente o que o teto existe pra impedir.
 	RegrasDeCovil.atualizar(map_id)
 	_paint_tiles()
+	var acabamento := preload("res://scripts/world/systems/AcabamentoNatural.gd").new()
+	acabamento.name = "AcabamentoNatural"
+	tilemap.add_child(acabamento)
+	acabamento.configurar(tilemap)
 	if not MapOverrides.overrides_loaded.is_connected(_on_map_overrides_loaded):
 		MapOverrides.overrides_loaded.connect(_on_map_overrides_loaded)
 	# "segundo andar": telhado some ao entrar no prédio
