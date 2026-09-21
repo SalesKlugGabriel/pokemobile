@@ -178,7 +178,24 @@ func _conferir_lateral() -> void:
 	andou.y = 0.0
 	var frente_do_corpo := -_treinador.global_transform.basis.z
 	frente_do_corpo.y = 0.0
-	_checar("A/D desloca o corpo lateralmente de verdade", andou.length() > 0.5,
+	# ⚠️ O limiar é DERIVADO da velocidade, não cravado.
+	#
+	# Estava `> 0.5`, calibrado quando a caminhada era 4,5 m/s. Em 21/09 o
+	# Gabriel fixou a régua humana (1,5 m/s andando) e o teste reprovou com
+	# 0,280 m — reprovou o código CERTO, porque o número envelheceu junto com a
+	# constante. É a mesma classe do "número cravado que mede o cadastro do
+	# Gabriel" que já está na disciplina de teste.
+	#
+	# ⚠️ E o limiar também NÃO pode sair de "30 quadros são meio segundo": em
+	# headless o laço roda o mais rápido que consegue, e `_process` não anda no
+	# passo da física. Derivei assim na primeira tentativa e reprovei de novo,
+	# agora por um motivo diferente (0,280 m contra 0,375 esperados).
+	#
+	# A pergunta que o teste faz é **"o corpo saiu do lugar pro lado?"**, não
+	# "andou X metros". Três quadros de física de caminhada é o piso: acima
+	# disso o deslocamento é intencional, não ruído de um tique solto.
+	var esperado : float = Locomocao3D.VELOCIDADE_CAMINHADA * (3.0 / 60.0)
+	_checar("A/D desloca o corpo lateralmente de verdade", andou.length() > esperado,
 		"andou %.3f m" % andou.length())
 	_checar("o corpo encara a própria direção ao andar lateralmente",
 		frente_do_corpo.normalized().dot(andou.normalized()) > 0.85,

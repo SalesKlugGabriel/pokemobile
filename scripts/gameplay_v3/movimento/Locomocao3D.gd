@@ -19,12 +19,32 @@
 class_name Locomocao3D
 extends RefCounted
 
-## Metros por segundo. A V2 pensava em pixels com tile de 128; aqui a unidade é
-## o metro, e um treinador de ~1,7 m andando a 4,5 m/s é ritmo de Action RPG —
-## mais rápido que o humano real, porque mundo grande com velocidade realista
-## vira caminhada de ida e volta.
-const VELOCIDADE_CAMINHADA : float = 4.5
-const VELOCIDADE_CORRIDA   : float = 8.0
+## Metros por segundo — **a régua do Gabriel, 21/09/2026**:
+##
+##   > *"velocidade de movimentação padrão do ser humano é 1,5 m/s e cerca de
+##   > 3,5 m/s correndo"*
+##
+## Eram 4,5 e 8,0, e o comentário que estava aqui defendia isso com um
+## argumento de gênero: *"mais rápido que o humano real, porque mundo grande com
+## velocidade realista vira caminhada de ida e volta"*. O Gabriel decidiu o
+## contrário, e os números dele são os reais.
+##
+## ── O que essa troca inverte, e foi medido antes de aplicar ─────────────────
+##
+## A 8,0 m/s o treinador era **mais rápido que todo Pokémon do jogo** — inclusive
+## o Pidgeot (7,15 m/s). A 3,5 ele passa a ser **mais lento que todos**.
+##
+## Isso não é efeito colateral: é a fantasia do projeto voltando ao lugar.
+## *"Quando a batalha começa, eu assumo o controle do meu Pokémon"* — com o
+## treinador mais rápido que tudo, assumir o Pokémon não trazia vantagem de
+## deslocamento nenhuma. Agora traz, e perseguir um selvagem a pé deixa de
+## funcionar, que é o comportamento certo.
+##
+## ⚠️ A velocidade dos Pokémon **não** foi mexida junto, de propósito: a régua é
+## sobre o **ser humano**, e escalar tudo junto teria apagado exatamente a
+## inversão acima.
+const VELOCIDADE_CAMINHADA : float = 1.5
+const VELOCIDADE_CORRIDA   : float = 3.5
 
 const ACELERACAO : float = 40.0   ## m/s²
 const ATRITO     : float = 55.0   ## parar continua sendo mais rápido que arrancar

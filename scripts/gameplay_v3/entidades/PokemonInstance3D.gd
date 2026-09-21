@@ -867,6 +867,16 @@ func esta_derrotado() -> bool:
 ## que talvez aconteça.
 signal animacao_visual_solicitada(papel: String)
 
+## Acima de quanto do chão um voador conta como voando. Meio metro: o bastante
+## pra não piscar entre `fly` e `walk` quando ele pousa numa lombada.
+const ALTURA_PRA_VOAR : float = 0.5
+
+## A que altura do terreno este corpo está. A mesma leitura que o teto de voo da
+## Fase 15 usa — uma fonte só pra "onde é o chão aqui".
+func altitude() -> float:
+	return global_position.y - Terreno3D.altura_em(
+		global_position.x, global_position.z)
+
 const PAPEL_ATAQUE := "attack"
 const PAPEL_DANO := "hit"
 const PAPEL_QUEDA := "faint"
@@ -899,7 +909,13 @@ func estado_visual_de_locomocao() -> String:
 	# Voar e nadar vêm do MEIO, não da velocidade: um Gyarados parado na água
 	# continua nadando, e um Pidgeot pairando continua voando. Tratar os dois
 	# como `idle` mostraria o bicho de pé em cima do mar.
-	if MovementProfile.voa(arquetipo) and not is_on_floor():
+	#
+	# ⚠️ "Voando" é **altitude**, não `is_on_floor()`. Escrevi com `is_on_floor()`
+	# primeiro e o teste pegou: esse estado vem do último `move_and_slide` e fica
+	# **defasado** de qualquer reposicionamento — um voador teleportado pra 40 m
+	# de altura ainda se declarava no chão. Altura acima do terreno é a mesma
+	# régua que o teto de voo da Fase 15 já usa, e não depende de quadro nenhum.
+	if MovementProfile.voa(arquetipo) and altitude() > ALTURA_PRA_VOAR:
 		return "fly"
 	if MovementProfile.nada(arquetipo) \
 			and RegraDeTravessia.e_agua(superficie_atual()):

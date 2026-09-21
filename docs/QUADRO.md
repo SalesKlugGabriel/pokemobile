@@ -424,6 +424,53 @@ direto — *"vamos manter no link atual, sem novo dns"*. O subdomínio
 
 ---
 
+## 🏃 A régua humana do Gabriel (21/09) — e o que ela inverteu
+
+> *"velocidade de movimentação padrão do ser humano é 1,5 m/s e cerca de
+> 3,5 m/s correndo"*
+
+Eram **4,5 / 8,0**, e o comentário no código defendia isso com um argumento de
+gênero (*"mundo grande com velocidade realista vira caminhada de ida e volta"*).
+O Gabriel decidiu o contrário. Aplicado.
+
+**🔴 A inversão que isso produz, medida ANTES de aplicar:**
+
+| | corria a 8,0 | corre a 3,5 |
+|---|---|---|
+| ground_biped (5,50 m/s) | treinador **mais rápido** | Pokémon mais rápido |
+| flying (7,15) | treinador **mais rápido** | Pokémon mais rápido |
+| ground_heavy (4,12) | treinador **mais rápido** | Pokémon mais rápido |
+
+A 8,0 o treinador era **mais rápido que todo Pokémon do jogo**. A 3,5 é **mais
+lento que todos**. Isso não é efeito colateral: é a fantasia voltando ao lugar —
+com o treinador mais rápido que tudo, *"assumir o controle do meu Pokémon"* não
+trazia vantagem de deslocamento nenhuma. Agora traz, e perseguir selvagem a pé
+deixa de funcionar.
+
+⚠️ **A velocidade dos Pokémon não foi mexida junto**, de propósito: a régua é
+sobre o **ser humano**, e escalar tudo apagaria a inversão.
+
+**Outras consequências medidas:**
+
+- atravessar o laboratório (160 m): 36 s → **107 s** andando, 20 s → **46 s**
+  correndo;
+- um selvagem nasce a 8–19 s de caminhada (era 3–6 s);
+- **um fôlego cheio de corrida cobre 29 m** (era 67 m) — não chega nem ao raio
+  mínimo de spawn.
+
+🟡 **Duas coisas ficaram para o Gabriel decidir, e não mexi nelas** (a regra de
+uma mudança por vez): se a stamina deve render mais agora, e se `ground_heavy`
+— o arquétipo feito pra *parecer pesado* — pode continuar ultrapassando um
+humano em disparada.
+
+🔴 **E a régua matou o argumento de uma decisão minha.** A RFC-007 se decidiu
+porque correr exausto dava 4,0 contra 4,5 de caminhada; hoje dá **1,75 contra
+1,5** — a inversão sumiu. A decisão continua certa pelo motivo que sobrou (a
+porta do **toque** liga `quer_correr` sem conferir fôlego), e o teste passou a
+medir isso em vez de afirmar um cenário morto.
+
+---
+
 ## 📌 Decisões que valem, e o porquê de cada uma
 
 | Decisão | Por quê |
