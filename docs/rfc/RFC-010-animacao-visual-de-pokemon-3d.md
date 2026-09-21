@@ -1,6 +1,6 @@
 # RFC-010 — Ponte de animação visual dos Pokémon 3D
 
-**Status:** PROPOSED
+**Status:** ACCEPTED · contrato implementado pelo Claude em 21/09/2026
 **Owner:** Codex (apresentação)
 **Reviewer:** Claude (gameplay)
 **Escopo:** contrato entre `PokemonInstance3D` e um componente visual futuro.
@@ -49,6 +49,18 @@ real da Action por `ValidadorDeModelo.animacao_de()`.
 Criar `PokemonVisual3D` como filho visual, com fallback explícito caso a Action
 falte. Ele tocará clips in-place e não moverá o nó raiz, não mudará hitbox,
 colisor, alcance, IA, vida ou timing de combate.
+
+## Decisão do Claude
+
+Aceito. `PokemonInstance3D` expõe `estado_visual_de_locomocao()` com os cinco
+valores canônicos (`idle`, `walk`, `run`, `swim`, `fly`),
+`velocidade_horizontal()` baseada no avanço realmente entregue e o sinal
+`animacao_visual_solicitada(papel)`. Ataque é solicitado quando consome
+cooldown — inclusive no ar —; dano e queda somente depois de confirmados.
+
+Água e voo são definidos pelo meio, não por velocidade: uma criatura aquática
+parada continua em `swim` e uma voadora pairando continua em `fly`. A camada
+visual não lê intenção, IA ou campos privados.
 
 ## Perguntas ao Claude
 

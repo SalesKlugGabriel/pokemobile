@@ -1,5 +1,16 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: Pokémon animam pelo contrato RFC-010
+
+- `PokemonInstance3D` recebeu o contrato aceito de locomoção e os pedidos
+  transitórios confirmados pelo gameplay. `PokemonVisual3D` consome somente
+  esses sinais/consultas e resolve as Actions pelo `ValidadorDeModelo`; não
+  move corpo, não altera colisão, IA, dano ou cooldown.
+- Rattata #19 valida idle, run, attack, hit e faint no runtime. Asset sem Action
+  recebe um marcador magenta emissivo explícito, em vez de falhar em silêncio.
+- `teste_pokemon_visual_3d.gd`: **10 ok, 0 falhas**. Próximo passo de arte:
+  ampliar o lote de espécies já com animação funcional no Laboratório.
+
 ## Atualização Codex — 21/09: entrada V3 como rota padrão
 
 - `project.godot` agora inicia em `EntradaV3.tscn`, uma entrada responsiva que

@@ -28,6 +28,10 @@ class_name PokemonInstance3D
 signal vida_mudou(atual: int, maximo: int)
 signal derrotado(quem: Node)
 
+## RFC-010: pedido de apresentação emitido somente após uma ação confirmada.
+## O payload é um papel visual (`attack`, `hit` ou `faint`), não uma regra.
+signal animacao_visual_solicitada(papel: String)
+
 ## 🔴 Decisão do Gabriel (14/09): os Pokémon são **modelos 3D**.
 ## Enquanto o modelo de uma espécie não existe, ela entra como primitivo — e
 ## **avisa**. Asset faltando que aparece como cápsula silenciosa é o mesmo zero
@@ -49,6 +53,10 @@ var altura : float = 1.0        ## já com a compressão de gigante (§6)
 var tem_modelo : bool = false
 var _visual : Node3D = null
 var _derrotado : bool = false
+
+const PAPEL_ATAQUE := "attack"
+const PAPEL_DANO := "hit"
+const PAPEL_QUEDA := "faint"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Montagem
@@ -216,6 +224,12 @@ func _montar_visual() -> void:
 			suporte.add_child(_visual)
 			tem_modelo = true
 			_validar_modelo(suporte)
+			# RFC-010: a apresentação recebe apenas o contrato público deste
+			# corpo e o GLB já carregado. Ela não participa de física ou combate.
+			var animador := PokemonVisual3D.new()
+			animador.name = "PokemonVisual3D"
+			suporte.add_child(animador)
+			animador.configurar(self, _visual)
 			return
 
 	# Sem modelo: primitivo, e o aviso vai pro log E pra linha do tempo do
@@ -856,6 +870,36 @@ func _seguir(delta: float) -> void:
 func esta_derrotado() -> bool:
 	return _derrotado
 
+# ──────────────────────────────────────────────────────────────────────────────
+# RFC-010 — o que este corpo está fazendo, para quem desenha
+# ──────────────────────────────────────────────────────────────────────────────
+
+## Velocidade horizontal efetivamente entregue, em m/s.
+##
+## `ultimo_avanco` preserva o deslocamento que chegou ao `move_and_slide`; o
+## LOD de lógica pode inflar `velocity` num quadro e não deve transformar isso
+## em uma animação de corrida inexistente.
+func velocidade_horizontal() -> float:
+	var v : Vector3 = ultimo_avanco if ultimo_avanco != Vector3.ZERO else velocity
+	return Vector2(v.x, v.z).length()
+
+## Único contrato de locomoção visual: idle | walk | run | swim | fly.
+##
+## Não deriva de intenção, IA ou tecla. Água e voo vêm do meio: um Gyarados
+## parado dentro d'água ainda nada, e um Pidgeot pairando ainda voa.
+func estado_visual_de_locomocao() -> String:
+	if MovementProfile.voa(arquetipo) and not is_on_floor():
+		return "fly"
+	if MovementProfile.nada(arquetipo) \
+			and RegraDeTravessia.e_agua(superficie_atual()):
+		return "swim"
+	var v : float = velocidade_horizontal()
+	if v <= Locomocao3D.LIMIAR_PARADO:
+		return "idle"
+	var maxima : float = MovementProfile.velocidade(
+		arquetipo, int(stats.get("spe", 50)))
+	return "run" if v >= maxima * 0.6 else "walk"
+
 func stats_de_ataque() -> Dictionary:
 	return {"level": nivel, "types": tipos,
 			"atk": int(stats.get("atk", 50)), "spa": int(stats.get("spa", 50))}
@@ -880,8 +924,11 @@ func sofrer(dano: int, de_quem: Node = null) -> void:
 		if IASelvagem3D.chama_o_bando(personalidade):
 			_gritar_pro_bando()
 	vida_mudou.emit(vida, vida_maxima)
+	# A vida já caiu: agora a apresentação pode relatar o dano confirmado.
+	animacao_visual_solicitada.emit(PAPEL_DANO)
 	if vida <= 0:
 		_derrotado = true
+		animacao_visual_solicitada.emit(PAPEL_QUEDA)
 		derrotado.emit(self)
 
 ## Chama os vizinhos da mesma espécie. Quem responde fica provocado, mas **não
@@ -956,6 +1003,8 @@ func atacar() -> Dictionary:
 	# não custaria nada e o jogador spammaria o botão sem risco — o oposto do que
 	# um combate de ação pede.
 	_ultimo_basico = _agora()
+	# Ataque acompanha a tentativa que consumiu cooldown, inclusive quando erra.
+	animacao_visual_solicitada.emit(PAPEL_ATAQUE)
 	if alvo == null:
 		return {}
 
