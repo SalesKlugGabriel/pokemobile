@@ -53,6 +53,7 @@ var _tela : Label = null
 var treinador : TrainerController3D = null
 var controle : ControlModeManager = null
 var hud_de_combate : HudCombate3D = null
+var telegrafo_de_skill : TelegrafoSkill3D = null
 
 func _ready() -> void:
 	_montar_base()
@@ -69,6 +70,7 @@ func _ready() -> void:
 	_montar_treinador()
 	_montar_pokemon()   # precisa do treinador pronto: o 1º do trio o acompanha
 	_montar_hud_de_combate()
+	_montar_telegrafo_de_skill()
 	_povoar(600)   # vegetação leve, só pra ter referência de movimento no mundo
 	_anotar("Laboratório 3D aberto (Fase 3)")
 
@@ -92,6 +94,13 @@ func _montar_hud_de_combate() -> void:
 	add_child(hud_de_combate)
 	hud_de_combate.desvincular_pokemon()
 	hud_de_combate.hide()
+
+## O VFX é filho da cena que recebe o EventBus, não de uma espécie. Assim o
+## anúncio de UsoDeSkill vira marca 3D sem colocar desenho dentro do combate.
+func _montar_telegrafo_de_skill() -> void:
+	telegrafo_de_skill = TelegrafoSkill3D.new()
+	telegrafo_de_skill.name = "TelegrafoSkill3D"
+	add_child(telegrafo_de_skill)
 
 ## Fase 7 — os sinais da transferência. O Codex decide duração, curva e efeito;
 ## eu digo QUANDO e ENTRE QUEM (mesma fronteira da D-003).

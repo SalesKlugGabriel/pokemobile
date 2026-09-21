@@ -1,5 +1,19 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: telegrafia visual 3D de skills
+
+- `TelegrafoSkill3D` agora escuta o anúncio já calculado de `UsoDeSkill` pelo
+  `EventBus` e desenha no chão as quatro formas reais (`single`, `circle`,
+  `cone`, `line`) com alcance, raio, largura e direção em metros. Não calcula
+  dano, área, alvo nem duração; limpa por cancelamento ou pelo `resolve_em`
+  que recebe da regra.
+- O componente é montado pelo `Laboratorio3D`, portanto não é uma peça visual
+  isolada. O teste cobre criação, forma, nó visível, cancelamento e a ponte com
+  a cena: **6 ok, 0 falhas**.
+- A HUD de corpo/loot permanece deliberadamente pendente: chamar `Corpo3D.pegar`
+  antes da fiação para a Bag removeria item sem guardá-lo. Falta Claude ligar a
+  entrada atômica do item na mochila; então não há botão enganoso nesta branch.
+
 ## Atualização Codex — 21/09: orientação canônica do Player V1
 
 - Corrigi a causa do moonwalk no próprio pipeline Blender/GLB. A medição do
