@@ -1,3 +1,5 @@
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Painel PokéMobile</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
@@ -142,25 +144,83 @@ footer p{margin:5px 0}
   .item{gap:10px}.marca{min-width:26px}
   .rfc>summary{padding:13px 14px;gap:3px 10px}
 }
-</style>
+
+:root{
+  --fundo:#f7f8fa; --papel:#ffffff; --tinta:#17212b; --tinta-fraca:#607080;
+  --linha:#dce3ea; --linha-forte:#bac6d1; --acento:#166b5c;
+  --acento-fraco:#e4f4ef; --ok:#16724a; --ok-fundo:#e5f6ec;
+  --espera:#9a5b06; --espera-fundo:#fff1d6; --parado:#b03732;
+  --parado-fundo:#ffebe8; --voce:#503eaa; --voce-fundo:#f0edff;
+  --sombra:0 9px 28px rgba(26,42,58,.08); --raio:14px;
+}
+:root[data-theme="dark"]{
+  --fundo:#101720; --papel:#18222e; --tinta:#edf3f7; --tinta-fraca:#a6b4c2;
+  --linha:#2b3947; --linha-forte:#405263; --acento:#69d7bc;
+  --acento-fraco:#173930; --ok:#70dda7; --ok-fundo:#143b2b;
+  --espera:#ffc56e; --espera-fundo:#463313; --parado:#ff9d93;
+  --parado-fundo:#4b2524; --voce:#c5b8ff; --voce-fundo:#2d2750;
+  --sombra:0 12px 30px rgba(0,0,0,.22);
+}
+body{font-size:16px;line-height:1.62;background:var(--fundo)}
+.envelope{max-width:820px;padding:0 18px 72px}
+header.topo{padding:24px 0 18px;border:0}
+.topo-linha{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.tema{appearance:none;border:1px solid var(--linha-forte);border-radius:999px;
+  background:var(--papel);color:var(--tinta);padding:8px 11px;font:600 11px var(--mono);
+  letter-spacing:.05em;white-space:nowrap;cursor:pointer}
+.tema:focus-visible{outline:3px solid var(--acento);outline-offset:2px}
+h1{font-size:clamp(31px,9vw,49px);max-width:12ch;margin:0 0 12px;letter-spacing:-.045em}
+.resumo{font-size:15px;line-height:1.52}
+.medidores{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:18px}
+.medidor{border-radius:10px;padding:10px 11px;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.medidor b{font-size:14px;line-height:1.25}.medidor span{font-size:9px}
+.atalhos{position:sticky;top:0;z-index:10;display:flex;gap:7px;overflow-x:auto;
+  padding:10px 0;background:linear-gradient(var(--fundo) 78%,transparent);scrollbar-width:none}
+.atalhos a{flex:0 0 auto;border:1px solid var(--linha);border-radius:999px;color:var(--tinta-fraca);
+  background:var(--papel);padding:6px 10px;text-decoration:none;font:600 10px var(--mono);letter-spacing:.04em}
+.atalhos a:first-child{border-color:var(--voce);color:var(--voce)}
+section{margin-top:34px;scroll-margin-top:48px}
+section>h2{font-size:11px;letter-spacing:.14em;margin-bottom:0}
+.nota{font-size:14px;line-height:1.48;margin:8px 0 13px}
+.voce-bloco{padding:16px;margin-top:4px;border-radius:var(--raio);border:1px solid var(--voce);box-shadow:var(--sombra)}
+.voce-bloco h2{font-size:12px}.voce-bloco .nota{color:var(--tinta);opacity:.78}
+.item{gap:10px;padding:15px 0}.marca{min-width:25px;color:var(--voce);font-size:12px;font-weight:600}
+.corpo-item p:first-child{font-size:16px;line-height:1.42}.porque{font-size:13px;line-height:1.45;margin-top:5px!important}
+.rfc{border-radius:var(--raio);margin-top:10px;box-shadow:0 2px 0 rgba(0,0,0,.015)}
+.rfc>summary{padding:15px;grid-template-columns:auto 1fr;gap:4px 10px}
+.rfc>summary:hover{background:var(--acento-fraco)}
+.num{font-size:16px;min-width:30px}.nome{font-size:16px;line-height:1.35}.meta{font-size:11px;line-height:1.42;grid-column:1 / -1;padding-top:2px}.abrir{grid-column:1 / -1;font-size:10px;padding-top:3px}
+.selo{font-size:9px;padding:3px 7px;margin-left:4px;vertical-align:2px}
+.leitura{padding:1px 15px 20px;font-size:15px;line-height:1.62}.leitura h2{font-size:20px;line-height:1.25;margin-top:20px}.leitura h3{font-size:17px;line-height:1.3}.leitura h4{font-size:16px}
+.leitura p,.leitura li{overflow-wrap:anywhere}.leitura ul,.leitura ol{padding-left:21px}
+table{font-size:13px}th,td{padding:8px;min-width:100px}.rolar{border:1px solid var(--linha);border-radius:8px}
+.fases{gap:8px}.fase{grid-template-columns:42px 1fr;gap:9px;border-radius:10px;padding:12px}.fase .n{font-weight:600}.fase .d{font-size:14px}.fase .e{font-size:12px;line-height:1.38}
+footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
+@media(min-width:620px){
+  .envelope{padding-left:28px;padding-right:28px}.medidores{grid-template-columns:repeat(5,1fr)}
+  .medidor{padding:11px}.medidor b{font-size:13px}.meta{grid-column:2}.abrir{grid-column:2}
+  .leitura{padding-left:20px;padding-right:20px}
+}
+</style></head><body>
 <div class="envelope">
 <header class="topo">
-<p class="etiqueta">PokéMobile · estado do projeto</p>
-<h1>O que está feito, o que falta,<br>e o que depende de você</h1>
+<div class="topo-linha"><p class="etiqueta">PokéMobile · estado do projeto</p><button class="tema" type="button" aria-label="Alternar tema">◐ tema</button></div>
+<h1>O que pede sua decisão agora.</h1>
 <p class="resumo">Gerado direto de <code>docs/QUADRO.md</code> e <code>docs/rfc/</code> — os documentos que o Claude e o Codex já atualizam por obrigação. Se algo aqui estiver errado, é a fonte que está errada.</p>
 <div class="medidores">
 <div class="medidor"><span>suíte</span><b>131 arq., 0 com falha</b></div>
 <div class="medidor"><span>contratos</span><b>8</b></div>
 <div class="medidor"><span>esperando decisão</span><b>4</b></div>
 <div class="medidor"><span>na sua fila</span><b>3</b></div>
-<div class="medidor"><span>gerado em</span><b>19/09/2026</b></div>
+<div class="medidor"><span>gerado em</span><b>21/09/2026</b></div>
 </div></header>
-<section class="voce-bloco"><h2>Precisa de você</h2>
+<nav class="atalhos" aria-label="Ir para seção"><a href="#voce">Sua decisão</a><a href="#rfcs">Contratos</a><a href="#fases">Fases V3</a><a href="#claude">Claude</a><a href="#codex">Codex</a></nav>
+<section id="voce" class="voce-bloco"><h2>Precisa de você</h2>
 <p class="nota">Nada nesta lista anda sem uma resposta sua. O resto da página é contexto.</p>
 <div class="item"><div class="marca">1</div><div class="corpo-item"><p><strong>Qual aspecto dos controles incomoda</strong></p><p class="porque">&quot;melhorar os controles&quot; são <strong>seis</strong> ajustes diferentes: velocidade, sensibilidade do mouse, aceleração, atrito, virada do personagem, distância da câmera. Mexer nos seis de uma vez faz ninguém saber qual melhorou</p></div></div><div class="item"><div class="marca">2</div><div class="corpo-item"><p>Jogar a V3 depois do conserto de direção (17/09) e dizer se o W agora anda pra onde se olha</p><p class="porque">o teste prova direção e independência da câmera; <strong>não prova sensação</strong></p></div></div><div class="item"><div class="marca">6</div><div class="corpo-item"><p><strong>Conferir a câmera no navegador</strong> depois que o Codex ligar o Player V1</p><p class="porque">o treinador encolheu de 1,75 m pra 1,60 m e o ombro da câmera desceu junto, por proporção. Se ficar alto ou baixo, o número a mexer é <code>ALTURA_DO_OMBRO</code> — e só você consegue julgar isso, porque é sensação</p></div></div>
 <p class="nota" style="margin-top:20px">E <strong>4 contrato(s)</strong> aguardando decisão — estão abertos logo abaixo, com o texto inteiro.</p>
 </section>
-<section><h2>Contratos (RFC)</h2>
+<section id="rfcs"><h2>Contratos (RFC)</h2>
 <p class="nota">Um contrato é uma decisão que trava trabalho de alguém até ser respondida. Toque para abrir e ler inteiro — nenhum resumo escolhido por mim fica entre você e o texto.</p>
 <details class="rfc">
 <summary>
@@ -244,12 +304,12 @@ footer p{margin:5px 0}
 <details class="rfc">
 <summary>
 <span class="num">007</span>
-<span class="nome">Integração do Player 3D V1 ao treinador V3 <span class="selo aceita">aceita</span></span>
+<span class="nome">Integração do Player 3D V1 ao treinador V3 <span class="selo aceita">fechada</span></span>
 <span class="meta">constrói: Codex (cliente/arte) · revisa: Claude (gameplay)</span>
 <span class="abrir">▸ ler o contrato inteiro</span>
 </summary>
 <div class="leitura"><h2>RFC-007 — Integração do Player 3D V1 ao treinador V3</h2>
-<p><strong>Status:</strong> ACCEPTED · decisões tomadas, ponte visual liberada para o Codex</p>
+<p><strong>Status:</strong> DONE · ponte visual integrada e validada no Laboratório V3</p>
 <p><strong>Owner:</strong> Codex (cliente/arte)</p>
 <p><strong>Reviewer:</strong> Claude (gameplay)</p>
 <p><strong>Aberto por:</strong> Codex · 18/09/2026</p>
@@ -333,7 +393,24 @@ footer p{margin:5px 0}
 <ol>
 <li><strong>Câmera: <code>ALTURA_DO_OMBRO</code> 1,5 → 1,371 m</strong>, por proporção (1,5/1,75 = 0,857,</li>
 </ol>
-<p>   × 1,60), não por estimativa visual. 🔴 Achado junto: <code>origem_da_mira()</code> tinha    um <code>1.5</code> <strong>cravado</strong> — segunda cópia da mesma altura, vinda do corpo de    1,75 m; agora lê a constante. Se a câmera ficar alta ou baixa para o Gabriel    no navegador, <strong>este</strong> é o número a mexer, não a cápsula.</p></div>
+<p>   × 1,60), não por estimativa visual. 🔴 Achado junto: <code>origem_da_mira()</code> tinha    um <code>1.5</code> <strong>cravado</strong> — segunda cópia da mesma altura, vinda do corpo de    1,75 m; agora lê a constante. Se a câmera ficar alta ou baixa para o Gabriel    no navegador, <strong>este</strong> é o número a mexer, não a cápsula.</p>
+<h3>Implementação Codex — 19/09/2026</h3>
+<ul>
+<li><code>PlayerVisual3D</code> instancia <code>player_v1.glb</code> como filha visual do</li>
+</ul>
+<p>  <code>TrainerController3D</code>; posição, yaw, colisão, input e stamina permanecem no   controlador.</p>
+<ul>
+<li>A cápsula amarela foi removida da apresentação; a <code>CollisionShape3D</code> física</li>
+</ul>
+<p>  de 1,60 m permanece separada. Se o GLB ou seu <code>AnimationPlayer</code> falhar, um   fallback magenta emissivo e um aviso explícito tornam a falha visível.</p>
+<ul>
+<li><code>idle</code>, <code>walk</code> e <code>run</code> selecionam somente <code>PLAYER_V1_IDLE</code>,</li>
+</ul>
+<p>  <code>PLAYER_V1_WALK</code> e <code>PLAYER_V1_RUN</code> por <code>estado_visual_de_locomocao()</code>; não há   leitura de <code>quer_correr</code>, stamina ou regra de movimento no componente visual.</p>
+<ul>
+<li>Verificado por <code>teste_player_visual_v1.gd</code> (<strong>11 ok</strong>) além de</li>
+</ul>
+<p>  <code>teste_rfc007_treinador_1m60.gd</code> (<strong>18 ok</strong>) e   <code>teste_player_v1_glb.gd</code> (<strong>14 ok</strong>).</p></div>
 </details>
 <details class="rfc">
 <summary>
@@ -922,8 +999,18 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <p><code>moves.size()</code> <strong>não é garantido igual</strong> a <code>max_skill_slots</code>: após uma troca de kit pode haver menos golpes equipados que a capacidade. Uma UI nova precisa iterar até <code>max_skill_slots</code> e tratar a ausência em <code>moves</code> como slot vazio. Também deve ignorar <code>follower_skill_used</code> com <code>slot == -1</code>, que representa o ataque automático e não um botão de skill.</p></div>
 </details>
 </section>
+<section id="fases"><h2>As 20 fases da V3</h2>
+<p class="nota">A ordem existe porque cada fase depende da anterior estar de pé. Pular é como se constrói seis sistemas pela metade.</p>
+<div class="fases"><div class="fase feita"><span class="n">0–8</span><span class="d">Auditoria, RFCs, cena 3D, treinador, terreno, Pokémon 3D, companheiro, transferência, 1ª pessoa<span class="e">✅ 14/09</span></span></div><div class="fase feita"><span class="n">9</span><span class="d"><strong>Ataque básico</strong><span class="e">✅ 17/09 · 50 conferências</span></span></div><div class="fase feita"><span class="n">10</span><span class="d"><strong>4 skills</strong> (single/circle/cone/line, aviso, drenagem)<span class="e">✅ 17/09 · 61 conferências</span></span></div><div class="fase feita"><span class="n">11</span><span class="d"><strong>Wild Pokémon</strong><span class="e">✅ 17/09 · <code>RegraDeSpawn</code> + <code>IASelvagem3D</code> + <code>SpawnerSelvagem3D</code> · 63 conferências</span></span></div><div class="fase feita"><span class="n">12</span><span class="d"><strong>Combate 1v1</strong><span class="e">✅ 18/09 · <code>RegraDeCombate</code> + <code>Combate1v1</code> · 34 conferências</span></span></div><div class="fase feita"><span class="n">13</span><span class="d"><strong>Combate → Mundo</strong><span class="e">✅ 18/09 · <code>RegraDeRetorno</code> + <code>RetornoAoMundo</code> · 50 conferências · <strong>o laço da fantasia está fechado</strong></span></span></div><div class="fase feita"><span class="n">14–15</span><span class="d"><strong>Surf · Fly</strong><span class="e">✅ 18/09 · <code>RegraDeTravessia</code> · 44 conferências</span></span></div><div class="fase feita"><span class="n">16</span><span class="d"><strong>TM/HM</strong><span class="e">✅ 18/09 · <code>RegraDeMaquina</code> · <strong>capacidade × permissão</strong> · 48 conferências</span></span></div><div class="fase feita"><span class="n">17</span><span class="d"><strong>Move Pool</strong><span class="e">✅ 18/09 · <code>RegraDeMovePool</code> · <strong>conhecidos / equipados / ativos</strong> · 59 conferências · 🔴 achou o kit vazio</span></span></div><div class="fase feita"><span class="n">18</span><span class="d"><strong>Alpha</strong><span class="e">✅ 18/09 · <code>RegraDeAlpha</code> · 58 conferências · 🔴 <strong>nunca tinha nascido um</strong> · raridade fixada pelo Gabriel</span></span></div><div class="fase nao"><span class="n">19</span><span class="d"><strong>Polimento</strong><span class="e">⬜ · <strong>o Codex entra aqui</strong> · acionado em 19/09</span></span></div><div class="fase meio"><span class="n">20</span><span class="d"><strong>Performance</strong><span class="e">🟡 18/09 · <code>RegraDeRitmo</code> · <strong>LOD de lógica</strong>, 62,5% menos IA · 33 conferências · <strong>falta medir FPS em navegador — é do Gabriel</strong></span></span></div></div>
+</section>
+<section id="claude"><h2>Fila do Claude — regras, IA, testes</h2>
+<div class="item"><div class="marca">1</div><div class="corpo-item"><p>Fase 20 — a metade de DESENHO (vegetação, modelos, sombra)</p><p class="porque"><strong>sim</strong> — depende da Fase 19 do Codex existir pra ter o que medir</p></div></div><div class="item"><div class="marca">1b</div><div class="corpo-item"><p>Ligar <code>permissoes_do_jogador()</code> na mochila de verdade quando a V3 tiver save</p><p class="porque">sim — depende do save da V3</p></div></div><div class="item"><div class="marca">1c</div><div class="corpo-item"><p>Ligar <code>capturavel</code> na pokébola da V3 (hoje ninguém captura em 3D)</p><p class="porque">sim — a captura em 3D ainda não existe</p></div></div><div class="item"><div class="marca">1d</div><div class="corpo-item"><p>Fazer a contagem de elites derrotados <strong>sobreviver a salvar/carregar</strong> (hoje vive só no spawner)</p><p class="porque">sim — depende do save da V3</p></div></div><div class="item"><div class="marca">1e</div><div class="corpo-item"><p>✅ <strong>RFC-008 — máscara de spawn. FEITA (19/09).</strong> <code>RegraDeHabitabilidade</code> + laço de tentativas no spawner · 29 conferências. 🔴 A medição corrigiu meu número: eu previ 3,25% de recusa (falésia) e o real é <strong>38,7%</strong>, porque quem domina é a <strong>água</strong> — <code>TENTATIVAS</code> 6 → <strong>10</strong></p></div></div><div class="item"><div class="marca">1f</div><div class="corpo-item"><p><strong><code>altura_em</code> deixa de ser <code>static</code></strong> quando o 1º chunk semeado nascer. <code>static</code> é o que transforma o seed em estado global; vira serviço instanciado e <code>SpawnerSelvagem3D</code>/<code>PokemonInstance3D</code>/<code>RegraDeAcompanhar</code> passam a receber a referência</p><p class="porque">sim — não existe chunk no runtime ainda</p></div></div><div class="item"><div class="marca">3</div><div class="corpo-item"><p>Ajuste de <em>sensação</em> dos controles</p><p class="porque"><strong>sim</strong> — depende do item 🟡 1</p></div></div>
+</section>
+<section id="codex"><h2>Fila do Codex — arte, HUD, modelos, mundo</h2>
+<div class="item"><div class="marca">0</div><div class="corpo-item"><p>🔴 <strong>PLAYER 3D V1 — a ponte visual.</strong> O GLB está pronto e validado; <strong>destravado</strong>: a RFC-007 foi aceita e as 3 decisões estão tomadas</p><p class="porque"><strong>prioridade</strong> · <code>docs/agent-reviews/claude/2026-09-18-RFC-007-player-v1.md</code></p></div></div><div class="item"><div class="marca">0b</div><div class="corpo-item"><p>🔴 <strong>WORLD FACTORY V1</strong> — <strong>contrato de altura aceito</strong> (RFC-006, opção A, medido por mim a 0,000001 m). ⚠️ O aceite é só do laboratório: <strong>borda entre chunks continua sem contrato</strong>, porque chunk ainda não existe pra medir</p><p class="porque"><code>docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md</code></p></div></div><div class="item"><div class="marca">1</div><div class="corpo-item"><p><strong>Qualidade gráfica do mundo 3D</strong> — terreno, vegetação, árvores, grama, água</p><p class="porque">agora, em paralelo</p></div></div><div class="item"><div class="marca">2</div><div class="corpo-item"><p>Modelos de Pokémon em volume</p><p class="porque">agora · contrato em <code>POKEMON_MODEL_PIPELINE.md</code></p></div></div><div class="item"><div class="marca">3</div><div class="corpo-item"><p>HUD de combate: cooldown do básico e das 4 skills, telegrafe do aviso</p><p class="porque">quando quiser — a API já entrega tudo (ver abaixo)</p></div></div><div class="item"><div class="marca">4</div><div class="corpo-item"><p>Polimento geral</p><p class="porque">Fase 19</p></div></div><div class="item"><div class="marca">O quê</div><div class="corpo-item"><p>Onde</p></div></div><div class="item"><div class="marca"><strong>Cooldown do básico</strong></div><div class="corpo-item"><p><code>PokemonInstance3D.basico_pronto()</code> e <code>basico_esfriando()</code> — em segundos, prontos</p></div></div><div class="item"><div class="marca"><strong>Cooldown de uma skill</strong></div><div class="corpo-item"><p><code>skill_esfriando(indice)</code></p></div></div><div class="item"><div class="marca"><strong>Por que o botão não respondeu</strong></div><div class="corpo-item"><p><code>usar_skill()</code> devolve <code>{&quot;recusado&quot;: motivo}</code> com o motivo <strong>em português</strong></p></div></div><div class="item"><div class="marca"><strong>O telegrafe do aviso</strong></div><div class="corpo-item"><p>sinal <code>EventBus.skill_anunciada</code> — traz forma, alcance, raio, largura, direção travada e quando resolve, <strong>tudo em metros e já calculado</strong></p></div></div><div class="item"><div class="marca"><strong>Apagar o telegrafe</strong></div><div class="corpo-item"><p>sinal <code>EventBus.skill_cancelada</code> — sai quando quem anunciava cai no meio</p></div></div><div class="item"><div class="marca"><strong>O relatório de um acerto em 3D</strong></div><div class="corpo-item"><p><code>EventBus.golpe_resolvido</code> — tipo, efetividade <strong>como palavra</strong>, frase, fração da vida, direção em <code>Vector3</code></p></div></div><div class="item"><div class="marca">Fonte</div><div class="corpo-item"><p>Diz</p></div></div><div class="item"><div class="marca">A folha de concept art do Gabriel (18/09)</div><div class="corpo-item"><p><strong>1,60 m</strong></p></div></div><div class="item"><div class="marca"><code>TrainerController3D</code> (cápsula e malha)</div><div class="corpo-item"><p>1,75 m</p></div></div><div class="item"><div class="marca">O <code>player.glb</code> de 14–15/09, medido</div><div class="corpo-item"><p>1,750 m</p></div></div>
+</section>
 <section><h2>Desenho de referência</h2>
-<p class="nota">Estes dois não são decisão esperando resposta: descrevem <em>como o jogo funciona</em>. Ficam aqui porque são a fonte de onde as regras saem — e porque a V3 vence a V2 em qualquer conflito.</p>
+<p class="nota">Não pede decisão: descreve como o jogo funciona e permanece acessível sem disputar atenção com a fila.</p>
 <details class="rfc"><summary>
 <span class="num">§</span>
 <span class="nome">RFC-GAMEPLAY-V2 — Remodelagem da gameplay para Action RPG <span class="selo aceita">aprovada</span></span>
@@ -1193,17 +1280,20 @@ CameraProfile      = como se vê em 1ª pessoa</code></pre>
 <p><strong>Uma pergunta que eu preciso responder antes da Fase 5</strong>, e que vale saber agora: <strong>billboard ou modelo 3D para os Pokémon?</strong> É a decisão que define se os 605 sprites vivem ou morrem, e ela pode esperar — mas não muito.</p></div>
 </details>
 </section>
-<section><h2>As 20 fases da V3</h2>
-<p class="nota">A ordem existe porque cada fase depende da anterior estar de pé. Pular é como se constrói seis sistemas pela metade.</p>
-<div class="fases"><div class="fase feita"><span class="n">0–8</span><span class="d">Auditoria, RFCs, cena 3D, treinador, terreno, Pokémon 3D, companheiro, transferência, 1ª pessoa<span class="e">✅ 14/09</span></span></div><div class="fase feita"><span class="n">9</span><span class="d"><strong>Ataque básico</strong><span class="e">✅ 17/09 · 50 conferências</span></span></div><div class="fase feita"><span class="n">10</span><span class="d"><strong>4 skills</strong> (single/circle/cone/line, aviso, drenagem)<span class="e">✅ 17/09 · 61 conferências</span></span></div><div class="fase feita"><span class="n">11</span><span class="d"><strong>Wild Pokémon</strong><span class="e">✅ 17/09 · <code>RegraDeSpawn</code> + <code>IASelvagem3D</code> + <code>SpawnerSelvagem3D</code> · 63 conferências</span></span></div><div class="fase feita"><span class="n">12</span><span class="d"><strong>Combate 1v1</strong><span class="e">✅ 18/09 · <code>RegraDeCombate</code> + <code>Combate1v1</code> · 34 conferências</span></span></div><div class="fase feita"><span class="n">13</span><span class="d"><strong>Combate → Mundo</strong><span class="e">✅ 18/09 · <code>RegraDeRetorno</code> + <code>RetornoAoMundo</code> · 50 conferências · <strong>o laço da fantasia está fechado</strong></span></span></div><div class="fase feita"><span class="n">14–15</span><span class="d"><strong>Surf · Fly</strong><span class="e">✅ 18/09 · <code>RegraDeTravessia</code> · 44 conferências</span></span></div><div class="fase feita"><span class="n">16</span><span class="d"><strong>TM/HM</strong><span class="e">✅ 18/09 · <code>RegraDeMaquina</code> · <strong>capacidade × permissão</strong> · 48 conferências</span></span></div><div class="fase feita"><span class="n">17</span><span class="d"><strong>Move Pool</strong><span class="e">✅ 18/09 · <code>RegraDeMovePool</code> · <strong>conhecidos / equipados / ativos</strong> · 59 conferências · 🔴 achou o kit vazio</span></span></div><div class="fase feita"><span class="n">18</span><span class="d"><strong>Alpha</strong><span class="e">✅ 18/09 · <code>RegraDeAlpha</code> · 58 conferências · 🔴 <strong>nunca tinha nascido um</strong> · raridade fixada pelo Gabriel</span></span></div><div class="fase nao"><span class="n">19</span><span class="d"><strong>Polimento</strong><span class="e">⬜ · <strong>o Codex entra aqui</strong> · acionado em 19/09</span></span></div><div class="fase meio"><span class="n">20</span><span class="d"><strong>Performance</strong><span class="e">🟡 18/09 · <code>RegraDeRitmo</code> · <strong>LOD de lógica</strong>, 62,5% menos IA · 33 conferências · <strong>falta medir FPS em navegador — é do Gabriel</strong></span></span></div></div>
-</section>
-<section><h2>Fila do Claude — regras, IA, testes</h2>
-<div class="item"><div class="marca">1</div><div class="corpo-item"><p>Fase 20 — a metade de DESENHO (vegetação, modelos, sombra)</p><p class="porque"><strong>sim</strong> — depende da Fase 19 do Codex existir pra ter o que medir</p></div></div><div class="item"><div class="marca">1b</div><div class="corpo-item"><p>Ligar <code>permissoes_do_jogador()</code> na mochila de verdade quando a V3 tiver save</p><p class="porque">sim — depende do save da V3</p></div></div><div class="item"><div class="marca">1c</div><div class="corpo-item"><p>Ligar <code>capturavel</code> na pokébola da V3 (hoje ninguém captura em 3D)</p><p class="porque">sim — a captura em 3D ainda não existe</p></div></div><div class="item"><div class="marca">1d</div><div class="corpo-item"><p>Fazer a contagem de elites derrotados <strong>sobreviver a salvar/carregar</strong> (hoje vive só no spawner)</p><p class="porque">sim — depende do save da V3</p></div></div><div class="item"><div class="marca">1e</div><div class="corpo-item"><p>✅ <strong>RFC-008 — máscara de spawn. FEITA (19/09).</strong> <code>RegraDeHabitabilidade</code> + laço de tentativas no spawner · 29 conferências. 🔴 A medição corrigiu meu número: eu previ 3,25% de recusa (falésia) e o real é <strong>38,7%</strong>, porque quem domina é a <strong>água</strong> — <code>TENTATIVAS</code> 6 → <strong>10</strong></p></div></div><div class="item"><div class="marca">1f</div><div class="corpo-item"><p><strong><code>altura_em</code> deixa de ser <code>static</code></strong> quando o 1º chunk semeado nascer. <code>static</code> é o que transforma o seed em estado global; vira serviço instanciado e <code>SpawnerSelvagem3D</code>/<code>PokemonInstance3D</code>/<code>RegraDeAcompanhar</code> passam a receber a referência</p><p class="porque">sim — não existe chunk no runtime ainda</p></div></div><div class="item"><div class="marca">3</div><div class="corpo-item"><p>Ajuste de <em>sensação</em> dos controles</p><p class="porque"><strong>sim</strong> — depende do item 🟡 1</p></div></div>
-</section>
-<section><h2>Fila do Codex — arte, HUD, modelos, mundo</h2>
-<div class="item"><div class="marca">0</div><div class="corpo-item"><p>🔴 <strong>PLAYER 3D V1 — a ponte visual.</strong> O GLB está pronto e validado; <strong>destravado</strong>: a RFC-007 foi aceita e as 3 decisões estão tomadas</p><p class="porque"><strong>prioridade</strong> · <code>docs/agent-reviews/claude/2026-09-18-RFC-007-player-v1.md</code></p></div></div><div class="item"><div class="marca">0b</div><div class="corpo-item"><p>🔴 <strong>WORLD FACTORY V1</strong> — <strong>contrato de altura aceito</strong> (RFC-006, opção A, medido por mim a 0,000001 m). ⚠️ O aceite é só do laboratório: <strong>borda entre chunks continua sem contrato</strong>, porque chunk ainda não existe pra medir</p><p class="porque"><code>docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md</code></p></div></div><div class="item"><div class="marca">1</div><div class="corpo-item"><p><strong>Qualidade gráfica do mundo 3D</strong> — terreno, vegetação, árvores, grama, água</p><p class="porque">agora, em paralelo</p></div></div><div class="item"><div class="marca">2</div><div class="corpo-item"><p>Modelos de Pokémon em volume</p><p class="porque">agora · contrato em <code>POKEMON_MODEL_PIPELINE.md</code></p></div></div><div class="item"><div class="marca">3</div><div class="corpo-item"><p>HUD de combate: cooldown do básico e das 4 skills, telegrafe do aviso</p><p class="porque">quando quiser — a API já entrega tudo (ver abaixo)</p></div></div><div class="item"><div class="marca">4</div><div class="corpo-item"><p>Polimento geral</p><p class="porque">Fase 19</p></div></div><div class="item"><div class="marca">O quê</div><div class="corpo-item"><p>Onde</p></div></div><div class="item"><div class="marca"><strong>Cooldown do básico</strong></div><div class="corpo-item"><p><code>PokemonInstance3D.basico_pronto()</code> e <code>basico_esfriando()</code> — em segundos, prontos</p></div></div><div class="item"><div class="marca"><strong>Cooldown de uma skill</strong></div><div class="corpo-item"><p><code>skill_esfriando(indice)</code></p></div></div><div class="item"><div class="marca"><strong>Por que o botão não respondeu</strong></div><div class="corpo-item"><p><code>usar_skill()</code> devolve <code>{&quot;recusado&quot;: motivo}</code> com o motivo <strong>em português</strong></p></div></div><div class="item"><div class="marca"><strong>O telegrafe do aviso</strong></div><div class="corpo-item"><p>sinal <code>EventBus.skill_anunciada</code> — traz forma, alcance, raio, largura, direção travada e quando resolve, <strong>tudo em metros e já calculado</strong></p></div></div><div class="item"><div class="marca"><strong>Apagar o telegrafe</strong></div><div class="corpo-item"><p>sinal <code>EventBus.skill_cancelada</code> — sai quando quem anunciava cai no meio</p></div></div><div class="item"><div class="marca"><strong>O relatório de um acerto em 3D</strong></div><div class="corpo-item"><p><code>EventBus.golpe_resolvido</code> — tipo, efetividade <strong>como palavra</strong>, frase, fração da vida, direção em <code>Vector3</code></p></div></div><div class="item"><div class="marca">Fonte</div><div class="corpo-item"><p>Diz</p></div></div><div class="item"><div class="marca">A folha de concept art do Gabriel (18/09)</div><div class="corpo-item"><p><strong>1,60 m</strong></p></div></div><div class="item"><div class="marca"><code>TrainerController3D</code> (cápsula e malha)</div><div class="corpo-item"><p>1,75 m</p></div></div><div class="item"><div class="marca">O <code>player.glb</code> de 14–15/09, medido</div><div class="corpo-item"><p>1,750 m</p></div></div>
-</section>
 <footer>
 <p>Gerado por <code>tools/gerar_painel.py</code>. Atualizar: <code>python3 tools/gerar_painel.py</code>.</p>
 <p>Esta página é só leitura. Aprovar é responder no chat — estado que muda em dois lugares é como os dois passam a discordar.</p>
 </footer></div>
+<script>
+(() => {
+  const root = document.documentElement, button = document.querySelector('.tema');
+  const saved = localStorage.getItem('painel-tema');
+  if (saved) root.dataset.theme = saved;
+  button.addEventListener('click', () => {
+    const current = root.dataset.theme ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const next = current === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next; localStorage.setItem('painel-tema', next);
+  });
+})();
+</script></body></html>

@@ -413,6 +413,68 @@ footer p{margin:5px 0}
 }
 """
 
+# A primeira folha preserva a paleta e todos os seletores do painel original.
+# Estes ajustes são deliberadamente colocados depois: deixam a geração pequena,
+# não mudam nenhuma fonte de conteúdo e priorizam a leitura com uma mão.
+CSS += """
+:root{
+  --fundo:#f7f8fa; --papel:#ffffff; --tinta:#17212b; --tinta-fraca:#607080;
+  --linha:#dce3ea; --linha-forte:#bac6d1; --acento:#166b5c;
+  --acento-fraco:#e4f4ef; --ok:#16724a; --ok-fundo:#e5f6ec;
+  --espera:#9a5b06; --espera-fundo:#fff1d6; --parado:#b03732;
+  --parado-fundo:#ffebe8; --voce:#503eaa; --voce-fundo:#f0edff;
+  --sombra:0 9px 28px rgba(26,42,58,.08); --raio:14px;
+}
+:root[data-theme="dark"]{
+  --fundo:#101720; --papel:#18222e; --tinta:#edf3f7; --tinta-fraca:#a6b4c2;
+  --linha:#2b3947; --linha-forte:#405263; --acento:#69d7bc;
+  --acento-fraco:#173930; --ok:#70dda7; --ok-fundo:#143b2b;
+  --espera:#ffc56e; --espera-fundo:#463313; --parado:#ff9d93;
+  --parado-fundo:#4b2524; --voce:#c5b8ff; --voce-fundo:#2d2750;
+  --sombra:0 12px 30px rgba(0,0,0,.22);
+}
+body{font-size:16px;line-height:1.62;background:var(--fundo)}
+.envelope{max-width:820px;padding:0 18px 72px}
+header.topo{padding:24px 0 18px;border:0}
+.topo-linha{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.tema{appearance:none;border:1px solid var(--linha-forte);border-radius:999px;
+  background:var(--papel);color:var(--tinta);padding:8px 11px;font:600 11px var(--mono);
+  letter-spacing:.05em;white-space:nowrap;cursor:pointer}
+.tema:focus-visible{outline:3px solid var(--acento);outline-offset:2px}
+h1{font-size:clamp(31px,9vw,49px);max-width:12ch;margin:0 0 12px;letter-spacing:-.045em}
+.resumo{font-size:15px;line-height:1.52}
+.medidores{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:18px}
+.medidor{border-radius:10px;padding:10px 11px;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.medidor b{font-size:14px;line-height:1.25}.medidor span{font-size:9px}
+.atalhos{position:sticky;top:0;z-index:10;display:flex;gap:7px;overflow-x:auto;
+  padding:10px 0;background:linear-gradient(var(--fundo) 78%,transparent);scrollbar-width:none}
+.atalhos a{flex:0 0 auto;border:1px solid var(--linha);border-radius:999px;color:var(--tinta-fraca);
+  background:var(--papel);padding:6px 10px;text-decoration:none;font:600 10px var(--mono);letter-spacing:.04em}
+.atalhos a:first-child{border-color:var(--voce);color:var(--voce)}
+section{margin-top:34px;scroll-margin-top:48px}
+section>h2{font-size:11px;letter-spacing:.14em;margin-bottom:0}
+.nota{font-size:14px;line-height:1.48;margin:8px 0 13px}
+.voce-bloco{padding:16px;margin-top:4px;border-radius:var(--raio);border:1px solid var(--voce);box-shadow:var(--sombra)}
+.voce-bloco h2{font-size:12px}.voce-bloco .nota{color:var(--tinta);opacity:.78}
+.item{gap:10px;padding:15px 0}.marca{min-width:25px;color:var(--voce);font-size:12px;font-weight:600}
+.corpo-item p:first-child{font-size:16px;line-height:1.42}.porque{font-size:13px;line-height:1.45;margin-top:5px!important}
+.rfc{border-radius:var(--raio);margin-top:10px;box-shadow:0 2px 0 rgba(0,0,0,.015)}
+.rfc>summary{padding:15px;grid-template-columns:auto 1fr;gap:4px 10px}
+.rfc>summary:hover{background:var(--acento-fraco)}
+.num{font-size:16px;min-width:30px}.nome{font-size:16px;line-height:1.35}.meta{font-size:11px;line-height:1.42;grid-column:1 / -1;padding-top:2px}.abrir{grid-column:1 / -1;font-size:10px;padding-top:3px}
+.selo{font-size:9px;padding:3px 7px;margin-left:4px;vertical-align:2px}
+.leitura{padding:1px 15px 20px;font-size:15px;line-height:1.62}.leitura h2{font-size:20px;line-height:1.25;margin-top:20px}.leitura h3{font-size:17px;line-height:1.3}.leitura h4{font-size:16px}
+.leitura p,.leitura li{overflow-wrap:anywhere}.leitura ul,.leitura ol{padding-left:21px}
+table{font-size:13px}th,td{padding:8px;min-width:100px}.rolar{border:1px solid var(--linha);border-radius:8px}
+.fases{gap:8px}.fase{grid-template-columns:42px 1fr;gap:9px;border-radius:10px;padding:12px}.fase .n{font-weight:600}.fase .d{font-size:14px}.fase .e{font-size:12px;line-height:1.38}
+footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
+@media(min-width:620px){
+  .envelope{padding-left:28px;padding-right:28px}.medidores{grid-template-columns:repeat(5,1fr)}
+  .medidor{padding:11px}.medidor b{font-size:13px}.meta{grid-column:2}.abrir{grid-column:2}
+  .leitura{padding-left:20px;padding-right:20px}
+}
+"""
+
 
 def selo(rfc):
     return '<span class="selo %s">%s</span>' % (rfc["classe"], rfc["rotulo"])
@@ -471,21 +533,23 @@ def gerar():
     fases = tabela_do_quadro("As 20 fases")
 
     partes = []
+    partes.append('<!doctype html><html lang="pt-BR"><head>')
+    partes.append('<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">')
     partes.append("<title>Painel PokéMobile</title>")
     partes.append('<link rel="preconnect" href="https://fonts.gstatic.com" '
                   'crossorigin>')
     partes.append('<link rel="stylesheet" href="https://fonts.googleapis.com/'
                   'css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex'
                   '+Sans:wght@400;500;600;700&display=swap">')
-    partes.append("<style>%s</style>" % CSS)
+    partes.append("<style>%s</style></head><body>" % CSS)
 
     partes.append('<div class="envelope">')
 
     # ── Cabeçalho
     partes.append('<header class="topo">')
-    partes.append('<p class="etiqueta">PokéMobile · estado do projeto</p>')
-    partes.append("<h1>O que está feito, o que falta,<br>e o que depende de "
-                  "você</h1>")
+    partes.append('<div class="topo-linha"><p class="etiqueta">PokéMobile · estado do projeto</p>'
+                  '<button class="tema" type="button" aria-label="Alternar tema">◐ tema</button></div>')
+    partes.append("<h1>O que pede sua decisão agora.</h1>")
     partes.append('<p class="resumo">Gerado direto de <code>docs/QUADRO.md</code>'
                   ' e <code>docs/rfc/</code> — os documentos que o Claude e o '
                   'Codex já atualizam por obrigação. Se algo aqui estiver '
@@ -502,9 +566,13 @@ def gerar():
     partes.append('<div class="medidor"><span>gerado em</span><b>%s</b></div>'
                   % date.today().strftime("%d/%m/%Y"))
     partes.append("</div></header>")
+    partes.append('<nav class="atalhos" aria-label="Ir para seção">'
+                  '<a href="#voce">Sua decisão</a><a href="#rfcs">Contratos</a>'
+                  '<a href="#fases">Fases V3</a><a href="#claude">Claude</a>'
+                  '<a href="#codex">Codex</a></nav>')
 
     # ── O bloco que é o ponto da página
-    partes.append('<section class="voce-bloco"><h2>Precisa de você</h2>')
+    partes.append('<section id="voce" class="voce-bloco"><h2>Precisa de você</h2>')
     partes.append('<p class="nota">Nada nesta lista anda sem uma resposta sua. '
                   'O resto da página é contexto.</p>')
     partes.append(bloco_fila(fila_gabriel))
@@ -515,7 +583,7 @@ def gerar():
     partes.append("</section>")
 
     # ── RFCs
-    partes.append("<section><h2>Contratos (RFC)</h2>")
+    partes.append('<section id="rfcs"><h2>Contratos (RFC)</h2>')
     partes.append('<p class="nota">Um contrato é uma decisão que trava trabalho '
                   'de alguém até ser respondida. Toque para abrir e ler inteiro '
                   '— nenhum resumo escolhido por mim fica entre você e o texto.'
@@ -537,13 +605,29 @@ def gerar():
         partes.append("</details>")
     partes.append("</section>")
 
-    # ── Os documentos de desenho
+    # ── Fases
+    partes.append('<section id="fases"><h2>As 20 fases da V3</h2>')
+    partes.append('<p class="nota">A ordem existe porque cada fase depende da '
+                  "anterior estar de pé. Pular é como se constrói seis sistemas "
+                  "pela metade.</p>")
+    partes.append(bloco_fases(fases))
+    partes.append("</section>")
+
+    # ── Filas
+    partes.append('<section id="claude"><h2>Fila do Claude — regras, IA, testes</h2>')
+    partes.append(bloco_fila(fila_claude))
+    partes.append("</section>")
+
+    partes.append('<section id="codex"><h2>Fila do Codex — arte, HUD, modelos, mundo</h2>')
+    partes.append(bloco_fila(fila_codex))
+    partes.append("</section>")
+
+    # ── Documentos de desenho ficam depois da fila operacional. Não são uma
+    # decisão nem uma fase; deixá-los antes ocultava o que o Gabriel veio ver.
     if desenho:
         partes.append("<section><h2>Desenho de referência</h2>")
-        partes.append('<p class="nota">Estes dois não são decisão esperando '
-                      "resposta: descrevem <em>como o jogo funciona</em>. "
-                      "Ficam aqui porque são a fonte de onde as regras saem "
-                      "— e porque a V3 vence a V2 em qualquer conflito.</p>")
+        partes.append('<p class="nota">Não pede decisão: descreve como o jogo '
+                      'funciona e permanece acessível sem disputar atenção com a fila.</p>')
         for r in desenho:
             partes.append('<details class="rfc"><summary>')
             partes.append('<span class="num">§</span>')
@@ -556,23 +640,6 @@ def gerar():
             partes.append("</details>")
         partes.append("</section>")
 
-    # ── Fases
-    partes.append("<section><h2>As 20 fases da V3</h2>")
-    partes.append('<p class="nota">A ordem existe porque cada fase depende da '
-                  "anterior estar de pé. Pular é como se constrói seis sistemas "
-                  "pela metade.</p>")
-    partes.append(bloco_fases(fases))
-    partes.append("</section>")
-
-    # ── Filas
-    partes.append("<section><h2>Fila do Claude — regras, IA, testes</h2>")
-    partes.append(bloco_fila(fila_claude))
-    partes.append("</section>")
-
-    partes.append("<section><h2>Fila do Codex — arte, HUD, modelos, mundo</h2>")
-    partes.append(bloco_fila(fila_codex))
-    partes.append("</section>")
-
     partes.append("<footer>")
     partes.append("<p>Gerado por <code>tools/gerar_painel.py</code>. "
                   "Atualizar: <code>python3 tools/gerar_painel.py</code>.</p>")
@@ -580,6 +647,19 @@ def gerar():
                   "estado que muda em dois lugares é como os dois passam a "
                   "discordar.</p>")
     partes.append("</footer></div>")
+    partes.append("""<script>
+(() => {
+  const root = document.documentElement, button = document.querySelector('.tema');
+  const saved = localStorage.getItem('painel-tema');
+  if (saved) root.dataset.theme = saved;
+  button.addEventListener('click', () => {
+    const current = root.dataset.theme ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const next = current === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next; localStorage.setItem('painel-tema', next);
+  });
+})();
+</script></body></html>""")
 
     os.makedirs(os.path.dirname(SAIDA), exist_ok=True)
     with open(SAIDA, "w", encoding="utf-8") as f:
