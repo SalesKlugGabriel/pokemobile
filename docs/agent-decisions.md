@@ -138,3 +138,14 @@ nunca em placeholder silencioso.
 
 Verificações: `teste_player_visual_v1.gd` (11 ok),
 `teste_rfc007_treinador_1m60.gd` (18 ok) e `teste_player_v1_glb.gd` (14 ok).
+
+---
+
+## D-005 — RFC-009: corpo segue deslocamento, mira segue câmera
+
+**Data:** 21/09/2026 · **Decisão:** Gabriel
+
+Em terceira pessoa, `TrainerController3D` gira para a velocidade horizontal
+efetiva. `direcao_de_mira()` permanece ligada à câmera, então a correção não
+altera o rumo de pokébolas ou ataques. `teste_controles_v3.gd` mede W e A/D
+para impedir que o modelo volte a ficar travado de frente para a câmera.

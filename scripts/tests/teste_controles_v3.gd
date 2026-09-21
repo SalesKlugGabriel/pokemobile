@@ -24,6 +24,7 @@ var fail : int = 0
 var _quadros : int = 0
 var _treinador : CharacterBody3D = null
 var _y_inicial_da_camera : float = 0.0
+var _pos_antes_da_lateral : Vector3 = Vector3.ZERO
 
 func _checar(nome: String, condicao: bool, detalhe: String = "") -> void:
 	if condicao:
@@ -124,6 +125,15 @@ func _process(delta: float) -> bool:
 
 	if _quadros == 61:
 		_conferir_depois_de_andar()
+		# W e a câmera compartilham a mesma frente; testar só W não distinguiria
+		# corpo-para-câmera de corpo-para-movimento. A passada lateral mede a
+		# fronteira que o relato do Gabriel realmente exige.
+		_pos_antes_da_lateral = _treinador.global_position
+		_treinador.mover(Vector2(1, 0))
+		return false
+
+	if _quadros == 91:
+		_conferir_lateral()
 		_terminar()
 		return true
 	return false
@@ -138,22 +148,6 @@ func _conferir_depois_de_andar() -> void:
 	_checar("o yaw da câmera é o do mouse, não o do corpo",
 		absf(angle_difference(yaw_da_camera, yaw_global_da_camera)) < 0.01,
 		"pedido %.3f, no mundo %.3f — a câmera está herdando rotação de alguém" % [yaw_da_camera, yaw_global_da_camera])
-
-	# 🔴 18/09 — a régua mudou junto com o design. Antes o corpo virava pra onde
-	# ANDAVA; agora ele **encara a mira**, a pedido do Gabriel: *"o mouse precisa
-	# ser a mira para todas as ações"*.
-	#
-	# O sintoma que isso resolve: com o corpo virando pro movimento e a câmera
-	# atrás, **nunca se vê a frente do personagem** — quando ele anda na direção
-	# da câmera, o que aparece são as costas andando pra trás.
-	_checar("o corpo encara a MIRA, não a direção do movimento",
-		absf(angle_difference(_treinador.rotation.y, cam.yaw())) < 0.01,
-		"corpo em %.3f, mira em %.3f" % [_treinador.rotation.y, cam.yaw()])
-
-	# E o corpo REALMENTE girou — senão a conferência acima passaria por acaso,
-	# com os dois em zero.
-	_checar("e o corpo realmente girou (não está tudo em zero)",
-		absf(_treinador.rotation.y) > 0.01, "corpo em %.3f" % _treinador.rotation.y)
 
 	# A mira é uma fonte só, pra pokébola e ataque saírem pra onde se olha.
 	var mira : Vector3 = _treinador.direcao_de_mira()
@@ -178,6 +172,20 @@ func _conferir_depois_de_andar() -> void:
 	_checar("a câmera continua na altura do ombro depois de andar",
 		cam.global_position.y > _treinador.global_position.y + 1.0,
 		"câmera y=%.2f, treinador y=%.2f" % [cam.global_position.y, _treinador.global_position.y])
+
+func _conferir_lateral() -> void:
+	var andou := _treinador.global_position - _pos_antes_da_lateral
+	andou.y = 0.0
+	var frente_do_corpo := -_treinador.global_transform.basis.z
+	frente_do_corpo.y = 0.0
+	_checar("A/D desloca o corpo lateralmente de verdade", andou.length() > 0.5,
+		"andou %.3f m" % andou.length())
+	_checar("o corpo encara a própria direção ao andar lateralmente",
+		frente_do_corpo.normalized().dot(andou.normalized()) > 0.85,
+		"alinhamento %.3f" % frente_do_corpo.normalized().dot(andou.normalized()))
+	_checar("o corpo não fica travado no yaw da câmera",
+		absf(angle_difference(_treinador.rotation.y, _treinador.camera.yaw())) > 0.4,
+		"corpo %.3f, câmera %.3f" % [_treinador.rotation.y, _treinador.camera.yaw()])
 
 func _terminar() -> void:
 	# `tools/rodar_testes.sh` exige ESTA linha, além do código de saída: um teste
