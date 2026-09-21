@@ -135,3 +135,20 @@ trabalhe em `docs/`, que nenhum teste lê.
 
 Referências de configuração: [AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
 e [worktrees](https://learn.chatgpt.com/docs/environments/git-worktrees).
+
+
+## Ao terminar cada tarefa: envie sua branch (regra do Gabriel, 21/09/2026)
+
+`git push origin <sua-branch>` — **toda vez**, junto com o commit.
+
+🔴 O motivo é medido, não preventivo: em 21/09 descobrimos que a branch
+`agent/codex-v3` **nunca tinha sido enviada** — todo aquele trabalho existia só
+no disco desta VPS, sem cópia fora da máquina. E a `main` estava **92 commits
+atrás**, parada em 14/09: quem abrisse o repositório via o jogo de uma semana
+antes.
+
+**O modelo:** `main` é a linha integrada; `agent/claude-v3` e `agent/codex-v3`
+são trabalho em curso; `arquivo/*` guarda worktrees aposentadas.
+
+Terminou a tarefa → commitou → **enviou**. Trabalho que só existe num disco não
+está salvo.

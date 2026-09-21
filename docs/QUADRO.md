@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **135 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **136 arquivos, 0 com falha**
 
 ---
 
@@ -42,6 +42,7 @@ verdade.
 | 17 | **Move Pool** | ✅ 18/09 · `RegraDeMovePool` · **conhecidos / equipados / ativos** · 59 conferências · 🔴 achou o kit vazio |
 | 18 | **Alpha** | ✅ 18/09 · `RegraDeAlpha` · 58 conferências · 🔴 **nunca tinha nascido um** · raridade fixada pelo Gabriel |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** · acionado em 19/09 |
+| — | **Alarme de pontas soltas** | ✅ 21/09 · `teste_pontas_soltas.gd` · 13 pontas declaradas · 🔴 achou a `HudCombate3D` órfã, e achou o ponto cego dentro de si mesmo |
 | 21b | **A captura chega no save** | ✅ 21/09 · `RegraDeGuardarCaptura` + o ouvinte que faltava · 25 conferências · 🔴 **`resolveu` era emitido e ninguém escutava** — o jogador capturava e o Pokémon evaporava |
 | 21 | **Captura em 3D** | ✅ 20/09 · `RegraDeArremesso` + `Corpo3D` + `PokebolaLancada3D` · 47 conferências · **a regra da V2 não mudou uma linha** · 🔴 o arco fixo passava 2,49 m ACIMA de um corpo a 6 m |
 | 20 | **Performance** | 🟡 18/09 · `RegraDeRitmo` · **LOD de lógica**, 62,5% menos IA · 33 conferências · **falta medir FPS em navegador — é do Gabriel** |
@@ -431,6 +432,34 @@ tem cópia **fora** desta VPS, que é onde backup precisa estar.
 
 **O modelo:** `main` é a linha integrada; `agent/claude-v3` e `agent/codex-v3`
 são trabalho em curso; `arquivo/*` é histórico guardado.
+
+---
+
+## 🚨 O alarme contra o zero silencioso (21/09)
+
+`scripts/tests/teste_pontas_soltas.gd`. Achei **cinco** vezes num mês a mesma
+classe de defeito — e **todas por acidente**, procurando outra coisa: o kit
+vazio (17), o Alpha que nunca nascia (18), a tecla `pokeball` sem leitor (21),
+o `resolveu` sem ouvinte (21b) e a `HudCombate3D` que nenhuma cena instancia.
+Cinco achados por acidente é sorte, não método.
+
+**O que ele NÃO faz:** exigir ouvinte pra todo sinal. Metade dos sinais da V3 é
+de apresentação e a HUD é do Codex — cobrar agora reprovaria a suíte por
+trabalho que legitimamente ainda não existe.
+
+**O que ele faz:** exigir que toda ponta solta esteja **declarada com motivo**.
+Ponta declarada é pendência que alguém lê; ponta não declarada é silêncio. Um
+sinal novo sem ouvinte e sem declaração **reprova**, e a mensagem diz as duas
+saídas: ligue, ou escreva por quê.
+
+Hoje: **13 pontas declaradas** na V3, quase todas esperando a HUD. E a lista é
+conferida nos **dois** sentidos — uma declaração que sobrou (sinal que já foi
+ligado) também reprova, senão ela vira cemitério e para de proteger.
+
+🔴 **O próprio teste tinha o ponto cego que ele caça.** A primeira versão
+contava `scripts/tests/` como uso — e `HudCombate3D` apareceu "usada", porque o
+teste do Codex a instancia. É **exatamente** como o kit vazio sobreviveu às
+Fases 9 a 16: os testes injetavam o kit à mão. Teste agora não conta como uso.
 
 ---
 
