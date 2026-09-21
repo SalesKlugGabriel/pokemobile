@@ -20,12 +20,22 @@ CONTROLS = (
 )
 
 
+def espelhar_rotacao_y(rotation):
+    """Converte a pose para a malha/rig espelhados no eixo de frente.
+
+    A fonte agora usa +Y no Blender para chegar a -Z no Godot. Sob esse
+    espelho, rotações locais em X e Z trocam de sinal; preservar isso mantém a
+    passada criada originalmente, em vez de inverter o gesto dos membros.
+    """
+    return (-rotation[0], rotation[1], -rotation[2])
+
+
 def set_pose(armature, frame, rotations):
     bpy.context.scene.frame_set(frame)
     for name in CONTROLS:
         bone = armature.pose.bones[name]
         bone.rotation_mode = "XYZ"
-        bone.rotation_euler = rotations.get(name, (0.0, 0.0, 0.0))
+        bone.rotation_euler = espelhar_rotacao_y(rotations.get(name, (0.0, 0.0, 0.0)))
         bone.keyframe_insert(data_path="rotation_euler", frame=frame, group=name)
 
 

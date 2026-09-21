@@ -18,6 +18,11 @@ PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."
 BLEND_PATH = os.path.join(PROJECT_DIR, "assets/characters/player_v1/player_v1.blend")
 
 
+def frente_godot(point):
+    """Espelha Y para manter o rig alinhado à malha exportada para Godot."""
+    return (point[0], -point[1], point[2])
+
+
 def bone(edit_bones, name, head, tail, parent=None):
     result = edit_bones.new(name)
     result.head = head
@@ -45,17 +50,17 @@ def build_armature():
     bone(bones, "chest", (0, 0, 1.14), (0, 0, 1.25), "spine_02")
     bone(bones, "neck", (0, 0, 1.25), (0, 0, 1.34), "chest")
     bone(bones, "head", (0, 0, 1.34), (0, 0, 1.56), "neck")
-    bone(bones, "backpack", (0, .05, 1.05), (0, .20, 1.19), "chest")
+    bone(bones, "backpack", frente_godot((0, .05, 1.05)), frente_godot((0, .20, 1.19)), "chest")
     bone(bones, "cap", (0, 0, 1.53), (0, 0, 1.62), "head")
     for sign, suffix in ((-1, "L"), (1, "R")):
         bone(bones, f"clavicle_{suffix}", (0, 0, 1.20), (sign * .20, 0, 1.19), "chest")
         bone(bones, f"upperarm_{suffix}", (sign * .20, 0, 1.19), (sign * .25, 0, .95), f"clavicle_{suffix}")
         bone(bones, f"lowerarm_{suffix}", (sign * .25, 0, .95), (sign * .273, 0, .70), f"upperarm_{suffix}")
-        bone(bones, f"hand_{suffix}", (sign * .273, 0, .70), (sign * .287, -.01, .57), f"lowerarm_{suffix}")
+        bone(bones, f"hand_{suffix}", frente_godot((sign * .273, 0, .70)), frente_godot((sign * .287, -.01, .57)), f"lowerarm_{suffix}")
         bone(bones, f"thigh_{suffix}", (sign * .10, 0, .80), (sign * .115, 0, .47), "pelvis")
         bone(bones, f"shin_{suffix}", (sign * .115, 0, .47), (sign * .11, 0, .18), f"thigh_{suffix}")
-        bone(bones, f"foot_{suffix}", (sign * .11, 0, .18), (sign * .11, -.16, .08), f"shin_{suffix}")
-        bone(bones, f"toe_{suffix}", (sign * .11, -.16, .08), (sign * .11, -.25, .07), f"foot_{suffix}")
+        bone(bones, f"foot_{suffix}", frente_godot((sign * .11, 0, .18)), frente_godot((sign * .11, -.16, .08)), f"shin_{suffix}")
+        bone(bones, f"toe_{suffix}", frente_godot((sign * .11, -.16, .08)), frente_godot((sign * .11, -.25, .07)), f"foot_{suffix}")
     bpy.ops.object.mode_set(mode="OBJECT")
     armature.show_in_front = True
     return armature

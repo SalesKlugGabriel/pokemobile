@@ -1,5 +1,18 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 21/09: orientação canônica do Player V1
+
+- Corrigi a causa do moonwalk no próprio pipeline Blender/GLB. A medição do
+  pacote anterior demonstrou frente em +Z no Godot, oposta à frente −Z do
+  `Locomocao3D`; a geometria, rig e rotações de Action passam a ser convertidos
+  na fonte, antes da exportação.
+- `player_v1.glb` atual mede sapatos e boné apontando para −Z no importador
+  Godot. `PlayerVisual3D` desta branch não recebe e não deve receber yaw de
+  180°; o teste novo bloqueia tanto o asset em +Z quanto uma compensação no
+  componente visual.
+- Próximo passo: integrar esta revisão do asset na linha de Claude sem carregar
+  o remendo temporário de `CORRECAO_DE_FRENTE`.
+
 ## Atualização Codex — 21/09: World Factory V1, materiais e transições
 
 - Polimento visual limitado ao WORLD_LAB: terreno agora tem variação em escalas

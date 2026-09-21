@@ -12,9 +12,11 @@ O primeiro asset técnico do treinador está em
 `TrainerController3D._montar_corpo()` ainda cria uma cápsula visual amarela e
 uma cápsula física de 1,75 m. O Player V1 foi validado isoladamente no Godot:
 
-- altura 1,600 m, pés em Y=0 e frente em −Z;
+- altura 1,600 m e pés em Y=0. A orientação do GLB foi corrigida em
+  21/09: a fonte originalmente chegava com frente em **+Z** no Godot; o pacote
+  atual chega com frente em **−Z**;
 - 25 ossos, três Actions in-place (`IDLE`, `WALK`, `RUN`);
-- 9 malhas de runtime, 355.896 bytes;
+- 9 malhas de runtime, 355.884 bytes;
 - cena isolada e teste `teste_player_v1_glb.gd`: 14 ok, 0 falhas.
 
 O ativo visual está pronto, mas trocar a cápsula muda uma cena de entidade que
@@ -37,7 +39,8 @@ acidente física, input, stamina ou a troca treinador↔Pokémon.
    ou `run`. A seleção do clip não recalcula velocidade, stamina nem regras de
    movimento; apenas toca Action existente.
 4. O visual sempre acompanha o yaw já decidido pelo controlador. A frente do
-   GLB é −Z no Godot e não deve receber correção de 180° silenciosa.
+   GLB canônico é −Z no Godot e não deve receber correção de 180° no
+   controlador. A orientação pertence ao asset e é medida no importador.
 5. A integração começa no Laboratório V3 e preserva fallback visível caso o
    GLB falhe ao carregar; não substituirá outros treinadores/NPCs nesta RFC.
 
@@ -132,3 +135,22 @@ Travado por `scripts/tests/teste_rfc007_treinador_1m60.gd` (**18 ok, 0 falhas**)
 - Verificado por `teste_player_visual_v1.gd` (**11 ok**) além de
   `teste_rfc007_treinador_1m60.gd` (**18 ok**) e
   `teste_player_v1_glb.gd` (**14 ok**).
+
+## Correção de orientação do asset — 21/09/2026
+
+A afirmação original desta RFC de que o GLB já apontava para −Z estava errada.
+Medição direta dos vértices do pacote anterior encontrou os sapatos
+(`Y < 0,15 m`, 626 vértices, `Z −0,119…+0,273`) e o boné
+(`Y > 1,35 m`, 878 vértices, `Z −0,133…+0,239`) ambos voltados a **+Z**. Como
+um nó Godot sem yaw olha para −Z, o controlador estava correto e o asset fazia
+o treinador aparentar caminhar de costas.
+
+O conserto foi aplicado na fonte Blender, não em `PlayerVisual3D`: a malha e o
+rig são espelhados no eixo de frente antes do export GLB, e as rotações das
+Actions são convertidas junto para preservar a passada. O pacote atual mede
+sapatos `−0,154 m` e boné `−0,106 m` em Z, ambos para **−Z**. O novo
+`scripts/tests/teste_player_v1_frente.gd` mede o GLB no Godot e também reprova
+qualquer retorno de `CORRECAO_DE_FRENTE`/yaw de 180° no componente visual.
+
+Portanto a regra do contrato continua a mesma, agora sustentada pelo asset
+correto: `Locomocao3D` decide o yaw; `PlayerVisual3D` apenas o acompanha.
