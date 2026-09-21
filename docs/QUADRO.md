@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **134 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **135 arquivos, 0 com falha**
 
 ---
 
@@ -42,6 +42,7 @@ verdade.
 | 17 | **Move Pool** | ✅ 18/09 · `RegraDeMovePool` · **conhecidos / equipados / ativos** · 59 conferências · 🔴 achou o kit vazio |
 | 18 | **Alpha** | ✅ 18/09 · `RegraDeAlpha` · 58 conferências · 🔴 **nunca tinha nascido um** · raridade fixada pelo Gabriel |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** · acionado em 19/09 |
+| 21b | **A captura chega no save** | ✅ 21/09 · `RegraDeGuardarCaptura` + o ouvinte que faltava · 25 conferências · 🔴 **`resolveu` era emitido e ninguém escutava** — o jogador capturava e o Pokémon evaporava |
 | 21 | **Captura em 3D** | ✅ 20/09 · `RegraDeArremesso` + `Corpo3D` + `PokebolaLancada3D` · 47 conferências · **a regra da V2 não mudou uma linha** · 🔴 o arco fixo passava 2,49 m ACIMA de um corpo a 6 m |
 | 20 | **Performance** | 🟡 18/09 · `RegraDeRitmo` · **LOD de lógica**, 62,5% menos IA · 33 conferências · **falta medir FPS em navegador — é do Gabriel** |
 
@@ -88,7 +89,7 @@ posicionar é o caminho que catapulta o jogador.
 | 1 | Fase 20 — a metade de DESENHO (vegetação, modelos, sombra) | **sim** — depende da Fase 19 do Codex existir pra ter o que medir |
 | 1b | ✅ **FEITO (19/09).** `permissoes_do_jogador()` lê `SaveManager.save_data["inventory"]`. 🔴 O comentário apontava a chave **errada** (`"items"`) — ligar por ele leria `{}` e o jogador perderia Surf e Voar **sem erro nenhum** | — |
 | 1c | ✅ **FEITO (20/09) — virou a Fase 21.** `capturavel` é lido de quem caiu, e nem a Master Ball pega um Alpha. A captura deixou de ser um clique num cadáver e passou a ser **uma bola atravessando o espaço** | — |
-| 1g | Guardar no save quem foi capturado (hoje `tentar_capturar` devolve espécie/nível e ninguém escuta) | não — é fiação, e o `SaveManager` já tem `team`/`pc`/`pokedex` |
+| 1g | ✅ **FEITO (21/09).** O treinador escuta `resolveu`, monta com `_make_pokemon_data`, guarda com `add_pokemon` (time ou PC), marca a Pokédex e salva. Zero conta nova | — |
 | 1h | Loot: a §35 diz que cada item é arrastado pra Bag, um a um. `Corpo3D.pegar()` existe; **a tela é do Codex** | depende da HUD de corpo |
 | 1d | ✅ **FEITO (19/09).** `world.elites_derrotados` no save + migração pra save antigo (`load_game` substitui o dicionário cru). Carimbo **Unix**, então "3 horas" continua sendo 3 h de relógio com o jogo fechado | — |
 | 1e | ✅ **RFC-008 — máscara de spawn. FEITA (19/09).** `RegraDeHabitabilidade` + laço de tentativas no spawner · 29 conferências. 🔴 A medição corrigiu meu número: eu previ 3,25% de recusa (falésia) e o real é **38,7%**, porque quem domina é a **água** — `TENTATIVAS` 6 → **10** | — |
@@ -411,6 +412,25 @@ direto — *"vamos manter no link atual, sem novo dns"*. O subdomínio
 | **Selvagem nasce num ANEL** (12 a 28 m), nunca perto | Fora do raio de aggro de um agressivo (5 m): o bicho tem de aparecer e se aproximar, não materializar na cara. E protege do contrato de nascimento |
 | **Lugar perigoso: menos encontro, e mais raro** | Pedido do Gabriel. Esticar só o intervalo não bastaria — a população acumularia até igualar a zona segura. Por isso o teto de população cai junto |
 | **Classe pura nunca cita autoload** | Autoload não é identificador em teste `--script`. Vai por `Sorteio`, que resolve em tempo de chamada e preserva a sequência do jogo |
+
+---
+
+## 📦 GitHub — o que estava faltando (21/09)
+
+Conferido a pedido do Gabriel, e **três coisas estavam erradas**:
+
+- 🔴 **A branch do Codex nunca tinha subido.** Todo o trabalho dele existia só
+  nesta VPS. Enviada.
+- 🔴 **`main` estava 92 commits atrás** (parada em 14/09). Quem abrisse o
+  repositório no GitHub via o jogo de uma semana antes, sem as Fases 12 a 21.
+  Avançada — foi avanço limpo, sem reescrever histórico.
+- 🔴 **Não existia README.** Criado.
+
+As 3 worktrees aposentadas viraram `arquivo/*` no GitHub: o trabalho delas agora
+tem cópia **fora** desta VPS, que é onde backup precisa estar.
+
+**O modelo:** `main` é a linha integrada; `agent/claude-v3` e `agent/codex-v3`
+são trabalho em curso; `arquivo/*` é histórico guardado.
 
 ---
 
