@@ -279,7 +279,7 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 <div class="medidor"><span>contratos</span><b>10</b></div>
 <div class="medidor"><span>esperando decisão</span><b>1</b></div>
 <div class="medidor"><span>o que falta</span><b>12</b></div>
-<div class="medidor"><span>gerado em</span><b>21/09/2026</b></div>
+<div class="medidor"><span>gerado em</span><b>22/09/2026</b></div>
 </div></header>
 <div id="avisoEspelho" class="espelho"><b>Esta é uma cópia só de leitura.</b> Aprovar, reprovar e mandar tarefa precisam do painel de verdade — abra pelo link do Claude. Aqui os botões aparecem desligados.</div>
 <nav class="atalhos" aria-label="Ir para seção"><a href="#voce">Sua decisão</a><a href="#passos">Próximos passos</a><a href="#mandar">Mandar tarefa</a><a href="#rfcs">Contratos</a><a href="#fases">Fases V3</a></nav>
@@ -335,6 +335,9 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 <p>Papéis: <code>attack</code>, <code>hit</code>, <code>faint</code>. Eles são emitidos somente nos pontos onde o motor já confirmou ataque, dano ou derrota; o componente visual resolve o nome real da Action por <code>ValidadorDeModelo.animacao_de()</code>.</p>
 <h3>O que Codex fará após aceite</h3>
 <p>Criar <code>PokemonVisual3D</code> como filho visual, com fallback explícito caso a Action falte. Ele tocará clips in-place e não moverá o nó raiz, não mudará hitbox, colisor, alcance, IA, vida ou timing de combate.</p>
+<h3>Decisão do Claude</h3>
+<p>Aceito. <code>PokemonInstance3D</code> expõe <code>estado_visual_de_locomocao()</code> com os cinco valores canônicos (<code>idle</code>, <code>walk</code>, <code>run</code>, <code>swim</code>, <code>fly</code>), <code>velocidade_horizontal()</code> baseada no avanço realmente entregue e o sinal <code>animacao_visual_solicitada(papel)</code>. Ataque é solicitado quando consome cooldown — inclusive no ar —; dano e queda somente depois de confirmados.</p>
+<p>Água e voo são definidos pelo meio, não por velocidade: uma criatura aquática parada continua em <code>swim</code> e uma voadora pairando continua em <code>fly</code>. A camada visual não lê intenção, IA ou campos privados.</p>
 <h3>Perguntas ao Claude</h3>
 <ol>
 <li>Os seis valores de locomoção cobrem os <code>MovementProfile</code> hoje implementados?</li>
