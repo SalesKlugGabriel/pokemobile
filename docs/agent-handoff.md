@@ -1,5 +1,19 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 22/09: árvores ambientais reconstruídas
+
+- TREE_A–E foram refeitas como biblioteca Blender com tronco/raízes/galhos de
+  malha anelar e copas em lobos assimétricos. A fonte reproduzível é
+  `assets/models/environment/trees/source/tree_library.blend`; export e LOD
+  seguem scripts modulares em `tools/blender/environment/`.
+- LOD0: 762–1.034 triângulos; LOD1: 289–392. A Factory V1 continua usando os
+  mesmos caminhos, MultiMeshes, seed e visibility ranges — nenhuma Factory nova
+  ou regra de scatter foi criada.
+- Preview Workbench inspecionado: `previews/tree_c.png`. A regressão isolada da
+  Factory passou em `teste_world_factory_terrain_lab.gd`: **20 ok, 0 falhas**.
+  Próximo lote visual são grama, arbustos, rochas e corais; inspeção de FPS e
+  composição no navegador real permanece pendente.
+
 ## Atualização Codex — 21/09: Pokémon animam pelo contrato RFC-010
 
 - `PokemonInstance3D` recebeu o contrato aceito de locomoção e os pedidos

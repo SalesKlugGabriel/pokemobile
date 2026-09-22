@@ -54,11 +54,19 @@ margem 12 m.
 
 `tools/blender/generators/gerar_lod_arvores.py` deriva os cinco GLBs LOD1 sem
 alterar os LOD0: `tree_[a-e]_lod1.glb`. A redução por Decimate é 0,38 e foi
-validada no Blender: A 1.028 → 390, B 948 → 360, C 1.188 → 451, D 1.108 → 421,
-E 1.268 → 481 triângulos. LOD0 fica ativo até 46 m e ainda projeta sombra; LOD1
+validada no Blender: A 898 → 341, B 762 → 289, C 1.034 → 392, D 898 → 341,
+E 1.034 → 392 triângulos. LOD0 fica ativo até 46 m e ainda projeta sombra; LOD1
 começa em 38 m (sobreposição/fade de 8 m), segue até 104 m e não projeta sombra.
 Não é um modelo de impostor final, mas é uma troca de malha real, configurada na
 spec e pronta para medição em navegador.
+
+Em 22/09, os cinco LOD0 foram reconstruídos por
+`tools/blender/environment/tree_library.py` e `build_trees.py`. A fonte única
+`assets/models/environment/trees/source/tree_library.blend` contém troncos por
+anéis, raízes, galhos e massas foliares facetadas em camadas; não usa cilindro
+nem esfera como geometria final. O preview de inspeção fica em
+`assets/models/environment/trees/previews/tree_c.png`; GLBs anteriores foram
+preservados em `assets/old/environment_trees_20260922/`.
 
 ## Fase 6 — composição ambiental declarativa
 
