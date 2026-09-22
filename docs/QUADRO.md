@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **143 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **144 arquivos, 0 com falha**
 
 ---
 
@@ -92,7 +92,8 @@ posicionar é o caminho que catapulta o jogador.
 | 1b | ✅ **FEITO (19/09).** `permissoes_do_jogador()` lê `SaveManager.save_data["inventory"]`. 🔴 O comentário apontava a chave **errada** (`"items"`) — ligar por ele leria `{}` e o jogador perderia Surf e Voar **sem erro nenhum** | — |
 | 1c | ✅ **FEITO (20/09) — virou a Fase 21.** `capturavel` é lido de quem caiu, e nem a Master Ball pega um Alpha. A captura deixou de ser um clique num cadáver e passou a ser **uma bola atravessando o espaço** | — |
 | 1g | ✅ **FEITO (21/09).** O treinador escuta `resolveu`, monta com `_make_pokemon_data`, guarda com `add_pokemon` (time ou PC), marca a Pokédex e salva. Zero conta nova | — |
-| 1h | Loot: a §35 diz que cada item é arrastado pra Bag, um a um. `Corpo3D.pegar()` existe; **a tela é do Codex** | depende da HUD de corpo |
+| 1h | ✅ **FEITO (21/09).** `pegar()` guarda na mochila de verdade. 🔴 **Três dos quatro ids de loot não existiam** no catálogo — ligar como estava poria **item fantasma no save**. A tela continua sendo do Codex | — |
+| 1i | **§51 — o item que remove um Held.** Projetado e **não construído**: não existe no catálogo nem como efeito. Tirei do drop em vez de criar um item que não faz nada | não — mas é decisão do Gabriel se vale construir |
 | 1d | ✅ **FEITO (19/09).** `world.elites_derrotados` no save + migração pra save antigo (`load_game` substitui o dicionário cru). Carimbo **Unix**, então "3 horas" continua sendo 3 h de relógio com o jogo fechado | — |
 | 1e | ✅ **RFC-008 — máscara de spawn. FEITA (19/09).** `RegraDeHabitabilidade` + laço de tentativas no spawner · 29 conferências. 🔴 A medição corrigiu meu número: eu previ 3,25% de recusa (falésia) e o real é **38,7%**, porque quem domina é a **água** — `TENTATIVAS` 6 → **10** | — |
 | 1f | **`altura_em` deixa de ser `static`** quando o 1º chunk semeado nascer. `static` é o que transforma o seed em estado global; vira serviço instanciado e `SpawnerSelvagem3D`/`PokemonInstance3D`/`RegraDeAcompanhar` passam a receber a referência | sim — não existe chunk no runtime ainda |
@@ -421,6 +422,36 @@ duas do tipo que quebra em silêncio:
 direto — *"vamos manter no link atual, sem novo dns"*. O subdomínio
 `pokemobile.workprog.pro` foi **descartado**, e a regra do Traefik saiu do
 `/root/pokemobile.yaml`. Não reabrir sem ele pedir.
+
+---
+
+## 🔴 O id que não existe: a sexta vez, e a pior (21/09)
+
+Ao ligar o loot na mochila (`Corpo3D.pegar()`, que existia e **ninguém
+chamava**), conferi os ids contra `data/items/items.json` — 215 itens. **Três
+dos quatro não existiam:**
+
+| o que a regra entregava | realidade |
+|---|---|
+| `"pocao"` | o id real é **`"potion"`** |
+| `"held_bronze"` | não existe; existem **10 helds tier 1** de verdade |
+| `"solvente_de_held"` | não existe, e nem o efeito |
+
+⚠️ **A regra tinha teste, e dois deles.** Eles conferiam a **forma** do drop —
+quantos itens, se a sorte influencia, se o teto vale — e **nunca que o id fosse
+real**. Por isso o defeito atravessou meses sem uma única reprovação.
+
+E é a versão mais cara do zero silencioso: guardar um id inexistente põe **lixo
+no save do jogador**, e lixo em save não se limpa depois.
+
+**O que passou a existir:** `teste_loot_chega_na_mochila.gd` varre a régua em
+**3.000 combinações** (nível × Alpha × sorte × sorteio) e exige que **cada id
+entregue exista no catálogo**. Mais uma trava no `pegar()`: id desconhecido é
+recusado com motivo, em vez de guardado.
+
+**O drop de Alpha virou um held REAL**, sorteado do catálogo — melhor que um
+`held_bronze` genérico: a família tier 1 já existe, curada, com efeito e
+caminho de fusão. O pool vem de fora, nunca de uma lista fixa que envelheceria.
 
 ---
 

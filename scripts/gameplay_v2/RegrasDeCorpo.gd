@@ -148,7 +148,25 @@ static func tentar(corpo: Dictionary, ball: String, sorteio: float,
 ## §30: o drop exclusivo de Alpha não é modificado por Luck. Se fosse, a
 ## especialização em sorte viraria obrigatória pra quem quer Held — e o Gabriel
 ## disse o contrário com todas as letras.
-static func loot(nivel: int, alpha: bool, sorte: int, sorteios: Array) -> Array:
+## 🔴 21/09 — três dos quatro ids que esta função entregava NÃO EXISTIAM.
+##
+## Conferido contra `data/items/items.json` (215 itens) ao ligar o loot na
+## mochila:
+##
+##     "pocao"             → não existe. O id real é **"potion"**.
+##     "held_bronze"       → não existe. Existem 10 helds **tier 1** de verdade.
+##     "solvente_de_held"  → não existe, e nem o efeito existe.
+##
+## A regra tinha teste, e o teste conferia a FORMA do drop — nunca que o id
+## fosse real. Ligado como estava, o jogador pegaria itens fantasma: linhas no
+## save que nenhuma tela desenha e nenhum uso consome. É o zero silencioso na
+## sua forma mais cara, porque contamina arquivo de save.
+##
+## ⚠️ `helds_disponiveis` chega de fora, do catálogo — não é lista fixa aqui.
+## Uma segunda lista de helds envelheceria sozinha na primeira vez que alguém
+## criasse um item novo.
+static func loot(nivel: int, alpha: bool, sorte: int, sorteios: Array,
+		helds_disponiveis: Array = []) -> Array:
 	var out : Array = []
 	var i : int = 0
 
@@ -159,15 +177,23 @@ static func loot(nivel: int, alpha: bool, sorte: int, sorteios: Array) -> Array:
 		(0.35 + float(nivel) / 300.0) * (1.0 + float(maxi(0, sorte)) / 100.0 * 0.5),
 		0.0, 0.9)
 	if i < sorteios.size() and float(sorteios[i]) < chance_comum:
-		out.append({"item": "pocao", "qtd": 1})
+		out.append({"item": "potion", "qtd": 1})
 	i += 1
 
 	if alpha:
 		# Sem `sorte` na conta, de propósito (§30).
-		if i < sorteios.size() and float(sorteios[i]) < 0.08:
-			out.append({"item": "held_bronze", "qtd": 1})
+		if i < sorteios.size() and float(sorteios[i]) < 0.08 \
+				and not helds_disponiveis.is_empty():
+			# Um held REAL do catálogo, sorteado pelo mesmo número. Melhor que um
+			# "held_bronze" genérico: a família tier 1 já existe, curada, com
+			# efeito implementado e caminho de fusão.
+			var q : int = int(float(sorteios[i]) / 0.08 * float(helds_disponiveis.size()))
+			q = clampi(q, 0, helds_disponiveis.size() - 1)
+			out.append({"item": str(helds_disponiveis[q]), "qtd": 1})
 		i += 1
-		if i < sorteios.size() and float(sorteios[i]) < 0.03:
-			# §51: o item que remove um Held. Mais raro que o próprio Held.
-			out.append({"item": "solvente_de_held", "qtd": 1})
+		# ⚠️ §51 — *"o item que remove um Held"* — está PROJETADO e **não
+		# construído**: não existe no catálogo, e o efeito de remover held não
+		# existe em lugar nenhum. Criá-lo agora entregaria ao jogador um item que
+		# não faz nada, que é exatamente o defeito que este comentário existe pra
+		# não repetir. Fica declarado no `QUADRO.md` como pendência.
 	return out

@@ -219,16 +219,19 @@ func _captura_e_loot() -> void:
 	_conf("um selvagem comum pode", bool((R.pode_capturar(false) as Dictionary)["pode"]))
 
 	# §30: o drop exclusivo ignora Luck. Sorteios cravados nos dois casos.
+	# ⚠️ O pool de helds vem de fora: o id antigo `"held_bronze"` não existia no
+	# catálogo (achado em 21/09, ao ligar o loot na mochila).
+	var helds : Array = ["held_recarga_t1", "held_retorno_t1"]
 	var sorteios := [0.99, 0.01, 0.01]
-	var sem_sorte : Array = R.loot(30, true, 0, sorteios)
-	var com_sorte : Array = R.loot(30, true, 999, sorteios)
+	var sem_sorte : Array = R.loot(30, true, 0, sorteios, helds)
+	var com_sorte : Array = R.loot(30, true, 999, sorteios, helds)
 	_conf("o Alpha larga o drop exclusivo", sem_sorte.size() > 0)
 	_conf("e a sorte NÃO muda o que é exclusivo dele",
 		str(sem_sorte) == str(com_sorte),
 		"se mudasse, especializar em sorte viraria obrigatório: %s vs %s"
 			% [str(sem_sorte), str(com_sorte)])
 	_conf("quem não é Alpha não larga o exclusivo",
-		(R.loot(30, false, 0, sorteios) as Array).size()
+		(R.loot(30, false, 0, sorteios, helds) as Array).size()
 		< (sem_sorte as Array).size())
 
 # ──────────────────────────────────────────────────────────────────────────────

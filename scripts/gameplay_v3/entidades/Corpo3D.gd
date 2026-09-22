@@ -62,10 +62,20 @@ func _sortear_padrao() -> float:
 ## `git stash`). É por isso que todo teste do projeto carrega a entidade com
 ## `load()`. O acoplamento frouxo aqui continua valendo pelos motivos acima —
 ## só não foi ele que resolveu nada.
+## ⚠️ `sorteio` entra pelo NASCIMENTO, e não depois.
+##
+## O `_ready` — que é quem sorteia o loot — dispara **dentro** do `add_child`
+## quando o pai já está na árvore. Um teste que criasse o corpo e só então
+## trocasse `sortear` chegaria tarde, e o resultado sairia diferente a cada
+## execução. Foi o que aconteceu ao escrever `teste_loot_chega_na_mochila`: uma
+## rodada largou poção, a seguinte não largou nada. Teste que reprova por
+## sorteio ensina a ignorar vermelho.
 static func nascer(pai: Node, de_quem: Node3D,
-		sorteio_de_duracao: float) -> Corpo3D:
+		sorteio_de_duracao: float, sorteio: Callable = Callable()) -> Corpo3D:
 	var c := Corpo3D.new()
 	c.position = onde_caiu(de_quem)
+	if sorteio.is_valid():
+		c.sortear = sorteio
 	c.montar(de_quem, sorteio_de_duracao)
 	pai.add_child(c)
 	return c
@@ -129,7 +139,8 @@ func _ready() -> void:
 	dados["loot"] = RegrasDeCorpo.loot(
 		int(dados["nivel"]), not bool(dados["capturavel"]),
 		_sorte_do_treinador(),
-		[sortear.call(), sortear.call(), sortear.call()])
+		[sortear.call(), sortear.call(), sortear.call()],
+		_helds_do_catalogo())
 	mudou.emit(int(dados["id"]), estado())
 
 func _process(delta: float) -> void:
@@ -176,7 +187,33 @@ func tentar_capturar(ball: String, sorte: int = 0) -> Dictionary:
 	_sumir("fugiu")
 	return {"pegou": false, "gastou": true, "motivo": str(r["motivo"])}
 
-## Pega UM item do chão. §35: não existe "pegar tudo"; cada item é um ato.
+## Os helds tier 1 que existem no catálogo, em ordem estável.
+##
+## Ordenado de propósito: `Dictionary.keys()` não promete ordem, e um drop que
+## dependesse dela seria sorteio diferente a cada execução — o oposto de
+## determinístico. Ordenar é o que permite o teste reproduzir o resultado.
+func _helds_do_catalogo() -> Array:
+	var jogo := get_node_or_null("/root/GameData")
+	if jogo == null:
+		return []
+	var fora : Array = []
+	for id in jogo.items.keys():
+		var it : Dictionary = jogo.items[id]
+		if str(it.get("category", "")) == "held" and int(it.get("tier", 0)) == 1:
+			fora.append(str(id))
+	fora.sort()
+	return fora
+
+## Pega UM item do chão, e ele vai PRA MOCHILA. §35: não existe "pegar tudo";
+## cada item é um ato.
+##
+## 🔴 Até 21/09 esta função existia e **ninguém a chamava** — conferido por
+## grep: a única chamada no repositório estava no laboratório da V2. O loot
+## nascia no corpo, expirava com ele, e nunca chegava ao jogador.
+##
+## Devolve `{"item", "qtd", "guardado", "motivo"}`. `guardado` é falso quando não
+## há save (laboratório, teste headless): o item sai do chão e o relatório **diz**
+## que não foi guardado, em vez de desaparecer calado.
 func pegar(indice: int) -> Dictionary:
 	var loot : Array = dados["loot"]
 	if indice < 0 or indice >= loot.size():
@@ -185,8 +222,34 @@ func pegar(indice: int) -> Dictionary:
 	loot.remove_at(indice)
 	dados["loot"] = loot
 	mudou.emit(int(dados["id"]), estado())
-	_anotar("pegou %s" % str(item.get("item", "?")))
-	return item
+
+	var id : String = str(item.get("item", ""))
+	var qtd : int = int(item.get("qtd", 1))
+	var fora : Dictionary = {"item": id, "qtd": qtd, "guardado": false, "motivo": ""}
+
+	# ⚠️ `get_node_or_null`, nunca o identificador do autoload — a lição de
+	# cinco fases.
+	var save := get_node_or_null("/root/SaveManager")
+	if save == null:
+		fora["motivo"] = "sem save nesta cena — o item não foi guardado"
+		_anotar("pegou %s (sem save)" % id)
+		return fora
+
+	# 🔴 A trava que impede o item fantasma. Três dos quatro ids que
+	# `RegrasDeCorpo.loot` entregava não existiam no catálogo; guardar um id
+	# inexistente põe lixo no save do jogador, e lixo em save não se limpa.
+	var jogo := get_node_or_null("/root/GameData")
+	if jogo != null and not jogo.items.has(id):
+		fora["motivo"] = "item '%s' não existe no catálogo — não guardei" % id
+		push_warning(fora["motivo"])
+		_anotar(fora["motivo"])
+		return fora
+
+	save.add_item(id, qtd)
+	save.save_game()
+	fora["guardado"] = true
+	_anotar("pegou %s x%d" % [id, qtd])
+	return fora
 
 # ──────────────────────────────────────────────────────────────────────────────
 
