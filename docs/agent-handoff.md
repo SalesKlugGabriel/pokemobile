@@ -1,5 +1,14 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 22/09: rochas ambientais reconstruídas
+
+- ROCK_SMALL, ROUND, ANGULAR, FLAT e LARGE foram refeitas como volumes por
+  anéis assimétricos e faces geológicas; não derivam de UV/ico sphere deformada.
+  As cinco formações declarativas da spec continuam apontando aos mesmos paths.
+- Fonte reprodutível: `assets/models/environment/rocks/source/rock_library.blend`;
+  backup dos GLBs anteriores: `assets/old/environment_rocks_20260922/`.
+  Factory: **21 ok, 0 falhas** após a importação Godot.
+
 ## Atualização Codex — 22/09: arbustos declarativos no WORLD_LAB
 
 - Adicionada a categoria `bushes` à mesma spec/scatter determinística da World
