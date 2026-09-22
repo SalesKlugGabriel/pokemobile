@@ -7,9 +7,9 @@
 > Regra em `/root/memoria/padrao-agentes.md`, seção 4. Quem fecha uma sprint
 > atualiza este arquivo **na mesma sessão**, antes de commitar.
 
-**Estado em:** 18/09/2026
+**Estado em:** 22/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **144 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **149 arquivos, 0 com falha**
 
 ---
 
@@ -88,7 +88,7 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Bloqueado? |
 |---|---|---|
-| 1 | Fase 20 — a metade de DESENHO (vegetação, modelos, sombra) | **sim** — depende da Fase 19 do Codex existir pra ter o que medir |
+| 1 | ~~Fase 20 — metade de DESENHO~~ **não é minha** — é a Fase 19 do Codex. Ficou nesta tabela por engano desde 18/09 | — |
 | 1b | ✅ **FEITO (19/09).** `permissoes_do_jogador()` lê `SaveManager.save_data["inventory"]`. 🔴 O comentário apontava a chave **errada** (`"items"`) — ligar por ele leria `{}` e o jogador perderia Surf e Voar **sem erro nenhum** | — |
 | 1c | ✅ **FEITO (20/09) — virou a Fase 21.** `capturavel` é lido de quem caiu, e nem a Master Ball pega um Alpha. A captura deixou de ser um clique num cadáver e passou a ser **uma bola atravessando o espaço** | — |
 | 1g | ✅ **FEITO (21/09).** O treinador escuta `resolveu`, monta com `_make_pokemon_data`, guarda com `add_pokemon` (time ou PC), marca a Pokédex e salva. Zero conta nova | — |
@@ -108,7 +108,7 @@ posicionar é o caminho que catapulta o jogador.
 | 0 | ✅ **PLAYER 3D V1 — FEITO (21/09).** Ponte visual no ar, e a **frente do asset corrigida na raiz** depois do moonwalk que o Gabriel achou | — |
 | 0b | 🟡 **WORLD FACTORY V1 — andando.** Vegetação determinística por zona, LOD de árvore e materiais entregues em 21/09. ⚠️ **Borda entre chunks continua sem contrato** — não gerar chunk semeado antes disso | `docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md` |
 | 1 | **Qualidade gráfica do mundo 3D** — base isolada pronta: terreno/praia/água polidos, rochas, vegetação composta/instanciada e LOD1 de árvores; falta medição real e integração | agora, em paralelo |
-| 2 | Modelos de Pokémon em volume | agora · contrato em `POKEMON_MODEL_PIPELINE.md` |
+| 2 | 🟡 **Modelos de Pokémon em volume** — Charizard refeito como asset golden (22/09), Rattata entregue. ✅ E o `PokemonVisual3D` **anima** todos eles pelo contrato da RFC-010 | andando · contrato em `POKEMON_MODEL_PIPELINE.md` |
 | 3 | ✅ **HUD de combate LIGADA (21/09).** Mais telegrafia visual de skill e feedback de impacto 3D, os dois consumindo os sinais calculados | — |
 | 4 | Polimento geral | Fase 19 |
 | 5 | **RFC-002 — a tela de troca de kit.** ✅ **Aprovada pelo Gabriel em 21/09 pelo painel.** A escolha existe na regra desde a Fase 3 e não tem onde ser feita | depois da Fase 19 — tela nova sobre HUD que ainda muda é trabalho feito duas vezes |
@@ -549,10 +549,33 @@ são trabalho em curso; `arquivo/*` é histórico guardado.
 
 ---
 
+## 📍 Onde o jogo está — 22/09/2026
+
+**O laço inteiro existe e é jogável:** explorar como treinador → encontrar um
+selvagem → assumir o seu Pokémon → lutar → voltar a ser treinador → capturar →
+**o Pokémon vai pro save** → saquear o corpo → **o item vai pra mochila**.
+
+E agora ele também **se vê**: o treinador tem modelo e animação (idle/walk/run),
+os Pokémon idem pelo contrato da RFC-010, a HUD de combate está ligada, há
+telegrafia visual de skill e feedback de impacto, e o mundo tem terreno, água,
+vegetação por zona com LOD, rochas e corais.
+
+**As 21 fases de regra estão fechadas.** O que resta não é regra: é
+apresentação (Fase 19, do Codex), a medição de FPS em navegador (do Gabriel), e
+a World Factory — que continua **travada na borda entre chunks**, porque chunk
+semeado sem contrato de altura é a classe de bug que a RFC-006 existiu pra
+evitar.
+
+⚠️ **O que ainda NÃO existe:** salvar a partida pela V3 (o save é usado, mas
+quem o aciona é o jogo antigo), mundo além do laboratório de 160 × 160 m, e
+qualquer coisa de multiplayer.
+
+---
+
 ## ✅ A primeira decisão tomada pelo painel (21/09)
 
-O Gabriel **aprovou a RFC-002 pelo botão**, às 11:34, e o caminho fechou
-inteiro: o botão gravou, eu li com `read_db`, e transcrevi a decisão **na
+O Gabriel **aprovou a RFC-002 pelo botão**, às 11:34 de 21/09 — e a **RFC-010
+às 10:55 de 22/09**. O caminho fechou inteiro nas duas: o botão gravou, eu li com `read_db`, e transcrevi a decisão **na
 própria RFC**. A RFC segue sendo a fonte de verdade; o painel é a porta.
 
 ⚠️ **Isto é rotina agora:** ao retomar, ler `decisoes` e `tarefas` do painel

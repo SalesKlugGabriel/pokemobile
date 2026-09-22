@@ -42,6 +42,7 @@ ESTADOS = [
     ("ACCEPTED", "aceita", "aceita"),
     ("IMPLEMENTED", "aceita", "implementada"),
     ("DONE", "aceita", "fechada"),
+    ("FECHADA", "aceita", "fechada"),
     # ⚠️ "APROVAD" e não "APROVADO": o status real da RFC-002 é "APROVADA"
     # (feminino, porque é *a* RFC). Com o prefixo masculino ela caía no padrão
     # e era contada como "esperando decisão" — inflando justamente o número que
@@ -60,7 +61,14 @@ ESTADOS = [
 
 
 def classificar(status):
-    alto = status.upper()
+    # ⚠️ Tira emoji e pontuação da frente antes de comparar.
+    #
+    # A RFC-010 ficou com o status "✅ FECHADA — ..." e caiu no padrão
+    # "esperando decisão", inflando justamente o número que o Gabriel usa pra
+    # saber o que falta dele. Comparação por prefixo quebra com qualquer
+    # enfeite na frente, e enfeite na frente é natural em texto escrito por
+    # gente.
+    alto = status.upper().lstrip("✅🔴🟡🟢⚠️ ·-—*_")
     for chave, classe, rotulo in ESTADOS:
         if alto.startswith(chave):
             return classe, rotulo
@@ -1069,8 +1077,14 @@ def gerar():
         for r in desenho:
             partes.append('<details class="rfc"><summary>')
             partes.append('<span class="num">§</span>')
-            partes.append('<span class="nome">%s %s</span>'
-                          % (inline(r["titulo"]), selo(r)))
+            # ⚠️ Documento de desenho não usa selo de espera. O
+            # `RFC-GAMEPLAY-V3` tem status "REVIEW", que no classificador cai
+            # em "esperando decisão" — mas ele não espera decisão nenhuma: é a
+            # descrição viva de como o jogo funciona. O selo de espera ali
+            # aparecia como pendência do Gabriel que não existe.
+            partes.append('<span class="nome">%s '
+                          '<span class="selo obsoleta">referência</span></span>'
+                          % inline(r["titulo"]))
             partes.append('<span class="meta">%s</span>' % inline(r["arquivo"]))
             partes.append('<span class="abrir">▸ ler inteiro</span>')
             partes.append("</summary>")

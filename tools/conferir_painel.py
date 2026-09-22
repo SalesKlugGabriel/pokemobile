@@ -33,7 +33,16 @@ c("o travado fica depois do que dá pra fazer",
 c("existe a caixa de mandar tarefa", 'id="tarefaTexto"' in t and 'data-para="claude"' in t)
 c("e ela oferece os dois agentes", 'data-para="codex"' in t and 'data-para="ambos"' in t)
 c("o espelho avisa que é espelho", 'id="avisoEspelho"' in t)
-c("os botões de decisão existem", 'class="decidir"' in t)
+# ⚠️ O bloco de decisão existe SE, E SOMENTE SE, houver contrato esperando.
+#
+# A primeira versão exigia que ele existisse sempre — e reprovou no dia em que
+# a fila zerou, que é justamente o estado bom. Teste que reprova o sucesso
+# ensina a ignorar vermelho.
+esperando = t.count('class="selo espera"')
+tem_bloco = 'class="decidir"' in t
+c("bloco de decisão existe exatamente quando há contrato esperando",
+  tem_bloco == (esperando > 0),
+  "%d esperando, bloco %s" % (esperando, "presente" if tem_bloco else "ausente"))
 
 # ── O atalho /v3d/ (21/09) ─────────────────────────────────────────────────
 # O Gabriel usava esse endereço havia semanas e ele nunca existiu. Agora

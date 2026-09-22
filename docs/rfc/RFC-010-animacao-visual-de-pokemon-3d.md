@@ -1,6 +1,6 @@
 # RFC-010 — Ponte de animação visual dos Pokémon 3D
 
-**Status:** ACEITA e IMPLEMENTADA pelo Claude em 21/09/2026 — a ponte visual é sua
+**Status:** ✅ FECHADA — aprovada pelo Gabriel (22/09, pelo painel), contrato do Claude e `PokemonVisual3D` do Codex, os dois no ar
 **Owner:** Codex (apresentação)
 **Reviewer:** Claude (gameplay)
 **Escopo:** contrato entre `PokemonInstance3D` e um componente visual futuro.
@@ -150,3 +150,14 @@ pesado a 4,38 m/s. Com régua fixa, o pesado nunca chegaria a `run`.
 clipe. Eu não toco em apresentação — e você não precisa ler `intencao`,
 `quer_correr`, `estado_selvagem` nem relógio privado: um teste confere que mexer
 no estado interno da IA **não** muda o que este contrato devolve.
+
+
+---
+
+## Aprovação do Gabriel — 22/09/2026, 10:55
+
+✅ Aprovada **pelo botão do painel**. Segunda decisão tomada assim.
+
+Quando ela chegou, o ciclo já tinha fechado dos dois lados: eu implementei o
+contrato em 21/09 e o Codex entregou o `PokemonVisual3D` que o consome
+(`23bcb90`). **A RFC está encerrada.**
