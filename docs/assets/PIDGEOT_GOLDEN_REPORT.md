@@ -48,7 +48,10 @@ colisão e velocidade.
   passou 7/7 pelo carregamento real de `PokemonInstance3D` e
   `PokemonVisual3D`.
 - Suíte completa após a promoção: **151 arquivos, 0 falhas**.
-- Publicação Web: registrar após execução.
+- Web publicado com carimbo `1790096755`; `/v3d/` respondeu HTTP 200 e
+  carregou JS, WASM e PCK sem erro de página no navegador automatizado.
+  A captura da cena completa excedeu o tempo limite do navegador em software
+  da VPS; a conferência visual jogável no dispositivo do Gabriel segue aberta.
 
 ## Limites
 
