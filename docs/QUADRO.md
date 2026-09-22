@@ -553,6 +553,27 @@ são trabalho em curso; `arquivo/*` é histórico guardado.
 
 ---
 
+## 🏁 Projeto encerrado no servidor — 22/09/2026
+
+Decisão do Gabriel: *"vamos finalizar o projeto por aqui, atualize tudo no
+github e em seguida limpe tudo referente ao pokemobile do servidor"*.
+
+**O código não acaba — só sai desta VPS.** Tudo está no GitHub:
+
+| Onde | O quê |
+|---|---|
+| `main` | a linha integrada, e o estado que vale |
+| `agent/claude-v3` · `agent/codex-v3` | o trabalho de cada agente |
+| `arquivo/*` | as 3 worktrees aposentadas em 21/09 |
+| `pokemobile-editor` → `dados-arquivados/` | 🔴 os **19 recados do Gabriel com print**, as edições de mapa e as sobreposições de tile — **não estavam em repositório nenhum** |
+| `docs/arquivo/UNREAL_POC.md` | a auditoria que manteve o projeto no Godot — vivia fora do repositório |
+
+⚠️ **Pra retomar:** `git clone`, `godot4 --headless --editor --import --quit`,
+`./tools/rodar_testes.sh` (149 arquivos). Publicar exige a VPS e o Traefik de
+volta — ver `tools/publicar.sh`.
+
+---
+
 ## 📍 Onde o jogo está — 22/09/2026
 
 **O laço inteiro existe e é jogável:** explorar como treinador → encontrar um
