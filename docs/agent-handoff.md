@@ -1,5 +1,20 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 22/09: Charizard Golden Asset reconstruído
+
+- `assets/models/pokemon/6.glb` foi promovido após ensaio isolado. Backup
+  recuperável em `assets/old/charizard_20260922/6.glb`; fonte Blender e GLB de
+  trabalho em `assets/models/pokemon/source/charizard_golden/`.
+- A nova silhueta traz cabeça/focinho, membros articulados, cauda curvada e
+  asas com nervuras e membrana recortada. São **2.328 triângulos, 23 ossos, 7
+  materiais e 7 Actions**, com 1,70 m, pés em Y=0 e frente −Z.
+- Preview de oito ângulos e captura WebGL ao lado do treinador em
+  `assets/models/pokemon/previews/charizard_golden/`. O contrato do
+  `PokemonVisual3D` preserva `IDLE/WALK/RUN/ATTACK/HIT/FAINT/FLY`.
+- Ensaio em projeto separado: testes das fases 3, 9, 10, 12 e 13, mais ponte
+  visual e nascimento de Charizard, todos sem falhas. Detalhes e limite de
+  medição de FPS: `docs/assets/CHARIZARD_GOLDEN_REPORT.md`.
+
 ## Atualização Codex — 22/09: corais reconstruídos
 
 - CORAL_BRANCH, FAN e CROWN foram refeitos com ramos por anéis e bifurcações,
