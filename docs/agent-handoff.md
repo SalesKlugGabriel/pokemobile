@@ -1,5 +1,13 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 22/09: corais reconstruídos
+
+- CORAL_BRANCH, FAN e CROWN foram refeitos com ramos por anéis e bifurcações,
+  substituindo o uso de cones primitivos. A Factory continua a distribuí-los
+  exclusivamente em `shallow_waterbed`, com seed, zonas e MultiMesh intactos.
+- Fonte: `assets/models/environment/corals/source/coral_library.blend`; backup:
+  `assets/old/environment_corals_20260922/`. Regressão: **21 ok, 0 falhas**.
+
 ## Atualização Codex — 22/09: rochas ambientais reconstruídas
 
 - ROCK_SMALL, ROUND, ANGULAR, FLAT e LARGE foram refeitas como volumes por
