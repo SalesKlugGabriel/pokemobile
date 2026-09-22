@@ -68,6 +68,13 @@ nem esfera como geometria final. O preview de inspeção fica em
 `assets/models/environment/trees/previews/tree_c.png`; GLBs anteriores foram
 preservados em `assets/old/environment_trees_20260922/`.
 
+Na mesma data, `grass_short`, `grass_mid` e `grass_tall` foram reconstruídas
+como tufos de cards curvos em duas seções, em substituição aos seis espinhos
+triangulares originais. Os caminhos canônicos, as três categorias de scatter,
+o shader de vento e os `MultiMeshInstance3D` foram preservados. A fonte é
+`assets/models/environment/grass/source/grass_library.blend` e o relatório de
+validação é `docs/ENVIRONMENT_GRASS_LIBRARY_REPORT.md`.
+
 ## Fase 6 — composição ambiental declarativa
 
 A vegetação não é mais espalhada de maneira uniforme pelo retângulo do mundo.

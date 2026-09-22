@@ -1,5 +1,18 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 22/09: grama ambiental reconstruída
+
+- GRASS_SHORT, GRASS_MID e GRASS_TALL agora são tufos de cards curvos com duas
+  seções por lâmina, não seis espinhos triangulares. Mantêm os mesmos caminhos
+  canônicos, as três categorias de scatter, `MultiMesh` e shader de vento da
+  Factory V1.
+- Fonte Blender reproduzível e preview ficam sob
+  `assets/models/environment/grass/`; backup dos GLBs substituídos está em
+  `assets/old/environment_grass_20260922/`.
+- `teste_biblioteca_grama_3d.gd`: **12 ok, 0 falhas**. Regressão da Factory:
+  **20 ok, 0 falhas**. Arbustos continuam uma tarefa própria, pois exigem uma
+  categoria declarativa nova na spec; não foram disfarçados como grama alta.
+
 ## Atualização Codex — 22/09: árvores ambientais reconstruídas
 
 - TREE_A–E foram refeitas como biblioteca Blender com tronco/raízes/galhos de
