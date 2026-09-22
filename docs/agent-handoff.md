@@ -1,5 +1,20 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 22/09: Pidgeot Golden Asset
+
+- Pidgeot #18 foi reconstruído como ave estilizada com asa de duas articulações,
+  penas sobrepostas, crista e cauda em leque. O caminho canônico permanece
+  `assets/models/pokemon/18.glb`; o anterior está recuperável em
+  `assets/old/pidgeot_20260922/18.glb`.
+- Fonte reproduzível em `tools/blender/pokemon/pidgeot/` e
+  `assets/models/pokemon/source/pidgeot_golden/`. O novo GLB possui 1.422
+  triângulos, 12 ossos, 5 materiais e 7 Actions, com 1,50 m, pés no zero e
+  frente −Z.
+- Blender validado, importação Godot validada (16/16 no GLB de trabalho) e
+  carregamento de runtime validado (7/7). Suíte completa: **151/151**. Relatório e limitações em
+  `docs/assets/PIDGEOT_GOLDEN_REPORT.md`. Próxima espécie da fila visual:
+  Gyarados #130; a forma atual continua tecnicamente válida, mas requer Art Pass.
+
 ## Atualização Codex — 22/09: Charizard Golden Asset reconstruído
 
 - `assets/models/pokemon/6.glb` foi promovido após ensaio isolado. Backup

@@ -108,7 +108,11 @@ posicionar é o caminho que catapulta o jogador.
 | 0 | ✅ **PLAYER 3D V1 — FEITO (21/09).** Ponte visual no ar, e a **frente do asset corrigida na raiz** depois do moonwalk que o Gabriel achou | — |
 | 0b | 🟡 **WORLD FACTORY V1 — andando.** Vegetação determinística por zona, LOD de árvore e materiais entregues em 21/09. ⚠️ **Borda entre chunks continua sem contrato** — não gerar chunk semeado antes disso | `docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md` |
 | 1 | **Qualidade gráfica do mundo 3D** — base isolada pronta: terreno/praia/água polidos, rochas, vegetação composta/instanciada e LOD1 de árvores; falta medição real e integração | agora, em paralelo |
+<<<<<<< HEAD
 | 2 | 🟡 **Modelos de Pokémon em volume** — Charizard refeito como asset golden (22/09), Rattata entregue. ✅ E o `PokemonVisual3D` **anima** todos eles pelo contrato da RFC-010 | andando · contrato em `POKEMON_MODEL_PIPELINE.md` |
+=======
+| 2 | **Modelos de Pokémon em volume:** Charizard #6 e Pidgeot #18 receberam Art Pass Golden em 22/09; Rattata #19 tem rig próprio. Próximo: Gyarados #130 | agora · contrato em `POKEMON_MODEL_PIPELINE.md` |
+>>>>>>> agent/codex-v3
 | 3 | ✅ **HUD de combate LIGADA (21/09).** Mais telegrafia visual de skill e feedback de impacto 3D, os dois consumindo os sinais calculados | — |
 | 4 | Polimento geral | Fase 19 |
 | 5 | **RFC-002 — a tela de troca de kit.** ✅ **Aprovada pelo Gabriel em 21/09 pelo painel.** A escolha existe na regra desde a Fase 3 e não tem onde ser feita | depois da Fase 19 — tela nova sobre HUD que ainda muda é trabalho feito duas vezes |
