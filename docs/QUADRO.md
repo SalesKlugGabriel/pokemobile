@@ -553,6 +553,26 @@ são trabalho em curso; `arquivo/*` é histórico guardado.
 
 ---
 
+## 🔴 O estado real, pelo Gabriel — 22/09/2026
+
+Ao encerrar, ele corrigiu duas coisas que este documento vinha deixando
+implícitas. **As duas valem mais que qualquer contagem de fase:**
+
+**1. Toda a parte gráfica será refeita do zero no Blender.** O que existe é
+*blockout* — forma de prova pra validar proporção, colisão e pipeline. Não é
+arte, e não é base de arte.
+
+**2. As mecânicas NÃO foram testadas nem aprovadas.** A suíte de 149 arquivos
+prova que **cada regra faz o que diz que faz**. Ela **não** prova que o jogo é
+bom, que o ritmo funciona ou que o combate é gostoso — isso só se descobre
+jogando, e ninguém jogou o suficiente.
+
+⚠️ **Consequência pra quem retomar:** todo número de balanceamento aqui é
+**hipótese**, não decisão fechada. "Fase ✅" quer dizer *a regra existe e está
+travada por teste*, nunca *está validada*.
+
+---
+
 ## 🏁 Projeto encerrado no servidor — 22/09/2026
 
 Decisão do Gabriel: *"vamos finalizar o projeto por aqui, atualize tudo no
@@ -569,8 +589,11 @@ github e em seguida limpe tudo referente ao pokemobile do servidor"*.
 | `docs/arquivo/UNREAL_POC.md` | a auditoria que manteve o projeto no Godot — vivia fora do repositório |
 
 ⚠️ **Pra retomar:** `git clone`, `godot4 --headless --editor --import --quit`,
-`./tools/rodar_testes.sh` (149 arquivos). Publicar exige a VPS e o Traefik de
-volta — ver `tools/publicar.sh`.
+`./tools/rodar_testes.sh` (149 arquivos). Publicar exige um servidor com Docker
+e Traefik — ver `tools/publicar.sh`.
+
+**O jogo saiu do ar em 22/09** por decisão do Gabriel. `poke.workprog.pro`
+deixou de responder; o DNS continua apontando pra cá.
 
 ---
 
