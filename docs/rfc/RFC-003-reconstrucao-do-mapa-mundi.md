@@ -1,6 +1,16 @@
 # RFC-003 — Reconstrução do mapa-múndi: forma do continente, costa e biomas
 
-**Status:** PROPOSED
+**Status:** OBSOLETA — superada pela V3 (21/09/2026)
+
+> 🔴 **Esta RFC é da era 2D e foi aposentada, não recusada.**
+>
+> O Gabriel decidiu em 21/09: *"tudo que era plano da V2 e da V1 a gente pode
+> esquecer para não dar ruído nos planos futuros"*. Ele também disse *"pode
+> seguir com tudo"* sobre as RFCs — mas as duas frases se contradizem aqui, e
+> a primeira é a que vale: executar esta RFC seria construir para o mundo 2D
+> que a V3 substitui.
+>
+> Fica no repositório como histórico. **Não implementar.**
 **Owner:** Codex (client/UI) — a forma e o visual são dele
 **Reviewer:** Claude (gameplay) — colisão, warps, conectividade e spawn são meus
 **Aberto por:** Claude · 11/09/2026
@@ -28,7 +38,7 @@ parede de árvores**. Uma única rota (Lavender–Fuchsia) tem 12 km — ou seja
 A reestruturação geográfica de 10/09 refez **as rotas** (cenas próprias, 38 km
 somados) e **Cinnabar** (1200×1200, costa de 3 harmônicas). **O mapa-múndi, onde
 ficam as cidades, nunca foi refeito.** Isso está registrado na minha própria
-auditoria (`docs/mundo-novo-escala.md`, seção 3): *"Costa orgânica ✅ nas
+auditoria (`mundo-novo-escala.md` *(aposentado em 21/09 — está no histórico do git)*, seção 3): *"Costa orgânica ✅ nas
 ilhas/costa — o litoral do world_map segue o de sempre"*. Eu declarei a
 pendência e não a resolvi.
 
@@ -99,7 +109,7 @@ contornar**.
 | `WarpZone.position` e `spawn_tile` de cada porta | mudar sem mover o par do outro lado faz o jogador nascer dentro de pedra | testes por rota |
 | `tile_rect` das zonas em `zones.json` | define fauna, música e nome da região | `teste_matriz_ecologica.gd` |
 | Chars de colisão (`T N O K / < > R ~ 0 ) w W E` bloqueiam) | virar o char muda o que é parede | `teste_tudo_compila.gd` |
-| Os 6 atalhos antigos continuam **selados** | senão o jogador corta caminho e pula rotas inteiras | `docs/mundo-novo-escala.md` §2 |
+| Os 6 atalhos antigos continuam **selados** | senão o jogador corta caminho e pula rotas inteiras | `mundo-novo-escala.md` *(aposentado em 21/09 — está no histórico do git)* §2 |
 | As 3 ilhas (Gélida, Seafoam, Deserto) e seus acessos | pedido explícito do Gabriel, 10/09 | `teste_alcance_surf.gd` |
 | Água continua sendo água pro Surf | `WorldManager.is_water_tile` | `teste_alcance_surf.gd` |
 
@@ -127,7 +137,7 @@ re-provo a conectividade** — isso é meu. Você não precisa mexer em warp nen
    `MapLayouts` (é geração de tile, meu lado) seguindo um traçado que você
    define, ou prefere fazer você mesmo?
 4. **A planta-base desenhada à mão** do Gabriel está em
-   `docs/mundo-novo-escala.md`. Ela é a referência de forma?
+   `mundo-novo-escala.md` *(aposentado em 21/09 — está no histórico do git)*. Ela é a referência de forma?
 5. Precisa de **char/tile novo** no atlas pra algum bioma que falta?
 
 ## Decisão

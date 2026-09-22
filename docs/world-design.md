@@ -1,6 +1,6 @@
 # Mundo e biomas — mapa das fontes
 
-Fonte de geografia: [mundo-novo-escala.md](mundo-novo-escala.md), código atual em
+Fonte de geografia: o blueprint do mundo 2D *(aposentado em 21/09)*, código atual em
 `MapLayouts.gd`, cenas `scenes/world/maps/` e zonas em `data/world/zones.json`.
 Fauna: matriz ecológica do Gabriel em
 `/root/.claude/projects/-root/memory/pokemobile_matriz_ecologica.md` (referência

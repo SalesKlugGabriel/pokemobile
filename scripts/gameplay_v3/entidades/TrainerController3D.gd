@@ -42,6 +42,10 @@ const RAIO_DO_CORPO : float = 0.35
 
 signal stamina_mudou(atual: float, maximo: float, estado: String)
 signal comecou_a_andar()
+
+## Fase 21b: uma captura terminou. Traz `{pegou, guardado, nome, destino,
+## foi_pro_pc, mensagem}` — a HUD **mostra** a `mensagem`, não a remonta.
+signal capturou(relatorio: Dictionary)
 signal parou()
 
 ## Fase 21: o atributo Luck do treinador, que a chance de captura consulta.
@@ -145,9 +149,51 @@ func arremessar_pokebola(qual_ball: String = "pokeball") -> Dictionary:
 	if not bool(alcance["pode"]):
 		return {"lancou": false, "motivo": str(alcance["motivo"])}
 
-	PokebolaLancada3D.lancar(get_parent(), origem_da_mira(),
+	var bola := PokebolaLancada3D.lancar(get_parent(), origem_da_mira(),
 		direcao_de_mira(), corpo, qual_ball, sorte)
+	# 🔴 O ouvinte que faltava. Até 21/09 a bola emitia `resolveu` e **ninguém
+	# escutava**: o jogador capturava e o Pokémon evaporava. Conferido — nenhum
+	# arquivo fora da própria bola se conectava a este sinal.
+	bola.resolveu.connect(_guardar_captura)
 	return {"lancou": true, "motivo": "", "alvo": corpo}
+
+## Uma bola resolveu. Se pegou, o Pokémon vai pro save.
+##
+## ⚠️ Nada aqui é conta nova: `_make_pokemon_data` monta (IVs, natureza, golpes
+## do nível), `add_pokemon` escolhe entre time e PC, `mark_caught` cuida da
+## Pokédex — tudo em uso desde a V1. A única decisão nova é **o que contar ao
+## jogador**, e ela mora em `RegraDeGuardarCaptura`.
+func _guardar_captura(resultado: Dictionary) -> void:
+	var pode : Dictionary = RegraDeGuardarCaptura.deve_guardar(resultado)
+	if not bool(pode["guardar"]):
+		capturou.emit({"pegou": false, "motivo": str(resultado.get("motivo", ""))})
+		return
+
+	# ⚠️ `get_node_or_null`, nunca o identificador do autoload — a lição de
+	# cinco fases. E sem save (laboratório, teste headless) a captura ainda
+	# acontece: ela só não é guardada, e o relatório diz isso em vez de estourar.
+	var save := get_node_or_null("/root/SaveManager")
+	var jogo := get_node_or_null("/root/GameData")
+	var id : int = int(resultado["species_id"])
+	var nivel : int = int(resultado["nivel"])
+	var nome : String = "Pokémon"
+	if jogo != null:
+		nome = str(jogo.get_species(id).get("name", nome))
+
+	if save == null:
+		capturou.emit({"pegou": true, "guardado": false, "nome": nome,
+			"motivo": "sem save nesta cena — a captura não foi guardada"})
+		return
+
+	var dados : Dictionary = save._make_pokemon_data(id, nivel)
+	var destino : String = str(save.add_pokemon(dados))
+	save.mark_caught(id)
+	save.save_game()
+
+	var rel : Dictionary = RegraDeGuardarCaptura.relatorio(id, nivel, nome, destino)
+	rel["guardado"] = true
+	rel["pegou"] = true
+	capturou.emit(rel)
 
 ## O corpo que a mira escolhe: o mais próximo dentro do alcance, entre os que
 ## ainda aceitam tentativa.

@@ -125,30 +125,62 @@ func _locomocao() -> void:
 	_conf("cair não vira corrida", t.estado_visual_de_locomocao() == "idle",
 		t.estado_visual_de_locomocao())
 
-	# 🔴 O cenário que decidiu a RFC, reproduzido.
+	# 🔴 O cenário que decidiu a RFC **deixou de existir em 21/09**, e isto é
+	# registro, não conserto.
 	#
-	# Exaustão nível 3: `fator_de_velocidade` devolve 0,50. A velocidade que o
-	# corpo persegue ao correr vira 8,0 × 0,5 = 4,0 m/s — ABAIXO dos 4,5 m/s de
-	# caminhada. É o corpo andando devagar com a tecla de correr apertada.
+	# Quando escrevi a RFC-007, correr exausto dava 8,0 × 0,5 = 4,0 m/s, ABAIXO
+	# dos 4,5 de caminhada — a intenção "correr" produzia um corpo mais lento
+	# que um passo, e era esse o argumento decisivo contra ler `quer_correr`.
+	#
+	# Com a régua humana do Gabriel (1,5 / 3,5), a conta vira 3,5 × 0,5 = 1,75
+	# contra 1,5: **correr exausto passou a ser mais rápido que caminhar**. A
+	# inversão sumiu.
+	#
+	# ⚠️ A decisão continua certa, e pelo motivo que sobrou: as duas portas de
+	# entrada discordam. O teclado exige `stamina.atual > 0` pra ligar
+	# `quer_correr`; o `mover()` — a porta do TOQUE, que é a do celular — aceita
+	# `correndo` sem conferir nada. Um visual que lesse a intenção se comportaria
+	# diferente no desktop e no telefone.
+	#
+	# Este teste passou a medir o que é verdade hoje, em vez de afirmar um
+	# cenário morto. Se um dia a inversão voltar, a linha abaixo avisa.
 	var fator : float = 0.50
 	var alvo : Vector3 = Locomocao3D.velocidade_alvo(
 		Vector2(0.0, -1.0), true, Basis.IDENTITY, fator)
 	var v_correndo_exausto : float = Vector2(alvo.x, alvo.z).length()
 	print("   correr exausto: ", "%.2f" % v_correndo_exausto,
 		" m/s  ·  caminhar pleno: ", Locomocao3D.VELOCIDADE_CAMINHADA, " m/s")
-	_conf("correr exausto é mais lento que caminhar",
-		v_correndo_exausto < Locomocao3D.VELOCIDADE_CAMINHADA,
-		("%.2f" % v_correndo_exausto) + " m/s — o cenário sumiu, rever a RFC")
+	var inverteu : bool = v_correndo_exausto < Locomocao3D.VELOCIDADE_CAMINHADA
+	print("   correr exausto ", "É" if inverteu else "NÃO é",
+		" mais lento que caminhar — a inversão ",
+		"existe" if inverteu else "sumiu com a régua humana de 21/09")
+	# O que se afirma é o que NÃO muda: a exaustão custa velocidade de verdade.
+	_conf("a exaustão realmente freia o corpo",
+		v_correndo_exausto < Locomocao3D.VELOCIDADE_CORRIDA * 0.99,
+		("%.2f" % v_correndo_exausto) + " contra "
+			+ str(Locomocao3D.VELOCIDADE_CORRIDA) + " m/s pleno")
 
 	t.velocity = alvo
 	t.quer_correr = true     # a intenção segue ligada: é esse o ponto
-	_conf("o corpo exausto NÃO é animado como corrida",
-		t.estado_visual_de_locomocao() != "run",
-		"disse " + t.estado_visual_de_locomocao() + " — o contrato virou intenção")
-	# E a prova de que a opção B da RFC teria errado aqui: ela leria
-	# `quer_correr`, que continua `true`, e tocaria CORRIDA.
-	_conf("a opção B (ler quer_correr) teria dito run", t.quer_correr == true,
-		"o cenário não reproduz mais a divergência")
+	# O que continua valendo em qualquer régua: o visual sai da velocidade real.
+	var meio_de_hoje : float = (Locomocao3D.VELOCIDADE_CAMINHADA
+		+ Locomocao3D.VELOCIDADE_CORRIDA) * 0.5
+	_conf("o visual do corpo exausto segue a VELOCIDADE, não a intenção",
+		(t.estado_visual_de_locomocao() == "run")
+			== (v_correndo_exausto >= meio_de_hoje),
+		"disse " + t.estado_visual_de_locomocao() + " a "
+			+ ("%.2f" % v_correndo_exausto) + " m/s — o contrato virou intenção")
+	# A razão que SOBROU pra não ler a intenção: a porta do toque não confere
+	# stamina. `mover()` liga `quer_correr` sem perguntar nada — então no celular
+	# a intenção e o corpo podem discordar mesmo sem exaustão.
+	var toque := TrainerController3D.new()
+	root.add_child(toque)
+	toque.stamina.atual = 0.0
+	toque.mover(Vector2(0, -1), true)
+	_conf("a porta do TOQUE liga a intenção sem conferir fôlego",
+		toque.quer_correr == true,
+		"se isto mudar, a RFC-007 perde o último argumento e pode ser revista")
+	toque.queue_free()
 
 	# A fronteira: o meio do caminho entre as duas velocidades. Conferida nos
 	# dois lados, porque um `>=` trocado por `>` passaria despercebido.

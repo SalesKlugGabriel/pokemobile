@@ -13,6 +13,27 @@ const CLIPES_POR_ESTADO := {
 	"run": "PLAYER_V1_RUN",
 }
 
+## ✅ 21/09 — o moonwalk foi corrigido NA RAIZ, e a compensação saiu daqui.
+##
+## Histórico curto, porque ele vale: o Gabriel reportou o treinador andando de
+## costas. Medi o GLB (somando vértices por altura) e a frente do modelo era
+## **+Z**, enquanto a RFC-007 declarava −Z e o Godot espera −Z. A declaração
+## estava errada e enganou os dois agentes.
+##
+## Apliquei uma compensação de 180° aqui, **declarada e travada por teste** —
+## nunca silenciosa, que é o que a RFC-007 proíbe com razão. E avisei o Codex de
+## que o conserto de verdade era no asset.
+##
+## Ele reexportou o modelo. Medido depois do merge:
+##
+##     sapatos  623 vértices · z de −0,273 a +0,119   → frente −Z ✅
+##     boné     878 vértices · z de −0,239 a +0,133   → frente −Z ✅
+##
+## Com o asset certo, **manter a compensação traria o moonwalk de volta, ao
+## contrário**. Por isso ela saiu. O teste `teste_player_v1_frente.gd` continua
+## remedindo o GLB a cada suíte: o dia em que a orientação escorregar de novo,
+## ele reprova antes de o Gabriel ver.
+
 var _modelo: Node3D = null
 var _animacao: AnimationPlayer = null
 var _estado_pendente := "idle"

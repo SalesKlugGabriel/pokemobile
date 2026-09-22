@@ -871,31 +871,64 @@ func esta_derrotado() -> bool:
 	return _derrotado
 
 # ──────────────────────────────────────────────────────────────────────────────
-# RFC-010 — o que este corpo está fazendo, para quem desenha
+# RFC-010 — o que este corpo está FAZENDO, pra quem desenha
 # ──────────────────────────────────────────────────────────────────────────────
 
-## Velocidade horizontal efetivamente entregue, em m/s.
+## Acima de quanto do chão um voador conta como voando. Meio metro: o bastante
+## pra não piscar entre `fly` e `walk` quando ele pousa numa lombada.
+const ALTURA_PRA_VOAR : float = 0.5
+
+## A que altura do terreno este corpo está. A mesma leitura que o teto de voo da
+## Fase 15 usa — uma fonte só pra "onde é o chão aqui".
+func altitude() -> float:
+	return global_position.y - Terreno3D.altura_em(
+		global_position.x, global_position.z)
+
+## A velocidade horizontal de fato, em m/s.
 ##
-## `ultimo_avanco` preserva o deslocamento que chegou ao `move_and_slide`; o
-## LOD de lógica pode inflar `velocity` num quadro e não deve transformar isso
-## em uma animação de corrida inexistente.
+## ⚠️ Lê `ultimo_avanco` quando ele existe, e não `velocity` cru — e essa é a
+## resposta à pergunta 3 do Codex. O LOD de lógica da Fase 20 multiplica a
+## velocidade pra compensar quadros pulados; um corpo distante tem `velocity`
+## até 4× inflada por um quadro. `ultimo_avanco` é o que de fato foi entregue
+## ao `move_and_slide`, que é o que o olho vê.
 func velocidade_horizontal() -> float:
 	var v : Vector3 = ultimo_avanco if ultimo_avanco != Vector3.ZERO else velocity
 	return Vector2(v.x, v.z).length()
 
-## Único contrato de locomoção visual: idle | walk | run | swim | fly.
+## RFC-010: o **único** contrato de locomoção visual deste corpo.
 ##
-## Não deriva de intenção, IA ou tecla. Água e voo vêm do meio: um Gyarados
-## parado dentro d'água ainda nada, e um Pidgeot pairando ainda voa.
+## Devolve `idle`, `walk`, `run`, `swim` ou `fly`. Derivado do que o corpo
+## **faz** — nunca de `intencao`, `quer_correr` ou `estado_selvagem`, que são
+## intenção e estado interno. É a mesma decisão da RFC-007 no treinador, e pelo
+## mesmo motivo medido: lá, correr exausto dá 4,00 m/s contra 4,50 de caminhada,
+## e ler a intenção animaria CORRIDA num corpo mais lento que um passo.
+##
+## ── Por que o meio é a fronteira ────────────────────────────────────────────
+##
+## `walk` vira `run` no meio do caminho entre a velocidade de caminhada e a de
+## corrida DESTE corpo — que sai de `MovementProfile`, e portanto já respeita o
+## arquétipo: um Snorlax "corre" mais devagar que um Pidgeot anda.
 func estado_visual_de_locomocao() -> String:
-	if MovementProfile.voa(arquetipo) and not is_on_floor():
+	# Voar e nadar vêm do MEIO, não da velocidade: um Gyarados parado na água
+	# continua nadando, e um Pidgeot pairando continua voando. Tratar os dois
+	# como `idle` mostraria o bicho de pé em cima do mar.
+	#
+	# ⚠️ "Voando" é **altitude**, não `is_on_floor()`. Escrevi com `is_on_floor()`
+	# primeiro e o teste pegou: esse estado vem do último `move_and_slide` e fica
+	# **defasado** de qualquer reposicionamento — um voador teleportado pra 40 m
+	# de altura ainda se declarava no chão. Altura acima do terreno é a mesma
+	# régua que o teto de voo da Fase 15 já usa, e não depende de quadro nenhum.
+	if MovementProfile.voa(arquetipo) and altitude() > ALTURA_PRA_VOAR:
 		return "fly"
 	if MovementProfile.nada(arquetipo) \
 			and RegraDeTravessia.e_agua(superficie_atual()):
 		return "swim"
+
 	var v : float = velocidade_horizontal()
 	if v <= Locomocao3D.LIMIAR_PARADO:
 		return "idle"
+	# A velocidade máxima DESTE corpo, do perfil dele. Sem isto a fronteira
+	# seria a do treinador, e um arquétipo lento nunca chegaria a "run".
 	var maxima : float = MovementProfile.velocidade(
 		arquetipo, int(stats.get("spe", 50)))
 	return "run" if v >= maxima * 0.6 else "walk"
@@ -924,7 +957,8 @@ func sofrer(dano: int, de_quem: Node = null) -> void:
 		if IASelvagem3D.chama_o_bando(personalidade):
 			_gritar_pro_bando()
 	vida_mudou.emit(vida, vida_maxima)
-	# A vida já caiu: agora a apresentação pode relatar o dano confirmado.
+	# RFC-010: o dano já foi confirmado aqui — é o ponto certo pra pedir a
+	# animação, e não há segunda regra envolvida.
 	animacao_visual_solicitada.emit(PAPEL_DANO)
 	if vida <= 0:
 		_derrotado = true
@@ -1003,7 +1037,9 @@ func atacar() -> Dictionary:
 	# não custaria nada e o jogador spammaria o botão sem risco — o oposto do que
 	# um combate de ação pede.
 	_ultimo_basico = _agora()
-	# Ataque acompanha a tentativa que consumiu cooldown, inclusive quando erra.
+	# RFC-010: a animação de ataque segue o COOLDOWN, não o acerto — pelo mesmo
+	# motivo acima. Golpear o ar tem de parecer golpear o ar; se só o acerto
+	# animasse, errar seria invisível e o jogador não aprenderia a mirar.
 	animacao_visual_solicitada.emit(PAPEL_ATAQUE)
 	if alvo == null:
 		return {}

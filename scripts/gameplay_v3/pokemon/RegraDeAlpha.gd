@@ -152,8 +152,12 @@ static func pode_capturar(alpha: bool) -> Dictionary:
 
 ## O que o corpo larga. Delega — inclusive a regra de que o drop exclusivo de
 ## Alpha **não** é modificado por Luck (§30).
-static func loot(nivel: int, alpha: bool, sorte: int, sorteios: Array) -> Array:
-	return RegrasDeCorpo.loot(nivel, alpha, sorte, sorteios)
+## ⚠️ `helds_disponiveis` atravessa até a regra da V2 e vem do CATÁLOGO.
+## Antes, o drop exclusivo era o id `"held_bronze"`, que não existe em
+## `items.json` — ver o cabeçalho de `RegrasDeCorpo.loot`, 21/09.
+static func loot(nivel: int, alpha: bool, sorte: int, sorteios: Array,
+		helds_disponiveis: Array = []) -> Array:
+	return RegrasDeCorpo.loot(nivel, alpha, sorte, sorteios, helds_disponiveis)
 
 ## Tudo que muda, num dicionário só — pra entidade e apresentação pedirem uma
 ## vez em vez de montarem o Alpha cada uma do seu jeito.

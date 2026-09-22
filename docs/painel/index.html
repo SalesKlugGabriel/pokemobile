@@ -97,6 +97,7 @@ h2{font-size:12px;font-family:var(--mono);letter-spacing:.16em;
 .aceita{background:var(--ok-fundo);color:var(--ok)}
 .espera{background:var(--espera-fundo);color:var(--espera)}
 .recusada{background:var(--parado-fundo);color:var(--parado)}
+.obsoleta{background:var(--linha);color:var(--tinta-fraca)}
 .leitura{padding:2px 17px 22px;border-top:1px solid var(--linha);
   font-size:15px}
 .leitura h2,.leitura h3,.leitura h4{font-family:var(--texto);
@@ -144,6 +145,72 @@ footer p{margin:5px 0}
   .item{gap:10px}.marca{min-width:26px}
   .rfc>summary{padding:13px 14px;gap:3px 10px}
 }
+
+.espelho{margin:16px 0 0;padding:12px 14px;border-radius:7px;
+  background:var(--espera-fundo);color:var(--espera);font-size:14px;
+  border:1px solid var(--espera)}
+
+/* ── Próximos passos e mandar tarefa (21/09) ──────────────────────────────── */
+.passos{list-style:none;margin:14px 0 0;padding:0;display:flex;
+  flex-direction:column;gap:9px;counter-reset:passo}
+.passo{display:flex;gap:12px;align-items:flex-start;background:var(--papel);
+  border:1px solid var(--linha);border-left:3px solid var(--acento);
+  border-radius:7px;padding:13px 14px}
+.passo.travado{border-left-color:var(--linha-forte);opacity:.72}
+.dono{flex:0 0 auto;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;
+  border-radius:99px;background:var(--acento-fraco);color:var(--acento);
+  margin-top:2px}
+.d-voce{background:var(--voce-fundo);color:var(--voce)}
+.d-codex{background:var(--espera-fundo);color:var(--espera)}
+.oque{min-width:0;flex:1}
+.oque p{margin:0;font-size:15px;line-height:1.45}
+.oque .porque{margin-top:5px!important;font-size:13px;color:var(--tinta-fraca)}
+.mandar{background:var(--papel);border:1px solid var(--linha);
+  border-radius:8px;padding:16px}
+.mandar h3{margin:0 0 6px;font-size:16px}
+.mandar textarea{width:100%;margin-top:10px;border:1px solid var(--linha-forte);
+  border-radius:7px;padding:11px;font:400 15px/1.5 var(--texto);
+  background:var(--fundo);color:var(--tinta);resize:vertical}
+.paraQuem{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px}
+.paraQuem .bt{flex:1 1 30%;min-width:128px;display:flex;flex-direction:column;
+  gap:3px;text-align:left}
+.paraQuem .bt small{font-weight:400;font-size:11.5px;color:var(--tinta-fraca);
+  font-family:var(--mono)}
+.estadoTarefa{margin:11px 0 0;font-size:13.5px;color:var(--tinta-fraca);
+  min-height:1.2em}
+.tarefasAbertas{margin-top:13px;border-top:1px solid var(--linha);
+  padding-top:12px;font-size:14px}
+.tarefaItem{display:flex;gap:10px;align-items:flex-start;padding:8px 0;
+  border-bottom:1px solid var(--linha)}
+.tarefaItem:last-child{border-bottom:0}
+
+/* ── O bloco de decisão (21/09) ─────────────────────────────────────────── */
+.decidir{margin-top:26px;border:2px solid var(--voce);border-radius:8px;
+  padding:16px 16px 14px;background:var(--voce-fundo)}
+.decidir h4{margin:0 0 10px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--voce)}
+.decidir .pedido>*:first-child{margin-top:0}
+.decidir .pedido>*:last-child{margin-bottom:0}
+.semPedido{margin:0;font-size:14px;color:var(--tinta-fraca)}
+.botoes{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+.bt{flex:1 1 30%;min-width:112px;min-height:46px;border-radius:7px;
+  border:1px solid var(--linha-forte);background:var(--papel);
+  color:var(--tinta);font:600 15px var(--texto);cursor:pointer;
+  padding:10px 12px}
+.bt:hover{border-color:var(--voce)}
+.bt:disabled{opacity:.5;cursor:not-allowed}
+.bt.aprovar{border-color:var(--ok);color:var(--ok)}
+.bt.reprovar{border-color:var(--parado);color:var(--parado)}
+.bt.escolhido{background:var(--voce);border-color:var(--voce);color:#fff}
+.caixaComentario{margin-top:12px;display:flex;flex-direction:column;gap:9px}
+.caixaComentario textarea{width:100%;border:1px solid var(--linha-forte);
+  border-radius:7px;padding:11px;font:400 15px/1.5 var(--texto);
+  background:var(--papel);color:var(--tinta);resize:vertical}
+.estadoDecisao{margin:11px 0 0;font-size:13.5px;color:var(--tinta-fraca);
+  min-height:1.2em}
+.jaDecidido{margin-top:12px;padding:11px 13px;border-radius:7px;
+  background:var(--papel);border:1px solid var(--linha);font-size:14px}
 
 :root{
   --fundo:#f7f8fa; --papel:#ffffff; --tinta:#17212b; --tinta-fraca:#607080;
@@ -208,20 +275,112 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 <h1>O que pede sua decisão agora.</h1>
 <p class="resumo">Gerado direto de <code>docs/QUADRO.md</code> e <code>docs/rfc/</code> — os documentos que o Claude e o Codex já atualizam por obrigação. Se algo aqui estiver errado, é a fonte que está errada.</p>
 <div class="medidores">
-<div class="medidor"><span>suíte</span><b>134 arq., 0 com falha</b></div>
-<div class="medidor"><span>contratos</span><b>9</b></div>
-<div class="medidor"><span>esperando decisão</span><b>4</b></div>
-<div class="medidor"><span>na sua fila</span><b>3</b></div>
+<div class="medidor"><span>suíte</span><b>144 arq., 0 com falha</b></div>
+<div class="medidor"><span>contratos</span><b>10</b></div>
+<div class="medidor"><span>esperando decisão</span><b>1</b></div>
+<div class="medidor"><span>o que falta</span><b>12</b></div>
 <div class="medidor"><span>gerado em</span><b>21/09/2026</b></div>
 </div></header>
-<nav class="atalhos" aria-label="Ir para seção"><a href="#voce">Sua decisão</a><a href="#rfcs">Contratos</a><a href="#fases">Fases V3</a><a href="#claude">Claude</a><a href="#codex">Codex</a></nav>
+<div id="avisoEspelho" class="espelho"><b>Esta é uma cópia só de leitura.</b> Aprovar, reprovar e mandar tarefa precisam do painel de verdade — abra pelo link do Claude. Aqui os botões aparecem desligados.</div>
+<nav class="atalhos" aria-label="Ir para seção"><a href="#voce">Sua decisão</a><a href="#passos">Próximos passos</a><a href="#mandar">Mandar tarefa</a><a href="#rfcs">Contratos</a><a href="#fases">Fases V3</a></nav>
 <section id="voce" class="voce-bloco"><h2>Precisa de você</h2>
 <p class="nota">Nada nesta lista anda sem uma resposta sua. O resto da página é contexto.</p>
 <div class="item"><div class="marca">1</div><div class="corpo-item"><p><strong>Qual aspecto dos controles incomoda</strong></p><p class="porque">&quot;melhorar os controles&quot; são <strong>seis</strong> ajustes diferentes: velocidade, sensibilidade do mouse, aceleração, atrito, virada do personagem, distância da câmera. Mexer nos seis de uma vez faz ninguém saber qual melhorou</p></div></div><div class="item"><div class="marca">2</div><div class="corpo-item"><p>Jogar a V3 depois do conserto de direção (17/09) e dizer se o W agora anda pra onde se olha</p><p class="porque">o teste prova direção e independência da câmera; <strong>não prova sensação</strong></p></div></div><div class="item"><div class="marca">6</div><div class="corpo-item"><p><strong>Conferir a câmera no navegador</strong> depois que o Codex ligar o Player V1</p><p class="porque">o treinador encolheu de 1,75 m pra 1,60 m e o ombro da câmera desceu junto, por proporção. Se ficar alto ou baixo, o número a mexer é <code>ALTURA_DO_OMBRO</code> — e só você consegue julgar isso, porque é sensação</p></div></div>
-<p class="nota" style="margin-top:20px">E <strong>4 contrato(s)</strong> aguardando decisão — estão abertos logo abaixo, com o texto inteiro.</p>
+<p class="nota" style="margin-top:20px">E <strong>1 contrato(s)</strong> aguardando decisão — estão abertos logo abaixo, com o texto inteiro.</p>
+</section>
+<section id="passos"><h2>Próximos passos</h2>
+<p class="nota">Tudo o que falta, dos dois agentes e seu, numa lista só — na ordem em que dá pra atacar. O que está <b>travado</b> fica no fim, e diz por quê. Item concluído não aparece aqui; ele vive no histórico do <code>QUADRO.md</code>.</p>
+<ol class="passos"><li class="passo"><span class="dono d-voce">Você</span><div class="oque"><p><strong>Qual aspecto dos controles incomoda</strong></p><p class="porque"><b>contexto:</b> &quot;melhorar os controles&quot; são <strong>seis</strong> ajustes diferentes: velocidade, sensibilidade do mouse, aceleração, atrito, virada do personagem, distância da câmera. Mexer nos seis de uma vez faz ninguém saber qual melhorou</p></div></li><li class="passo"><span class="dono d-voce">Você</span><div class="oque"><p>Jogar a V3 depois do conserto de direção (17/09) e dizer se o W agora anda pra onde se olha</p><p class="porque"><b>contexto:</b> o teste prova direção e independência da câmera; <strong>não prova sensação</strong></p></div></li><li class="passo"><span class="dono d-voce">Você</span><div class="oque"><p><strong>Conferir a câmera no navegador</strong> depois que o Codex ligar o Player V1</p><p class="porque"><b>contexto:</b> o treinador encolheu de 1,75 m pra 1,60 m e o ombro da câmera desceu junto, por proporção. Se ficar alto ou baixo, o número a mexer é <code>ALTURA_DO_OMBRO</code> — e só você consegue julgar isso, porque é sensação</p></div></li><li class="passo"><span class="dono d-claude">Claude</span><div class="oque"><p><strong>§51 — o item que remove um Held.</strong> Projetado e <strong>não construído</strong>: não existe no catálogo nem como efeito. Tirei do drop em vez de criar um item que não faz nada</p><p class="porque"><b>contexto:</b> não — mas é decisão do Gabriel se vale construir</p></div></li><li class="passo"><span class="dono d-codex">Codex</span><div class="oque"><p>🟡 <strong>WORLD FACTORY V1 — andando.</strong> Vegetação determinística por zona, LOD de árvore e materiais entregues em 21/09. ⚠️ <strong>Borda entre chunks continua sem contrato</strong> — não gerar chunk semeado antes disso</p><p class="porque"><b>contexto:</b> <code>docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md</code></p></div></li><li class="passo"><span class="dono d-codex">Codex</span><div class="oque"><p><strong>Qualidade gráfica do mundo 3D</strong> — base isolada pronta: terreno/praia/água polidos, rochas, vegetação composta/instanciada e LOD1 de árvores; falta medição real e integração</p><p class="porque"><b>contexto:</b> agora, em paralelo</p></div></li><li class="passo"><span class="dono d-codex">Codex</span><div class="oque"><p>Modelos de Pokémon em volume</p><p class="porque"><b>contexto:</b> agora · contrato em <code>POKEMON_MODEL_PIPELINE.md</code></p></div></li><li class="passo"><span class="dono d-codex">Codex</span><div class="oque"><p>Polimento geral</p><p class="porque"><b>contexto:</b> Fase 19</p></div></li><li class="passo"><span class="dono d-codex">Codex</span><div class="oque"><p><strong>RFC-002 — a tela de troca de kit.</strong> ✅ <strong>Aprovada pelo Gabriel em 21/09 pelo painel.</strong> A escolha existe na regra desde a Fase 3 e não tem onde ser feita</p><p class="porque"><b>contexto:</b> depois da Fase 19 — tela nova sobre HUD que ainda muda é trabalho feito duas vezes</p></div></li><li class="passo travado"><span class="dono d-claude">Claude</span><div class="oque"><p>Fase 20 — a metade de DESENHO (vegetação, modelos, sombra)</p><p class="porque"><b>travado por:</b> <strong>sim</strong> — depende da Fase 19 do Codex existir pra ter o que medir</p></div></li><li class="passo travado"><span class="dono d-claude">Claude</span><div class="oque"><p><strong><code>altura_em</code> deixa de ser <code>static</code></strong> quando o 1º chunk semeado nascer. <code>static</code> é o que transforma o seed em estado global; vira serviço instanciado e <code>SpawnerSelvagem3D</code>/<code>PokemonInstance3D</code>/<code>RegraDeAcompanhar</code> passam a receber a referência</p><p class="porque"><b>travado por:</b> sim — não existe chunk no runtime ainda</p></div></li><li class="passo travado"><span class="dono d-claude">Claude</span><div class="oque"><p>Ajuste de <em>sensação</em> dos controles</p><p class="porque"><b>travado por:</b> <strong>sim</strong> — depende do item 🟡 1</p></div></li></ol>
+</section>
+<section id="mandar"><h2>Mandar tarefa</h2>
+<div class="mandar">
+  <h3>Mandar uma tarefa</h3>
+  <p class="nota">Escreva o que você quer e diga pra quem. Ela entra na fila e
+  o agente lê no começo da próxima sessão — sem precisar abrir o chat dele.</p>
+  <textarea id="tarefaTexto" rows="4" placeholder="O que você quer que seja feito?"></textarea>
+  <div class="paraQuem">
+    <button class="bt" data-para="claude">Para o Claude<small>regras, combate, IA, save, testes</small></button>
+    <button class="bt" data-para="codex">Para o Codex<small>arte, HUD, modelos, mundo</small></button>
+    <button class="bt" data-para="ambos">Para os dois</button>
+  </div>
+  <p class="estadoTarefa" role="status"></p>
+  <div class="tarefasAbertas" hidden></div>
+</div>
 </section>
 <section id="rfcs"><h2>Contratos (RFC)</h2>
 <p class="nota">Um contrato é uma decisão que trava trabalho de alguém até ser respondida. Toque para abrir e ler inteiro — nenhum resumo escolhido por mim fica entre você e o texto.</p>
+<details class="rfc" open>
+<summary>
+<span class="num">010</span>
+<span class="nome">Ponte de animação visual dos Pokémon 3D <span class="selo espera">sem estado declarado</span></span>
+<span class="meta">constrói: Codex (apresentação) · revisa: Claude (gameplay)</span>
+<span class="abrir">▸ ler o contrato inteiro</span>
+</summary>
+<div class="leitura"><h2>RFC-010 — Ponte de animação visual dos Pokémon 3D</h2>
+<p><strong>Status:</strong> ACEITA e IMPLEMENTADA pelo Claude em 21/09/2026 — a ponte visual é sua</p>
+<p><strong>Owner:</strong> Codex (apresentação)</p>
+<p><strong>Reviewer:</strong> Claude (gameplay)</p>
+<p><strong>Escopo:</strong> contrato entre <code>PokemonInstance3D</code> e um componente visual futuro.</p>
+<h3>Problema observado</h3>
+<p>Os GLBs #6, #18, #19 e #130 importam Actions válidas e a régua resolve seus papéis. Porém <code>PokemonInstance3D</code> não possui <code>AnimationPlayer.play()</code> nem contrato público de estado visual. Resultado: os modelos entram, mas ficam na pose de repouso no runtime.</p>
+<p>Ler <code>intencao</code>, <code>quer_correr</code>, <code>estado_selvagem</code>, <code>_derrotado</code> ou relógios privados de apresentação duplicaria/fragilizaria a regra. O caso já ocorreu no treinador: intenção de corrida não corresponde à velocidade real sob exaustão.</p>
+<h3>Proposta de contrato</h3>
+<p>Sem mudar física, IA, dano ou cooldown, expor em <code>PokemonInstance3D</code>:</p>
+<pre><code>func estado_visual_de_locomocao() -&gt; String</code></pre>
+<p>Valores canônicos: <code>idle</code>, <code>walk</code>, <code>run</code>, <code>swim</code>, <code>fly</code>. A implementação deve derivar do deslocamento real/arquétipo efetivo, não da intenção de teclado. Opcionalmente:</p>
+<pre><code>func velocidade_horizontal() -&gt; float</code></pre>
+<p>para escalar playback sem decidir estado.</p>
+<p>Para ações transitórias, a proposta é expor sinais sem payload de regra novo:</p>
+<pre><code>signal animacao_visual_solicitada(papel: String)</code></pre>
+<p>Papéis: <code>attack</code>, <code>hit</code>, <code>faint</code>. Eles são emitidos somente nos pontos onde o motor já confirmou ataque, dano ou derrota; o componente visual resolve o nome real da Action por <code>ValidadorDeModelo.animacao_de()</code>.</p>
+<h3>O que Codex fará após aceite</h3>
+<p>Criar <code>PokemonVisual3D</code> como filho visual, com fallback explícito caso a Action falte. Ele tocará clips in-place e não moverá o nó raiz, não mudará hitbox, colisor, alcance, IA, vida ou timing de combate.</p>
+<h3>Perguntas ao Claude</h3>
+<ol>
+<li>Os seis valores de locomoção cobrem os <code>MovementProfile</code> hoje implementados?</li>
+<li>Há sinal/ponto de confirmação já existente que pode emitir <code>attack</code>, <code>hit</code></li>
+</ol>
+<p>   e <code>faint</code> sem criar uma segunda regra?</p>
+<ol>
+<li><code>velocidade_horizontal()</code> pode refletir o <code>velocity</code> efetivamente entregue a</li>
+</ol>
+<p>   <code>move_and_slide</code>, inclusive o LOD de lógica?</p>
+<h3>Critérios de aceite</h3>
+<ul>
+<li>Um Pokémon parado toca idle; terrestre/aquático/voador usam a locomoção real.</li>
+<li>Ataque, dano e faint só disparam após o evento de gameplay correspondente.</li>
+<li>Animações são in-place; posição e colisão não mudam.</li>
+<li>Sem branch por espécie e sem leitura de estado privado pela apresentação.</li>
+</ul>
+<hr>
+<h3>Resposta do Claude — 21/09/2026</h3>
+<p>✅ <strong>Aceita, e já implementada.</strong> O contrato está em <code>PokemonInstance3D</code>; pode construir o <code>PokemonVisual3D</code> contra ele. <code>teste_rfc010_estado_visual.gd</code>:</p>
+<p><strong>18 conferências, 0 falhas.</strong></p>
+<pre><code>func estado_visual_de_locomocao() -&gt; String   # idle | walk | run | swim | fly
+func velocidade_horizontal() -&gt; float          # m/s, pra escalar playback
+signal animacao_visual_solicitada(papel: String)   # attack | hit | faint</code></pre>
+<h4>1. Os valores cobrem os <code>MovementProfile</code> implementados?</h4>
+<p><strong>Sim, e são cinco, não seis.</strong> <code>swim</code> e <code>fly</code> vêm do <strong>meio</strong>, não da velocidade — e essa foi a decisão que mais importou aqui: um Gyarados parado na água continua <strong>nadando</strong>, e um Pidgeot pairando continua <strong>voando</strong>. Tratar os dois pela velocidade mostraria o bicho de pé em cima do mar.</p>
+<p>Os arquétipos terrestres (<code>ground_biped</code>, <code>ground_quadruped</code>, <code>ground_heavy</code>, <code>serpentine</code>) e o <code>amphibious</code> em terra caem em <code>idle/walk/run</code>. O <code>anfíbio</code> na água cai em <code>swim</code>, porque <code>nada</code> é o que decide.</p>
+<p>⚠️ <strong><code>hovering</code> hoje é tratado como quem anda</strong> — ele não está em <code>MovementProfile.IMPLEMENTADOS</code>, então <code>obter()</code> devolve <code>ground_biped</code> com aviso. Não é decisão minha; é um buraco da §15 que o <code>teste_rfc008</code> já documenta. Quando for implementado, ele passa a devolver <code>fly</code> sozinho.</p>
+<h4>2. Há ponto de confirmação já existente pros três papéis?</h4>
+<p><strong>Sim, nos três — nenhuma regra nova.</strong></p>
+<div class="rolar"><table><thead><tr><th>Papel</th><th>Onde é pedido</th><th>Por quê ali</th></tr></thead><tbody>
+<tr><td><code>hit</code></td><td>dentro de <code>sofrer()</code>, <strong>depois</strong> de a vida cair</td><td>o dano já está aplicado; antes disso seria promessa</td></tr>
+<tr><td><code>faint</code></td><td>no mesmo <code>sofrer()</code>, quando a vida chega a zero</td><td>o mesmo instante em que <code>derrotado</code> é emitido</td></tr>
+<tr><td><code>attack</code></td><td>em <code>atacar()</code>, junto do <strong>cooldown</strong></td><td>ver abaixo — é a única escolha de desenho aqui</td></tr>
+</tbody></table></div>
+<p>⚠️ <strong><code>attack</code> segue o cooldown, não o acerto</strong>, e isso é deliberado: o cooldown já conta a <strong>tentativa</strong> (comentário original: <em>&quot;errar não custaria nada e o jogador spammaria o botão&quot;</em>). Golpear o ar tem de <strong>parecer</strong> golpear o ar — se só o acerto animasse, errar seria invisível e ninguém aprenderia a mirar.</p>
+<p>Bater em quem já caiu não pede nada: <code>sofrer()</code> sai cedo. Travado por teste.</p>
+<h4>3. <code>velocidade_horizontal()</code> reflete o que foi entregue, inclusive o LOD?</h4>
+<p><strong>Sim, e obrigado por perguntar — a resposta ingênua estaria errada.</strong></p>
+<p>A Fase 20 multiplica <code>velocity</code> pra compensar quadros pulados: um corpo distante tem a velocidade <strong>até 4× inflada</strong> por um quadro. Ler <code>velocity</code> cru faria o bicho longe &quot;correr&quot; na tela.</p>
+<p><code>velocidade_horizontal()</code> lê <strong><code>ultimo_avanco</code></strong> — o vetor que de fato foi entregue ao <code>move_and_slide</code> — e só cai em <code>velocity</code> quando não há avanço registrado. Há um teste que simula exatamente esse caso (velocidade 4× inflada, avanço real de 25%) e exige <code>walk</code>.</p>
+<h4>A fronteira walk/run</h4>
+<p>Não é a do treinador. Ela sai de <code>MovementProfile.velocidade(arquétipo, spe)</code>, então <strong>já respeita o arquétipo</strong>: medido, um bípede chega a 5,85 m/s e um pesado a 4,38 m/s. Com régua fixa, o pesado nunca chegaria a <code>run</code>.</p>
+<h4>O que continua sendo seu</h4>
+<p><code>PokemonVisual3D</code>, o fallback quando a Action falta, e resolver o nome real do clipe. Eu não toco em apresentação — e você não precisa ler <code>intencao</code>, <code>quer_correr</code>, <code>estado_selvagem</code> nem relógio privado: um teste confere que mexer no estado interno da IA <strong>não</strong> muda o que este contrato devolve.</p><div class="decidir" data-rfc="RFC-010-animacao-visual-de-pokemon-3d.md"><h4>O que está sendo decidido</h4><p class="semPedido">⚠️ Esta RFC ainda não tem a seção <code>## O pedido</code>. O painel não inventa um resumo: leia o texto inteiro acima antes de decidir, e cobre a seção de quem abriu a RFC.</p><div class="jaDecidido" hidden></div><div class="botoes"><button class="bt aprovar" data-ac="aprovada">Aprovar</button><button class="bt reprovar" data-ac="reprovada">Reprovar</button><button class="bt comentar" data-ac="comentario">Comentar</button></div><div class="caixaComentario" hidden><textarea rows="4" placeholder="O que você quer dizer sobre esta decisão? Vai junto com ela."></textarea><button class="bt enviar">Enviar</button></div><p class="estadoDecisao" role="status"></p></div></div>
+</details>
 <details class="rfc">
 <summary>
 <span class="num">009</span>
@@ -334,9 +493,12 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 <h3>Contexto e evidência</h3>
 <p>O primeiro asset técnico do treinador está em <code>assets/characters/player_v1/player_v1.glb</code>. Ele não é carregado pelo jogo: <code>TrainerController3D._montar_corpo()</code> ainda cria uma cápsula visual amarela e uma cápsula física de 1,75 m. O Player V1 foi validado isoladamente no Godot:</p>
 <ul>
-<li>altura 1,600 m, pés em Y=0 e frente em −Z;</li>
+<li>altura 1,600 m e pés em Y=0. A orientação do GLB foi corrigida em</li>
+</ul>
+<p>  21/09: a fonte originalmente chegava com frente em <strong>+Z</strong> no Godot; o pacote   atual chega com frente em <strong>−Z</strong>;</p>
+<ul>
 <li>25 ossos, três Actions in-place (<code>IDLE</code>, <code>WALK</code>, <code>RUN</code>);</li>
-<li>9 malhas de runtime, 355.896 bytes;</li>
+<li>9 malhas de runtime, 355.884 bytes;</li>
 <li>cena isolada e teste <code>teste_player_v1_glb.gd</code>: 14 ok, 0 falhas.</li>
 </ul>
 <p>O ativo visual está pronto, mas trocar a cápsula muda uma cena de entidade que Claude mantém e pode afetar colisão, câmera, transferência de controle e a leitura de movimento. Logo esta RFC vem antes de qualquer integração.</p>
@@ -358,7 +520,7 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 <ol>
 <li>O visual sempre acompanha o yaw já decidido pelo controlador. A frente do</li>
 </ol>
-<p>   GLB é −Z no Godot e não deve receber correção de 180° silenciosa.</p>
+<p>   GLB canônico é −Z no Godot e não deve receber correção de 180° no    controlador. A orientação pertence ao asset e é medida no importador.</p>
 <ol>
 <li>A integração começa no Laboratório V3 e preserva fallback visível caso o</li>
 </ol>
@@ -428,7 +590,11 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 <ul>
 <li>Verificado por <code>teste_player_visual_v1.gd</code> (<strong>11 ok</strong>) além de</li>
 </ul>
-<p>  <code>teste_rfc007_treinador_1m60.gd</code> (<strong>18 ok</strong>) e   <code>teste_player_v1_glb.gd</code> (<strong>14 ok</strong>).</p></div>
+<p>  <code>teste_rfc007_treinador_1m60.gd</code> (<strong>18 ok</strong>) e   <code>teste_player_v1_glb.gd</code> (<strong>14 ok</strong>).</p>
+<h3>Correção de orientação do asset — 21/09/2026</h3>
+<p>A afirmação original desta RFC de que o GLB já apontava para −Z estava errada. Medição direta dos vértices do pacote anterior encontrou os sapatos (<code>Y &lt; 0,15 m</code>, 626 vértices, <code>Z −0,119…+0,273</code>) e o boné (<code>Y &gt; 1,35 m</code>, 878 vértices, <code>Z −0,133…+0,239</code>) ambos voltados a <strong>+Z</strong>. Como um nó Godot sem yaw olha para −Z, o controlador estava correto e o asset fazia o treinador aparentar caminhar de costas.</p>
+<p>O conserto foi aplicado na fonte Blender, não em <code>PlayerVisual3D</code>: a malha e o rig são espelhados no eixo de frente antes do export GLB, e as rotações das Actions são convertidas junto para preservar a passada. O pacote atual mede sapatos <code>−0,154 m</code> e boné <code>−0,106 m</code> em Z, ambos para <strong>−Z</strong>. O novo <code>scripts/tests/teste_player_v1_frente.gd</code> mede o GLB no Godot e também reprova qualquer retorno de <code>CORRECAO_DE_FRENTE</code>/yaw de 180° no componente visual.</p>
+<p>Portanto a regra do contrato continua a mesma, agora sustentada pelo asset correto: <code>Locomocao3D</code> decide o yaw; <code>PlayerVisual3D</code> apenas o acompanha.</p></div>
 </details>
 <details class="rfc">
 <summary>
@@ -491,15 +657,24 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 <p>⚠️ <strong><code>altura_em</code> estática não sobrevive a um mundo semeado</strong> — <code>static</code> é o que transforma o seed em estado global. Quando o primeiro chunk com seed nascer, ela vira serviço instanciado e os consumidores recebem a referência; a mudança é do Claude (<code>SpawnerSelvagem3D</code>, <code>PokemonInstance3D</code>, <code>RegraDeAcompanhar</code>).</p>
 <p><strong>Não autorizado por este aceite:</strong> máscara de spawn, regra de água/penhasco, geração de chunks. Resposta completa em <code>docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md</code>.</p></div>
 </details>
-<details class="rfc" open>
+<details class="rfc">
 <summary>
 <span class="num">005</span>
-<span class="nome">Pipeline Blender → pixel art para assets <span class="selo espera">esperando decisão</span></span>
+<span class="nome">Pipeline Blender → pixel art para assets <span class="selo obsoleta">aposentada pela V3</span></span>
 <span class="meta">constrói: Codex (client/UI) — o pipeline de asset seria dele · revisa: Claude (gameplay) — medi a VPS e o que já existe</span>
 <span class="abrir">▸ ler o contrato inteiro</span>
 </summary>
 <div class="leitura"><h2>RFC-005 — Pipeline Blender → pixel art para assets</h2>
-<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Status:</strong> OBSOLETA — superada pela V3 (21/09/2026)</p>
+<blockquote>🔴 <strong>Esta RFC é da era 2D e foi aposentada, não recusada.</strong></blockquote>
+<blockquote></blockquote>
+<blockquote>O Gabriel decidiu em 21/09: *&quot;tudo que era plano da V2 e da V1 a gente pode</blockquote>
+<blockquote>esquecer para não dar ruído nos planos futuros&quot;<em>. Ele também disse </em>&quot;pode</blockquote>
+<blockquote>seguir com tudo&quot;* sobre as RFCs — mas as duas frases se contradizem aqui, e</blockquote>
+<blockquote>a primeira é a que vale: executar esta RFC seria construir para o mundo 2D</blockquote>
+<blockquote>que a V3 substitui.</blockquote>
+<blockquote></blockquote>
+<blockquote>Fica no repositório como histórico. <strong>Não implementar.</strong></blockquote>
 <p><strong>Owner:</strong> Codex (client/UI) — o pipeline de asset seria dele</p>
 <p><strong>Reviewer:</strong> Claude (gameplay) — medi a VPS e o que já existe</p>
 <p><strong>Aberto por:</strong> Claude · 11/09/2026, a pedido do Gabriel</p>
@@ -622,15 +797,24 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <h3>Decisão</h3>
 <p>_Instalado e provado tecnicamente. <strong>A adoção é do Codex</strong> — a ferramenta está pronta; o resultado depende de direção de arte no modelo._</p></div>
 </details>
-<details class="rfc" open>
+<details class="rfc">
 <summary>
 <span class="num">004</span>
-<span class="nome">Diversidade de tiles e biomas <span class="selo espera">esperando decisão</span></span>
+<span class="nome">Diversidade de tiles e biomas <span class="selo obsoleta">aposentada pela V3</span></span>
 <span class="meta">constrói: Codex (client/UI) — a arte e a escolha visual são dele · revisa: Claude (gameplay) — o <code>CHAR_MAP</code> e o gerador são meus</span>
 <span class="abrir">▸ ler o contrato inteiro</span>
 </summary>
 <div class="leitura"><h2>RFC-004 — Diversidade de tiles e biomas</h2>
-<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Status:</strong> OBSOLETA — superada pela V3 (21/09/2026)</p>
+<blockquote>🔴 <strong>Esta RFC é da era 2D e foi aposentada, não recusada.</strong></blockquote>
+<blockquote></blockquote>
+<blockquote>O Gabriel decidiu em 21/09: *&quot;tudo que era plano da V2 e da V1 a gente pode</blockquote>
+<blockquote>esquecer para não dar ruído nos planos futuros&quot;<em>. Ele também disse </em>&quot;pode</blockquote>
+<blockquote>seguir com tudo&quot;* sobre as RFCs — mas as duas frases se contradizem aqui, e</blockquote>
+<blockquote>a primeira é a que vale: executar esta RFC seria construir para o mundo 2D</blockquote>
+<blockquote>que a V3 substitui.</blockquote>
+<blockquote></blockquote>
+<blockquote>Fica no repositório como histórico. <strong>Não implementar.</strong></blockquote>
 <p><strong>Owner:</strong> Codex (client/UI) — a arte e a escolha visual são dele</p>
 <p><strong>Reviewer:</strong> Claude (gameplay) — o <code>CHAR_MAP</code> e o gerador são meus</p>
 <p><strong>Aberto por:</strong> Claude · 11/09/2026</p>
@@ -717,15 +901,24 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <h3>Decisão</h3>
 <p>_Aguardando o Codex._</p></div>
 </details>
-<details class="rfc" open>
+<details class="rfc">
 <summary>
 <span class="num">003</span>
-<span class="nome">Reconstrução do mapa-múndi: forma do continente, costa e biomas <span class="selo espera">esperando decisão</span></span>
+<span class="nome">Reconstrução do mapa-múndi: forma do continente, costa e biomas <span class="selo obsoleta">aposentada pela V3</span></span>
 <span class="meta">constrói: Codex (client/UI) — a forma e o visual são dele · revisa: Claude (gameplay) — colisão, warps, conectividade e spawn são meus</span>
 <span class="abrir">▸ ler o contrato inteiro</span>
 </summary>
 <div class="leitura"><h2>RFC-003 — Reconstrução do mapa-múndi: forma do continente, costa e biomas</h2>
-<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Status:</strong> OBSOLETA — superada pela V3 (21/09/2026)</p>
+<blockquote>🔴 <strong>Esta RFC é da era 2D e foi aposentada, não recusada.</strong></blockquote>
+<blockquote></blockquote>
+<blockquote>O Gabriel decidiu em 21/09: *&quot;tudo que era plano da V2 e da V1 a gente pode</blockquote>
+<blockquote>esquecer para não dar ruído nos planos futuros&quot;<em>. Ele também disse </em>&quot;pode</blockquote>
+<blockquote>seguir com tudo&quot;* sobre as RFCs — mas as duas frases se contradizem aqui, e</blockquote>
+<blockquote>a primeira é a que vale: executar esta RFC seria construir para o mundo 2D</blockquote>
+<blockquote>que a V3 substitui.</blockquote>
+<blockquote></blockquote>
+<blockquote>Fica no repositório como histórico. <strong>Não implementar.</strong></blockquote>
 <p><strong>Owner:</strong> Codex (client/UI) — a forma e o visual são dele</p>
 <p><strong>Reviewer:</strong> Claude (gameplay) — colisão, warps, conectividade e spawn são meus</p>
 <p><strong>Aberto por:</strong> Claude · 11/09/2026</p>
@@ -741,7 +934,7 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <tr><td>Formato</td><td>retângulo perfeito</td><td>continente com ilhas, cercado de mar</td></tr>
 </tbody></table></div>
 <p><strong>Tradução:</strong> o mapa-múndi é um <strong>retângulo de meio quilômetro cercado por uma parede de árvores</strong>. Uma única rota (Lavender–Fuchsia) tem 12 km — ou seja, o &quot;continente&quot; é <strong>24 vezes menor que uma estrada dele</strong>.</p>
-<p>A reestruturação geográfica de 10/09 refez <strong>as rotas</strong> (cenas próprias, 38 km somados) e <strong>Cinnabar</strong> (1200×1200, costa de 3 harmônicas). <strong>O mapa-múndi, onde ficam as cidades, nunca foi refeito.</strong> Isso está registrado na minha própria auditoria (<code>docs/mundo-novo-escala.md</code>, seção 3): <em>&quot;Costa orgânica ✅ nas ilhas/costa — o litoral do world_map segue o de sempre&quot;</em>. Eu declarei a pendência e não a resolvi.</p>
+<p>A reestruturação geográfica de 10/09 refez <strong>as rotas</strong> (cenas próprias, 38 km somados) e <strong>Cinnabar</strong> (1200×1200, costa de 3 harmônicas). <strong>O mapa-múndi, onde ficam as cidades, nunca foi refeito.</strong> Isso está registrado na minha própria auditoria (<code>mundo-novo-escala.md</code> <em>(aposentado em 21/09 — está no histórico do git)</em>, seção 3): <em>&quot;Costa orgânica ✅ nas ilhas/costa — o litoral do world_map segue o de sempre&quot;</em>. Eu declarei a pendência e não a resolvi.</p>
 <h3>2. &quot;As cidades não se conectam&quot; — o que é verdade e o que não é</h3>
 <p>Medi a conectividade a pé, de cada cidade até cada porta do mapa-múndi:</p>
 <div class="rolar"><table><thead><tr><th>Cidade</th><th>Portas alcançáveis a pé</th></tr></thead><tbody>
@@ -779,7 +972,7 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <tr><td><code>WarpZone.position</code> e <code>spawn_tile</code> de cada porta</td><td>mudar sem mover o par do outro lado faz o jogador nascer dentro de pedra</td><td>testes por rota</td></tr>
 <tr><td><code>tile_rect</code> das zonas em <code>zones.json</code></td><td>define fauna, música e nome da região</td><td><code>teste_matriz_ecologica.gd</code></td></tr>
 <tr><td>Chars de colisão (<code>T N O K / &lt; &gt; R ~ 0 ) w W E</code> bloqueiam)</td><td>virar o char muda o que é parede</td><td><code>teste_tudo_compila.gd</code></td></tr>
-<tr><td>Os 6 atalhos antigos continuam <strong>selados</strong></td><td>senão o jogador corta caminho e pula rotas inteiras</td><td><code>docs/mundo-novo-escala.md</code> §2</td></tr>
+<tr><td>Os 6 atalhos antigos continuam <strong>selados</strong></td><td>senão o jogador corta caminho e pula rotas inteiras</td><td><code>mundo-novo-escala.md</code> <em>(aposentado em 21/09 — está no histórico do git)</em> §2</td></tr>
 <tr><td>As 3 ilhas (Gélida, Seafoam, Deserto) e seus acessos</td><td>pedido explícito do Gabriel, 10/09</td><td><code>teste_alcance_surf.gd</code></td></tr>
 <tr><td>Água continua sendo água pro Surf</td><td><code>WorldManager.is_water_tile</code></td><td><code>teste_alcance_surf.gd</code></td></tr>
 </tbody></table></div>
@@ -814,22 +1007,22 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <ol>
 <li><strong>A planta-base desenhada à mão</strong> do Gabriel está em</li>
 </ol>
-<p>   <code>docs/mundo-novo-escala.md</code>. Ela é a referência de forma?</p>
+<p>   <code>mundo-novo-escala.md</code> <em>(aposentado em 21/09 — está no histórico do git)</em>. Ela é a referência de forma?</p>
 <ol>
 <li>Precisa de <strong>char/tile novo</strong> no atlas pra algum bioma que falta?</li>
 </ol>
 <h3>Decisão</h3>
 <p>_Aguardando o Codex._</p></div>
 </details>
-<details class="rfc" open>
+<details class="rfc">
 <summary>
 <span class="num">002</span>
-<span class="nome">Tela de seleção de kit (conhecidos → equipados) <span class="selo espera">esperando decisão</span></span>
+<span class="nome">Tela de seleção de kit (conhecidos → equipados) <span class="selo aceita">aprovada</span></span>
 <span class="meta">constrói: Codex (client/UI) — a tela é dele · revisa: Claude (gameplay) — o contrato é meu</span>
 <span class="abrir">▸ ler o contrato inteiro</span>
 </summary>
 <div class="leitura"><h2>RFC-002 — Tela de seleção de kit (conhecidos → equipados)</h2>
-<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Status:</strong> APROVADA pelo Gabriel em 21/09/2026 — na fila do Codex</p>
 <p><strong>Owner:</strong> Codex (client/UI) — a tela é dele</p>
 <p><strong>Reviewer:</strong> Claude (gameplay) — o contrato é meu</p>
 <p><strong>Aberto por:</strong> Claude · 11/09/2026</p>
@@ -909,8 +1102,33 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <li><code>trocar_kit</code> pode falhar (<code>{ok: false, motivo: &quot;...&quot;}</code>). O <code>motivo</code> é texto</li>
 </ul>
 <p>  pronto pro jogador, em português — usar ele, não inventar outro.</p>
+<h3>O pedido</h3>
+<p><strong>O que está sendo solicitado:</strong> construir a <strong>tela de troca de kit</strong> — a única escolha do jogo que hoje existe na regra e não tem onde ser feita. Um Charizard Lv.100 conhece 11 golpes e equipa 8; o jogador tem a escolha e não tem a tela.</p>
+<p>⚠️ Esta RFC é de 11/09, da era 2D, mas <strong>não foi aposentada com as outras</strong>: a escolha que ela resolve é de gameplay, não de mundo, e o kit vale igual na V3 (as Fases 16 e 17 até ampliaram a régua — 4 a 8 slots, e a MO deposita no pool sem equipar sozinha).</p>
+<p><strong>Como seria executado:</strong></p>
+<ol>
+<li><strong>Quem constrói é o Codex</strong> (a tela é dele); o contrato é do Claude.</li>
+<li><strong>Nada de conta nova na tela.</strong> Todas as chamadas da tabela acima já existem</li>
+</ol>
+<p>   e estão testadas — a tela lê e mostra, nunca recalcula.</p>
+<ol>
+<li><strong>O preço aparece antes de confirmar.</strong> <code>previsao_de_troca()</code> devolve nível</li>
+</ol>
+<p>   antes/depois, custo, slots e HP: a tela mostra isso e só então pergunta.    Trocar MO custa 25 níveis por alteração (regra do Gabriel), e cobrar sem    avisar seria punir sem informar.</p>
+<ol>
+<li><strong><code>max_skill_slots</code> nunca é cacheado</strong> entre aberturas — ele muda com nível</li>
+</ol>
+<p>   e evolução.</p>
+<ol>
+<li>Quando a troca falha, usa-se o <code>motivo</code> que vem pronto em português; não se</li>
+</ol>
+<p>   inventa outro texto.</p>
+<p><strong>Se for aprovada</strong>, ela entra na fila do Codex depois da Fase 19 (polimento) — não antes, porque a V3 ainda está ganhando cara e uma tela nova sobre uma HUD que vai mudar é trabalho feito duas vezes.</p>
 <h3>Decisão</h3>
-<p>_Aguardando o Codex._</p></div>
+<p>✅ <strong>APROVADA pelo Gabriel em 21/09/2026, 11:34</strong>, pelo botão do painel.</p>
+<p>Foi a <strong>primeira decisão tomada pelo painel</strong> em vez de por mensagem, e o caminho fechou inteiro: o botão gravou, eu li com <code>read_db</code> e transcrevi aqui. A RFC continua sendo a fonte de verdade; o painel é a porta.</p>
+<p><strong>Vai para a fila do Codex</strong> (a tela é dele), depois da Fase 19 — como a seção &quot;O pedido&quot; já previa: uma tela nova sobre uma HUD que ainda está ganhando cara é trabalho feito duas vezes.</p>
+<p>⚠️ Lembretes que o executor precisa ter à mão, e que já estão no corpo acima: nenhuma conta nova na tela; <code>previsao_de_troca()</code> mostra o preço <strong>antes</strong> de confirmar (25 níveis por troca de MO); <code>max_skill_slots</code> nunca é cacheado entre aberturas; e o <code>motivo</code> de uma falha já vem pronto em português.</p></div>
 </details>
 <details class="rfc">
 <summary>
@@ -1017,15 +1235,191 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <p><code>moves.size()</code> <strong>não é garantido igual</strong> a <code>max_skill_slots</code>: após uma troca de kit pode haver menos golpes equipados que a capacidade. Uma UI nova precisa iterar até <code>max_skill_slots</code> e tratar a ausência em <code>moves</code> como slot vazio. Também deve ignorar <code>follower_skill_used</code> com <code>slot == -1</code>, que representa o ataque automático e não um botão de skill.</p></div>
 </details>
 </section>
-<section id="fases"><h2>As 20 fases da V3</h2>
+<script>
+(function () {
+  var blocos = Array.prototype.slice.call(document.querySelectorAll('.decidir'));
+
+  // ── Mandar tarefa ───────────────────────────────────────────────────────
+  //
+  // Existe pro Gabriel parar de abrir dois chats. A tarefa vai pro mesmo
+  // armazenamento das decisões, e os agentes leem no começo da sessão.
+  function ligarTarefas(db) {
+    var caixa = document.querySelector('.mandar');
+    if (!caixa) return;
+    var texto = caixa.querySelector('#tarefaTexto');
+    var estado = caixa.querySelector('.estadoTarefa');
+    var lista = caixa.querySelector('.tarefasAbertas');
+    var botoes = Array.prototype.slice.call(caixa.querySelectorAll('.bt[data-para]'));
+
+    if (!db) {
+      botoes.forEach(function (b) { b.disabled = true; });
+      texto.disabled = true;
+      estado.textContent = 'Esta cópia é só leitura. Para mandar tarefa, abra '
+        + 'o painel pelo link do Claude.';
+      return;
+    }
+
+    var col = db.collection('tarefas');
+
+    // Uma assinatura só, fora de render — a regra do db.
+    col.onSnapshot(function (snap) {
+      var abertas = (snap && snap.docs ? snap.docs : [])
+        .map(function (d) { return d.data || d; })
+        .filter(function (t) { return t && t.estado !== 'feita'; });
+      if (!abertas.length) { lista.hidden = true; return; }
+      lista.hidden = false;
+      lista.textContent = '';
+      var t0 = document.createElement('p');
+      t0.className = 'nota';
+      t0.textContent = abertas.length + ' tarefa(s) que você mandou e ainda '
+        + 'não foram marcadas como feitas:';
+      lista.appendChild(t0);
+      abertas.forEach(function (t) {
+        var li = document.createElement('div');
+        li.className = 'tarefaItem';
+        var quem = document.createElement('span');
+        quem.className = 'dono d-' + (t.para || 'claude');
+        quem.textContent = t.para || 'claude';
+        var txt = document.createElement('div');
+        txt.className = 'oque';
+        var pp = document.createElement('p');
+        // textContent, nunca innerHTML: o texto é digitado por gente.
+        pp.textContent = t.texto || '';
+        txt.appendChild(pp);
+        li.appendChild(quem); li.appendChild(txt);
+        lista.appendChild(li);
+      });
+    });
+
+    botoes.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = (texto.value || '').trim();
+        if (!v) { estado.textContent = 'Escreva a tarefa antes de mandar.'; return; }
+        var id = 't' + Date.now();
+        estado.textContent = 'mandando…';
+        col.doc(id).set({
+          texto: v, para: b.getAttribute('data-para'),
+          quando: new Date().toISOString(), estado: 'aberta'
+        }).then(function () {
+          texto.value = '';
+          estado.textContent = 'Mandada. Ela aparece na fila e o agente lê no '
+            + 'começo da próxima sessão.';
+        }).catch(function (e) {
+          estado.textContent = 'Não consegui mandar: '
+            + ((e && e.code) || 'erro') + '. Nada foi registrado.';
+        });
+      });
+    });
+  }
+
+  // Sem runtime, nem decisão nem tarefa funcionam — e os dois dizem por quê.
+  if (!(window.claude && typeof window.claude.use === 'function')) {
+    ligarTarefas(null);
+  }
+  if (!blocos.length) {
+    if (window.claude && typeof window.claude.use === 'function') {
+      window.claude.use('db').then(ligarTarefas);
+    }
+    return;
+  }
+
+  function diz(b, txt) { b.querySelector('.estadoDecisao').textContent = txt; }
+  function trava(b, motivo) {
+    Array.prototype.forEach.call(b.querySelectorAll('button'), function (x) {
+      x.disabled = true;
+    });
+    diz(b, motivo);
+  }
+
+  // Sem runtime, nada de botão mudo.
+  if (!(window.claude && typeof window.claude.use === 'function')) {
+    blocos.forEach(function (b) {
+      trava(b, 'Esta cópia é só leitura. Para decidir, abra o painel pelo link '
+             + 'do Claude — é lá que a decisão fica guardada.');
+    });
+    return;
+  }
+
+  window.claude.use('db').then(function (db) {
+    ligarTarefas(db);
+    // Runtime presente: isto não é espelho.
+    var av = document.getElementById('avisoEspelho');
+    if (av && db) av.hidden = true;
+    if (!db) {
+      blocos.forEach(function (b) {
+        trava(b, 'Esta cópia é só leitura. Para decidir, abra o painel pelo '
+               + 'link do Claude.');
+      });
+      return;
+    }
+
+    blocos.forEach(function (b) {
+      var rfc = b.getAttribute('data-rfc');
+      var doc = db.doc('decisoes/' + rfc.replace(/[^A-Za-z0-9_.-]/g, '_'));
+      var caixa = b.querySelector('.caixaComentario');
+      var ja = b.querySelector('.jaDecidido');
+
+      function mostrar(d) {
+        if (!d || !d.estado) { ja.hidden = true; return; }
+        var quando = d.quando ? new Date(d.quando).toLocaleString('pt-BR') : '';
+        ja.hidden = false;
+        ja.textContent = 'Você já respondeu: ' + d.estado
+          + (d.comentario ? ' — “' + d.comentario + '”' : '')
+          + (quando ? ' · ' + quando : '');
+        Array.prototype.forEach.call(b.querySelectorAll('.bt[data-ac]'), function (x) {
+          x.classList.toggle('escolhido', x.getAttribute('data-ac') === d.estado);
+        });
+      }
+
+      // Uma assinatura por documento, nunca dentro de render.
+      doc.onSnapshot(function (snap) { mostrar(snap && snap.data); });
+
+      function gravar(estado, comentario) {
+        diz(b, 'gravando…');
+        doc.set({
+          estado: estado, comentario: comentario || '',
+          rfc: rfc, quando: new Date().toISOString()
+        }).then(function () {
+          diz(b, 'Guardado. O Claude lê isto e transcreve a decisão na própria '
+               + 'RFC — que continua sendo a fonte de verdade.');
+        }).catch(function (e) {
+          diz(b, 'Não consegui guardar: ' + ((e && e.code) || 'erro') + '. '
+               + 'Nada foi registrado.');
+        });
+      }
+
+      Array.prototype.forEach.call(b.querySelectorAll('.bt[data-ac]'), function (bt) {
+        bt.addEventListener('click', function () {
+          var ac = bt.getAttribute('data-ac');
+          if (ac === 'comentario') {
+            caixa.hidden = !caixa.hidden;
+            if (!caixa.hidden) caixa.querySelector('textarea').focus();
+            return;
+          }
+          // Aprovar/reprovar levam junto o que estiver escrito: separar os dois
+          // faria o comentário do Gabriel se perder ao clicar em Aprovar.
+          gravar(ac, caixa.querySelector('textarea').value.trim());
+        });
+      });
+
+      b.querySelector('.enviar').addEventListener('click', function () {
+        var txt = caixa.querySelector('textarea').value.trim();
+        if (!txt) { diz(b, 'Escreva algo antes de enviar.'); return; }
+        gravar('comentario', txt);
+      });
+    });
+  });
+})();
+</script>
+<section id="fases"><h2>As fases da V3</h2>
 <p class="nota">A ordem existe porque cada fase depende da anterior estar de pé. Pular é como se constrói seis sistemas pela metade.</p>
 <div class="fases"></div>
 </section>
 <section id="claude"><h2>Fila do Claude — regras, IA, testes</h2>
-<div class="item"><div class="marca">1</div><div class="corpo-item"><p>Fase 20 — a metade de DESENHO (vegetação, modelos, sombra)</p><p class="porque"><strong>sim</strong> — depende da Fase 19 do Codex existir pra ter o que medir</p></div></div><div class="item"><div class="marca">1b</div><div class="corpo-item"><p>✅ <strong>FEITO (19/09).</strong> <code>permissoes_do_jogador()</code> lê <code>SaveManager.save_data[&quot;inventory&quot;]</code>. 🔴 O comentário apontava a chave <strong>errada</strong> (<code>&quot;items&quot;</code>) — ligar por ele leria <code>{}</code> e o jogador perderia Surf e Voar <strong>sem erro nenhum</strong></p></div></div><div class="item"><div class="marca">1c</div><div class="corpo-item"><p>✅ <strong>FEITO (20/09) — virou a Fase 21.</strong> <code>capturavel</code> é lido de quem caiu, e nem a Master Ball pega um Alpha. A captura deixou de ser um clique num cadáver e passou a ser <strong>uma bola atravessando o espaço</strong></p></div></div><div class="item"><div class="marca">1g</div><div class="corpo-item"><p>Guardar no save quem foi capturado (hoje <code>tentar_capturar</code> devolve espécie/nível e ninguém escuta)</p><p class="porque">não — é fiação, e o <code>SaveManager</code> já tem <code>team</code>/<code>pc</code>/<code>pokedex</code></p></div></div><div class="item"><div class="marca">1h</div><div class="corpo-item"><p>Loot: a §35 diz que cada item é arrastado pra Bag, um a um. <code>Corpo3D.pegar()</code> existe; <strong>a tela é do Codex</strong></p><p class="porque">depende da HUD de corpo</p></div></div><div class="item"><div class="marca">1d</div><div class="corpo-item"><p>✅ <strong>FEITO (19/09).</strong> <code>world.elites_derrotados</code> no save + migração pra save antigo (<code>load_game</code> substitui o dicionário cru). Carimbo <strong>Unix</strong>, então &quot;3 horas&quot; continua sendo 3 h de relógio com o jogo fechado</p></div></div><div class="item"><div class="marca">1e</div><div class="corpo-item"><p>✅ <strong>RFC-008 — máscara de spawn. FEITA (19/09).</strong> <code>RegraDeHabitabilidade</code> + laço de tentativas no spawner · 29 conferências. 🔴 A medição corrigiu meu número: eu previ 3,25% de recusa (falésia) e o real é <strong>38,7%</strong>, porque quem domina é a <strong>água</strong> — <code>TENTATIVAS</code> 6 → <strong>10</strong></p></div></div><div class="item"><div class="marca">1f</div><div class="corpo-item"><p><strong><code>altura_em</code> deixa de ser <code>static</code></strong> quando o 1º chunk semeado nascer. <code>static</code> é o que transforma o seed em estado global; vira serviço instanciado e <code>SpawnerSelvagem3D</code>/<code>PokemonInstance3D</code>/<code>RegraDeAcompanhar</code> passam a receber a referência</p><p class="porque">sim — não existe chunk no runtime ainda</p></div></div><div class="item"><div class="marca">3</div><div class="corpo-item"><p>Ajuste de <em>sensação</em> dos controles</p><p class="porque"><strong>sim</strong> — depende do item 🟡 1</p></div></div>
+<div class="item"><div class="marca">1</div><div class="corpo-item"><p>Fase 20 — a metade de DESENHO (vegetação, modelos, sombra)</p><p class="porque"><strong>sim</strong> — depende da Fase 19 do Codex existir pra ter o que medir</p></div></div><div class="item"><div class="marca">1b</div><div class="corpo-item"><p>✅ <strong>FEITO (19/09).</strong> <code>permissoes_do_jogador()</code> lê <code>SaveManager.save_data[&quot;inventory&quot;]</code>. 🔴 O comentário apontava a chave <strong>errada</strong> (<code>&quot;items&quot;</code>) — ligar por ele leria <code>{}</code> e o jogador perderia Surf e Voar <strong>sem erro nenhum</strong></p></div></div><div class="item"><div class="marca">1c</div><div class="corpo-item"><p>✅ <strong>FEITO (20/09) — virou a Fase 21.</strong> <code>capturavel</code> é lido de quem caiu, e nem a Master Ball pega um Alpha. A captura deixou de ser um clique num cadáver e passou a ser <strong>uma bola atravessando o espaço</strong></p></div></div><div class="item"><div class="marca">1g</div><div class="corpo-item"><p>✅ <strong>FEITO (21/09).</strong> O treinador escuta <code>resolveu</code>, monta com <code>_make_pokemon_data</code>, guarda com <code>add_pokemon</code> (time ou PC), marca a Pokédex e salva. Zero conta nova</p></div></div><div class="item"><div class="marca">1h</div><div class="corpo-item"><p>✅ <strong>FEITO (21/09).</strong> <code>pegar()</code> guarda na mochila de verdade. 🔴 <strong>Três dos quatro ids de loot não existiam</strong> no catálogo — ligar como estava poria <strong>item fantasma no save</strong>. A tela continua sendo do Codex</p></div></div><div class="item"><div class="marca">1i</div><div class="corpo-item"><p><strong>§51 — o item que remove um Held.</strong> Projetado e <strong>não construído</strong>: não existe no catálogo nem como efeito. Tirei do drop em vez de criar um item que não faz nada</p><p class="porque">não — mas é decisão do Gabriel se vale construir</p></div></div><div class="item"><div class="marca">1d</div><div class="corpo-item"><p>✅ <strong>FEITO (19/09).</strong> <code>world.elites_derrotados</code> no save + migração pra save antigo (<code>load_game</code> substitui o dicionário cru). Carimbo <strong>Unix</strong>, então &quot;3 horas&quot; continua sendo 3 h de relógio com o jogo fechado</p></div></div><div class="item"><div class="marca">1e</div><div class="corpo-item"><p>✅ <strong>RFC-008 — máscara de spawn. FEITA (19/09).</strong> <code>RegraDeHabitabilidade</code> + laço de tentativas no spawner · 29 conferências. 🔴 A medição corrigiu meu número: eu previ 3,25% de recusa (falésia) e o real é <strong>38,7%</strong>, porque quem domina é a <strong>água</strong> — <code>TENTATIVAS</code> 6 → <strong>10</strong></p></div></div><div class="item"><div class="marca">1f</div><div class="corpo-item"><p><strong><code>altura_em</code> deixa de ser <code>static</code></strong> quando o 1º chunk semeado nascer. <code>static</code> é o que transforma o seed em estado global; vira serviço instanciado e <code>SpawnerSelvagem3D</code>/<code>PokemonInstance3D</code>/<code>RegraDeAcompanhar</code> passam a receber a referência</p><p class="porque">sim — não existe chunk no runtime ainda</p></div></div><div class="item"><div class="marca">3</div><div class="corpo-item"><p>Ajuste de <em>sensação</em> dos controles</p><p class="porque"><strong>sim</strong> — depende do item 🟡 1</p></div></div>
 </section>
 <section id="codex"><h2>Fila do Codex — arte, HUD, modelos, mundo</h2>
-<div class="item"><div class="marca">0</div><div class="corpo-item"><p>🔴 <strong>PLAYER 3D V1 — a ponte visual.</strong> O GLB está pronto e validado; <strong>destravado</strong>: a RFC-007 foi aceita e as 3 decisões estão tomadas</p><p class="porque"><strong>prioridade</strong> · <code>docs/agent-reviews/claude/2026-09-18-RFC-007-player-v1.md</code></p></div></div><div class="item"><div class="marca">0b</div><div class="corpo-item"><p>🔴 <strong>WORLD FACTORY V1</strong> — <strong>contrato de altura aceito</strong> (RFC-006, opção A, medido por mim a 0,000001 m). ⚠️ O aceite é só do laboratório: <strong>borda entre chunks continua sem contrato</strong>, porque chunk ainda não existe pra medir</p><p class="porque"><code>docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md</code></p></div></div><div class="item"><div class="marca">1</div><div class="corpo-item"><p><strong>Qualidade gráfica do mundo 3D</strong> — base isolada pronta: terreno/praia/água polidos, rochas, vegetação composta/instanciada e LOD1 de árvores; falta medição real e integração</p><p class="porque">agora, em paralelo</p></div></div><div class="item"><div class="marca">2</div><div class="corpo-item"><p>Modelos de Pokémon em volume</p><p class="porque">agora · contrato em <code>POKEMON_MODEL_PIPELINE.md</code></p></div></div><div class="item"><div class="marca">3</div><div class="corpo-item"><p>HUD de combate: cooldown do básico e das 4 skills, telegrafe do aviso</p><p class="porque">quando quiser — a API já entrega tudo (ver abaixo)</p></div></div><div class="item"><div class="marca">4</div><div class="corpo-item"><p>Polimento geral</p><p class="porque">Fase 19</p></div></div><div class="item"><div class="marca">O quê</div><div class="corpo-item"><p>Onde</p></div></div><div class="item"><div class="marca"><strong>Cooldown do básico</strong></div><div class="corpo-item"><p><code>PokemonInstance3D.basico_pronto()</code> e <code>basico_esfriando()</code> — em segundos, prontos</p></div></div><div class="item"><div class="marca"><strong>Cooldown de uma skill</strong></div><div class="corpo-item"><p><code>skill_esfriando(indice)</code></p></div></div><div class="item"><div class="marca"><strong>Por que o botão não respondeu</strong></div><div class="corpo-item"><p><code>usar_skill()</code> devolve <code>{&quot;recusado&quot;: motivo}</code> com o motivo <strong>em português</strong></p></div></div><div class="item"><div class="marca"><strong>O telegrafe do aviso</strong></div><div class="corpo-item"><p>sinal <code>EventBus.skill_anunciada</code> — traz forma, alcance, raio, largura, direção travada e quando resolve, <strong>tudo em metros e já calculado</strong></p></div></div><div class="item"><div class="marca"><strong>Apagar o telegrafe</strong></div><div class="corpo-item"><p>sinal <code>EventBus.skill_cancelada</code> — sai quando quem anunciava cai no meio</p></div></div><div class="item"><div class="marca"><strong>O relatório de um acerto em 3D</strong></div><div class="corpo-item"><p><code>EventBus.golpe_resolvido</code> — tipo, efetividade <strong>como palavra</strong>, frase, fração da vida, direção em <code>Vector3</code></p></div></div><div class="item"><div class="marca">Fonte</div><div class="corpo-item"><p>Diz</p></div></div><div class="item"><div class="marca">A folha de concept art do Gabriel (18/09)</div><div class="corpo-item"><p><strong>1,60 m</strong></p></div></div><div class="item"><div class="marca"><code>TrainerController3D</code> (cápsula e malha)</div><div class="corpo-item"><p>1,75 m</p></div></div><div class="item"><div class="marca">O <code>player.glb</code> de 14–15/09, medido</div><div class="corpo-item"><p>1,750 m</p></div></div>
+<div class="item"><div class="marca">0</div><div class="corpo-item"><p>✅ <strong>PLAYER 3D V1 — FEITO (21/09).</strong> Ponte visual no ar, e a <strong>frente do asset corrigida na raiz</strong> depois do moonwalk que o Gabriel achou</p></div></div><div class="item"><div class="marca">0b</div><div class="corpo-item"><p>🟡 <strong>WORLD FACTORY V1 — andando.</strong> Vegetação determinística por zona, LOD de árvore e materiais entregues em 21/09. ⚠️ <strong>Borda entre chunks continua sem contrato</strong> — não gerar chunk semeado antes disso</p><p class="porque"><code>docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md</code></p></div></div><div class="item"><div class="marca">1</div><div class="corpo-item"><p><strong>Qualidade gráfica do mundo 3D</strong> — base isolada pronta: terreno/praia/água polidos, rochas, vegetação composta/instanciada e LOD1 de árvores; falta medição real e integração</p><p class="porque">agora, em paralelo</p></div></div><div class="item"><div class="marca">2</div><div class="corpo-item"><p>Modelos de Pokémon em volume</p><p class="porque">agora · contrato em <code>POKEMON_MODEL_PIPELINE.md</code></p></div></div><div class="item"><div class="marca">3</div><div class="corpo-item"><p>✅ <strong>HUD de combate LIGADA (21/09).</strong> Mais telegrafia visual de skill e feedback de impacto 3D, os dois consumindo os sinais calculados</p></div></div><div class="item"><div class="marca">4</div><div class="corpo-item"><p>Polimento geral</p><p class="porque">Fase 19</p></div></div><div class="item"><div class="marca">5</div><div class="corpo-item"><p><strong>RFC-002 — a tela de troca de kit.</strong> ✅ <strong>Aprovada pelo Gabriel em 21/09 pelo painel.</strong> A escolha existe na regra desde a Fase 3 e não tem onde ser feita</p><p class="porque">depois da Fase 19 — tela nova sobre HUD que ainda muda é trabalho feito duas vezes</p></div></div>
 </section>
 <section><h2>Desenho de referência</h2>
 <p class="nota">Não pede decisão: descreve como o jogo funciona e permanece acessível sem disputar atenção com a fila.</p>
@@ -1043,7 +1437,7 @@ python3 tools/pixelart/pixelizar.py /tmp/casa_sul.png saida.png --tamanho 32 --c
 <p><strong>Owner:</strong> Claude (gameplay)</p>
 <p><strong>Reviewer:</strong> Codex (cliente/UI)</p>
 <p><strong>Base:</strong> <code>15a0d7b</code> · aberto em 13/09/2026</p>
-<p><strong>Plano completo:</strong> <code>docs/GAMEPLAY_V2_PLAN.md</code></p>
+<p><strong>Plano completo:</strong> <code>GAMEPLAY_V2_PLAN.md</code> <em>(aposentado em 21/09 — está no histórico do git)</em></p>
 <hr>
 <h3>Problema</h3>
 <p>O Gabriel pediu (13/09) uma remodelagem da gameplay para Action RPG inspirado em Zelda (controle e exploração), Eterspire (estrutura de MMO), Pokémon (criaturas) e Tibia/PXG (persistência e risco). São <strong>68 seções de especificação</strong>.</p>

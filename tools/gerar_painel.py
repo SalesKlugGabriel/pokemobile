@@ -42,11 +42,20 @@ ESTADOS = [
     ("ACCEPTED", "aceita", "aceita"),
     ("IMPLEMENTED", "aceita", "implementada"),
     ("DONE", "aceita", "fechada"),
-    ("APROVADO", "aceita", "aprovada"),
+    # ⚠️ "APROVAD" e não "APROVADO": o status real da RFC-002 é "APROVADA"
+    # (feminino, porque é *a* RFC). Com o prefixo masculino ela caía no padrão
+    # e era contada como "esperando decisão" — inflando justamente o número que
+    # o Gabriel usa pra saber o que falta dele. Achado ao conferir o painel
+    # depois da primeira aprovação de verdade.
+    ("APROVAD", "aceita", "aprovada"),
     ("REVIEW", "espera", "em revisão"),
     ("PROPOSED", "espera", "esperando decisão"),
     ("DRAFT", "espera", "rascunho"),
     ("REJECTED", "recusada", "recusada"),
+    # Aposentada pela V3 (21/09): não é recusa nem decisão pendente — é um
+    # contrato da era 2D que deixou de fazer sentido. Contá-la como "esperando"
+    # inflaria o número que o Gabriel usa pra saber o que falta dele.
+    ("OBSOLETA", "obsoleta", "aposentada pela V3"),
 ]
 
 
@@ -103,6 +112,30 @@ def ler_rfcs():
     return rfcs
 
 
+## O que exatamente está sendo decidido, e como seria executado.
+##
+## Sai de uma seção `## O pedido` da própria RFC — nunca de um resumo meu. O
+## Gabriel pediu isso com todas as letras: *"bem claro do que está sendo
+## solicitado e como deveria ser executado"*, logo acima dos botões.
+##
+## Sem a seção, o painel diz que ela falta em vez de inventar: um resumo
+## fabricado aqui seria uma segunda versão do contrato, e é exatamente assim
+## que as duas passam a discordar.
+def pedido(texto):
+    linhas = texto.split("\n")
+    dentro = False
+    fora = []
+    for l in linhas:
+        if l.startswith("## "):
+            if dentro:
+                break
+            dentro = l.strip().lower().startswith("## o pedido")
+            continue
+        if dentro:
+            fora.append(l)
+    return "\n".join(fora).strip()
+
+
 def secao_do_quadro(titulo_contem):
     """Devolve o texto de uma seção `## ...` do QUADRO, pelo trecho do título."""
     if not os.path.exists(QUADRO):
@@ -120,6 +153,14 @@ def secao_do_quadro(titulo_contem):
 def tabela_do_quadro(titulo_contem):
     """As linhas de dado de uma tabela markdown dentro de uma seção do QUADRO."""
     bloco = secao_do_quadro(titulo_contem)
+    # 🔴 Só a PRIMEIRA tabela da seção, e o corte é na primeira subseção `###`.
+    #
+    # Uma seção do QUADRO tem subseções com tabelas próprias — a do Codex tem a
+    # lista de APIs prontas e a da altura do player. Sem este corte, elas
+    # entravam na lista de "próximos passos" como se fossem tarefas: em 21/09 a
+    # lista mostrava 24 itens e 8 eram linhas de documentação ("Onde",
+    # "1,75 m"). Uma lista de tarefas com lixo dentro ensina a ignorar a lista.
+    bloco = bloco.split("\n### ")[0]
     linhas = []
     for linha in bloco.split("\n"):
         linha = linha.strip()
@@ -364,6 +405,7 @@ h2{font-size:12px;font-family:var(--mono);letter-spacing:.16em;
 .aceita{background:var(--ok-fundo);color:var(--ok)}
 .espera{background:var(--espera-fundo);color:var(--espera)}
 .recusada{background:var(--parado-fundo);color:var(--parado)}
+.obsoleta{background:var(--linha);color:var(--tinta-fraca)}
 .leitura{padding:2px 17px 22px;border-top:1px solid var(--linha);
   font-size:15px}
 .leitura h2,.leitura h3,.leitura h4{font-family:var(--texto);
@@ -417,6 +459,72 @@ footer p{margin:5px 0}
 # Estes ajustes são deliberadamente colocados depois: deixam a geração pequena,
 # não mudam nenhuma fonte de conteúdo e priorizam a leitura com uma mão.
 CSS += """
+.espelho{margin:16px 0 0;padding:12px 14px;border-radius:7px;
+  background:var(--espera-fundo);color:var(--espera);font-size:14px;
+  border:1px solid var(--espera)}
+""" + """
+/* ── Próximos passos e mandar tarefa (21/09) ──────────────────────────────── */
+.passos{list-style:none;margin:14px 0 0;padding:0;display:flex;
+  flex-direction:column;gap:9px;counter-reset:passo}
+.passo{display:flex;gap:12px;align-items:flex-start;background:var(--papel);
+  border:1px solid var(--linha);border-left:3px solid var(--acento);
+  border-radius:7px;padding:13px 14px}
+.passo.travado{border-left-color:var(--linha-forte);opacity:.72}
+.dono{flex:0 0 auto;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;
+  border-radius:99px;background:var(--acento-fraco);color:var(--acento);
+  margin-top:2px}
+.d-voce{background:var(--voce-fundo);color:var(--voce)}
+.d-codex{background:var(--espera-fundo);color:var(--espera)}
+.oque{min-width:0;flex:1}
+.oque p{margin:0;font-size:15px;line-height:1.45}
+.oque .porque{margin-top:5px!important;font-size:13px;color:var(--tinta-fraca)}
+.mandar{background:var(--papel);border:1px solid var(--linha);
+  border-radius:8px;padding:16px}
+.mandar h3{margin:0 0 6px;font-size:16px}
+.mandar textarea{width:100%;margin-top:10px;border:1px solid var(--linha-forte);
+  border-radius:7px;padding:11px;font:400 15px/1.5 var(--texto);
+  background:var(--fundo);color:var(--tinta);resize:vertical}
+.paraQuem{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px}
+.paraQuem .bt{flex:1 1 30%;min-width:128px;display:flex;flex-direction:column;
+  gap:3px;text-align:left}
+.paraQuem .bt small{font-weight:400;font-size:11.5px;color:var(--tinta-fraca);
+  font-family:var(--mono)}
+.estadoTarefa{margin:11px 0 0;font-size:13.5px;color:var(--tinta-fraca);
+  min-height:1.2em}
+.tarefasAbertas{margin-top:13px;border-top:1px solid var(--linha);
+  padding-top:12px;font-size:14px}
+.tarefaItem{display:flex;gap:10px;align-items:flex-start;padding:8px 0;
+  border-bottom:1px solid var(--linha)}
+.tarefaItem:last-child{border-bottom:0}
+""" + """
+/* ── O bloco de decisão (21/09) ─────────────────────────────────────────── */
+.decidir{margin-top:26px;border:2px solid var(--voce);border-radius:8px;
+  padding:16px 16px 14px;background:var(--voce-fundo)}
+.decidir h4{margin:0 0 10px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--voce)}
+.decidir .pedido>*:first-child{margin-top:0}
+.decidir .pedido>*:last-child{margin-bottom:0}
+.semPedido{margin:0;font-size:14px;color:var(--tinta-fraca)}
+.botoes{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+.bt{flex:1 1 30%;min-width:112px;min-height:46px;border-radius:7px;
+  border:1px solid var(--linha-forte);background:var(--papel);
+  color:var(--tinta);font:600 15px var(--texto);cursor:pointer;
+  padding:10px 12px}
+.bt:hover{border-color:var(--voce)}
+.bt:disabled{opacity:.5;cursor:not-allowed}
+.bt.aprovar{border-color:var(--ok);color:var(--ok)}
+.bt.reprovar{border-color:var(--parado);color:var(--parado)}
+.bt.escolhido{background:var(--voce);border-color:var(--voce);color:#fff}
+.caixaComentario{margin-top:12px;display:flex;flex-direction:column;gap:9px}
+.caixaComentario textarea{width:100%;border:1px solid var(--linha-forte);
+  border-radius:7px;padding:11px;font:400 15px/1.5 var(--texto);
+  background:var(--papel);color:var(--tinta);resize:vertical}
+.estadoDecisao{margin:11px 0 0;font-size:13.5px;color:var(--tinta-fraca);
+  min-height:1.2em}
+.jaDecidido{margin-top:12px;padding:11px 13px;border-radius:7px;
+  background:var(--papel);border:1px solid var(--linha);font-size:14px}
+""" + """
 :root{
   --fundo:#f7f8fa; --papel:#ffffff; --tinta:#17212b; --tinta-fraca:#607080;
   --linha:#dce3ea; --linha-forte:#bac6d1; --acento:#166b5c;
@@ -476,8 +584,127 @@ footer{margin-top:42px;padding-top:18px;font-size:11px;line-height:1.5}
 """
 
 
+## O bloco de decisão: o pedido em destaque e os três botões.
+##
+## ⚠️ Os botões só FUNCIONAM na versão publicada como Artifact, onde a página
+## alcança `claude.use("db")` — é de lá que eu leio as decisões depois. No
+## espelho servido pelo nginx (`poke.workprog.pro/painel`) não existe esse
+## runtime, então eles aparecem desligados, com o motivo escrito. Degradar
+## dizendo por quê é melhor que um botão que não faz nada em silêncio, que é
+## justamente o defeito que este projeto passou o mês caçando.
+def bloco_de_decisao(r):
+    if r["classe"] not in ("espera",):
+        return ""
+    ped = pedido(r["corpo"])
+    fora = ['<div class="decidir" data-rfc="%s">' % html.escape(r["arquivo"])]
+    fora.append('<h4>O que está sendo decidido</h4>')
+    if ped:
+        fora.append('<div class="pedido">%s</div>' % markdown(ped))
+    else:
+        fora.append('<p class="semPedido">⚠️ Esta RFC ainda não tem a seção '
+                    "<code>## O pedido</code>. O painel não inventa um resumo: "
+                    "leia o texto inteiro acima antes de decidir, e cobre a "
+                    "seção de quem abriu a RFC.</p>")
+    fora.append('<div class="jaDecidido" hidden></div>')
+    fora.append('<div class="botoes">'
+                '<button class="bt aprovar" data-ac="aprovada">Aprovar</button>'
+                '<button class="bt reprovar" data-ac="reprovada">Reprovar</button>'
+                '<button class="bt comentar" data-ac="comentario">Comentar</button>'
+                "</div>")
+    fora.append('<div class="caixaComentario" hidden>'
+                '<textarea rows="4" placeholder="O que você quer dizer sobre '
+                'esta decisão? Vai junto com ela."></textarea>'
+                '<button class="bt enviar">Enviar</button></div>')
+    fora.append('<p class="estadoDecisao" role="status"></p>')
+    fora.append("</div>")
+    return "".join(fora)
+
+
+## A seção que o Gabriel veio ver: tudo o que falta, num lugar só.
+def bloco_proximos(itens):
+    if not itens:
+        return '<p class="nota">Nada na fila. Os dois agentes estão livres.</p>'
+    fora = ['<ol class="passos">']
+    for i in itens:
+        classe = "passo" + (" travado" if i["travado"] else "")
+        fora.append('<li class="%s">' % classe)
+        fora.append('<span class="dono d-%s">%s</span>'
+                    % (i["dono"].lower().replace("ê", "e"), i["dono"]))
+        fora.append('<div class="oque"><p>%s</p>' % inline(i["texto"]))
+        if i["porque"] and i["porque"] != "—":
+            rotulo = "travado por" if i["travado"] else "contexto"
+            fora.append('<p class="porque"><b>%s:</b> %s</p>'
+                        % (rotulo, inline(i["porque"])))
+        fora.append("</div></li>")
+    fora.append("</ol>")
+    return "".join(fora)
+
+
+## A caixa de mandar tarefa. Existe pra o Gabriel parar de abrir dois chats.
+def bloco_mandar_tarefa():
+    return ("""<div class="mandar">
+  <h3>Mandar uma tarefa</h3>
+  <p class="nota">Escreva o que você quer e diga pra quem. Ela entra na fila e
+  o agente lê no começo da próxima sessão — sem precisar abrir o chat dele.</p>
+  <textarea id="tarefaTexto" rows="4" placeholder="O que você quer que seja feito?"></textarea>
+  <div class="paraQuem">
+    <button class="bt" data-para="claude">Para o Claude<small>regras, combate, IA, save, testes</small></button>
+    <button class="bt" data-para="codex">Para o Codex<small>arte, HUD, modelos, mundo</small></button>
+    <button class="bt" data-para="ambos">Para os dois</button>
+  </div>
+  <p class="estadoTarefa" role="status"></p>
+  <div class="tarefasAbertas" hidden></div>
+</div>""")
+
+
 def selo(rfc):
     return '<span class="selo %s">%s</span>' % (rfc["classe"], rfc["rotulo"])
+
+
+## Um item da fila já está feito?
+##
+## O painel de "próximos passos" só mostra o que FALTA. As linhas concluídas
+## continuam no `QUADRO.md` (elas são o histórico), mas empilhá-las aqui foi
+## exatamente o que fez o Gabriel não achar a lista: em 21/09 a fila do Claude
+## tinha 8 linhas e 5 eram ✅, então o que faltava se perdia no meio.
+def esta_feito(celulas):
+    corpo = " ".join(str(c) for c in celulas[1:2])
+    return corpo.strip().startswith("✅")
+
+
+## Está travado esperando outra coisa? A 3ª coluna do QUADRO é o "Bloqueado?".
+def esta_travado(celulas):
+    if len(celulas) < 3:
+        return False
+    c = str(celulas[2]).strip().lower()
+    return c.startswith("sim") or c.startswith("**sim")
+
+
+## Os próximos passos de verdade: as duas filas juntas, só o que falta, cada
+## linha dizendo de quem é.
+##
+## Unificado a pedido do Gabriel (21/09): *"quero unificar todas as tarefas em
+## 1 lugar só para ter visibilidade em vez de ficar enviando prompt para você e
+## codex individualmente"*. Duas listas em seções separadas obrigavam ele a
+## montar a visão na cabeça.
+def proximos_passos(claude, codex, gabriel):
+    itens = []
+    for dono, linhas in (("Você", gabriel), ("Claude", claude), ("Codex", codex)):
+        for l in linhas:
+            if esta_feito(l):
+                continue
+            itens.append({
+                "dono": dono,
+                "marca": l[0] if l else "",
+                "texto": l[1] if len(l) > 1 else "",
+                "porque": l[2] if len(l) > 2 else "",
+                "travado": esta_travado(l),
+            })
+    # Quem decide vem primeiro, depois o que dá pra fazer, e o travado por
+    # último: uma lista que começa pelo bloqueado ensina a ignorar a lista.
+    ordem = {"Você": 0, "Claude": 1, "Codex": 1}
+    itens.sort(key=lambda i: (i["travado"], ordem.get(i["dono"], 2)))
+    return itens
 
 
 def bloco_fila(linhas, cor_marca=""):
@@ -561,15 +788,26 @@ def gerar():
                   % len(rfcs))
     partes.append('<div class="medidor"><span>esperando decisão</span><b>%d</b>'
                   "</div>" % len(esperando))
-    partes.append('<div class="medidor"><span>na sua fila</span><b>%d</b></div>'
-                  % len(fila_gabriel))
+    partes.append('<div class="medidor"><span>o que falta</span><b>%d</b></div>'
+                  % len(proximos_passos(fila_claude, fila_codex, fila_gabriel)))
     partes.append('<div class="medidor"><span>gerado em</span><b>%s</b></div>'
                   % date.today().strftime("%d/%m/%Y"))
     partes.append("</div></header>")
+    # ⚠️ O aviso de espelho. Ele nasce VISÍVEL e o JavaScript o esconde quando
+    # o runtime existe — o contrário (nascer escondido e aparecer) deixaria a
+    # cópia sem runtime mostrando botões mortos até o script rodar, que é
+    # justamente o que o Gabriel encontrou em 21/09.
+    partes.append('<div id="avisoEspelho" class="espelho">'
+                  '<b>Esta é uma cópia só de leitura.</b> Aprovar, reprovar e '
+                  'mandar tarefa precisam do painel de verdade — abra pelo '
+                  'link do Claude. Aqui os botões aparecem desligados.'
+                  "</div>")
     partes.append('<nav class="atalhos" aria-label="Ir para seção">'
-                  '<a href="#voce">Sua decisão</a><a href="#rfcs">Contratos</a>'
-                  '<a href="#fases">Fases V3</a><a href="#claude">Claude</a>'
-                  '<a href="#codex">Codex</a></nav>')
+                  '<a href="#voce">Sua decisão</a>'
+                  '<a href="#passos">Próximos passos</a>'
+                  '<a href="#mandar">Mandar tarefa</a>'
+                  '<a href="#rfcs">Contratos</a>'
+                  '<a href="#fases">Fases V3</a></nav>')
 
     # ── O bloco que é o ponto da página
     partes.append('<section id="voce" class="voce-bloco"><h2>Precisa de você</h2>')
@@ -580,6 +818,22 @@ def gerar():
         partes.append('<p class="nota" style="margin-top:20px">E <strong>%d '
                       "contrato(s)</strong> aguardando decisão — estão abertos "
                       "logo abaixo, com o texto inteiro.</p>" % len(esperando))
+    partes.append("</section>")
+
+    # ── Próximos passos: as duas filas juntas, só o que falta
+    itens = proximos_passos(fila_claude, fila_codex, fila_gabriel)
+    partes.append('<section id="passos"><h2>Próximos passos</h2>')
+    partes.append('<p class="nota">Tudo o que falta, dos dois agentes e seu, '
+                  'numa lista só — na ordem em que dá pra atacar. O que está '
+                  '<b>travado</b> fica no fim, e diz por quê. Item concluído '
+                  'não aparece aqui; ele vive no histórico do '
+                  '<code>QUADRO.md</code>.</p>')
+    partes.append(bloco_proximos(itens))
+    partes.append("</section>")
+
+    # ── Mandar tarefa
+    partes.append('<section id="mandar"><h2>Mandar tarefa</h2>')
+    partes.append(bloco_mandar_tarefa())
     partes.append("</section>")
 
     # ── RFCs
@@ -601,12 +855,196 @@ def gerar():
                                % (r["dono"] or "—", r["revisor"] or "—")))
         partes.append('<span class="abrir">▸ ler o contrato inteiro</span>')
         partes.append("</summary>")
-        partes.append('<div class="leitura">%s</div>' % markdown(r["corpo"]))
+        partes.append('<div class="leitura">%s%s</div>'
+                      % (markdown(r["corpo"]), bloco_de_decisao(r)))
         partes.append("</details>")
     partes.append("</section>")
 
+    # ── O que liga os botões de decisão ao armazenamento
+    #
+    # Só funciona onde `claude.use("db")` existe — a versão publicada como
+    # Artifact. No espelho do nginx o runtime não existe, e aí os botões ficam
+    # desligados COM O MOTIVO ESCRITO: botão que não faz nada em silêncio é o
+    # defeito que este projeto passou o mês caçando.
+    partes.append("""<script>
+(function () {
+  var blocos = Array.prototype.slice.call(document.querySelectorAll('.decidir'));
+
+  // ── Mandar tarefa ───────────────────────────────────────────────────────
+  //
+  // Existe pro Gabriel parar de abrir dois chats. A tarefa vai pro mesmo
+  // armazenamento das decisões, e os agentes leem no começo da sessão.
+  function ligarTarefas(db) {
+    var caixa = document.querySelector('.mandar');
+    if (!caixa) return;
+    var texto = caixa.querySelector('#tarefaTexto');
+    var estado = caixa.querySelector('.estadoTarefa');
+    var lista = caixa.querySelector('.tarefasAbertas');
+    var botoes = Array.prototype.slice.call(caixa.querySelectorAll('.bt[data-para]'));
+
+    if (!db) {
+      botoes.forEach(function (b) { b.disabled = true; });
+      texto.disabled = true;
+      estado.textContent = 'Esta cópia é só leitura. Para mandar tarefa, abra '
+        + 'o painel pelo link do Claude.';
+      return;
+    }
+
+    var col = db.collection('tarefas');
+
+    // Uma assinatura só, fora de render — a regra do db.
+    col.onSnapshot(function (snap) {
+      var abertas = (snap && snap.docs ? snap.docs : [])
+        .map(function (d) { return d.data || d; })
+        .filter(function (t) { return t && t.estado !== 'feita'; });
+      if (!abertas.length) { lista.hidden = true; return; }
+      lista.hidden = false;
+      lista.textContent = '';
+      var t0 = document.createElement('p');
+      t0.className = 'nota';
+      t0.textContent = abertas.length + ' tarefa(s) que você mandou e ainda '
+        + 'não foram marcadas como feitas:';
+      lista.appendChild(t0);
+      abertas.forEach(function (t) {
+        var li = document.createElement('div');
+        li.className = 'tarefaItem';
+        var quem = document.createElement('span');
+        quem.className = 'dono d-' + (t.para || 'claude');
+        quem.textContent = t.para || 'claude';
+        var txt = document.createElement('div');
+        txt.className = 'oque';
+        var pp = document.createElement('p');
+        // textContent, nunca innerHTML: o texto é digitado por gente.
+        pp.textContent = t.texto || '';
+        txt.appendChild(pp);
+        li.appendChild(quem); li.appendChild(txt);
+        lista.appendChild(li);
+      });
+    });
+
+    botoes.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = (texto.value || '').trim();
+        if (!v) { estado.textContent = 'Escreva a tarefa antes de mandar.'; return; }
+        var id = 't' + Date.now();
+        estado.textContent = 'mandando…';
+        col.doc(id).set({
+          texto: v, para: b.getAttribute('data-para'),
+          quando: new Date().toISOString(), estado: 'aberta'
+        }).then(function () {
+          texto.value = '';
+          estado.textContent = 'Mandada. Ela aparece na fila e o agente lê no '
+            + 'começo da próxima sessão.';
+        }).catch(function (e) {
+          estado.textContent = 'Não consegui mandar: '
+            + ((e && e.code) || 'erro') + '. Nada foi registrado.';
+        });
+      });
+    });
+  }
+
+  // Sem runtime, nem decisão nem tarefa funcionam — e os dois dizem por quê.
+  if (!(window.claude && typeof window.claude.use === 'function')) {
+    ligarTarefas(null);
+  }
+  if (!blocos.length) {
+    if (window.claude && typeof window.claude.use === 'function') {
+      window.claude.use('db').then(ligarTarefas);
+    }
+    return;
+  }
+
+  function diz(b, txt) { b.querySelector('.estadoDecisao').textContent = txt; }
+  function trava(b, motivo) {
+    Array.prototype.forEach.call(b.querySelectorAll('button'), function (x) {
+      x.disabled = true;
+    });
+    diz(b, motivo);
+  }
+
+  // Sem runtime, nada de botão mudo.
+  if (!(window.claude && typeof window.claude.use === 'function')) {
+    blocos.forEach(function (b) {
+      trava(b, 'Esta cópia é só leitura. Para decidir, abra o painel pelo link '
+             + 'do Claude — é lá que a decisão fica guardada.');
+    });
+    return;
+  }
+
+  window.claude.use('db').then(function (db) {
+    ligarTarefas(db);
+    // Runtime presente: isto não é espelho.
+    var av = document.getElementById('avisoEspelho');
+    if (av && db) av.hidden = true;
+    if (!db) {
+      blocos.forEach(function (b) {
+        trava(b, 'Esta cópia é só leitura. Para decidir, abra o painel pelo '
+               + 'link do Claude.');
+      });
+      return;
+    }
+
+    blocos.forEach(function (b) {
+      var rfc = b.getAttribute('data-rfc');
+      var doc = db.doc('decisoes/' + rfc.replace(/[^A-Za-z0-9_.-]/g, '_'));
+      var caixa = b.querySelector('.caixaComentario');
+      var ja = b.querySelector('.jaDecidido');
+
+      function mostrar(d) {
+        if (!d || !d.estado) { ja.hidden = true; return; }
+        var quando = d.quando ? new Date(d.quando).toLocaleString('pt-BR') : '';
+        ja.hidden = false;
+        ja.textContent = 'Você já respondeu: ' + d.estado
+          + (d.comentario ? ' — “' + d.comentario + '”' : '')
+          + (quando ? ' · ' + quando : '');
+        Array.prototype.forEach.call(b.querySelectorAll('.bt[data-ac]'), function (x) {
+          x.classList.toggle('escolhido', x.getAttribute('data-ac') === d.estado);
+        });
+      }
+
+      // Uma assinatura por documento, nunca dentro de render.
+      doc.onSnapshot(function (snap) { mostrar(snap && snap.data); });
+
+      function gravar(estado, comentario) {
+        diz(b, 'gravando…');
+        doc.set({
+          estado: estado, comentario: comentario || '',
+          rfc: rfc, quando: new Date().toISOString()
+        }).then(function () {
+          diz(b, 'Guardado. O Claude lê isto e transcreve a decisão na própria '
+               + 'RFC — que continua sendo a fonte de verdade.');
+        }).catch(function (e) {
+          diz(b, 'Não consegui guardar: ' + ((e && e.code) || 'erro') + '. '
+               + 'Nada foi registrado.');
+        });
+      }
+
+      Array.prototype.forEach.call(b.querySelectorAll('.bt[data-ac]'), function (bt) {
+        bt.addEventListener('click', function () {
+          var ac = bt.getAttribute('data-ac');
+          if (ac === 'comentario') {
+            caixa.hidden = !caixa.hidden;
+            if (!caixa.hidden) caixa.querySelector('textarea').focus();
+            return;
+          }
+          // Aprovar/reprovar levam junto o que estiver escrito: separar os dois
+          // faria o comentário do Gabriel se perder ao clicar em Aprovar.
+          gravar(ac, caixa.querySelector('textarea').value.trim());
+        });
+      });
+
+      b.querySelector('.enviar').addEventListener('click', function () {
+        var txt = caixa.querySelector('textarea').value.trim();
+        if (!txt) { diz(b, 'Escreva algo antes de enviar.'); return; }
+        gravar('comentario', txt);
+      });
+    });
+  });
+})();
+</script>""")
+
     # ── Fases
-    partes.append('<section id="fases"><h2>As 20 fases da V3</h2>')
+    partes.append('<section id="fases"><h2>As fases da V3</h2>')
     partes.append('<p class="nota">A ordem existe porque cada fase depende da '
                   "anterior estar de pé. Pular é como se constrói seis sistemas "
                   "pela metade.</p>")

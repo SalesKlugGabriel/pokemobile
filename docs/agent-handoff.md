@@ -706,7 +706,7 @@ não parece continente. **A queixa dele é de leitura, e é legítima.**
   completa, **três caminhos possíveis** (A: continente novo · B: só borda e
   biomas · C: estrada visível barata) e os meus contratos que não podem
   quebrar. **A decisão de forma é sua.**
-- **`docs/backlog-visual-gabriel.md`** — **tudo** que ele já pediu em visual,
+- **`backlog-visual-gabriel.md` *(aposentado em 21/09 — está no histórico do git)*** — **tudo** que ele já pediu em visual,
   com estado medido. Inclui 5 pendências antigas que estão paradas esperando
   decisão de arte, sendo a mais repetida: **parede lateral de casa usando a
   sprite da frente, "feio", reportado 2× (09/09 e 10/09)**.
@@ -725,7 +725,7 @@ Agora são **3 RFCs abertas** (001 slots de skill, 002 tela de kit, 003 mapa).
 Ele completou o pedido: *"também envie para ele as demandas de melhoria de HUD,
 NPC's, tela inicial, itens, estruturas, diversidade de tiles, diversidade de
 biomas, geografia em geral"*. Medi tudo antes de repassar. Está em
-`docs/backlog-visual-gabriel.md`, itens 10 a 17. Os três achados que valem
+`backlog-visual-gabriel.md` *(aposentado em 21/09 — está no histórico do git)*, itens 10 a 17. Os três achados que valem
 destaque:
 
 **1. O gerador alcança ~3% do atlas.** `overworld.png` tem **3.200 células**, o
@@ -786,7 +786,7 @@ do mesmo jogo?
 **A decisão de adotar é sua. A de instalar é do Gabriel** — instalação no
 sistema exige confirmação dele, e está pedida.
 
-### Plano de otimização do ciclo (11/09) — `docs/plano-operacao-por-ia.md`
+### Plano de otimização do ciclo (11/09) — `plano-operacao-por-ia.md` *(aposentado em 21/09 — está no histórico do git)*
 
 Cronometrei cada etapa antes de propor. Dois resultados que interessam a você:
 

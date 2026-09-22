@@ -301,18 +301,30 @@ func _loot() -> void:
 	_conf(RegrasDeCorpo.loot(30, false, 0, nada_cai).is_empty(),
 		"e pode não largar nada")
 
-	var de_alpha : Array = RegrasDeCorpo.loot(40, true, 0, tudo_cai)
+	# 🔴 21/09: este teste afirmava `"held_bronze"` e `"solvente_de_held"` —
+	# **os dois ids não existem** em `items.json`. Ele conferia a FORMA do drop
+	# e nunca que o item fosse real, e por isso o defeito atravessou meses.
+	#
+	# Agora o pool de helds vem do catálogo, e o teste afirma o que importa:
+	# que o Alpha larga **um held de verdade**.
+	var helds_reais : Array = ["held_recarga_t1", "held_retorno_t1"]
+	var de_alpha : Array = RegrasDeCorpo.loot(40, true, 0, tudo_cai, helds_reais)
 	var itens : Array = []
 	for d in de_alpha:
 		itens.append(str(d["item"]))
-	_conf(itens.has("held_bronze"), "Alpha pode largar Held Bronze (§30)")
-	_conf(itens.has("solvente_de_held"), "e o item que remove Held (§51)")
+	_conf(itens.size() > 0 and (itens[itens.size() - 1] in helds_reais),
+		"Alpha larga um Held REAL do catálogo (§30)")
+	# ⚠️ §51 — *"o item que remove um Held"* — está **projetado e não
+	# construído**: não existe no catálogo nem como efeito. O teste registra a
+	# ausência em vez de afirmar um item fantasma. Pendência no `QUADRO.md`.
+	_conf(not itens.has("solvente_de_held"),
+		"o item da §51 NÃO é largado — ele ainda não existe (pendência declarada)")
 
 	# §30: "Luck NÃO modifica drops exclusivos de Alpha". Provado no limiar:
 	# um sorteio logo acima da chance base não pode passar a cair só por sorte.
-	var no_limiar : Array = [0.99, 0.085, 0.99]   # 0.085 > 0.08 (chance do bronze)
-	_conf(_exclusivos(RegrasDeCorpo.loot(40, true, 0, no_limiar)) ==
-			_exclusivos(RegrasDeCorpo.loot(40, true, 999, no_limiar)),
+	var no_limiar : Array = [0.99, 0.085, 0.99]   # 0.085 > 0.08 (chance do held)
+	_conf(_exclusivos(RegrasDeCorpo.loot(40, true, 0, no_limiar, helds_reais)) ==
+			_exclusivos(RegrasDeCorpo.loot(40, true, 999, no_limiar, helds_reais)),
 		"sorte NÃO melhora o drop exclusivo de Alpha (§30)")
 
 	# E o contraste que prova que a comparação acima diz alguma coisa: a sorte
@@ -332,7 +344,9 @@ func _exclusivos(lista: Array) -> Array:
 	var out : Array = []
 	for d in lista:
 		var i := str(d["item"])
-		if i == "held_bronze" or i == "solvente_de_held":
+		# Exclusivo de Alpha hoje = held tier 1. O id "held_bronze" nunca
+		# existiu; ver 21/09.
+		if i.begins_with("held_"):
 			out.append(i)
 	return out
 

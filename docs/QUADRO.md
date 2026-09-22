@@ -9,7 +9,7 @@
 
 **Estado em:** 18/09/2026
 **Branch do Claude:** `agent/claude-v3`
-**Suíte:** `bash tools/rodar_testes.sh` — **134 arquivos, 0 com falha**
+**Suíte:** `bash tools/rodar_testes.sh` — **144 arquivos, 0 com falha**
 
 ---
 
@@ -42,6 +42,9 @@ verdade.
 | 17 | **Move Pool** | ✅ 18/09 · `RegraDeMovePool` · **conhecidos / equipados / ativos** · 59 conferências · 🔴 achou o kit vazio |
 | 18 | **Alpha** | ✅ 18/09 · `RegraDeAlpha` · 58 conferências · 🔴 **nunca tinha nascido um** · raridade fixada pelo Gabriel |
 | 19 | **Polimento** | ⬜ · **o Codex entra aqui** · acionado em 19/09 |
+| — | **RFC-010 — o Pokémon diz o que faz** | ✅ 21/09 · `estado_visual_de_locomocao()` (idle/walk/run/swim/fly) + `velocidade_horizontal()` + sinal de attack/hit/faint · 18 conferências · **destrava a animação dos Pokémon** |
+| — | **Alarme de pontas soltas** | ✅ 21/09 · `teste_pontas_soltas.gd` · 13 pontas declaradas · 🔴 achou a `HudCombate3D` órfã, e achou o ponto cego dentro de si mesmo |
+| 21b | **A captura chega no save** | ✅ 21/09 · `RegraDeGuardarCaptura` + o ouvinte que faltava · 25 conferências · 🔴 **`resolveu` era emitido e ninguém escutava** — o jogador capturava e o Pokémon evaporava |
 | 21 | **Captura em 3D** | ✅ 20/09 · `RegraDeArremesso` + `Corpo3D` + `PokebolaLancada3D` · 47 conferências · **a regra da V2 não mudou uma linha** · 🔴 o arco fixo passava 2,49 m ACIMA de um corpo a 6 m |
 | 20 | **Performance** | 🟡 18/09 · `RegraDeRitmo` · **LOD de lógica**, 62,5% menos IA · 33 conferências · **falta medir FPS em navegador — é do Gabriel** |
 
@@ -88,8 +91,9 @@ posicionar é o caminho que catapulta o jogador.
 | 1 | Fase 20 — a metade de DESENHO (vegetação, modelos, sombra) | **sim** — depende da Fase 19 do Codex existir pra ter o que medir |
 | 1b | ✅ **FEITO (19/09).** `permissoes_do_jogador()` lê `SaveManager.save_data["inventory"]`. 🔴 O comentário apontava a chave **errada** (`"items"`) — ligar por ele leria `{}` e o jogador perderia Surf e Voar **sem erro nenhum** | — |
 | 1c | ✅ **FEITO (20/09) — virou a Fase 21.** `capturavel` é lido de quem caiu, e nem a Master Ball pega um Alpha. A captura deixou de ser um clique num cadáver e passou a ser **uma bola atravessando o espaço** | — |
-| 1g | Guardar no save quem foi capturado (hoje `tentar_capturar` devolve espécie/nível e ninguém escuta) | não — é fiação, e o `SaveManager` já tem `team`/`pc`/`pokedex` |
-| 1h | Loot: a §35 diz que cada item é arrastado pra Bag, um a um. `Corpo3D.pegar()` existe; **a tela é do Codex** | depende da HUD de corpo |
+| 1g | ✅ **FEITO (21/09).** O treinador escuta `resolveu`, monta com `_make_pokemon_data`, guarda com `add_pokemon` (time ou PC), marca a Pokédex e salva. Zero conta nova | — |
+| 1h | ✅ **FEITO (21/09).** `pegar()` guarda na mochila de verdade. 🔴 **Três dos quatro ids de loot não existiam** no catálogo — ligar como estava poria **item fantasma no save**. A tela continua sendo do Codex | — |
+| 1i | **§51 — o item que remove um Held.** Projetado e **não construído**: não existe no catálogo nem como efeito. Tirei do drop em vez de criar um item que não faz nada | não — mas é decisão do Gabriel se vale construir |
 | 1d | ✅ **FEITO (19/09).** `world.elites_derrotados` no save + migração pra save antigo (`load_game` substitui o dicionário cru). Carimbo **Unix**, então "3 horas" continua sendo 3 h de relógio com o jogo fechado | — |
 | 1e | ✅ **RFC-008 — máscara de spawn. FEITA (19/09).** `RegraDeHabitabilidade` + laço de tentativas no spawner · 29 conferências. 🔴 A medição corrigiu meu número: eu previ 3,25% de recusa (falésia) e o real é **38,7%**, porque quem domina é a **água** — `TENTATIVAS` 6 → **10** | — |
 | 1f | **`altura_em` deixa de ser `static`** quando o 1º chunk semeado nascer. `static` é o que transforma o seed em estado global; vira serviço instanciado e `SpawnerSelvagem3D`/`PokemonInstance3D`/`RegraDeAcompanhar` passam a receber a referência | sim — não existe chunk no runtime ainda |
@@ -101,12 +105,13 @@ posicionar é o caminho que catapulta o jogador.
 
 | # | O quê | Quando |
 |---|---|---|
-| 0 | 🔴 **PLAYER 3D V1 — a ponte visual.** O GLB está pronto e validado; **destravado**: a RFC-007 foi aceita e as 3 decisões estão tomadas | **prioridade** · `docs/agent-reviews/claude/2026-09-18-RFC-007-player-v1.md` |
-| 0b | 🔴 **WORLD FACTORY V1** — **contrato de altura aceito** (RFC-006, opção A, medido por mim a 0,000001 m). ⚠️ O aceite é só do laboratório: **borda entre chunks continua sem contrato**, porque chunk ainda não existe pra medir | `docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md` |
+| 0 | ✅ **PLAYER 3D V1 — FEITO (21/09).** Ponte visual no ar, e a **frente do asset corrigida na raiz** depois do moonwalk que o Gabriel achou | — |
+| 0b | 🟡 **WORLD FACTORY V1 — andando.** Vegetação determinística por zona, LOD de árvore e materiais entregues em 21/09. ⚠️ **Borda entre chunks continua sem contrato** — não gerar chunk semeado antes disso | `docs/agent-reviews/claude/2026-09-18-RFC-006-altura-e-colisao.md` |
 | 1 | **Qualidade gráfica do mundo 3D** — base isolada pronta: terreno/praia/água polidos, rochas, vegetação composta/instanciada e LOD1 de árvores; falta medição real e integração | agora, em paralelo |
 | 2 | Modelos de Pokémon em volume | agora · contrato em `POKEMON_MODEL_PIPELINE.md` |
-| 3 | HUD de combate: cooldown do básico e das 4 skills, telegrafe do aviso | quando quiser — a API já entrega tudo (ver abaixo) |
+| 3 | ✅ **HUD de combate LIGADA (21/09).** Mais telegrafia visual de skill e feedback de impacto 3D, os dois consumindo os sinais calculados | — |
 | 4 | Polimento geral | Fase 19 |
+| 5 | **RFC-002 — a tela de troca de kit.** ✅ **Aprovada pelo Gabriel em 21/09 pelo painel.** A escolha existe na regra desde a Fase 3 e não tem onde ser feita | depois da Fase 19 — tela nova sobre HUD que ainda muda é trabalho feito duas vezes |
 
 ### ⚠️ O que o Claude entregou e o Codex pode consumir já
 
@@ -294,6 +299,43 @@ em vez de republicar velho. Nunca mais `docker build` solto pra "publicar".
 
 ---
 
+## 🗑️ A V1/V2 aposentada — e o que NÃO deu pra apagar (21/09)
+
+Decisão do Gabriel: *"tudo que era plano da V2 e da V1 a gente pode esquecer
+para não dar ruído... podemos basicamente apagar a V1/V2 **se não interferir na
+V3**"*.
+
+🔴 **Medi antes, e a condição dele salvou o jogo: o código da V1/V2 NÃO pode ser
+apagado.** Calculei o fecho transitivo a partir da cena principal, dos autoloads
+e de `gameplay_v3/`, seguindo `.gd` **e** `.tscn`: **254 dos 432** arquivos são
+alcançados a partir do jogo rodando. Só **39** ficam fora, e parte deles é do
+Codex, isolada de propósito.
+
+A V3 **roda sobre** as classes puras da V2 — `RegrasDeCorpo`, `Stamina`,
+`DamageCalculator`, `KitDeCombate`, `StatsDePokemon`, `ComportamentoSelvagem`,
+`PerigoDaZona`, `Mergulho` e mais 20. E a **tela inicial é 2D**: é dela que sai
+o botão que abre a V3.
+
+✅ **O que foi aposentado:** os **documentos**, que era o ruído de verdade —
+8 planos e auditorias da era 2D (`GAMEPLAY_V2_PLAN`, `auditoria-combate`,
+`mundo-novo-escala`, `playtest-fase3`, `plano-operacao-por-ia`,
+`tileset-referencia-visual`, `customizacao-personagem`,
+`backlog-visual-gabriel`) e o `progresso.md`. Os ponteiros que apontavam pra
+eles foram reescritos, não deixados quebrados. **Tudo está no histórico do
+git** — apagar não é perder.
+
+✅ **RFC-003, 004 e 005 marcadas OBSOLETAS.** Elas são da era 2D
+(reconstrução do mapa `MapLayouts`, tiles, pipeline Blender→pixel art). O
+Gabriel disse *"pode seguir com tudo"* sobre as RFCs **e** *"esquecer a V1/V2"*
+no mesmo pedido — as duas frases se contradizem aqui, e a segunda é a que vale:
+executá-las seria construir para o mundo que a V3 substitui.
+
+⚠️ **RFC-002 NÃO foi aposentada** junto, e a diferença importa: ela resolve uma
+escolha de **gameplay** (kit), não de mundo — e as Fases 16/17 até ampliaram a
+régua dela. É a única RFC esperando decisão hoje.
+
+---
+
 ## 🖥️ O painel do Gabriel
 
 `docs/painel/index.html` — uma página só, pra ler as sprints, os contratos e a
@@ -306,6 +348,60 @@ envelhecer sozinho. **Se o painel mentir, a fonte é que está errada.**
 
 **Rode o gerador ao fechar qualquer sprint**, junto com a atualização deste
 arquivo. Vale para os dois agentes.
+
+### 🎯 Um lugar só (21/09)
+
+Pedido do Gabriel: *"quero unificar todas as tarefas em 1 lugar só para ter
+visibilidade em vez de ficar enviando prompt para você e codex
+individualmente"*.
+
+O painel ganhou, logo abaixo de "Precisa de você":
+
+- **Próximos passos** — as filas do Claude, do Codex e do Gabriel **numa lista
+  só**, na ordem de ataque, cada linha dizendo de quem é. O que está **travado**
+  vai pro fim e diz por quê. **Item concluído não aparece** — ele vive no
+  histórico deste arquivo.
+- **Mandar tarefa** — escreve, escolhe Claude / Codex / os dois, e ela entra na
+  fila. Os agentes leem no começo da sessão; o Gabriel não precisa abrir dois
+  chats.
+
+🔴 **Dois defeitos achados ao construir:**
+
+1. A lista mostrava **24 itens e 8 eram documentação** ("Onde", "1,75 m") — a
+   extração pegava **todas** as tabelas da seção, inclusive as de subseções
+   `###`. Corrigido: só a primeira tabela conta. Uma lista de tarefas com lixo
+   dentro ensina a ignorar a lista.
+2. A fila estava **no fim da página e cheia de ✅** — era por isso que o Gabriel
+   não achava o que falta.
+
+`python3 tools/conferir_painel.py` trava os dois (10 conferências).
+
+### ✅ Decidir pelo painel (21/09)
+
+Toda RFC que espera decisão ganha, **no fim do texto**, um bloco
+`O que está sendo decidido` com **o que se pede e como seria executado**, e os
+botões **Aprovar · Reprovar · Comentar**.
+
+⚠️ **O pedido sai de uma seção `## O pedido` da própria RFC.** Quem abre uma
+RFC escreve essa seção; sem ela o painel **diz que falta** em vez de inventar um
+resumo — um resumo fabricado no painel seria uma segunda versão do contrato, e é
+assim que as duas passam a discordar.
+
+**Onde a decisão fica:** no armazenamento do artifact (`decisoes/<arquivo>`),
+que o Claude lê com `read_db` e **transcreve na própria RFC** — a RFC continua
+sendo a fonte de verdade, o painel é a porta.
+
+⚠️ **São duas cópias, e agora ela diz isso.** O Gabriel abriu
+`poke.workprog.pro/painel` e não conseguiu aprovar — estava certo. A cópia do
+nginx agora nasce com um **aviso de espelho** no topo e os botões desligados
+com o motivo; o JavaScript esconde o aviso onde o runtime existe. Nascer
+avisando e esconder depois (e não o contrário) é o que impede a cópia sem
+runtime de mostrar botão morto até o script rodar.
+
+⚠️ Os botões só funcionam na versão publicada como **Artifact** (é lá que existe
+`claude.use("db")`). No espelho do nginx eles aparecem **desligados com o motivo
+escrito** — botão que não faz nada em silêncio é o defeito que este projeto
+passa o mês caçando.
 
 ### No ar em **https://poke.workprog.pro/painel**
 
@@ -326,6 +422,83 @@ duas do tipo que quebra em silêncio:
 direto — *"vamos manter no link atual, sem novo dns"*. O subdomínio
 `pokemobile.workprog.pro` foi **descartado**, e a regra do Traefik saiu do
 `/root/pokemobile.yaml`. Não reabrir sem ele pedir.
+
+---
+
+## 🔴 O id que não existe: a sexta vez, e a pior (21/09)
+
+Ao ligar o loot na mochila (`Corpo3D.pegar()`, que existia e **ninguém
+chamava**), conferi os ids contra `data/items/items.json` — 215 itens. **Três
+dos quatro não existiam:**
+
+| o que a regra entregava | realidade |
+|---|---|
+| `"pocao"` | o id real é **`"potion"`** |
+| `"held_bronze"` | não existe; existem **10 helds tier 1** de verdade |
+| `"solvente_de_held"` | não existe, e nem o efeito |
+
+⚠️ **A regra tinha teste, e dois deles.** Eles conferiam a **forma** do drop —
+quantos itens, se a sorte influencia, se o teto vale — e **nunca que o id fosse
+real**. Por isso o defeito atravessou meses sem uma única reprovação.
+
+E é a versão mais cara do zero silencioso: guardar um id inexistente põe **lixo
+no save do jogador**, e lixo em save não se limpa depois.
+
+**O que passou a existir:** `teste_loot_chega_na_mochila.gd` varre a régua em
+**3.000 combinações** (nível × Alpha × sorte × sorteio) e exige que **cada id
+entregue exista no catálogo**. Mais uma trava no `pegar()`: id desconhecido é
+recusado com motivo, em vez de guardado.
+
+**O drop de Alpha virou um held REAL**, sorteado do catálogo — melhor que um
+`held_bronze` genérico: a família tier 1 já existe, curada, com efeito e
+caminho de fusão. O pool vem de fora, nunca de uma lista fixa que envelheceria.
+
+---
+
+## 🏃 A régua humana do Gabriel (21/09) — e o que ela inverteu
+
+> *"velocidade de movimentação padrão do ser humano é 1,5 m/s e cerca de
+> 3,5 m/s correndo"*
+
+Eram **4,5 / 8,0**, e o comentário no código defendia isso com um argumento de
+gênero (*"mundo grande com velocidade realista vira caminhada de ida e volta"*).
+O Gabriel decidiu o contrário. Aplicado.
+
+**🔴 A inversão que isso produz, medida ANTES de aplicar:**
+
+| | corria a 8,0 | corre a 3,5 |
+|---|---|---|
+| ground_biped (5,50 m/s) | treinador **mais rápido** | Pokémon mais rápido |
+| flying (7,15) | treinador **mais rápido** | Pokémon mais rápido |
+| ground_heavy (4,12) | treinador **mais rápido** | Pokémon mais rápido |
+
+A 8,0 o treinador era **mais rápido que todo Pokémon do jogo**. A 3,5 é **mais
+lento que todos**. Isso não é efeito colateral: é a fantasia voltando ao lugar —
+com o treinador mais rápido que tudo, *"assumir o controle do meu Pokémon"* não
+trazia vantagem de deslocamento nenhuma. Agora traz, e perseguir selvagem a pé
+deixa de funcionar.
+
+⚠️ **A velocidade dos Pokémon não foi mexida junto**, de propósito: a régua é
+sobre o **ser humano**, e escalar tudo apagaria a inversão.
+
+**Outras consequências medidas:**
+
+- atravessar o laboratório (160 m): 36 s → **107 s** andando, 20 s → **46 s**
+  correndo;
+- um selvagem nasce a 8–19 s de caminhada (era 3–6 s);
+- **um fôlego cheio de corrida cobre 29 m** (era 67 m) — não chega nem ao raio
+  mínimo de spawn.
+
+🟡 **Duas coisas ficaram para o Gabriel decidir, e não mexi nelas** (a regra de
+uma mudança por vez): se a stamina deve render mais agora, e se `ground_heavy`
+— o arquétipo feito pra *parecer pesado* — pode continuar ultrapassando um
+humano em disparada.
+
+🔴 **E a régua matou o argumento de uma decisão minha.** A RFC-007 se decidiu
+porque correr exausto dava 4,0 contra 4,5 de caminhada; hoje dá **1,75 contra
+1,5** — a inversão sumiu. A decisão continua certa pelo motivo que sobrou (a
+porta do **toque** liga `quer_correr` sem conferir fôlego), e o teste passou a
+medir isso em vez de afirmar um cenário morto.
 
 ---
 
@@ -354,6 +527,66 @@ direto — *"vamos manter no link atual, sem novo dns"*. O subdomínio
 | **Selvagem nasce num ANEL** (12 a 28 m), nunca perto | Fora do raio de aggro de um agressivo (5 m): o bicho tem de aparecer e se aproximar, não materializar na cara. E protege do contrato de nascimento |
 | **Lugar perigoso: menos encontro, e mais raro** | Pedido do Gabriel. Esticar só o intervalo não bastaria — a população acumularia até igualar a zona segura. Por isso o teto de população cai junto |
 | **Classe pura nunca cita autoload** | Autoload não é identificador em teste `--script`. Vai por `Sorteio`, que resolve em tempo de chamada e preserva a sequência do jogo |
+
+---
+
+## 📦 GitHub — o que estava faltando (21/09)
+
+Conferido a pedido do Gabriel, e **três coisas estavam erradas**:
+
+- 🔴 **A branch do Codex nunca tinha subido.** Todo o trabalho dele existia só
+  nesta VPS. Enviada.
+- 🔴 **`main` estava 92 commits atrás** (parada em 14/09). Quem abrisse o
+  repositório no GitHub via o jogo de uma semana antes, sem as Fases 12 a 21.
+  Avançada — foi avanço limpo, sem reescrever histórico.
+- 🔴 **Não existia README.** Criado.
+
+As 3 worktrees aposentadas viraram `arquivo/*` no GitHub: o trabalho delas agora
+tem cópia **fora** desta VPS, que é onde backup precisa estar.
+
+**O modelo:** `main` é a linha integrada; `agent/claude-v3` e `agent/codex-v3`
+são trabalho em curso; `arquivo/*` é histórico guardado.
+
+---
+
+## ✅ A primeira decisão tomada pelo painel (21/09)
+
+O Gabriel **aprovou a RFC-002 pelo botão**, às 11:34, e o caminho fechou
+inteiro: o botão gravou, eu li com `read_db`, e transcrevi a decisão **na
+própria RFC**. A RFC segue sendo a fonte de verdade; o painel é a porta.
+
+⚠️ **Isto é rotina agora:** ao retomar, ler `decisoes` e `tarefas` do painel
+**antes** de perguntar qualquer coisa ao Gabriel. Uma decisão que ele já tomou
+e que eu não li vira uma pergunta repetida — que é o oposto do que o painel
+existe pra resolver.
+
+---
+
+## 🚨 O alarme contra o zero silencioso (21/09)
+
+`scripts/tests/teste_pontas_soltas.gd`. Achei **cinco** vezes num mês a mesma
+classe de defeito — e **todas por acidente**, procurando outra coisa: o kit
+vazio (17), o Alpha que nunca nascia (18), a tecla `pokeball` sem leitor (21),
+o `resolveu` sem ouvinte (21b) e a `HudCombate3D` que nenhuma cena instancia.
+Cinco achados por acidente é sorte, não método.
+
+**O que ele NÃO faz:** exigir ouvinte pra todo sinal. Metade dos sinais da V3 é
+de apresentação e a HUD é do Codex — cobrar agora reprovaria a suíte por
+trabalho que legitimamente ainda não existe.
+
+**O que ele faz:** exigir que toda ponta solta esteja **declarada com motivo**.
+Ponta declarada é pendência que alguém lê; ponta não declarada é silêncio. Um
+sinal novo sem ouvinte e sem declaração **reprova**, e a mensagem diz as duas
+saídas: ligue, ou escreva por quê.
+
+Hoje: **13 pontas declaradas** na V3, quase todas esperando a HUD. E a lista é
+conferida nos **dois** sentidos — uma declaração que sobrou (sinal que já foi
+ligado) também reprova, senão ela vira cemitério e para de proteger.
+
+🔴 **O próprio teste tinha o ponto cego que ele caça.** A primeira versão
+contava `scripts/tests/` como uso — e `HudCombate3D` apareceu "usada", porque o
+teste do Codex a instancia. É **exatamente** como o kit vazio sobreviveu às
+Fases 9 a 16: os testes injetavam o kit à mão. Teste agora não conta como uso.
 
 ---
 

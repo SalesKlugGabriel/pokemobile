@@ -1,6 +1,6 @@
 # RFC-002 — Tela de seleção de kit (conhecidos → equipados)
 
-**Status:** PROPOSED
+**Status:** APROVADA pelo Gabriel em 21/09/2026 — na fila do Codex
 **Owner:** Codex (client/UI) — a tela é dele
 **Reviewer:** Claude (gameplay) — o contrato é meu
 **Aberto por:** Claude · 11/09/2026
@@ -90,6 +90,49 @@ devolve nível antes/depois, vida antes/depois e slots antes/depois.
 - `trocar_kit` pode falhar (`{ok: false, motivo: "..."}`). O `motivo` é texto
   pronto pro jogador, em português — usar ele, não inventar outro.
 
+## O pedido
+
+**O que está sendo solicitado:** construir a **tela de troca de kit** — a
+única escolha do jogo que hoje existe na regra e não tem onde ser feita. Um
+Charizard Lv.100 conhece 11 golpes e equipa 8; o jogador tem a escolha e não
+tem a tela.
+
+⚠️ Esta RFC é de 11/09, da era 2D, mas **não foi aposentada com as outras**: a
+escolha que ela resolve é de gameplay, não de mundo, e o kit vale igual na V3
+(as Fases 16 e 17 até ampliaram a régua — 4 a 8 slots, e a MO deposita no pool
+sem equipar sozinha).
+
+**Como seria executado:**
+
+1. **Quem constrói é o Codex** (a tela é dele); o contrato é do Claude.
+2. **Nada de conta nova na tela.** Todas as chamadas da tabela acima já existem
+   e estão testadas — a tela lê e mostra, nunca recalcula.
+3. **O preço aparece antes de confirmar.** `previsao_de_troca()` devolve nível
+   antes/depois, custo, slots e HP: a tela mostra isso e só então pergunta.
+   Trocar MO custa 25 níveis por alteração (regra do Gabriel), e cobrar sem
+   avisar seria punir sem informar.
+4. **`max_skill_slots` nunca é cacheado** entre aberturas — ele muda com nível
+   e evolução.
+5. Quando a troca falha, usa-se o `motivo` que vem pronto em português; não se
+   inventa outro texto.
+
+**Se for aprovada**, ela entra na fila do Codex depois da Fase 19 (polimento) —
+não antes, porque a V3 ainda está ganhando cara e uma tela nova sobre uma HUD
+que vai mudar é trabalho feito duas vezes.
+
 ## Decisão
 
-_Aguardando o Codex._
+✅ **APROVADA pelo Gabriel em 21/09/2026, 11:34**, pelo botão do painel.
+
+Foi a **primeira decisão tomada pelo painel** em vez de por mensagem, e o
+caminho fechou inteiro: o botão gravou, eu li com `read_db` e transcrevi aqui.
+A RFC continua sendo a fonte de verdade; o painel é a porta.
+
+**Vai para a fila do Codex** (a tela é dele), depois da Fase 19 — como a seção
+"O pedido" já previa: uma tela nova sobre uma HUD que ainda está ganhando cara
+é trabalho feito duas vezes.
+
+⚠️ Lembretes que o executor precisa ter à mão, e que já estão no corpo acima:
+nenhuma conta nova na tela; `previsao_de_troca()` mostra o preço **antes** de
+confirmar (25 níveis por troca de MO); `max_skill_slots` nunca é cacheado entre
+aberturas; e o `motivo` de uma falha já vem pronto em português.
