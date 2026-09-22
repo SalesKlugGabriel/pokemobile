@@ -38,6 +38,15 @@
           { "id": "east_grove", "center_m": [70, 34], "radius_m": 34.0, "weight": 0.20 }
         ]
       },
+      "bushes": {
+        "count": 36, "min_spacing_m": 3.4, "max_slope": 0.30,
+        "min_scale": 0.78, "max_scale": 1.16,
+        "variants": ["01", "02", "03"],
+        "zones": [
+          { "id": "clearing_shrub_rim", "center_m": [-29, 13], "radius_m": 43.0, "weight": 0.55 },
+          { "id": "north_shrubs", "center_m": [32, 67], "radius_m": 38.0, "weight": 0.45 }
+        ]
+      },
       "grass": {
         "short": {
           "count": 110, "min_spacing_m": 1.25, "min_scale": 0.82, "max_scale": 1.20,

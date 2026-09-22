@@ -22,6 +22,7 @@ func _init(spec: Dictionary, factory: WorldTerrainFactory) -> void:
 func gerar() -> Dictionary:
 	return {
 		"trees": _espalhar_terrestre("trees", _vegetation.get("trees", {}), 101),
+		"bushes": _espalhar_terrestre("bushes", _vegetation.get("bushes", {}), 151),
 		"grass_short": _espalhar_terrestre("grass_short", (_vegetation.get("grass", {}) as Dictionary).get("short", {}), 211),
 		"grass_mid": _espalhar_terrestre("grass_mid", (_vegetation.get("grass", {}) as Dictionary).get("mid", {}), 223),
 		"grass_tall": _espalhar_terrestre("grass_tall", (_vegetation.get("grass", {}) as Dictionary).get("tall", {}), 227),
@@ -62,7 +63,7 @@ func _espalhar_terrestre(category: String, settings_value: Variant, salt: int) -
 	)
 	for item in result:
 		item["category"] = category
-	if category == "trees":
+	if category == "trees" or category == "bushes":
 		var variants: Array = settings.get("variants", [])
 		for index in result.size():
 			result[index]["variant"] = str(variants[index % variants.size()]) if not variants.is_empty() else ""

@@ -33,6 +33,11 @@ const GRASS_VARIANTS := {
 	"mid": preload("res://assets/models/environment/grass/grass_mid.glb"),
 	"tall": preload("res://assets/models/environment/grass/grass_tall.glb")
 }
+const BUSH_VARIANTS := {
+	"01": preload("res://assets/models/environment/bushes/bush_01.glb"),
+	"02": preload("res://assets/models/environment/bushes/bush_02.glb"),
+	"03": preload("res://assets/models/environment/bushes/bush_03.glb")
+}
 const CORAL_VARIANTS := {
 	"branch": preload("res://assets/models/environment/corals/coral_branch.glb"),
 	"crown": preload("res://assets/models/environment/corals/coral_crown.glb"),
@@ -156,6 +161,14 @@ func _build_vegetation(spec: Dictionary) -> void:
 	grass_material.shader = preload("res://assets/shaders/v3/vegetation.gdshader")
 	var fade := float(visibility["fade_margin_m"])
 	vegetation_count = {}
+	var bushes_by_variant := {}
+	for item in groups["bushes"]:
+		var bush_variant := str(item.get("variant", ""))
+		if not bushes_by_variant.has(bush_variant): bushes_by_variant[bush_variant] = []
+		bushes_by_variant[bush_variant].append(item)
+	for bush_variant in BUSH_VARIANTS:
+		_add_multimesh(root, "Bush_%s" % bush_variant, BUSH_VARIANTS[bush_variant], bushes_by_variant.get(bush_variant, []), null, 0.0, float(visibility["grass_end_m"]), fade)
+	vegetation_count["bushes"] = (groups["bushes"] as Array).size()
 	for kind in ["short", "mid", "tall"]:
 		var items: Array = groups["grass_" + kind]
 		_add_multimesh(root, "Grass_%s" % kind.capitalize(), GRASS_VARIANTS[kind], items,

@@ -1,5 +1,14 @@
 # Passagem de trabalho — 11/09/2026
 
+## Atualização Codex — 22/09: arbustos declarativos no WORLD_LAB
+
+- Adicionada a categoria `bushes` à mesma spec/scatter determinística da World
+  Factory V1: 36 instâncias entre BUSH_01–03, em MultiMeshes e zonas explícitas.
+  Aplicam as mesmas exclusões de água, spawn, caminho e reserva que árvores e
+  grama; não existe scatter paralelo.
+- Os três GLBs orgânicos e a fonte Blender ficam em
+  `assets/models/environment/bushes/`. Regressão da cena: **21 ok, 0 falhas**.
+
 ## Atualização Codex — 22/09: grama ambiental reconstruída
 
 - GRASS_SHORT, GRASS_MID e GRASS_TALL agora são tufos de cards curvos com duas

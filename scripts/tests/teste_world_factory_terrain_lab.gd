@@ -66,7 +66,7 @@ func _run() -> void:
 					tree_lod_instances += 1
 					lod_ranges_configured = lod_ranges_configured and instance.visibility_range_begin > 0.0
 				range_configured = range_configured and instance.visibility_range_end > 0.0
-		_check(multimeshes == 16, "vegetação usa 16 MultiMeshes para todas as variantes e LOD")
+		_check(multimeshes == 19, "vegetação usa 19 MultiMeshes para variantes, arbustos e LOD")
 		_check(tree_lod_instances == 5, "cinco variantes de árvore possuem LOD1 distante")
 		_check(lod_ranges_configured, "LOD1 de árvore inicia somente fora da faixa próxima")
 		_check(range_configured, "vegetação possui visibility range para o laboratório")
@@ -80,11 +80,15 @@ func _run() -> void:
 		_check(lod_is_lighter, "arquivos LOD1 são menores que as árvores próximas")
 		var tree_visual := vegetation.get_node_or_null("Trees_A") as MultiMeshInstance3D
 		var grass_visual := vegetation.get_node_or_null("Grass_Short") as MultiMeshInstance3D
+		var bush_visual := vegetation.get_node_or_null("Bush_01") as MultiMeshInstance3D
 		_check(tree_visual != null and tree_visual.material_override == null,
 			"árvores preservam materiais PBR próprios do GLB")
 		_check(grass_visual != null and grass_visual.material_override is ShaderMaterial,
 			"grama mantém shader V3 de vento e variação")
+		_check(bush_visual != null and bush_visual.material_override == null,
+			"arbustos preservam material PBR próprio do GLB")
 		_check(int(lab.vegetation_count.get("trees", 0)) > 0
+			and int(lab.vegetation_count.get("bushes", 0)) > 0
 			and int(lab.vegetation_count.get("grass_short", 0)) > 0
 			and int(lab.vegetation_count.get("corals", 0)) > 0,
 			"árvores, grama e corais são distribuídos")

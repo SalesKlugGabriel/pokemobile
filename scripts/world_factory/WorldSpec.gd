@@ -47,7 +47,7 @@ static func validar(spec: Dictionary) -> PackedStringArray:
 	if vegetation.is_empty():
 		erros.append("visual.vegetation ausente")
 		return erros
-	for chave in ["seed_offset", "visibility", "trees", "grass", "corals"]:
+	for chave in ["seed_offset", "visibility", "trees", "bushes", "grass", "corals"]:
 		if not vegetation.has(chave):
 			erros.append("visual.vegetation.%s ausente" % chave)
 	var grass: Dictionary = vegetation.get("grass", {})
@@ -64,7 +64,7 @@ static func validar(spec: Dictionary) -> PackedStringArray:
 	for chave in ["short", "mid", "tall"]:
 		if not grass.has(chave):
 			erros.append("visual.vegetation.grass.%s ausente" % chave)
-	for group_value in [vegetation.get("trees", {}), vegetation.get("corals", {}), grass.get("short", {}), grass.get("mid", {}), grass.get("tall", {})]:
+	for group_value in [vegetation.get("trees", {}), vegetation.get("bushes", {}), vegetation.get("corals", {}), grass.get("short", {}), grass.get("mid", {}), grass.get("tall", {})]:
 		if not group_value is Dictionary:
 			erros.append("grupo de vegetação inválido")
 			continue
